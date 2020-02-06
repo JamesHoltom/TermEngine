@@ -41,8 +41,6 @@ namespace term_engine::modules {
       needs_resizing_ = false;
     }
 
-    printf("There are %zi glyphs.\n", glyphs_.size());
-
     return 0;
   }
 
@@ -140,8 +138,6 @@ namespace term_engine::modules {
       
       return -1;
     }
-
-    printf("Setting glyph %i, %ix%i.\n", position, x_cell, y_cell);
 
     glyphs_.at(position) = glyph;
     is_dirty_ = true;
