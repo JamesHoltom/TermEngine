@@ -10,6 +10,8 @@ namespace term_engine::modules {
     glyph_y_count_(0),
     glyph_x_spacing_(0),
     glyph_y_spacing_(0),
+    glyph_x_padding_(0),
+    glyph_y_padding_(0),
     bounds_({ 0, 0, 0, 0 }),
     character_cache_(char_cache),
     glyph_surf_(nullptr)
@@ -39,7 +41,7 @@ namespace term_engine::modules {
       needs_resizing_ = false;
     }
 
-    printf("There are %i glyphs.\n", glyphs_.size());
+    printf("There are %zi glyphs.\n", glyphs_.size());
 
     return 0;
   }
@@ -147,9 +149,9 @@ namespace term_engine::modules {
     return 0;
   }
   
-  template<typename F>
-  int TerminalWindow::SetGlyphs(std::function<utilities::Glyph()>& generator) {
+  int TerminalWindow::SetGlyphs(std::function<utilities::Glyph()> generator) {
     std::generate(glyphs_.begin(), glyphs_.end(), generator);
+    is_dirty_ = true;
     
     return 0;
   }

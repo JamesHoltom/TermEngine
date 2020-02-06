@@ -7,8 +7,7 @@
 #ifndef MOD_INPUT_MANAGER_H
 #define MOD_INPUT_MANAGER_H
 
-#include <SDL2/SDL.h>
-
+#include "../utility/SDLIncludes.h"
 #include "Timer.h"
 
 namespace term_engine::modules {

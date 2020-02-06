@@ -21,19 +21,22 @@
     <ClCompile Include="modules\CharacterCache.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="utility\CharacterRange.cpp">
+    <ClCompile Include="utility\Glyph.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="modules\Timer.cpp">
+    <ClCompile Include="utility\CharacterRange.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="modules\TerminalWindow.cpp">
+    <ClCompile Include="modules\Timer.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="modules\GameObjects\Base.cpp">
+    <ClCompile Include="modules\TerminalWindow.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="utility\Glyph.cpp">
+    <ClCompile Include="modules\InputManager.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="modules\GameObjects\Base.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -57,6 +60,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="modules\GameObjects\Base.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="modules\InputManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utility\SDLIncludes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

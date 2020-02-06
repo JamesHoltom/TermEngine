@@ -1,14 +1,13 @@
 #include <functional>
 #include <inttypes.h>
 #include <stdio.h>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
 
+#include "utility/SDLIncludes.h"
+#include "utility/CharacterRange.h"
+#include "utility/Glyph.h"
 #include "modules/CharacterCache.h"
 #include "modules/TerminalWindow.h"
 #include "modules/Timer.h"
-#include "utility/CharacterRange.h"
-#include "utility/Glyph.h"
 
 constexpr int WIDTH = 640;
 constexpr int HEIGHT = 480;
@@ -18,7 +17,7 @@ constexpr int TERM_HEIGHT = 24;
 constexpr int FONT_SIZE = 20;
 
 int main(int argc, char** argv) {
-  if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+  if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
     return -1;
   }
 
@@ -66,41 +65,14 @@ int main(int argc, char** argv) {
     if (!timer.IsPaused()) {
       term_win.Update(elapsed);
 
-      /*for (int j = 0; j < TERM_HEIGHT - 1; j++) {
-        for (int i = 0; i < TERM_WIDTH; i++) {
-          term_engine::utilities::Glyph tmp = {
-            L'\u0021',
-            { 255, 0, 0, 255 },
-            { 255, 255, 255, 255 }
-          };
-          
-          if (term_win.SetGlyph(i, j, tmp) == -1) {
-            printf("Failed to set glyph for [%i,%i]!", i, j);
-          }
-        }
-      }*/
-      
-      std::function<term_engine::utilities::Glyph()> gen = []() {
-        return (term_engine::utilities::Glyph){
-          L'\u0021',
-          { 255, 0, 0, 255 },
-          { 255, 255, 255, 255 }
-        };
+      std::function<term_engine::utilities::Glyph()> gen = [&]() {
+        return term_engine::utilities::Glyph(L'\u0021', { 255, 0, 0, 255 }, { 16, 64, 64, 255 });
       };
       
       term_win.SetGlyphs(gen);
       
       SDL_RenderClear(renderer);
 
-      SDL_Surface* srf = SDL_CreateRGBSurfaceWithFormat(0, 256, 256, 32, SDL_PIXELFORMAT_RGBA32);
-      SDL_Rect fill = { 0, 0, 256, 256 };
-      SDL_Rect set = { WIDTH - 256, HEIGHT - 256, 256, 256 };
-      SDL_FillRect(srf, &fill, SDL_MapRGBA(srf->format, 255, 0, 0, 255));
-      SDL_Texture* tex = SDL_CreateTextureFromSurface(renderer, srf);
-      SDL_RenderCopy(renderer, tex, nullptr, &set);
-      SDL_DestroyTexture(tex);
-      SDL_FreeSurface(srf);
-      
       if (term_win.Render(window, renderer) == -1) {
         printf("Failed to render!");
       }

@@ -135,19 +135,22 @@
   <ItemGroup>
     <ClCompile Include="main.cc" />
     <ClCompile Include="modules\CharacterCache.cc" />
-    <ClCompile Include="modules\GameObjects\Base.cpp" />
-    <ClCompile Include="modules\TerminalWindow.cpp" />
-    <ClCompile Include="modules\Timer.cpp" />
-    <ClCompile Include="utility\CharacterRange.cpp" />
-    <ClCompile Include="utility\Glyph.cpp" />
+    <ClCompile Include="modules\GameObjects\Base.cc" />
+    <ClCompile Include="modules\InputManager.cc" />
+    <ClCompile Include="modules\TerminalWindow.cc" />
+    <ClCompile Include="modules\Timer.cc" />
+    <ClCompile Include="utility\CharacterRange.cc" />
+    <ClCompile Include="utility\Glyph.cc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="modules\GameObjects\Base.h" />
+    <ClInclude Include="modules\InputManager.h" />
     <ClInclude Include="modules\TerminalWindow.h" />
     <ClInclude Include="modules\Timer.h" />
     <ClInclude Include="utility\CharacterRange.h" />
     <ClInclude Include="modules\CharacterCache.h" />
     <ClInclude Include="utility\Glyph.h" />
+    <ClInclude Include="utility\SDLIncludes.h" />
     <ClInclude Include="utility\SDLUtilities.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

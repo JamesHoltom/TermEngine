@@ -10,9 +10,8 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
 
+#include "../utility/SDLIncludes.h"
 #include "../utility/Glyph.h"
 #include "../utility/SDLUtilities.h"
 

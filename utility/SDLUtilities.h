@@ -1,5 +1,5 @@
 /*
- * Copyright 2019
+ * Copyright 2020
  * James Holtom
  * MIT License
  */
@@ -7,7 +7,7 @@
 #ifndef UTIL_SDL_UTILITIES_H
 #define UTIL_SDL_UTILITIES_H
 
-#include <SDL2/SDL.h>
+#include "SDLIncludes.h"
 
 namespace term_engine::utilities {
   namespace color_mask {
