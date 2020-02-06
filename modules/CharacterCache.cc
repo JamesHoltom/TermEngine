@@ -39,10 +39,10 @@ namespace term_engine::modules {
     TTF_Font* font = TTF_OpenFont(font_name_.c_str(), font_size_);
 
     if (TTF_FontFaceIsFixedWidth(font)) {
-      printf_s("Font is monospaced!\n");
+      printf("Font is monospaced!\n");
     }
     else {
-      printf_s("Font is not monospaced.\n");
+      printf("Font is not monospaced.\n");
     }
 
     int glyph_x = 0;
@@ -61,7 +61,7 @@ namespace term_engine::modules {
       }
     });
 
-    printf_s("Glyph width is set to %i.\n", glyph_width_);
+    printf("Glyph width is set to %i.\n", glyph_width_);
 
     TTF_CloseFont(font);
     font = nullptr;
@@ -95,7 +95,7 @@ namespace term_engine::modules {
       SDL_Rect dest_rect = { x, y, 0, 0 };
 
       if (SDL_BlitSurface(glyph_set_, &src_rect, destination, &dest_rect) != 0) {
-        printf_s("Failed to render! %s\n", SDL_GetError());
+        printf("Failed to render! %s\n", SDL_GetError());
 
         return -1;
       }

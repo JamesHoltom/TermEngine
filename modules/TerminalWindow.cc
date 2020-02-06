@@ -1,5 +1,4 @@
 #include <algorithm>
-#include <SDL.h>
 
 #include "TerminalWindow.h"
 
@@ -24,6 +23,14 @@ namespace term_engine::modules {
 
   int TerminalWindow::Update(const uint64_t& elapsed) {
     if (needs_resizing_) {
+      Resize();
+    }
+    
+    return 0;
+  }
+  
+  int TerminalWindow::Resize() {
+    if (needs_resizing_) {
       int newCount = glyph_x_count_ * glyph_y_count_;
       
       glyphs_.resize(newCount);
@@ -31,6 +38,8 @@ namespace term_engine::modules {
 
       needs_resizing_ = false;
     }
+
+    printf("There are %i glyphs.\n", glyphs_.size());
 
     return 0;
   }
@@ -59,6 +68,12 @@ namespace term_engine::modules {
 
     glyph_surf_ = SDL_CreateRGBSurfaceWithFormat(0, glyph_x_count_ * glyph_width, glyph_y_count_ * glyph_height, 32, SDL_PIXELFORMAT_RGBA32);
 
+    if (glyph_surf_ == nullptr) {
+      printf("Failed to create surface!");
+      
+      return -1;
+    }
+
     std::for_each(glyphs_.begin(), glyphs_.end(), [this, &renderer, &x_pos, &y_pos, &count, &glyph_width, &glyph_height](utilities::Glyph it) {
       SDL_Rect fill_rect = { x_pos, y_pos, glyph_width + (glyph_x_padding_ * 2), glyph_height + (glyph_y_padding_ * 2) };
       SDL_FillRect(glyph_surf_, &fill_rect, SDL_MapRGBA(glyph_surf_->format, it.background.r, it.background.g, it.background.b, it.background.a));
@@ -68,10 +83,12 @@ namespace term_engine::modules {
         SDL_Surface* glyph = SDL_CreateRGBSurfaceWithFormat(0, glyph_width, glyph_height, 32, SDL_PIXELFORMAT_RGBA32);
 
         character_cache_->Render(glyph, glyph_x_padding_, glyph_y_padding_, it.character);
-        SDL_SetSurfaceColorMod(glyph, it.foreground.r, it.foreground.g, it.foreground.b);
+        if (SDL_SetSurfaceColorMod(glyph, it.foreground.r, it.foreground.g, it.foreground.b) == -1) {
+          printf("Set FG failed for index %i!", count);
+        }
 
         if (SDL_BlitSurface(glyph, nullptr, glyph_surf_, &dest_rect) == -1) {
-          printf_s("Render failed for index %i!", count);
+          printf("Render failed for index %i!", count);
         }
 
         SDL_FreeSurface(glyph);
@@ -89,9 +106,16 @@ namespace term_engine::modules {
     });
 
     SDL_Texture* tex = SDL_CreateTextureFromSurface(renderer, glyph_surf_);
-    SDL_RenderCopy(renderer, tex, nullptr, &bounds_);
 
-    SDL_DestroyTexture(tex);
+    if (tex != nullptr) {
+      SDL_RenderCopy(renderer, tex, nullptr, &bounds_);
+
+      SDL_DestroyTexture(tex);
+    } else {
+      printf("Failed to create texture!");
+      
+      return -1;
+    }
 
     is_dirty_ = false;
 
@@ -107,15 +131,26 @@ namespace term_engine::modules {
   }
 
   int TerminalWindow::SetGlyph(const int& x_cell, const int& y_cell, const utilities::Glyph& glyph) {
-    if (x_cell < 0 || x_cell >= glyph_x_count_ || y_cell < 0 || y_cell >= glyph_y_count_) {
+    int position = (y_cell * glyph_x_count_) + x_cell;
+    
+    if (position < 0 || position >= glyph_x_count_ * glyph_y_count_) {
+      printf("Attempting to set an out-of-bounds glyph at index %i!", position);
+      
       return -1;
     }
 
-    int position = (y_cell * glyph_x_count_) + x_cell;
-    
-    glyphs_[position] = glyph;
+    printf("Setting glyph %i, %ix%i.\n", position, x_cell, y_cell);
+
+    glyphs_.at(position) = glyph;
     is_dirty_ = true;
 
+    return 0;
+  }
+  
+  template<typename F>
+  int TerminalWindow::SetGlyphs(std::function<utilities::Glyph()>& generator) {
+    std::generate(glyphs_.begin(), glyphs_.end(), generator);
+    
     return 0;
   }
 

@@ -7,9 +7,10 @@
 #ifndef MOD_TERMINAL_WINDOW_H
 #define MOD_TERMINAL_WINDOW_H
 
+#include <functional>
 #include <memory>
 #include <vector>
-#include <SDL.h>
+#include <SDL2/SDL.h>
 
 #include "../utility/Glyph.h"
 #include "../utility/SDLUtilities.h"
@@ -22,12 +23,14 @@ namespace term_engine::modules {
     ~TerminalWindow();
 
     int Update(const uint64_t& elapsedTime);
+    int Resize();
     int Render(SDL_Window* window, SDL_Renderer* renderer);
 
     void ClearGlyphs();
 
     int SetGlyph(const int& x_cell, const int& y_cell, const Uint32& character, const SDL_Color& foreground, const SDL_Color& background);
     int SetGlyph(const int& x_cell, const int& y_cell, const utilities::Glyph& glyph);
+    int SetGlyphs(std::function<utilities::Glyph()>& generator);
 
     void GetGlyphSpacing(int& x_spacing, int& y_spacing) const;
     void SetGlyphSpacing(const int& x_spacing, const int& y_spacing);

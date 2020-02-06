@@ -8,7 +8,7 @@
 #define CFG_CHARACTER_RANGE_H
 
 #include <array>
-#include <SDL.h>
+#include <SDL2/SDL.h>
 
 namespace term_engine::utilities {
   constexpr int LatinSetLength = 94;

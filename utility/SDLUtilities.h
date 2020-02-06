@@ -7,7 +7,7 @@
 #ifndef UTIL_SDL_UTILITIES_H
 #define UTIL_SDL_UTILITIES_H
 
-#include <SDL.h>
+#include <SDL2/SDL.h>
 
 namespace term_engine::utilities {
   namespace color_mask {

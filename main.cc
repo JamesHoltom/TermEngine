@@ -1,7 +1,8 @@
+#include <functional>
 #include <inttypes.h>
 #include <stdio.h>
-#include <SDL.h>
-#include <SDL_ttf.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 
 #include "modules/CharacterCache.h"
 #include "modules/TerminalWindow.h"
@@ -11,6 +12,10 @@
 
 constexpr int WIDTH = 640;
 constexpr int HEIGHT = 480;
+
+constexpr int TERM_WIDTH = 32;
+constexpr int TERM_HEIGHT = 24;
+constexpr int FONT_SIZE = 20;
 
 int main(int argc, char** argv) {
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -28,35 +33,26 @@ int main(int argc, char** argv) {
 
   term_engine::utilities::InitCharacterRanges();
 
-  constexpr int TERM_WIDTH = 32;
-  constexpr int TERM_HEIGHT = 24;
-  constexpr int FONT_SIZE = 20;
-
   term_engine::modules::CharacterCache char_cache("unifont-12.1.03.ttf", FONT_SIZE);
   term_engine::modules::TerminalWindow term_win(&char_cache);
   term_engine::modules::Timer timer;
-  term_engine::modules::Timer int_timer;
 
   term_win.SetWindowCount(TERM_WIDTH, TERM_HEIGHT);
   term_win.SetWindowSizeByCount();
+  term_win.Resize();
 
   timer.Start();
-  int_timer.Start();
-
-  srand(SDL_GetTicks());
 
   bool quit = false;
 
   while (!quit) {
-    uint64_t lap_a;
-    uint64_t lap_b;
-    uint64_t lap_c;
-
+    uint64_t elapsed = timer.GetIntervalElapsed();
+    
     while (SDL_PollEvent(&evt) != 0) {
       if (evt.type == SDL_QUIT) {
         quit = true;
       }
-
+      
       if (evt.type == SDL_KEYUP && evt.key.keysym.sym == SDLK_p) {
         if (timer.IsPaused()) {
           timer.Resume();
@@ -68,36 +64,48 @@ int main(int argc, char** argv) {
     }
 
     if (!timer.IsPaused()) {
-      uint64_t elapsed = timer.GetIntervalElapsed();
-      lap_a = int_timer.GetIntervalElapsed();
-
       term_win.Update(elapsed);
-      lap_b = int_timer.GetIntervalElapsed();
 
-      for (int j = 0; j < TERM_HEIGHT; ++j) {
-        for (int i = 0; i < TERM_WIDTH; ++i) {
-          Uint8 r = (Uint8)(rand()) % 256;
-          Uint8 g = (Uint8)(rand()) % 256;
-          Uint8 b = (Uint8)(rand()) % 256;
-
+      /*for (int j = 0; j < TERM_HEIGHT - 1; j++) {
+        for (int i = 0; i < TERM_WIDTH; i++) {
           term_engine::utilities::Glyph tmp = {
-            L'\u0021' + (rand() % 94),
-            { r, g, b, 255 },
-            { 255 - r, 255 - g, 255 - b, 255 }
+            L'\u0021',
+            { 255, 0, 0, 255 },
+            { 255, 255, 255, 255 }
           };
-
-          term_win.SetGlyph(i, j, tmp);
+          
+          if (term_win.SetGlyph(i, j, tmp) == -1) {
+            printf("Failed to set glyph for [%i,%i]!", i, j);
+          }
         }
-      }
-      lap_c = int_timer.GetIntervalElapsed();
-
+      }*/
+      
+      std::function<term_engine::utilities::Glyph()> gen = []() {
+        return (term_engine::utilities::Glyph){
+          L'\u0021',
+          { 255, 0, 0, 255 },
+          { 255, 255, 255, 255 }
+        };
+      };
+      
+      term_win.SetGlyphs(gen);
+      
       SDL_RenderClear(renderer);
 
-      term_win.Render(window, renderer);
+      SDL_Surface* srf = SDL_CreateRGBSurfaceWithFormat(0, 256, 256, 32, SDL_PIXELFORMAT_RGBA32);
+      SDL_Rect fill = { 0, 0, 256, 256 };
+      SDL_Rect set = { WIDTH - 256, HEIGHT - 256, 256, 256 };
+      SDL_FillRect(srf, &fill, SDL_MapRGBA(srf->format, 255, 0, 0, 255));
+      SDL_Texture* tex = SDL_CreateTextureFromSurface(renderer, srf);
+      SDL_RenderCopy(renderer, tex, nullptr, &set);
+      SDL_DestroyTexture(tex);
+      SDL_FreeSurface(srf);
+      
+      if (term_win.Render(window, renderer) == -1) {
+        printf("Failed to render!");
+      }
 
       SDL_RenderPresent(renderer);
-
-      printf_s("Loop Start: %" PRId64 "\nEvents: %" PRId64 "\nUpdate: %" PRId64 "\nRender: %" PRId64 "\n", lap_a, lap_b, lap_c, int_timer.GetIntervalElapsed());
     }
   }
 

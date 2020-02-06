@@ -7,7 +7,7 @@
 #ifndef UTIL_GLYPH_H
 #define UTIL_GLYPH_H
 
-#include <SDL.h>
+#include <SDL2/SDL.h>
 
 namespace term_engine::utilities {
   typedef struct {
