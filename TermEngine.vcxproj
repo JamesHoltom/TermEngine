@@ -135,6 +135,7 @@
   <ItemGroup>
     <ClCompile Include="main.cc" />
     <ClCompile Include="modules\CharacterCache.cc" />
+    <ClCompile Include="modules\FPSManager.cpp" />
     <ClCompile Include="modules\GameObjects\Base.cc" />
     <ClCompile Include="modules\InputManager.cc" />
     <ClCompile Include="modules\TerminalWindow.cc" />
@@ -143,6 +144,7 @@
     <ClCompile Include="utility\Glyph.cc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="modules\FPSManager.h" />
     <ClInclude Include="modules\GameObjects\Base.h" />
     <ClInclude Include="modules\InputManager.h" />
     <ClInclude Include="modules\TerminalWindow.h" />

@@ -144,8 +144,12 @@ namespace term_engine::modules {
 
     return 0;
   }
+
+  int TerminalWindow::SetGlyphs(std::function<int(std::vector<utilities::Glyph>&)> func) {
+    return func(glyphs_);
+  }
   
-  int TerminalWindow::SetGlyphs(std::function<utilities::Glyph()> generator) {
+  int TerminalWindow::FillGlyphs(std::function<utilities::Glyph()> generator) {
     std::generate(glyphs_.begin(), glyphs_.end(), generator);
     is_dirty_ = true;
     

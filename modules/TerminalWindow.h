@@ -30,7 +30,8 @@ namespace term_engine::modules {
 
     int SetGlyph(const int& x_cell, const int& y_cell, const Uint32& character, const SDL_Color& foreground, const SDL_Color& background);
     int SetGlyph(const int& x_cell, const int& y_cell, const utilities::Glyph& glyph);
-    int SetGlyphs(std::function<utilities::Glyph()> generator);
+    int SetGlyphs(std::function<int(std::vector<utilities::Glyph>&)> func);
+    int FillGlyphs(std::function<utilities::Glyph()> generator);
 
     void GetGlyphSpacing(int& x_spacing, int& y_spacing) const;
     void SetGlyphSpacing(const int& x_spacing, const int& y_spacing);

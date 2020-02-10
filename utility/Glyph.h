@@ -1,5 +1,5 @@
 /*
- * Copyright 2019
+ * Copyright 2020
  * James Holtom
  * MIT License
  */
