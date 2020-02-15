@@ -7,6 +7,7 @@
 #include "utility/CharacterRange.h"
 #include "utility/Glyph.h"
 #include "modules/CharacterCache.h"
+#include "modules/FPSManager.h"
 #include "modules/TerminalWindow.h"
 #include "modules/Timer.h"
 
@@ -37,6 +38,7 @@ int main(int argc, char** argv) {
 
   term_engine::utilities::InitCharacterRanges();
 
+  term_engine::modules::FPSManager fps;
   term_engine::modules::CharacterCache char_cache("unifont-12.1.03.ttf", FONT_SIZE);
   term_engine::modules::TerminalWindow term_win(&char_cache);
   term_engine::modules::Timer timer;
@@ -44,7 +46,10 @@ int main(int argc, char** argv) {
   /*
    * Predicates that set multiple (not all) glyphs (i.e. using SetGlyphs).
    */
-  std::function<int(std::vector<term_engine::utilities::Glyph>&)> playerGen = [&timer](std::vector<term_engine::utilities::Glyph>& glyphs) {
+  uint64_t elapsed = 0;
+  float player_x = 0.0f;
+  float player_y = 0.0f;
+  std::function<int(std::vector<term_engine::utilities::Glyph>&)> playerGen = [&timer, &player_x, &player_y](std::vector<term_engine::utilities::Glyph>& glyphs) {
     
     
     return 0;
@@ -54,7 +59,6 @@ int main(int argc, char** argv) {
    * Predicates that set all glyphs (i.e. using FillGlyphs).
    */
   int waveIndex = 0;
-  uint64_t elapsed = 0;
   uint64_t startTime = 0;
   int renderVer = 0;
   std::function<term_engine::utilities::Glyph()> waveGen = [&waveIndex, &startTime]() {
@@ -62,7 +66,7 @@ int main(int argc, char** argv) {
 
     glyph.character = L'\u0021';
 
-    int duration = 5000;
+    int duration = 2500;
     uint64_t counter = startTime % duration;
     int x_pos = waveIndex % TERM_WIDTH;
     int y_pos = waveIndex / TERM_WIDTH;
@@ -123,6 +127,36 @@ int main(int argc, char** argv) {
           printf("Switching to mode %i.\n", renderVer);
 
           break;
+        case SDLK_f:
+          switch (fps.GetTargetFPS()) {
+          case 60:
+            fps.SetTargetFPS(30);
+            break;
+          case 30:
+            fps.SetTargetFPS(20);
+            break;
+          case 20:
+            fps.SetTargetFPS(15);
+            break;
+          case 15:
+            fps.SetTargetFPS(5);
+            break;
+          case 5:
+            fps.DisableTargetFPS();
+            break;
+          case 0:
+            fps.SetTargetFPS(60);
+            break;
+          }
+
+          if (fps.isUsingTargetFPS()) {
+            printf("Set FPS cap to %i\n", fps.GetTargetFPS());
+          }
+          else {
+            printf("Disabled FPS cap.\n");
+          }
+
+          break;
         }
       }
     }
@@ -150,6 +184,10 @@ int main(int argc, char** argv) {
       }
 
       SDL_RenderPresent(renderer);
+
+      if (fps.isUsingTargetFPS()) {
+        fps.DelayUntilInterval();
+      }
     }
   }
 
