@@ -14,10 +14,13 @@ COMPILER_FLAGS = -w
 #   -lSDL2_ttf: Link the SDL2_ttf library.
 LINKER_FLAGS = -lSDL2 -lSDL2_image -lSDL2_ttf
 
+# OUT_DIR: Set the output directory of the executable.
+OUT_DIR = bld
+
 # OUT_NAME: Set the filename of the executable output.
 OUT_NAME = term_engine
 
 # Compile the source code here.
 all: $(OBJS)
-	$(CC) $(OBJS) $(COMPILER_FLAGS) $(LINKER_FLAGS) -o $(OUT_NAME)
+	$(CC) $(OBJS) $(COMPILER_FLAGS) $(LINKER_FLAGS) -o $(OUT_DIR)/$(OUT_NAME)
 
