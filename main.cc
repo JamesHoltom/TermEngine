@@ -46,11 +46,46 @@ int main(int argc, char** argv) {
   /*
    * Predicates that set multiple (not all) glyphs (i.e. using SetGlyphs).
    */
-  uint64_t elapsed = 0;
+  constexpr int FPS_STR_WIDTH = 10;
+  std::function<int(std::vector<term_engine::utilities::Glyph>&)> fpsFunc = [&fps, FPS_STR_WIDTH](std::vector<term_engine::utilities::Glyph>& glyphs) {
+    float val = fps.GetAverageFPS();
+    std::wstring fpsCount = std::wstring(std::to_wstring(val));
+    fpsCount.resize(FPS_STR_WIDTH, L'\u0000');
+    int counter = 0;
+
+    std::vector<term_engine::utilities::Glyph>::iterator it = glyphs.begin() + (TERM_WIDTH - FPS_STR_WIDTH - 1);
+
+    std::for_each_n(it, FPS_STR_WIDTH, [&fpsCount, &counter](term_engine::utilities::Glyph& n) {
+      n.character = fpsCount.at(counter++);
+      n.background = { 0, 0, 0, 255 };
+      n.foreground = { 255, 255, 255, 255 };
+    });
+
+    return 0;
+  };
+
   float player_x = 0.0f;
   float player_y = 0.0f;
-  std::function<int(std::vector<term_engine::utilities::Glyph>&)> playerGen = [&timer, &player_x, &player_y](std::vector<term_engine::utilities::Glyph>& glyphs) {
-    
+  int prevIndex = -1;
+  term_engine::utilities::Glyph prevGlyph = term_engine::utilities::nullGlyph;
+  std::function<int(std::vector<term_engine::utilities::Glyph>&)> playerFunc = [&player_x, &player_y, &prevIndex, &prevGlyph](std::vector<term_engine::utilities::Glyph>& glyphs) {
+    term_engine::utilities::Glyph glyph;
+    glyph.character = L'\u2603';
+    glyph.background = { 0, 0, 0, 255 };
+    glyph.foreground = { 0, 255, 0, 255 };
+
+    int index = (TERM_WIDTH * (int)player_y) + (int)player_x;
+
+    if (index != prevIndex) {
+      if (prevIndex != -1) {
+        glyphs.at(prevIndex) = prevGlyph;
+      }
+
+      prevIndex = index;
+      prevGlyph = glyphs.at(index);
+
+      glyphs.at(index) = glyph;
+    }
     
     return 0;
   };
@@ -101,16 +136,46 @@ int main(int argc, char** argv) {
   timer.Start();
 
   bool quit = false;
+  uint64_t elapsed = 0;
+
+  bool move_up = false;
+  bool move_down = false;
+  bool move_left = false;
+  bool move_right = false;
 
   while (!quit) {
     elapsed = timer.GetIntervalElapsed();
     startTime = timer.GetDuration();
     
+    float speed = 25.0f;
+    float rate = (float)elapsed / 1000.0f;
+
     while (SDL_PollEvent(&evt) != 0) {
       if (evt.type == SDL_QUIT) {
         quit = true;
       }
       
+      if (evt.type == SDL_KEYDOWN) {
+        switch (evt.key.keysym.sym) {
+        case SDLK_UP:
+          move_up = true;
+
+          break;
+        case SDLK_DOWN:
+          move_down = true;
+
+          break;
+        case SDLK_LEFT:
+          move_left = true;
+
+          break;
+        case SDLK_RIGHT:
+          move_right = true;
+
+          break;
+        }
+      }
+
       if (evt.type == SDL_KEYUP) {
         switch (evt.key.keysym.sym) {
         case SDLK_p:
@@ -123,7 +188,8 @@ int main(int argc, char** argv) {
 
           break;
         case SDLK_o:
-          renderVer = (renderVer + 1) % 3;
+          term_win.ClearGlyphs();
+          renderVer = (renderVer + 1) % 4;
           printf("Switching to mode %i.\n", renderVer);
 
           break;
@@ -157,6 +223,22 @@ int main(int argc, char** argv) {
           }
 
           break;
+        case SDLK_UP:
+          move_up = false;
+
+          break;
+        case SDLK_DOWN:
+          move_down = false;
+
+          break;
+        case SDLK_LEFT:
+          move_left = false;
+
+          break;
+        case SDLK_RIGHT:
+          move_right = false;
+
+          break;
         }
       }
     }
@@ -175,6 +257,42 @@ int main(int argc, char** argv) {
         waveIndex = 0;
         term_win.FillGlyphs(waveGen);
         break;
+      case 3:
+        if (move_up) {
+          player_y -= speed * rate;
+
+          if (player_y < 0.0f) {
+            player_y = 0.0f;
+          }
+        }
+
+        if (move_down) {
+          player_y += speed * rate;
+
+          if (player_y > (float)(TERM_HEIGHT - 1)) {
+            player_y = (float)(TERM_HEIGHT - 1);
+          }
+        }
+
+        if (move_left) {
+          player_x -= speed * rate;
+
+          if (player_x < 0.0f) {
+            player_x = 0.0f;
+          }
+        }
+
+        if (move_right) {
+          player_x += speed * rate;
+
+          if (player_x > (float)(TERM_WIDTH - 1)) {
+            player_x = (float)(TERM_WIDTH - 1);
+          }
+        }
+
+        term_win.SetGlyphs(playerFunc);
+        term_win.SetGlyphs(fpsFunc);
+        break;
       }
       
       SDL_RenderClear(renderer);
@@ -184,10 +302,12 @@ int main(int argc, char** argv) {
       }
 
       SDL_RenderPresent(renderer);
+    }
 
-      if (fps.isUsingTargetFPS()) {
-        fps.DelayUntilInterval();
-      }
+    fps.NextFrame();
+
+    if (fps.isUsingTargetFPS()) {
+      fps.Delay();
     }
   }
 

@@ -58,14 +58,14 @@ namespace term_engine::modules {
 
     if (is_started_) {
       if (is_paused_) {
-        duration = std::chrono::duration_cast<Milli>(pause_point_ - start_point_).count();
+        duration = std::chrono::duration_cast<std::chrono::milliseconds>(pause_point_ - start_point_).count();
       }
       else {
-        duration = std::chrono::duration_cast<Milli>(Clock::now() - start_point_).count();
+        duration = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - start_point_).count();
       }
     }
     else {
-      duration = std::chrono::duration_cast<Milli>(stop_point_ - start_point_).count();
+      duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop_point_ - start_point_).count();
     }
 
     return duration;
@@ -75,7 +75,7 @@ namespace term_engine::modules {
     uint64_t duration;
 
     if (is_started_ && is_paused_) {
-      duration = std::chrono::duration_cast<Milli>(Clock::now() - pause_point_).count();
+      duration = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - pause_point_).count();
     }
     else {
       duration = 0;
@@ -86,10 +86,10 @@ namespace term_engine::modules {
 
   uint64_t Timer::GetIntervalElapsed() {
     uint64_t elapsed;
-    TimePoint now = Clock::now();
+    Clock::time_point now = Clock::now();
 
     if (is_started_ && !is_paused_) {
-      elapsed = std::chrono::duration_cast<Milli>(now - interval_point_).count();
+      elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - interval_point_).count();
       interval_point_ = now;
     }
     else {

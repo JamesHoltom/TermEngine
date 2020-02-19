@@ -15,7 +15,8 @@ namespace term_engine::modules {
     FPSManager();
     FPSManager(const int& target);
 
-    void DelayUntilInterval();
+    void Delay();
+    void NextFrame();
 
     float GetAverageFPS();
 

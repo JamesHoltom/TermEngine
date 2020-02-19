@@ -4,13 +4,16 @@
 #include "FPSManager.h"
 
 namespace term_engine::modules {
+  constexpr int FPS_FRAME_MULTIPLE = 5;
+
   FPSManager::FPSManager() :
     use_target_(false),
     target_fps_(0),
     average_fps_(0.0f),
     frame_count_(0),
     frame_duration_(0) {
-
+    delay_timer_.Start();
+    average_timer_.Start();
   }
   FPSManager::FPSManager(const int& target) :
     use_target_(true),
@@ -25,19 +28,25 @@ namespace term_engine::modules {
     average_timer_.Start();
   }
 
-  void FPSManager::DelayUntilInterval() {
-    uint64_t time_taken = delay_timer_.GetIntervalElapsed();
-    std::chrono::duration<uint64_t, std::milli> time_remaining = std::chrono::milliseconds(frame_duration_ - time_taken);
+  void FPSManager::Delay() {
+    uint64_t time_taken = delay_timer_.GetDuration();
+    std::chrono::milliseconds time_remaining = std::chrono::milliseconds(frame_duration_ - time_taken);
 
+    if (time_remaining.count() > 0) {
+      std::this_thread::sleep_for(time_remaining);
+    }
+
+    delay_timer_.Start();
+  }
+
+  void FPSManager::NextFrame() {
     ++frame_count_;
-
-    std::this_thread::sleep_for(time_remaining);
   }
 
   float FPSManager::GetAverageFPS() {
-    if (frame_count_ % 10 == 0 && frame_count_ > 0) {
-      uint64_t time_taken = average_timer_.GetIntervalElapsed();
-      average_fps_ = 10.0f / time_taken;
+    if (frame_count_ % FPS_FRAME_MULTIPLE == 0 && frame_count_ > 0) {
+      float time_taken = average_timer_.GetIntervalElapsed() / 1000.0f;
+      average_fps_ = (float)FPS_FRAME_MULTIPLE / time_taken;
     }
 
     return average_fps_;

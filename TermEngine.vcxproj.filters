@@ -39,7 +39,10 @@
     <ClCompile Include="modules\GameObjects\Base.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="modules\FPSManager.cpp">
+    <ClCompile Include="modules\StateManager.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="modules\FPSManager.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -72,6 +75,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="modules\FPSManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="modules\StateManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

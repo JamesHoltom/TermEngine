@@ -36,7 +36,7 @@ namespace term_engine::modules {
       int newCount = glyph_x_count_ * glyph_y_count_;
       
       glyphs_.resize(newCount);
-      std::fill(glyphs_.begin(), glyphs_.end(), utilities::nullGlyph);
+      ClearGlyphs();
 
       needs_resizing_ = false;
     }
@@ -123,10 +123,10 @@ namespace term_engine::modules {
   }
 
   void TerminalWindow::ClearGlyphs() {
-    glyphs_.clear();
+    std::fill(glyphs_.begin(), glyphs_.end(), utilities::nullGlyph);
   }
 
-  int TerminalWindow::SetGlyph(const int& x_cell, const int& y_cell, const Uint32& character, const SDL_Color& foreground, const SDL_Color& background) {
+  int TerminalWindow::SetGlyph(const int& x_cell, const int& y_cell, const Uint16& character, const SDL_Color& foreground, const SDL_Color& background) {
     return SetGlyph(x_cell, y_cell, { character, foreground, background });
   }
 
@@ -146,7 +146,10 @@ namespace term_engine::modules {
   }
 
   int TerminalWindow::SetGlyphs(std::function<int(std::vector<utilities::Glyph>&)> func) {
-    return func(glyphs_);
+    int result = func(glyphs_);
+    is_dirty_ = true;
+
+    return result;
   }
   
   int TerminalWindow::FillGlyphs(std::function<utilities::Glyph()> generator) {
