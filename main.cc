@@ -7,6 +7,7 @@
 #include "utility/CharacterRange.h"
 #include "utility/Glyph.h"
 #include "modules/CharacterCache.h"
+#include "modules/EventManager.h"
 #include "modules/FPSManager.h"
 #include "modules/TerminalWindow.h"
 #include "modules/Timer.h"
@@ -38,6 +39,7 @@ int main(int argc, char** argv) {
 
   term_engine::utilities::InitCharacterRanges();
 
+  term_engine::modules::EventManager event;
   term_engine::modules::FPSManager fps;
   term_engine::modules::CharacterCache char_cache("unifont-12.1.03.ttf", FONT_SIZE);
   term_engine::modules::TerminalWindow term_win(&char_cache);
@@ -47,6 +49,7 @@ int main(int argc, char** argv) {
    * Predicates that set multiple (not all) glyphs (i.e. using SetGlyphs).
    */
   constexpr int FPS_STR_WIDTH = 10;
+  bool showFpsCounter = false;
   std::function<int(std::vector<term_engine::utilities::Glyph>&)> fpsFunc = [&fps, FPS_STR_WIDTH](std::vector<term_engine::utilities::Glyph>& glyphs) {
     float val = fps.GetAverageFPS();
     std::wstring fpsCount = std::wstring(std::to_wstring(val));
@@ -55,7 +58,7 @@ int main(int argc, char** argv) {
 
     std::vector<term_engine::utilities::Glyph>::iterator it = glyphs.begin() + (TERM_WIDTH - FPS_STR_WIDTH - 1);
 
-    std::for_each_n(it, FPS_STR_WIDTH, [&fpsCount, &counter](term_engine::utilities::Glyph& n) {
+    std::for_each(it, it + FPS_STR_WIDTH, [&fpsCount, &counter](term_engine::utilities::Glyph& n) {
       n.character = fpsCount.at(counter++);
       n.background = { 0, 0, 0, 255 };
       n.foreground = { 255, 255, 255, 255 };
@@ -134,6 +137,9 @@ int main(int argc, char** argv) {
   term_win.Resize();
 
   timer.Start();
+  
+  event.RegisterAction("test");
+  event.RegisterKey(SDLK_k);
 
   bool quit = false;
   uint64_t elapsed = 0;
@@ -223,6 +229,10 @@ int main(int argc, char** argv) {
           }
 
           break;
+        case SDLK_g:
+          showFpsCounter = !showFpsCounter;
+          
+          break;
         case SDLK_UP:
           move_up = false;
 
@@ -291,8 +301,11 @@ int main(int argc, char** argv) {
         }
 
         term_win.SetGlyphs(playerFunc);
-        term_win.SetGlyphs(fpsFunc);
         break;
+      }
+      
+      if (showFpsCounter) {
+        term_win.SetGlyphs(fpsFunc);
       }
       
       SDL_RenderClear(renderer);
@@ -310,6 +323,9 @@ int main(int argc, char** argv) {
       fps.Delay();
     }
   }
+  
+  event.UnregisterAction("test");
+  event.UnregisterKey(SDLK_k);
 
   TTF_Quit();
   SDL_Quit();

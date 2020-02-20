@@ -6,7 +6,7 @@ CC = g++
 
 # COMPILER_FLAGS: Set any additional compilation flags.
 #   -w: Suppress warnings.
-COMPILER_FLAGS = -w
+COMPILER_FLAGS = -w -std=c++17
 
 # LINKER_FLAGS: Set any additional linker flags.
 #   -lSDL2: Link the SDL2 library.
