@@ -9,13 +9,13 @@
 
 #include <string>
 
-#include "../utility/KeyActions.h"
+#include "../utility/Actions.h"
 #include "../utility/SDLIncludes.h"
 
 namespace term_engine::modules {
-  class EventManager {
+  class InputManager {
     public:
-      void HandleEvents();
+      void HandleEvent(const SDL_Event& event);
       
       int RegisterAction(const std::string& action);
       int UnregisterAction(const std::string& action);
@@ -26,7 +26,7 @@ namespace term_engine::modules {
       int AssignToAction(const SDL_Keycode& key, const std::string& action);
       int UnassignFromAction(const std::string& action);
 
-      bool GetActionState(const std::string& action) const;
+      bool GetActionState(const std::string& action);
     private:
       utilities::ActionMap actions_;
       utilities::KeyMap keys_;

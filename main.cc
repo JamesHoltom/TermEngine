@@ -7,8 +7,8 @@
 #include "utility/CharacterRange.h"
 #include "utility/Glyph.h"
 #include "modules/CharacterCache.h"
-#include "modules/EventManager.h"
 #include "modules/FPSManager.h"
+#include "modules/InputManager.h"
 #include "modules/TerminalWindow.h"
 #include "modules/Timer.h"
 
@@ -39,7 +39,7 @@ int main(int argc, char** argv) {
 
   term_engine::utilities::InitCharacterRanges();
 
-  term_engine::modules::EventManager event;
+  term_engine::modules::InputManager input;
   term_engine::modules::FPSManager fps;
   term_engine::modules::CharacterCache char_cache("unifont-12.1.03.ttf", FONT_SIZE);
   term_engine::modules::TerminalWindow term_win(&char_cache);
@@ -138,9 +138,9 @@ int main(int argc, char** argv) {
 
   timer.Start();
   
-  event.RegisterAction("test");
-  event.RegisterKey(SDLK_k);
-  event.AssignToAction(SDLK_k, "test");
+  input.RegisterAction("test");
+  input.RegisterKey(SDLK_UP);
+  input.AssignToAction(SDLK_UP, "test");
 
   bool quit = false;
   uint64_t elapsed = 0;
@@ -157,16 +157,12 @@ int main(int argc, char** argv) {
     float speed = 25.0f;
     float rate = (float)elapsed / 1000.0f;
 
-    event.HandleEvents();
-
-    if (event.GetActionState("test")) {
-      printf("Test");
-    }
-
     while (SDL_PollEvent(&evt) != 0) {
       if (evt.type == SDL_QUIT) {
         quit = true;
       }
+      
+      input.HandleEvent(evt);
       
       if (evt.type == SDL_KEYDOWN) {
         switch (evt.key.keysym.sym) {
@@ -260,6 +256,10 @@ int main(int argc, char** argv) {
       }
     }
 
+    if (input.GetActionState("test")) {
+      printf("Test\n");
+    }
+
     if (!timer.IsPaused()) {
       term_win.Update(elapsed);
 
@@ -331,9 +331,9 @@ int main(int argc, char** argv) {
     }
   }
   
-  event.UnassignFromAction("test");
-  event.UnregisterAction("test");
-  event.UnregisterKey(SDLK_k);
+  input.UnassignFromAction("test");
+  input.UnregisterAction("test");
+  input.UnregisterKey(SDLK_UP);
 
   TTF_Quit();
   SDL_Quit();
