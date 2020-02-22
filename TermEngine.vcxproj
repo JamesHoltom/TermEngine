@@ -135,25 +135,27 @@
   <ItemGroup>
     <ClCompile Include="main.cc" />
     <ClCompile Include="modules\CharacterCache.cc" />
+    <ClCompile Include="modules\EventManager.cc" />
     <ClCompile Include="modules\FPSManager.cc" />
     <ClCompile Include="modules\GameObjects\Base.cc" />
-    <ClCompile Include="modules\InputManager.cc" />
     <ClCompile Include="modules\TerminalWindow.cc" />
     <ClCompile Include="modules\Timer.cc" />
     <ClCompile Include="modules\StateManager.cc" />
     <ClCompile Include="utility\CharacterRange.cc" />
     <ClCompile Include="utility\Glyph.cc" />
+    <ClCompile Include="utility\KeyActions.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="modules\EventManager.h" />
     <ClInclude Include="modules\FPSManager.h" />
     <ClInclude Include="modules\GameObjects\Base.h" />
-    <ClInclude Include="modules\InputManager.h" />
     <ClInclude Include="modules\StateManager.h" />
     <ClInclude Include="modules\TerminalWindow.h" />
     <ClInclude Include="modules\Timer.h" />
     <ClInclude Include="utility\CharacterRange.h" />
     <ClInclude Include="modules\CharacterCache.h" />
     <ClInclude Include="utility\Glyph.h" />
+    <ClInclude Include="utility\KeyActions.h" />
     <ClInclude Include="utility\SDLIncludes.h" />
     <ClInclude Include="utility\SDLUtilities.h" />
   </ItemGroup>

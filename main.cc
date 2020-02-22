@@ -140,6 +140,7 @@ int main(int argc, char** argv) {
   
   event.RegisterAction("test");
   event.RegisterKey(SDLK_k);
+  event.AssignToAction(SDLK_k, "test");
 
   bool quit = false;
   uint64_t elapsed = 0;
@@ -155,6 +156,12 @@ int main(int argc, char** argv) {
     
     float speed = 25.0f;
     float rate = (float)elapsed / 1000.0f;
+
+    event.HandleEvents();
+
+    if (event.GetActionState("test")) {
+      printf("Test");
+    }
 
     while (SDL_PollEvent(&evt) != 0) {
       if (evt.type == SDL_QUIT) {
@@ -324,6 +331,7 @@ int main(int argc, char** argv) {
     }
   }
   
+  event.UnassignFromAction("test");
   event.UnregisterAction("test");
   event.UnregisterKey(SDLK_k);
 

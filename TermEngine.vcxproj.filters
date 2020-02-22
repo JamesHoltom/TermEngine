@@ -33,9 +33,6 @@
     <ClCompile Include="modules\TerminalWindow.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="modules\InputManager.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="modules\GameObjects\Base.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -43,6 +40,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="modules\FPSManager.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="modules\EventManager.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="utility\KeyActions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -68,9 +71,6 @@
     <ClInclude Include="modules\GameObjects\Base.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="modules\InputManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="utility\SDLIncludes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -78,6 +78,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="modules\StateManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="modules\EventManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utility\KeyActions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
