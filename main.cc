@@ -138,17 +138,13 @@ int main(int argc, char** argv) {
 
   timer.Start();
   
-  input.RegisterAction("test");
-  input.RegisterKey(SDLK_UP);
-  input.AssignToAction(SDLK_UP, "test");
+  input.RegisterAndAssign(SDLK_UP, "move_up");
+  input.RegisterAndAssign(SDLK_DOWN, "move_down");
+  input.RegisterAndAssign(SDLK_LEFT, "move_left");
+  input.RegisterAndAssign(SDLK_RIGHT, "move_right");
 
   bool quit = false;
   uint64_t elapsed = 0;
-
-  bool move_up = false;
-  bool move_down = false;
-  bool move_left = false;
-  bool move_right = false;
 
   while (!quit) {
     elapsed = timer.GetIntervalElapsed();
@@ -164,27 +160,6 @@ int main(int argc, char** argv) {
       
       input.HandleEvent(evt);
       
-      if (evt.type == SDL_KEYDOWN) {
-        switch (evt.key.keysym.sym) {
-        case SDLK_UP:
-          move_up = true;
-
-          break;
-        case SDLK_DOWN:
-          move_down = true;
-
-          break;
-        case SDLK_LEFT:
-          move_left = true;
-
-          break;
-        case SDLK_RIGHT:
-          move_right = true;
-
-          break;
-        }
-      }
-
       if (evt.type == SDL_KEYUP) {
         switch (evt.key.keysym.sym) {
         case SDLK_p:
@@ -236,28 +211,8 @@ int main(int argc, char** argv) {
           showFpsCounter = !showFpsCounter;
           
           break;
-        case SDLK_UP:
-          move_up = false;
-
-          break;
-        case SDLK_DOWN:
-          move_down = false;
-
-          break;
-        case SDLK_LEFT:
-          move_left = false;
-
-          break;
-        case SDLK_RIGHT:
-          move_right = false;
-
-          break;
         }
       }
-    }
-
-    if (input.GetActionState("test")) {
-      printf("Test\n");
     }
 
     if (!timer.IsPaused()) {
@@ -275,7 +230,7 @@ int main(int argc, char** argv) {
         term_win.FillGlyphs(waveGen);
         break;
       case 3:
-        if (move_up) {
+        if (input.GetActionState("move_up")) {
           player_y -= speed * rate;
 
           if (player_y < 0.0f) {
@@ -283,7 +238,7 @@ int main(int argc, char** argv) {
           }
         }
 
-        if (move_down) {
+        if (input.GetActionState("move_down")) {
           player_y += speed * rate;
 
           if (player_y > (float)(TERM_HEIGHT - 1)) {
@@ -291,7 +246,7 @@ int main(int argc, char** argv) {
           }
         }
 
-        if (move_left) {
+        if (input.GetActionState("move_left")) {
           player_x -= speed * rate;
 
           if (player_x < 0.0f) {
@@ -299,7 +254,7 @@ int main(int argc, char** argv) {
           }
         }
 
-        if (move_right) {
+        if (input.GetActionState("move_right")) {
           player_x += speed * rate;
 
           if (player_x > (float)(TERM_WIDTH - 1)) {
@@ -331,10 +286,6 @@ int main(int argc, char** argv) {
     }
   }
   
-  input.UnassignFromAction("test");
-  input.UnregisterAction("test");
-  input.UnregisterKey(SDLK_UP);
-
   TTF_Quit();
   SDL_Quit();
 

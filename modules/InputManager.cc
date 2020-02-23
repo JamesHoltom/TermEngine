@@ -1,7 +1,13 @@
+#include <memory>
 
 #include "InputManager.h"
 
 namespace term_engine::modules {
+  InputManager::~InputManager() {
+    keys_.clear();
+    actions_.clear();
+  }
+
   void InputManager::HandleEvent(const SDL_Event& event) {
     SDL_Keycode key = event.key.keysym.sym;
     auto key_it = keys_.find(key);
@@ -9,18 +15,14 @@ namespace term_engine::modules {
     if (key_it != keys_.end()) {
       switch (event.type) {
       case SDL_KEYDOWN:
-        keys_[key].second = true;
+        keys_[key]->second = true;
 
         break;
       case SDL_KEYUP:
-        keys_[key].second = false;
+        keys_[key]->second = false;
 
         break;
       }
-    }
-    
-    if (actions_["test"].IsActive()) {
-      printf("TEST");
     }
   }
   
@@ -51,7 +53,7 @@ namespace term_engine::modules {
   }
   
   int InputManager::RegisterKey(const SDL_Keycode& key) {
-    utilities::Key new_key = std::make_pair(key, false);
+    utilities::KeyPtr new_key = std::make_shared<utilities::Key>(std::make_pair(key, false));
     
     const bool& result = keys_.emplace(key, new_key).second;
     
@@ -76,6 +78,17 @@ namespace term_engine::modules {
     return -1;
   }
   
+  int InputManager::RegisterAndAssign(const SDL_Keycode& key, const std::string& action) {
+    int key_result = RegisterKey(key);
+    int action_result = RegisterAction(action);
+
+    if (key_result == 0 && action_result == 0) {
+      return AssignToAction(key, action);
+    }
+
+    return -1;
+  }
+
   int InputManager::AssignToAction(const SDL_Keycode& key, const std::string& action) {
     auto key_it = keys_.find(key);
     auto action_it = actions_.find(action);
@@ -106,11 +119,10 @@ namespace term_engine::modules {
     return -1;
   }
 
-  bool InputManager::GetActionState(const std::string& action) {
+  bool InputManager::GetActionState(const std::string& action) const {
     auto it = actions_.find(action);
 
     if (it != actions_.end()) {
-      printf("Test: %i, %s\n", it->second.GetKey(), it->second.IsActive() ? "true" : "false");
       return it->second.IsActive();
     }
 

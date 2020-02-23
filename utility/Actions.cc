@@ -17,15 +17,15 @@ namespace term_engine::utilities {
     return (*key_).first;
   }
 
-  void Action::SetKey(const Key& key) {
-    key_ = std::make_shared<Key>(key);
+  void Action::SetKey(const KeyPtr& key) {
+    key_ = key;
   }
 
   void Action::UnsetKey() {
     key_ = nullptr;
   }
 
-  bool Action::IsActive() {
+  bool Action::IsActive() const {
     return (*key_).second;
   }
 }

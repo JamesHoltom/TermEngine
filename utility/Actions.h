@@ -16,7 +16,7 @@
 namespace term_engine::utilities {
   typedef std::pair<SDL_Keycode, bool> Key;
   typedef std::shared_ptr<Key> KeyPtr;
-  typedef std::unordered_map<SDL_Keycode, Key> KeyMap;
+  typedef std::unordered_map<SDL_Keycode, KeyPtr> KeyMap;
   
   class Action {
   public:
@@ -25,10 +25,10 @@ namespace term_engine::utilities {
 
     std::string GetAction() const;
     SDL_Keycode GetKey() const;
-    void SetKey(const Key& key);
+    void SetKey(const KeyPtr& key);
     void UnsetKey();
 
-    bool IsActive();
+    bool IsActive() const;
 
   private:
     std::string action_;

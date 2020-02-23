@@ -42,10 +42,10 @@
     <ClCompile Include="modules\FPSManager.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="modules\EventManager.cc">
+    <ClCompile Include="modules\InputManager.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="utility\KeyActions.cpp">
+    <ClCompile Include="utility\Actions.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -80,10 +80,10 @@
     <ClInclude Include="modules\StateManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="modules\EventManager.h">
+    <ClInclude Include="modules\InputManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="utility\KeyActions.h">
+    <ClInclude Include="utility\Actions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
