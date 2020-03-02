@@ -138,6 +138,12 @@ int main(int argc, char** argv) {
 
   timer.Start();
   
+  input.RegisterAndAssign(SDLK_f, "set_fps");
+  input.RegisterAndAssign(SDLK_g, "show_fps_counter");
+  input.RegisterAndAssign(SDLK_o, "set_frame");
+  input.RegisterAndAssign(SDLK_p, "toggle_pause");
+  input.RegisterAndAssign(SDLK_q, "get_frames");
+
   input.RegisterAndAssign(SDLK_UP, "move_up");
   input.RegisterAndAssign(SDLK_DOWN, "move_down");
   input.RegisterAndAssign(SDLK_LEFT, "move_left");
@@ -159,64 +165,63 @@ int main(int argc, char** argv) {
       }
       
       input.HandleEvent(evt);
-      
-      if (evt.type == SDL_KEYUP) {
-        switch (evt.key.keysym.sym) {
-        case SDLK_p:
-          if (timer.IsPaused()) {
-            timer.Resume();
-          }
-          else {
-            timer.Pause();
-          }
+    }
 
-          break;
-        case SDLK_o:
-          term_win.ClearGlyphs();
-          renderVer = (renderVer + 1) % 4;
-          printf("Switching to mode %i.\n", renderVer);
-
-          break;
-        case SDLK_f:
-          switch (fps.GetTargetFPS()) {
-          case 60:
-            fps.SetTargetFPS(30);
-            break;
-          case 30:
-            fps.SetTargetFPS(20);
-            break;
-          case 20:
-            fps.SetTargetFPS(15);
-            break;
-          case 15:
-            fps.SetTargetFPS(5);
-            break;
-          case 5:
-            fps.DisableTargetFPS();
-            break;
-          case 0:
-            fps.SetTargetFPS(60);
-            break;
-          }
-
-          if (fps.isUsingTargetFPS()) {
-            printf("Set FPS cap to %i\n", fps.GetTargetFPS());
-          }
-          else {
-            printf("Disabled FPS cap.\n");
-          }
-
-          break;
-        case SDLK_g:
-          showFpsCounter = !showFpsCounter;
-          
-          break;
-        }
+    if (input.GetKeyPress("toggle_pause")) {
+      if (timer.IsPaused()) {
+        timer.Resume();
       }
+      else {
+        timer.Pause();
+      }
+    }
+
+    if (input.GetKeyRelease("get_frames")) {
+      printf("%i frames have passed.\n", input.GetKeyFramesHeld(SDLK_q));
     }
 
     if (!timer.IsPaused()) {
       term_win.Update(elapsed);
+
+      if (input.GetKeyPress("set_fps")) {
+        switch (fps.GetTargetFPS()) {
+        case 60:
+          fps.SetTargetFPS(30);
+          break;
+        case 30:
+          fps.SetTargetFPS(20);
+          break;
+        case 20:
+          fps.SetTargetFPS(15);
+          break;
+        case 15:
+          fps.SetTargetFPS(5);
+          break;
+        case 5:
+          fps.DisableTargetFPS();
+          break;
+        case 0:
+          fps.SetTargetFPS(60);
+          break;
+        }
+
+        if (fps.isUsingTargetFPS()) {
+          printf("Set FPS cap to %i\n", fps.GetTargetFPS());
+        }
+        else {
+          printf("Disabled FPS cap.\n");
+        }
+      }
+
+      if (input.GetKeyPress("show_fps_counter")) {
+        showFpsCounter = !showFpsCounter;
+      }
+
+      if (input.GetKeyPress("set_frame")) {
+        term_win.ClearGlyphs();
+        renderVer = (renderVer + 1) % 4;
+        printf("Switching to mode %i.\n", renderVer);
+      }
 
       switch (renderVer) {
       case 0:
@@ -230,7 +235,7 @@ int main(int argc, char** argv) {
         term_win.FillGlyphs(waveGen);
         break;
       case 3:
-        if (input.GetActionState("move_up")) {
+        if (input.GetKeyDown("move_up")) {
           player_y -= speed * rate;
 
           if (player_y < 0.0f) {
@@ -238,7 +243,7 @@ int main(int argc, char** argv) {
           }
         }
 
-        if (input.GetActionState("move_down")) {
+        if (input.GetKeyDown("move_down")) {
           player_y += speed * rate;
 
           if (player_y > (float)(TERM_HEIGHT - 1)) {
@@ -246,7 +251,7 @@ int main(int argc, char** argv) {
           }
         }
 
-        if (input.GetActionState("move_left")) {
+        if (input.GetKeyDown("move_left")) {
           player_x -= speed * rate;
 
           if (player_x < 0.0f) {
@@ -254,7 +259,7 @@ int main(int argc, char** argv) {
           }
         }
 
-        if (input.GetActionState("move_right")) {
+        if (input.GetKeyDown("move_right")) {
           player_x += speed * rate;
 
           if (player_x > (float)(TERM_WIDTH - 1)) {
@@ -279,6 +284,7 @@ int main(int argc, char** argv) {
       SDL_RenderPresent(renderer);
     }
 
+    input.UpdateFrames();
     fps.NextFrame();
 
     if (fps.isUsingTargetFPS()) {

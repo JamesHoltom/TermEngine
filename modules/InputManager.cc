@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <memory>
 
 #include "InputManager.h"
@@ -15,19 +16,30 @@ namespace term_engine::modules {
     if (key_it != keys_.end()) {
       switch (event.type) {
       case SDL_KEYDOWN:
-        keys_[key]->second = true;
+        keys_[key]->is_held = true;
 
         break;
       case SDL_KEYUP:
-        keys_[key]->second = false;
+        keys_[key]->is_held = false;
 
         break;
       }
     }
   }
+
+  void InputManager::UpdateFrames() {
+    std::for_each(keys_.begin(), keys_.end(), [](std::pair<SDL_Keycode, utilities::KeyPtr> key) {
+      if (key.second->is_held) {
+        key.second->held_frames++;
+      }
+      else {
+        key.second->held_frames = 0;
+      }
+    });
+  }
   
   int InputManager::RegisterAction(const std::string& action) {
-    utilities::Action new_action(action);
+    utilities::KeyBinding new_action(action);
     
     const bool& result = actions_.emplace(action, new_action).second;
     
@@ -53,7 +65,7 @@ namespace term_engine::modules {
   }
   
   int InputManager::RegisterKey(const SDL_Keycode& key) {
-    utilities::KeyPtr new_key = std::make_shared<utilities::Key>(std::make_pair(key, false));
+    utilities::KeyPtr new_key = std::make_shared<utilities::Key>(utilities::Key(key));
     
     const bool& result = keys_.emplace(key, new_key).second;
     
@@ -119,14 +131,47 @@ namespace term_engine::modules {
     return -1;
   }
 
-  bool InputManager::GetActionState(const std::string& action) const {
+  bool InputManager::GetKeyDown(const std::string& action) const {
     auto it = actions_.find(action);
 
     if (it != actions_.end()) {
-      return it->second.IsActive();
+      return it->second.IsDown();
     }
 
     printf("Could not find action \'%s\'!\n", action.c_str());
     return false;
+  }
+
+  bool InputManager::GetKeyPress(const std::string& action) const {
+    auto it = actions_.find(action);
+
+    if (it != actions_.end()) {
+      return it->second.JustPressed();
+    }
+
+    printf("Could not find action \'%s\'!\n", action.c_str());
+    return false;
+  }
+
+  bool InputManager::GetKeyRelease(const std::string& action) const {
+    auto it = actions_.find(action);
+
+    if (it != actions_.end()) {
+      return it->second.JustReleased();
+    }
+
+    printf("Could not find action \'%s\'!\n", action.c_str());
+    return false;
+  }
+
+  int InputManager::GetKeyFramesHeld(const SDL_Keycode& key) const {
+    auto it = keys_.find(key);
+
+    if (it != keys_.end()) {
+      return it->second->held_frames;
+    }
+
+    printf("Could not find key \'%i\'\n", key);
+    return -1;
   }
 }
