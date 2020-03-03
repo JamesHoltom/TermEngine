@@ -138,16 +138,16 @@ int main(int argc, char** argv) {
 
   timer.Start();
   
-  input.RegisterAndAssign(SDLK_f, "set_fps");
-  input.RegisterAndAssign(SDLK_g, "show_fps_counter");
-  input.RegisterAndAssign(SDLK_o, "set_frame");
-  input.RegisterAndAssign(SDLK_p, "toggle_pause");
-  input.RegisterAndAssign(SDLK_q, "get_frames");
+  input.RegisterAndAssign("set_fps", SDLK_f);
+  input.RegisterAndAssign("show_fps_counter", SDLK_g);
+  input.RegisterAndAssign("set_frame", SDLK_o);
+  input.RegisterAndAssign("toggle_pause", SDLK_p);
+  input.RegisterAndAssign("get_frames", SDLK_q, KMOD_LSHIFT);
 
-  input.RegisterAndAssign(SDLK_UP, "move_up");
-  input.RegisterAndAssign(SDLK_DOWN, "move_down");
-  input.RegisterAndAssign(SDLK_LEFT, "move_left");
-  input.RegisterAndAssign(SDLK_RIGHT, "move_right");
+  input.RegisterAndAssign("move_up", SDLK_UP);
+  input.RegisterAndAssign("move_down", SDLK_DOWN);
+  input.RegisterAndAssign("move_left", SDLK_LEFT);
+  input.RegisterAndAssign("move_right", SDLK_RIGHT);
 
   bool quit = false;
   uint64_t elapsed = 0;

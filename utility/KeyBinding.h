@@ -35,6 +35,10 @@ namespace term_engine::utilities {
     void SetKey(KeyPtr key);
     void UnsetKey();
 
+    Uint16 GetModifiers() const;
+    void SetModifiers(const Uint16& modifiers);
+    bool CheckModifiers() const;
+
     bool IsDown() const;
     bool JustPressed() const;
     bool JustReleased() const;
@@ -44,6 +48,7 @@ namespace term_engine::utilities {
   private:
     std::string action_;
     KeyWeakPtr key_;
+    Uint16 modifiers_;
   };
 
   typedef std::unordered_map<std::string, KeyBinding> BindingMap;

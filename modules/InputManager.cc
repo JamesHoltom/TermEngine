@@ -38,8 +38,9 @@ namespace term_engine::modules {
     });
   }
   
-  int InputManager::RegisterAction(const std::string& action) {
+  int InputManager::RegisterAction(const std::string& action, const Uint16& modifiers) {
     utilities::KeyBinding new_action(action);
+    new_action.SetModifiers(modifiers);
     
     const bool& result = actions_.emplace(action, new_action).second;
     
@@ -90,18 +91,18 @@ namespace term_engine::modules {
     return -1;
   }
   
-  int InputManager::RegisterAndAssign(const SDL_Keycode& key, const std::string& action) {
+  int InputManager::RegisterAndAssign(const std::string& action, const SDL_Keycode& key, const Uint16& modifiers) {
     int key_result = RegisterKey(key);
-    int action_result = RegisterAction(action);
+    int action_result = RegisterAction(action, modifiers);
 
     if (key_result == 0 && action_result == 0) {
-      return AssignToAction(key, action);
+      return AssignToAction(action, key);
     }
 
     return -1;
   }
 
-  int InputManager::AssignToAction(const SDL_Keycode& key, const std::string& action) {
+  int InputManager::AssignToAction(const std::string& action, const SDL_Keycode& key) {
     auto key_it = keys_.find(key);
     auto action_it = actions_.find(action);
 
@@ -135,7 +136,7 @@ namespace term_engine::modules {
     auto it = actions_.find(action);
 
     if (it != actions_.end()) {
-      return it->second.IsDown();
+      return it->second.IsDown() && it->second.CheckModifiers();
     }
 
     printf("Could not find action \'%s\'!\n", action.c_str());
@@ -146,7 +147,7 @@ namespace term_engine::modules {
     auto it = actions_.find(action);
 
     if (it != actions_.end()) {
-      return it->second.JustPressed();
+      return it->second.JustPressed() && it->second.CheckModifiers();
     }
 
     printf("Could not find action \'%s\'!\n", action.c_str());
@@ -157,7 +158,7 @@ namespace term_engine::modules {
     auto it = actions_.find(action);
 
     if (it != actions_.end()) {
-      return it->second.JustReleased();
+      return it->second.JustReleased() && it->second.CheckModifiers();
     }
 
     printf("Could not find action \'%s\'!\n", action.c_str());

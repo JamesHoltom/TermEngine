@@ -20,15 +20,15 @@ namespace term_engine::modules {
       void HandleEvent(const SDL_Event& event);
       void UpdateFrames();
       
-      int RegisterAction(const std::string& action);
+      int RegisterAction(const std::string& action, const Uint16& modifiers = KMOD_NONE);
       int UnregisterAction(const std::string& action);
       
       int RegisterKey(const SDL_Keycode& key);
       int UnregisterKey(const SDL_Keycode& key);
 
-      int RegisterAndAssign(const SDL_Keycode& key, const std::string& action);
+      int RegisterAndAssign(const std::string& action, const SDL_Keycode& key, const Uint16& modifiers = KMOD_NONE);
       
-      int AssignToAction(const SDL_Keycode& key, const std::string& action);
+      int AssignToAction(const std::string& action, const SDL_Keycode& key);
       int UnassignFromAction(const std::string& action);
 
       bool GetKeyDown(const std::string& action) const;

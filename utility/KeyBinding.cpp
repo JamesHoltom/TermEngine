@@ -2,7 +2,8 @@
 
 namespace term_engine::utilities {
   KeyBinding::KeyBinding(const std::string& action) :
-    action_(action) {}
+    action_(action),
+    modifiers_(KMOD_NONE) {}
 
   std::string KeyBinding::GetAction() const {
     return action_;
@@ -22,6 +23,23 @@ namespace term_engine::utilities {
 
   void KeyBinding::UnsetKey() {
     key_.reset();
+  }
+
+  Uint16 KeyBinding::GetModifiers() const {
+    return modifiers_;
+  }
+
+  void KeyBinding::SetModifiers(const Uint16& modifiers) {
+    modifiers_ = modifiers;
+  }
+
+  bool KeyBinding::CheckModifiers() const {
+    if (auto tmpKey = key_.lock()) {
+      Uint16 mods = SDL_GetModState();
+      return (modifiers_ & mods) == modifiers_;
+    }
+
+    return false;
   }
 
   bool KeyBinding::IsDown() const {
