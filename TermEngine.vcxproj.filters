@@ -45,7 +45,7 @@
     <ClCompile Include="modules\InputManager.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="utility\KeyBinding.cpp">
+    <ClCompile Include="utility\KeyBinding.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
