@@ -45,7 +45,13 @@
     <ClCompile Include="modules\InputManager.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="utility\KeyBinding.cpp">
+    <ClCompile Include="utility\bindings\MouseBinding.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="utility\bindings\KeyBinding.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="utility\bindings\Binding.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -83,7 +89,13 @@
     <ClInclude Include="modules\InputManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="utility\KeyBinding.h">
+    <ClInclude Include="utility\bindings\MouseBinding.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utility\bindings\KeyBinding.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utility\bindings\Binding.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

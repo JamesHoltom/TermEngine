@@ -141,9 +141,11 @@
     <ClCompile Include="modules\TerminalWindow.cc" />
     <ClCompile Include="modules\Timer.cc" />
     <ClCompile Include="modules\StateManager.cc" />
+    <ClCompile Include="utility\bindings\Binding.cpp" />
     <ClCompile Include="utility\CharacterRange.cc" />
     <ClCompile Include="utility\Glyph.cc" />
-    <ClCompile Include="utility\KeyBinding.cpp" />
+    <ClCompile Include="utility\bindings\KeyBinding.cpp" />
+    <ClCompile Include="utility\bindings\MouseBinding.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="modules\FPSManager.h" />
@@ -152,10 +154,12 @@
     <ClInclude Include="modules\StateManager.h" />
     <ClInclude Include="modules\TerminalWindow.h" />
     <ClInclude Include="modules\Timer.h" />
+    <ClInclude Include="utility\bindings\Binding.h" />
     <ClInclude Include="utility\CharacterRange.h" />
     <ClInclude Include="modules\CharacterCache.h" />
     <ClInclude Include="utility\Glyph.h" />
-    <ClInclude Include="utility\KeyBinding.h" />
+    <ClInclude Include="utility\bindings\KeyBinding.h" />
+    <ClInclude Include="utility\bindings\MouseBinding.h" />
     <ClInclude Include="utility\SDLIncludes.h" />
     <ClInclude Include="utility\SDLUtilities.h" />
   </ItemGroup>

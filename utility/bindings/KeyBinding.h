@@ -9,9 +9,9 @@
 
 #include <memory>
 #include <string>
-#include <unordered_map>
 
-#include "SDLIncludes.h"
+#include "Binding.h"
+#include "../SDLIncludes.h"
 
 namespace term_engine::utilities {
   struct Key {
@@ -25,19 +25,11 @@ namespace term_engine::utilities {
   typedef std::weak_ptr<Key> KeyWeakPtr;
   typedef std::unordered_map<SDL_Keycode, KeyPtr> KeyMap;
 
-  class KeyBinding {
+  class KeyBinding : public Binding {
   public:
-    KeyBinding(const std::string& action);
-
-    std::string GetAction() const;
-
     SDL_Keycode GetKey() const;
     void SetKey(KeyPtr key);
     void UnsetKey();
-
-    Uint16 GetModifiers() const;
-    void SetModifiers(const Uint16& modifiers);
-    bool CheckModifiers() const;
 
     bool IsDown() const;
     bool JustPressed() const;
@@ -46,12 +38,8 @@ namespace term_engine::utilities {
     int GetFramesHeld() const;
 
   private:
-    std::string action_;
     KeyWeakPtr key_;
-    Uint16 modifiers_;
   };
-
-  typedef std::unordered_map<std::string, KeyBinding> BindingMap;
 }
 
-#endif
+#endif // ! UTIL_KEY_BINDING_H

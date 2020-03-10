@@ -9,7 +9,7 @@
 
 #include <string>
 
-#include "../utility/KeyBinding.h"
+#include "../utility/bindings/KeyBinding.h"
 #include "../utility/SDLIncludes.h"
 
 namespace term_engine::modules {
@@ -42,4 +42,4 @@ namespace term_engine::modules {
   };
 }
 
-#endif
+#endif // ! MOD_INPUT_MANAGER_H
