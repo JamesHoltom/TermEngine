@@ -4,8 +4,8 @@
  * MIT License
  */
 
-#ifndef CFG_CHARACTER_RANGE_H
-#define CFG_CHARACTER_RANGE_H
+#ifndef UTIL_CHARACTER_RANGE_H
+#define UTIL_CHARACTER_RANGE_H
 
 #include <array>
 
@@ -23,4 +23,4 @@ namespace term_engine::utilities {
   extern std::array<Uint16, LatinSetLength + StructureSymbolsSetLength + ArrowsSetLength + MiscSymbolsSetLength + MiscSymbolsExtendedSetLength + 1> Symbols;
 }
 
-#endif
+#endif // ! UTIL_CHARACTER_RANGE_H

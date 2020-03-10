@@ -16,4 +16,5 @@ namespace term_engine::modules {
   private:
   };
 }
-#endif
+
+#endif // ! MOD_STATE_MANAGER_H
