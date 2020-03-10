@@ -15,4 +15,4 @@
 #include <SDL2/SDL_ttf.h>
 #endif
 
-#endif
+#endif // ! UTIL_SDL_INCLUDES_H

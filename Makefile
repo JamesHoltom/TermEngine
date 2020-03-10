@@ -1,5 +1,5 @@
 # OBJS: Specify the input .c/.cpp files to be compiled.
-OBJS = main.cc modules/*.cc modules/**/*.cc utility/*.cc 
+OBJS = main.cc utility/*.cc modules/*.cc modules/**/*.cc
 
 # CC: Specifiy the compiler to use.
 CC = g++

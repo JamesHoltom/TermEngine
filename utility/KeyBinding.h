@@ -54,4 +54,4 @@ namespace term_engine::utilities {
   typedef std::unordered_map<std::string, KeyBinding> BindingMap;
 }
 
-#endif
+#endif // ! UTIL_KEY_BINDING_H

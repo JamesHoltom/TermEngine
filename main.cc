@@ -8,7 +8,8 @@
 #include "utility/Glyph.h"
 #include "modules/CharacterCache.h"
 #include "modules/FPSManager.h"
-#include "modules/InputManager.h"
+#include "modules/KeyManager.h"
+#include "modules/MouseManager.h"
 #include "modules/TerminalWindow.h"
 #include "modules/Timer.h"
 
@@ -39,7 +40,7 @@ int main(int argc, char** argv) {
 
   term_engine::utilities::InitCharacterRanges();
 
-  term_engine::modules::InputManager input;
+  term_engine::modules::KeyManager key_bindings;
   term_engine::modules::FPSManager fps;
   term_engine::modules::CharacterCache char_cache("unifont-12.1.03.ttf", FONT_SIZE);
   term_engine::modules::TerminalWindow term_win(&char_cache);
@@ -138,16 +139,16 @@ int main(int argc, char** argv) {
 
   timer.Start();
   
-  input.RegisterAndAssign("set_fps", SDLK_f);
-  input.RegisterAndAssign("show_fps_counter", SDLK_g);
-  input.RegisterAndAssign("set_frame", SDLK_o);
-  input.RegisterAndAssign("toggle_pause", SDLK_p);
-  input.RegisterAndAssign("get_frames", SDLK_q, KMOD_LSHIFT);
+  key_bindings.RegisterAction("set_fps", SDLK_f);
+  key_bindings.RegisterAction("show_fps_counter", SDLK_g);
+  key_bindings.RegisterAction("set_frame", SDLK_o);
+  key_bindings.RegisterAction("toggle_pause", SDLK_p);
+  key_bindings.RegisterAction("get_frames", SDLK_q, KMOD_LSHIFT);
 
-  input.RegisterAndAssign("move_up", SDLK_UP);
-  input.RegisterAndAssign("move_down", SDLK_DOWN);
-  input.RegisterAndAssign("move_left", SDLK_LEFT);
-  input.RegisterAndAssign("move_right", SDLK_RIGHT);
+  key_bindings.RegisterAction("move_up", SDLK_UP);
+  key_bindings.RegisterAction("move_down", SDLK_DOWN);
+  key_bindings.RegisterAction("move_left", SDLK_LEFT);
+  key_bindings.RegisterAction("move_right", SDLK_RIGHT);
 
   bool quit = false;
   uint64_t elapsed = 0;
@@ -164,10 +165,10 @@ int main(int argc, char** argv) {
         quit = true;
       }
       
-      input.HandleEvent(evt);
+      key_bindings.HandleEvent(evt);
     }
 
-    if (input.GetKeyPress("toggle_pause")) {
+    if (key_bindings.GetKeyPressed("toggle_pause")) {
       if (timer.IsPaused()) {
         timer.Resume();
       }
@@ -176,14 +177,14 @@ int main(int argc, char** argv) {
       }
     }
 
-    if (input.GetKeyRelease("get_frames")) {
-      printf("%i frames have passed.\n", input.GetKeyFramesHeld(SDLK_q));
+    if (key_bindings.GetKeyReleased("get_frames")) {
+      printf("%i frames have passed.\n", key_bindings.GetKeyFramesHeld("get_frames"));
     }
 
     if (!timer.IsPaused()) {
       term_win.Update(elapsed);
 
-      if (input.GetKeyPress("set_fps")) {
+      if (key_bindings.GetKeyPressed("set_fps")) {
         switch (fps.GetTargetFPS()) {
         case 60:
           fps.SetTargetFPS(30);
@@ -213,11 +214,11 @@ int main(int argc, char** argv) {
         }
       }
 
-      if (input.GetKeyPress("show_fps_counter")) {
+      if (key_bindings.GetKeyPressed("show_fps_counter")) {
         showFpsCounter = !showFpsCounter;
       }
 
-      if (input.GetKeyPress("set_frame")) {
+      if (key_bindings.GetKeyPressed("set_frame")) {
         term_win.ClearGlyphs();
         renderVer = (renderVer + 1) % 4;
         printf("Switching to mode %i.\n", renderVer);
@@ -235,7 +236,7 @@ int main(int argc, char** argv) {
         term_win.FillGlyphs(waveGen);
         break;
       case 3:
-        if (input.GetKeyDown("move_up")) {
+        if (key_bindings.GetKeyDown("move_up")) {
           player_y -= speed * rate;
 
           if (player_y < 0.0f) {
@@ -243,7 +244,7 @@ int main(int argc, char** argv) {
           }
         }
 
-        if (input.GetKeyDown("move_down")) {
+        if (key_bindings.GetKeyDown("move_down")) {
           player_y += speed * rate;
 
           if (player_y > (float)(TERM_HEIGHT - 1)) {
@@ -251,7 +252,7 @@ int main(int argc, char** argv) {
           }
         }
 
-        if (input.GetKeyDown("move_left")) {
+        if (key_bindings.GetKeyDown("move_left")) {
           player_x -= speed * rate;
 
           if (player_x < 0.0f) {
@@ -259,7 +260,7 @@ int main(int argc, char** argv) {
           }
         }
 
-        if (input.GetKeyDown("move_right")) {
+        if (key_bindings.GetKeyDown("move_right")) {
           player_x += speed * rate;
 
           if (player_x > (float)(TERM_WIDTH - 1)) {
@@ -284,7 +285,7 @@ int main(int argc, char** argv) {
       SDL_RenderPresent(renderer);
     }
 
-    input.UpdateFrames();
+    key_bindings.UpdateFrames();
     fps.NextFrame();
 
     if (fps.isUsingTargetFPS()) {

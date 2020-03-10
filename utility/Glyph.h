@@ -22,4 +22,4 @@ namespace term_engine::utilities {
   extern Glyph nullGlyph;
 }
 
-#endif
+#endif // ! UTIL_GLYPH_H

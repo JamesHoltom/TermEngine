@@ -38,4 +38,4 @@ namespace term_engine::modules {
   };
 }
 
-#endif
+#endif // ! MOD_FPS_MANAGER_H

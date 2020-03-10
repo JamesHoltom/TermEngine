@@ -47,4 +47,4 @@ namespace term_engine::utilities {
   };
 }
 
-#endif
+#endif // ! UTIL_SDL_UTILITIES_H
