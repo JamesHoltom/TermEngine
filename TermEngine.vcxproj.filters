@@ -45,13 +45,13 @@
     <ClCompile Include="modules\InputManager.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="utility\bindings\MouseBinding.cpp">
+    <ClCompile Include="utility\bindings\Binding.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="utility\bindings\KeyBinding.cpp">
+    <ClCompile Include="utility\bindings\KeyBinding.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="utility\bindings\Binding.cpp">
+    <ClCompile Include="utility\bindings\MouseBinding.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

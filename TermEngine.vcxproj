@@ -141,11 +141,11 @@
     <ClCompile Include="modules\TerminalWindow.cc" />
     <ClCompile Include="modules\Timer.cc" />
     <ClCompile Include="modules\StateManager.cc" />
-    <ClCompile Include="utility\bindings\Binding.cpp" />
+    <ClCompile Include="utility\bindings\Binding.cc" />
     <ClCompile Include="utility\CharacterRange.cc" />
     <ClCompile Include="utility\Glyph.cc" />
-    <ClCompile Include="utility\bindings\KeyBinding.cpp" />
-    <ClCompile Include="utility\bindings\MouseBinding.cpp" />
+    <ClCompile Include="utility\bindings\KeyBinding.cc" />
+    <ClCompile Include="utility\bindings\MouseBinding.cc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="modules\FPSManager.h" />
