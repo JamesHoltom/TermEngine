@@ -11,6 +11,7 @@
 #include <string>
 #include <unordered_map>
 
+#include "../utility/Types.h"
 #include "../utility/SDLIncludes.h"
 #include "../utility/Glyph.h"
 #include "../utility/SDLUtilities.h"
@@ -31,7 +32,7 @@ namespace term_engine::modules {
 
     int Render(SDL_Surface* destination, const int& x, const int& y, const Uint16& character);
 
-    int GetGlyphDimensions(int& width, int& height) const;
+    utilities::IntVector2D GetGlyphDimensions() const;
 
   private:
     bool is_loaded_;

@@ -107,15 +107,12 @@ namespace term_engine::modules {
     }
   }
 
-  int CharacterCache::GetGlyphDimensions(int& width, int& height) const {
+  utilities::IntVector2D CharacterCache::GetGlyphDimensions() const {
     if (is_loaded_) {
-      width = glyph_width_;
-      height = font_size_;
-
-      return 0;
+      return std::make_tuple(glyph_width_, font_size_);
     }
     else {
-      return -1;
+      return std::make_tuple(-1, -1);
     }
   }
 }

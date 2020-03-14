@@ -42,16 +42,13 @@
     <ClCompile Include="modules\FPSManager.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="modules\InputManager.cc">
+    <ClCompile Include="utility\KeyBinding.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="utility\bindings\Binding.cc">
+    <ClCompile Include="modules\KeyManager.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="utility\bindings\KeyBinding.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="utility\bindings\MouseBinding.cc">
+    <ClCompile Include="modules\MouseManager.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -86,16 +83,16 @@
     <ClInclude Include="modules\StateManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="modules\InputManager.h">
+    <ClInclude Include="utility\KeyBinding.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="utility\bindings\MouseBinding.h">
+    <ClInclude Include="modules\KeyManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="utility\bindings\KeyBinding.h">
+    <ClInclude Include="modules\MouseManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="utility\bindings\Binding.h">
+    <ClInclude Include="utility\Types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

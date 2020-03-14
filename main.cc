@@ -41,6 +41,7 @@ int main(int argc, char** argv) {
   term_engine::utilities::InitCharacterRanges();
 
   term_engine::modules::KeyManager key_bindings;
+  term_engine::modules::MouseManager mouse;
   term_engine::modules::FPSManager fps;
   term_engine::modules::CharacterCache char_cache("unifont-12.1.03.ttf", FONT_SIZE);
   term_engine::modules::TerminalWindow term_win(&char_cache);
@@ -64,6 +65,18 @@ int main(int argc, char** argv) {
       n.background = { 0, 0, 0, 255 };
       n.foreground = { 255, 255, 255, 255 };
     });
+
+    return 0;
+  };
+
+  std::function<int(std::vector<term_engine::utilities::Glyph>&)> cursorFunc = [&mouse, &term_win](std::vector<term_engine::utilities::Glyph>& glyphs) {
+    auto [global_x, global_y] = mouse.GetMousePosition();
+    auto [window_x, window_y] = term_win.GetWindowPosition();
+    auto [window_w, window_h] = term_win.GetWindowSize();
+    auto [glyph_w, glyph_h] = term_win.GetGridSize();
+    auto [spacing_w, spacing_h] = term_win.GetGlyphSpacing();
+
+    // X = 
 
     return 0;
   };
@@ -166,6 +179,7 @@ int main(int argc, char** argv) {
       }
       
       key_bindings.HandleEvent(evt);
+      mouse.HandleEvent(evt);
     }
 
     if (key_bindings.GetKeyPressed("toggle_pause")) {
@@ -275,6 +289,8 @@ int main(int argc, char** argv) {
       if (showFpsCounter) {
         term_win.SetGlyphs(fpsFunc);
       }
+
+      term_win.SetGlyphs(cursorFunc);
       
       SDL_RenderClear(renderer);
 
@@ -286,6 +302,7 @@ int main(int argc, char** argv) {
     }
 
     key_bindings.UpdateFrames();
+    mouse.UpdateFrames();
     fps.NextFrame();
 
     if (fps.isUsingTargetFPS()) {

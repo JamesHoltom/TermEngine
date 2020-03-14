@@ -159,9 +159,14 @@ namespace term_engine::modules {
     return 0;
   }
 
-  void TerminalWindow::GetGlyphSpacing(int& x_spacing, int& y_spacing) const {
-    x_spacing = glyph_x_spacing_;
-    y_spacing = glyph_y_spacing_;
+  utilities::IntVector2D TerminalWindow::GetGridSize() const {
+    auto [glyph_width, glyph_height] = character_cache_->GetGlyphDimensions();
+
+    return std::make_tuple(glyph_width + (glyph_x_padding_ * 2), glyph_height + (glyph_y_padding_ * 2));
+  }
+
+  utilities::IntVector2D TerminalWindow::GetGlyphSpacing() const {
+    return std::make_tuple(glyph_x_spacing_, glyph_y_spacing_);
   }
 
   void TerminalWindow::SetGlyphSpacing(const int& x_spacing, const int& y_spacing) {
@@ -175,9 +180,8 @@ namespace term_engine::modules {
     SetGlyphSpacing(spacing, spacing);
   }
 
-  void TerminalWindow::GetGlyphPadding(int& x_padding, int& y_padding) const {
-    x_padding = glyph_x_padding_;
-    y_padding = glyph_y_padding_;
+  utilities::IntVector2D TerminalWindow::GetGlyphPadding() const {
+    return std::make_tuple(glyph_x_padding_, glyph_y_padding_);
   }
 
   void TerminalWindow::SetGlyphPadding(const int& x_padding, const int& y_padding) {
@@ -191,9 +195,8 @@ namespace term_engine::modules {
     SetGlyphSpacing(padding, padding);
   }
 
-  void TerminalWindow::GetWindowPosition(int& x_pos, int& y_pos) const {
-    x_pos = bounds_.x;
-    y_pos = bounds_.y;
+  utilities::IntVector2D TerminalWindow::GetWindowPosition() const {
+    return std::make_tuple(bounds_.x, bounds_.y);
   }
 
   void TerminalWindow::SetWindowPosition(const int& x_pos, const int& y_pos) {
@@ -201,9 +204,8 @@ namespace term_engine::modules {
     bounds_.y = y_pos;
   }
 
-  void TerminalWindow::GetWindowSize(int& width, int& height) const {
-    width = bounds_.w;
-    height = bounds_.h;
+  utilities::IntVector2D TerminalWindow::GetWindowSize() const {
+    return std::make_tuple(bounds_.w, bounds_.h);
   }
 
   void TerminalWindow::SetWindowSize(const int& width, const int& height) {
@@ -212,17 +214,14 @@ namespace term_engine::modules {
   }
 
   void TerminalWindow::SetWindowSizeByCount() {
-    int glyph_width;
-    int glyph_height;
-    character_cache_->GetGlyphDimensions(glyph_width, glyph_height);
+    auto [glyph_width, glyph_height] = character_cache_->GetGlyphDimensions();
 
     bounds_.w = (glyph_width + (glyph_x_padding_ * 2)) * glyph_x_count_ + (glyph_x_spacing_ * (glyph_x_count_ - 1));
     bounds_.h = (glyph_height + (glyph_y_padding_ * 2)) * glyph_y_count_ + (glyph_y_spacing_ * (glyph_y_count_ - 1));
   }
 
-  void TerminalWindow::GetWindowCount(int& x_count, int& y_count) const {
-    x_count = glyph_x_count_;
-    y_count = glyph_y_count_;
+  utilities::IntVector2D TerminalWindow::GetWindowCount() const {
+    return std::make_tuple(glyph_x_count_, glyph_y_count_);
   }
 
   void TerminalWindow::SetWindowCount(const int& x_count, const int& y_count) {

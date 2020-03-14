@@ -23,14 +23,6 @@ namespace term_engine::modules {
         keys_[key]->is_held = false;
 
         break;
-      case SDL_MOUSEBUTTONDOWN:
-        break;
-      case SDL_MOUSEBUTTONUP:
-        break;
-      case SDL_MOUSEMOTION:
-        break;
-      case SDL_MOUSEWHEEL:
-        break;
       }
     }
   }
@@ -169,7 +161,7 @@ namespace term_engine::modules {
       return it->second.GetFramesHeld();
     }
 
-    printf("Could not find action \'%s\'\n", action);
+    printf("Could not find action \'%s\'\n", action.c_str());
     return -1;
   }
   

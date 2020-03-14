@@ -71,6 +71,6 @@ namespace term_engine::utilities {
       return tmpKey->held_frames;
     }
 
-    return 0;
+    return -1;
   }
 }

@@ -11,12 +11,15 @@
 #include <memory>
 #include <vector>
 
+#include "../utility/Types.h"
 #include "../utility/SDLIncludes.h"
 #include "../utility/Glyph.h"
 #include "../utility/SDLUtilities.h"
 #include "./CharacterCache.h"
 
 namespace term_engine::modules {
+
+
   class TerminalWindow {
   public:
     TerminalWindow(CharacterCache* char_cache);
@@ -33,22 +36,24 @@ namespace term_engine::modules {
     int SetGlyphs(std::function<int(std::vector<utilities::Glyph>&)> func);
     int FillGlyphs(std::function<utilities::Glyph()> generator);
 
-    void GetGlyphSpacing(int& x_spacing, int& y_spacing) const;
+    utilities::IntVector2D GetGridSize() const;
+
+    utilities::IntVector2D GetGlyphSpacing() const;
     void SetGlyphSpacing(const int& x_spacing, const int& y_spacing);
     void SetGlyphSpacing(const int& spacing);
 
-    void GetGlyphPadding(int& x_padding, int& y_padding) const;
+    utilities::IntVector2D GetGlyphPadding() const;
     void SetGlyphPadding(const int& x_padding, const int& y_padding);
     void SetGlyphPadding(const int& padding);
 
-    void GetWindowPosition(int& x_pos, int& y_pos) const;
+    utilities::IntVector2D GetWindowPosition() const;
     void SetWindowPosition(const int& x_pos, const int& y_pos);
 
-    void GetWindowSize(int& width, int& height) const;
+    utilities::IntVector2D GetWindowSize() const;
     void SetWindowSize(const int& width, const int& height);
     void SetWindowSizeByCount();
 
-    void GetWindowCount(int& x_count, int& y_count) const;
+    utilities::IntVector2D GetWindowCount() const;
     void SetWindowCount(const int& x_count, const int& y_count);
 
   private:
