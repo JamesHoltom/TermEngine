@@ -57,14 +57,13 @@ namespace term_engine::modules {
     int y_pos = 0;
     int count = 0;
 
-    int glyph_width;
-    int glyph_height;
-
     if (glyph_surf_ != nullptr) {
       SDL_FreeSurface(glyph_surf_);
     }
 
-    character_cache_->GetGlyphDimensions(glyph_width, glyph_height);
+    auto [gw, gh] = character_cache_->GetGlyphDimensions();
+    int glyph_width = gw;
+    int glyph_height = gh;
 
     glyph_surf_ = SDL_CreateRGBSurfaceWithFormat(0, glyph_x_count_ * glyph_width, glyph_y_count_ * glyph_height, 32, SDL_PIXELFORMAT_RGBA32);
 
@@ -74,7 +73,7 @@ namespace term_engine::modules {
       return -1;
     }
 
-    std::for_each(glyphs_.begin(), glyphs_.end(), [this, &renderer, &x_pos, &y_pos, &count, &glyph_width, &glyph_height](utilities::Glyph it) {
+    std::for_each(glyphs_.begin(), glyphs_.end(), [this, &renderer, &x_pos, &y_pos, &count, &glyph_width, &glyph_height](Glyph it) {
       SDL_Rect fill_rect = { x_pos, y_pos, glyph_width + (glyph_x_padding_ * 2), glyph_height + (glyph_y_padding_ * 2) };
       SDL_FillRect(glyph_surf_, &fill_rect, SDL_MapRGBA(glyph_surf_->format, it.background.r, it.background.g, it.background.b, it.background.a));
 
@@ -123,14 +122,14 @@ namespace term_engine::modules {
   }
 
   void TerminalWindow::ClearGlyphs() {
-    std::fill(glyphs_.begin(), glyphs_.end(), utilities::nullGlyph);
+    std::fill(glyphs_.begin(), glyphs_.end(), nullGlyph);
   }
 
   int TerminalWindow::SetGlyph(const int& x_cell, const int& y_cell, const Uint16& character, const SDL_Color& foreground, const SDL_Color& background) {
     return SetGlyph(x_cell, y_cell, { character, foreground, background });
   }
 
-  int TerminalWindow::SetGlyph(const int& x_cell, const int& y_cell, const utilities::Glyph& glyph) {
+  int TerminalWindow::SetGlyph(const int& x_cell, const int& y_cell, const Glyph& glyph) {
     int position = (y_cell * glyph_x_count_) + x_cell;
     
     if (position < 0 || position >= glyph_x_count_ * glyph_y_count_) {
@@ -145,14 +144,14 @@ namespace term_engine::modules {
     return 0;
   }
 
-  int TerminalWindow::SetGlyphs(std::function<int(std::vector<utilities::Glyph>&)> func) {
+  int TerminalWindow::SetGlyphs(std::function<int(std::vector<Glyph>&)> func) {
     int result = func(glyphs_);
     is_dirty_ = true;
 
     return result;
   }
   
-  int TerminalWindow::FillGlyphs(std::function<utilities::Glyph()> generator) {
+  int TerminalWindow::FillGlyphs(std::function<Glyph()> generator) {
     std::generate(glyphs_.begin(), glyphs_.end(), generator);
     is_dirty_ = true;
     
@@ -229,5 +228,23 @@ namespace term_engine::modules {
     glyph_y_count_ = y_count;
 
     needs_resizing_ = true;
+  }
+
+  utilities::IntVector2D TerminalWindow::GlobalToLocal(const int& global_x, const int& global_y) {
+    auto [glyph_width, glyph_height] = character_cache_->GetGlyphDimensions();
+
+    int x = std::clamp((global_x - bounds_.x) / (glyph_width + (glyph_x_padding_ * 2) + glyph_x_spacing_), 0, glyph_x_count_);
+    int y = std::clamp((global_y - bounds_.y) / (glyph_height + (glyph_y_padding_ * 2) + glyph_y_spacing_), 0, glyph_y_count_);
+
+    return std::make_tuple(x, y);
+  }
+
+  utilities::IntVector2D TerminalWindow::LocalToGlobal(const int& grid_x, const int& grid_y) {
+    auto [glyph_width, glyph_height] = character_cache_->GetGlyphDimensions();
+
+    int x = bounds_.x + (grid_x * (glyph_width + (glyph_x_padding_ * 2) + glyph_x_spacing_));
+    int y = bounds_.y + (grid_y * (glyph_height + (glyph_y_padding_ * 2) + glyph_y_spacing_));
+
+    return std::make_tuple(x, y);
   }
 }

@@ -11,10 +11,10 @@
 #include <memory>
 #include <vector>
 
-#include "../utility/Types.h"
-#include "../utility/SDLIncludes.h"
-#include "../utility/Glyph.h"
-#include "../utility/SDLUtilities.h"
+#include "../types.h"
+#include "../includes.h"
+#include "../text/Glyph.h"
+#include "../sdl.h"
 #include "./CharacterCache.h"
 
 namespace term_engine::modules {
@@ -32,9 +32,9 @@ namespace term_engine::modules {
     void ClearGlyphs();
 
     int SetGlyph(const int& x_cell, const int& y_cell, const Uint16& character, const SDL_Color& foreground, const SDL_Color& background);
-    int SetGlyph(const int& x_cell, const int& y_cell, const utilities::Glyph& glyph);
-    int SetGlyphs(std::function<int(std::vector<utilities::Glyph>&)> func);
-    int FillGlyphs(std::function<utilities::Glyph()> generator);
+    int SetGlyph(const int& x_cell, const int& y_cell, const Glyph& glyph);
+    int SetGlyphs(std::function<int(std::vector<Glyph>&)> func);
+    int FillGlyphs(std::function<Glyph()> generator);
 
     utilities::IntVector2D GetGridSize() const;
 
@@ -56,6 +56,9 @@ namespace term_engine::modules {
     utilities::IntVector2D GetWindowCount() const;
     void SetWindowCount(const int& x_count, const int& y_count);
 
+    utilities::IntVector2D GlobalToLocal(const int& global_x, const int& global_y);
+    utilities::IntVector2D LocalToGlobal(const int& grid_x, const int& grid_y);
+
   private:
     bool is_dirty_;
     bool needs_resizing_;
@@ -70,7 +73,7 @@ namespace term_engine::modules {
     int glyph_y_padding_;
 
     SDL_Rect bounds_;
-    std::vector<utilities::Glyph> glyphs_;
+    std::vector<Glyph> glyphs_;
     SDL_Surface* glyph_surf_;
     CharacterCache* character_cache_;
   };

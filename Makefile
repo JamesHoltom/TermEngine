@@ -10,9 +10,10 @@ COMPILER_FLAGS = -w -std=c++17
 
 # LINKER_FLAGS: Set any additional linker flags.
 #   -lSDL2: Link the SDL2 library.
-#   -lSDL2_image: Link the SDL2_image library.
+#   -lSDL2_mixer: Link the SDL2_mixer library.
 #   -lSDL2_ttf: Link the SDL2_ttf library.
-LINKER_FLAGS = -lSDL2 -lSDL2_image -lSDL2_ttf
+#	-llua: Link Lua.
+LINKER_FLAGS = -lSDL2 -lSDL2_mixer -lSDL2_ttf -llua
 
 # OUT_DIR: Set the output directory of the executable.
 OUT_DIR = bld

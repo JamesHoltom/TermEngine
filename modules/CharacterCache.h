@@ -11,10 +11,10 @@
 #include <string>
 #include <unordered_map>
 
-#include "../utility/Types.h"
-#include "../utility/SDLIncludes.h"
-#include "../utility/Glyph.h"
-#include "../utility/SDLUtilities.h"
+#include "../types.h"
+#include "../includes.h"
+#include "../text/Glyph.h"
+#include "../sdl.h"
 
 namespace term_engine::modules {
   class CharacterCache {

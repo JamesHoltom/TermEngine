@@ -70,8 +70,9 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>E:\Programming\Libraries\Project files\Libraries\SDL2-2.0.10\include;E:\Programming\Libraries\Project files\Libraries\SDL2_image-2.0.5\include;E:\Programming\Libraries\Project files\Libraries\SDL2_mixer-2.0.4\include;E:\Programming\Libraries\Project files\Libraries\SDL2_net-2.0.1\include;E:\Programming\Libraries\Project files\Libraries\SDL2_ttf-2.0.15\include;E:\Programming\Libraries\Project files\Libraries\Sol-3.0.3;$(IncludePath)</IncludePath>
-    <LibraryPath>E:\Programming\Libraries\Project files\Libraries\SDL2-2.0.10\lib\x64;E:\Programming\Libraries\Project files\Libraries\SDL2_image-2.0.5\lib\x64;E:\Programming\Libraries\Project files\Libraries\SDL2_mixer-2.0.4\lib\x64;E:\Programming\Libraries\Project files\Libraries\SDL2_net-2.0.1\lib\x64;E:\Programming\Libraries\Project files\Libraries\SDL2_ttf-2.0.15\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)thirdparty\includes;$(SolutionDir)thirdparty\includes\lua;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)thirdparty\libraries\x64;$(LibraryPath)</LibraryPath>
+    <ExcludePath>$(ExcludePath)</ExcludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -95,8 +96,9 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_mixer.lib;SDL2_net.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_mixer.lib;SDL2_ttf.lib;glew32.lib;OpenGL32.lib;glu32.lib;freetype-gl.lib;spdlog.lib;lua.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>LIBCMT</IgnoreSpecificDefaultLibraries>
+      <ShowProgress>NotSet</ShowProgress>
     </Link>
     <Lib>
       <SubSystem>Windows</SubSystem>
@@ -133,34 +135,36 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ecs\ComponentManager.cc" />
+    <ClCompile Include="init.cc" />
     <ClCompile Include="main.cc" />
-    <ClCompile Include="modules\CharacterCache.cc" />
-    <ClCompile Include="modules\FPSManager.cc" />
-    <ClCompile Include="modules\GameObjects\Base.cc" />
-    <ClCompile Include="modules\KeyManager.cc" />
-    <ClCompile Include="modules\MouseManager.cc" />
-    <ClCompile Include="modules\TerminalWindow.cc" />
-    <ClCompile Include="modules\Timer.cc" />
-    <ClCompile Include="modules\StateManager.cc" />
-    <ClCompile Include="utility\CharacterRange.cc" />
-    <ClCompile Include="utility\Glyph.cc" />
-    <ClCompile Include="utility\KeyBinding.cc" />
+    <ClCompile Include="rendering\ShaderManager.cc" />
+    <ClCompile Include="rendering\VertexManager.cc" />
+    <ClCompile Include="rendering\Window.cc" />
+    <ClCompile Include="rendering\WindowManager.cc" />
+    <ClCompile Include="scripting\ScriptManager.cc" />
+    <ClCompile Include="states\StateManager.cc" />
+    <ClCompile Include="timing\FPSManager.cc" />
+    <ClCompile Include="timing\Timer.cc" />
+    <ClCompile Include="utility\DebugFunctions.cc" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="modules\FPSManager.h" />
-    <ClInclude Include="modules\GameObjects\Base.h" />
-    <ClInclude Include="modules\KeyManager.h" />
-    <ClInclude Include="modules\MouseManager.h" />
-    <ClInclude Include="modules\StateManager.h" />
-    <ClInclude Include="modules\TerminalWindow.h" />
-    <ClInclude Include="modules\Timer.h" />
-    <ClInclude Include="utility\CharacterRange.h" />
-    <ClInclude Include="modules\CharacterCache.h" />
-    <ClInclude Include="utility\Glyph.h" />
-    <ClInclude Include="utility\KeyBinding.h" />
-    <ClInclude Include="utility\SDLIncludes.h" />
-    <ClInclude Include="utility\SDLUtilities.h" />
-    <ClInclude Include="utility\Types.h" />
+    <ClInclude Include="ecs\ComponentManager.h" />
+    <ClInclude Include="init.h" />
+    <ClInclude Include="rendering\VertexManager.h" />
+    <ClInclude Include="rendering\ShaderManager.h" />
+    <ClInclude Include="rendering\Window.h" />
+    <ClInclude Include="rendering\WindowManager.h" />
+    <ClInclude Include="scripting\Assert.h" />
+    <ClInclude Include="scripting\ScriptManager.h" />
+    <ClInclude Include="states\StateManager.h" />
+    <ClInclude Include="timing\FPSManager.h" />
+    <ClInclude Include="timing\Timer.h" />
+    <ClInclude Include="includes.h" />
+    <ClInclude Include="sdl_includes.h" />
+    <ClInclude Include="types.h" />
+    <ClInclude Include="gl_includes.h" />
+    <ClInclude Include="utility\DebugFunctions.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

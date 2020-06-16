@@ -18,81 +18,87 @@
     <ClCompile Include="main.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="modules\CharacterCache.cc">
+    <ClCompile Include="timing\Timer.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="utility\Glyph.cc">
+    <ClCompile Include="timing\FPSManager.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="utility\CharacterRange.cc">
+    <ClCompile Include="init.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="modules\Timer.cc">
+    <ClCompile Include="rendering\Window.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="modules\TerminalWindow.cc">
+    <ClCompile Include="rendering\WindowManager.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="modules\GameObjects\Base.cc">
+    <ClCompile Include="states\StateManager.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="modules\StateManager.cc">
+    <ClCompile Include="rendering\ShaderManager.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="modules\FPSManager.cc">
+    <ClCompile Include="rendering\VertexManager.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="utility\KeyBinding.cc">
+    <ClCompile Include="scripting\ScriptManager.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="modules\KeyManager.cc">
+    <ClCompile Include="ecs\ComponentManager.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="modules\MouseManager.cc">
+    <ClCompile Include="utility\DebugFunctions.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="modules\CharacterCache.h">
+    <ClInclude Include="init.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="utility\SDLUtilities.h">
+    <ClInclude Include="timing\Timer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="utility\CharacterRange.h">
+    <ClInclude Include="timing\FPSManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="modules\Timer.h">
+    <ClInclude Include="includes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="utility\Glyph.h">
+    <ClInclude Include="types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="modules\TerminalWindow.h">
+    <ClInclude Include="rendering\Window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="modules\GameObjects\Base.h">
+    <ClInclude Include="rendering\WindowManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="utility\SDLIncludes.h">
+    <ClInclude Include="states\StateManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="modules\FPSManager.h">
+    <ClInclude Include="gl_includes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="modules\StateManager.h">
+    <ClInclude Include="rendering\ShaderManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="utility\KeyBinding.h">
+    <ClInclude Include="sdl_includes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="modules\KeyManager.h">
+    <ClInclude Include="rendering\VertexManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="modules\MouseManager.h">
+    <ClInclude Include="scripting\ScriptManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="utility\Types.h">
+    <ClInclude Include="scripting\Assert.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ecs\ComponentManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utility\DebugFunctions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

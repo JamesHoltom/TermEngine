@@ -9,7 +9,7 @@
 
 #include <array>
 
-#include "SDLIncludes.h"
+#include "../includes.h"
 
 namespace term_engine::utilities {
   constexpr int LatinSetLength = 94;
