@@ -1,10 +1,10 @@
 #include "includes.h"
 #include "init.h"
 #include "timing/FPSManager.h"
-#include "rendering/VertexManager.h"
-#include "rendering/Window.h"
-#include "rendering/WindowManager.h"
-#include "rendering/ShaderManager.h"
+#include "window/Window.h"
+#include "window/WindowManager.h"
+#include "shaders/ShaderManager.h"
+#include "text/GlyphManager.h"
 #include "utility/DebugFunctions.h"
 
 #include <string>
@@ -13,14 +13,20 @@
 int main(int argc, char** argv) {
   SDL_Event evt;
   bool quit = false;
+  int window_size = 0;
+  bool wireframe_mode = false;
   int window_num = 0;
 
   term_engine::InitSDL();
   term_engine::InitGL();
 
-  term_engine::window_management::InitDefaultWindow();
+  term_engine::windows::InitDefaultWindow();
+  term_engine::shaders::InitGlyphShader();
+  term_engine::glyphs::InitExampleGlyphSet();
 
-  term_engine::CreateVertexData();
+  term_engine::windows::WindowPtr def_win = term_engine::windows::GetWindow("default");
+  def_win->SetShaderProgram("glyph");
+  def_win->SetGlyphSet("example");
 
   term_engine::fps_management::InitFPS();
 
@@ -40,21 +46,35 @@ int main(int argc, char** argv) {
             spdlog::info("FPS: {}", term_engine::fps_management::GetAverageFPS());
 
             break;
-          case SDLK_i:
-            std::string window_str = "test_" + std::to_string(window_num++);
-            term_engine::window_management::AddWindow(window_str);
-            term_engine::shaders::BuildResult frag_result = term_engine::shaders::BuildShaderFromString(term_engine::shaders::default_fragment_shader, GL_FRAGMENT_SHADER);
-            term_engine::shaders::BuildResult vert_result = term_engine::shaders::BuildShaderFromString(term_engine::shaders::default_vertex_shader, GL_VERTEX_SHADER);
+          case SDLK_g:
+            wireframe_mode = !wireframe_mode;
 
-            if (std::get<0>(vert_result) == GL_TRUE && std::get<0>(frag_result) == GL_TRUE) {
-              term_engine::shaders::BuildResult prog_result = term_engine::shaders::BuildProgram(window_str, { std::get<1>(vert_result), std::get<1>(frag_result) });
-
-              if (std::get<0>(prog_result) == GL_TRUE) {
-                term_engine::window_management::GetWindow(window_str)->SetProgram(std::get<1>(prog_result));
-              }
+            if (wireframe_mode) {
+              glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            } else {
+              glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             }
 
-            spdlog::info("Created window {}.", window_str);
+            break;
+          case SDLK_w:
+            window_size = ++window_size % 3;
+
+            switch (window_size) {
+            case 0:
+              def_win->SetSize(term_engine::windows::DEFAULT_WINDOW_WIDTH, term_engine::windows::DEFAULT_WINDOW_HEIGHT);
+
+              break;
+            case 1:
+              def_win->SetSize(320, 240);
+
+              break;
+            case 2:
+              def_win->SetSize(1024, 800);
+
+              break;
+            }
+
+            spdlog::info("Switched to window size {}.", window_size);
 
             break;
         }
@@ -62,16 +82,19 @@ int main(int argc, char** argv) {
 
       term_engine::debug::LogWindowEvents(evt);
       term_engine::debug::LogKeyboardEvents(evt);
-      term_engine::window_management::Logic(evt);
     }
 
-    term_engine::window_management::Render();
+    term_engine::windows::Logic(evt);
+    term_engine::windows::Render();
 
     term_engine::fps_management::NextFrame();
     term_engine::fps_management::Delay();
   }
   
-  term_engine::window_management::CleanUpWindows();
+  term_engine::windows::CleanUpWindows();
+  term_engine::shaders::CleanUpShaders();
+  term_engine::glyphs::CleanUpGlyphSets();
+  term_engine::glyphs::GlyphSet::CleanUpVertices();
   term_engine::Shutdown();
 
   return 0;

@@ -27,19 +27,7 @@
     <ClCompile Include="init.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="rendering\Window.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="rendering\WindowManager.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="states\StateManager.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="rendering\ShaderManager.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="rendering\VertexManager.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="scripting\ScriptManager.cc">
@@ -49,6 +37,24 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="utility\DebugFunctions.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="window\Window.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="window\WindowManager.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="shaders\ShaderManager.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="text\GlyphManager.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="shaders\Shader.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="text\GlyphSet.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -68,25 +74,13 @@
     <ClInclude Include="types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="rendering\Window.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="rendering\WindowManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="states\StateManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gl_includes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="rendering\ShaderManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="sdl_includes.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="rendering\VertexManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="scripting\ScriptManager.h">
@@ -99,6 +93,24 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="utility\DebugFunctions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="window\WindowManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="window\Window.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="shaders\ShaderManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="text\GlyphManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="shaders\Shader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="text\GlyphSet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

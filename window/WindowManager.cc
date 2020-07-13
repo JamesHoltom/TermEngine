@@ -1,33 +1,14 @@
 #include <spdlog/spdlog.h>
 
-#include "ShaderManager.h"
+#include "../shaders/ShaderManager.h"
+#include "../text/GlyphManager.h"
 #include "WindowManager.h"
 
-namespace term_engine::window_management {
+namespace term_engine::windows {
   void InitDefaultWindow() {
-    GLuint vertex_shader_id;
-    GLuint fragment_shader_id;
-    GLuint program_id;
-    GLint compile_vertex_ok = GL_FALSE;
-    GLint compile_fragment_ok = GL_FALSE;
-    GLint link_program_ok = GL_FALSE;
-
     WindowPtr window = AddWindow("default");
 
     glViewport(0, 0, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT);
-
-    std::tie(compile_vertex_ok, vertex_shader_id) = shaders::BuildShaderFromString(shaders::default_vertex_shader, GL_VERTEX_SHADER);
-    std::tie(compile_fragment_ok, fragment_shader_id) = shaders::BuildShaderFromString(shaders::default_fragment_shader, GL_FRAGMENT_SHADER);
-
-    if (compile_vertex_ok == GL_TRUE && compile_fragment_ok == GL_TRUE) {
-      std::tie(link_program_ok, program_id) = shaders::BuildProgram("default", { vertex_shader_id, fragment_shader_id });
-
-      if (link_program_ok == GL_TRUE) {
-        window->SetProgram(program_id);
-
-        spdlog::info("Built shader program with ID {}.", program_id);
-      }
-    }
   }
 
   void CleanUpWindows() {
@@ -47,7 +28,7 @@ namespace term_engine::window_management {
   }
 
   WindowPtr AddWindow(const std::string& name) {
-    auto window = window_list.insert(std::make_pair(name, std::make_shared<Window>(name)));
+    auto window = window_list.emplace(std::make_pair(name, std::make_shared<Window>(name)));
 
     return window.first->second;
   }

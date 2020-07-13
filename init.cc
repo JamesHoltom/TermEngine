@@ -4,64 +4,7 @@
 #include "init.h"
 
 namespace term_engine {
-  int InitSDL() {
-    if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
-      spdlog::error("Failed to initialise SDL!\nError: %s", SDL_GetError());
-
-      return -1;
-    }
-
-    if (TTF_Init() < 0) {
-      spdlog::error("Failed to initialise SDL_ttf!\nError: %s", TTF_GetError());
-
-      return -2;
-    }
-
-    srand(SDL_GetTicks());
-
-    spdlog::info("Initialised SDL.");
-
-    return 0;
-  }
-
-  int InitGL() {
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
-
-    int flags;
-    glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
-
-    if (flags & GL_CONTEXT_FLAG_DEBUG_BIT)
-    {
-      glEnable(GL_DEBUG_OUTPUT);
-      glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-      glDebugMessageCallback(glDebugOutput, nullptr);
-      glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
-    }
-
-    spdlog::info("Initialised OpenGL.");
-
-    return 0;
-  }
-
-  int InitGLEW() {
-    glewExperimental = GL_TRUE;
-
-    GLenum glew_status = glewInit();
-
-    if (glew_status == GLEW_OK) {
-      spdlog::info("Initialised GLEW.");
-    }
-    else {
-      spdlog::error("Failed to initialise GLEW!");
-    }
-
-    return 0;
-  }
-
-  void APIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const char* message, const void* userParam) {
+  void GLAPIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const char* message, const void* userParam) {
     // ignore non-significant error/warning codes
     if (id == 131169 || id == 131185 || id == 131218 || id == 131204) {
       return;
@@ -99,7 +42,66 @@ namespace term_engine {
     case GL_DEBUG_SEVERITY_NOTIFICATION: severity_string = "Notification"; break;
     }
 
-    spdlog::info("GL debug message (#{}): {}\nSource: {}\nType: {}\n, Severity: {}", id, message);
+    spdlog::info("GL debug message (#{}): {}\nSource: {}\nType: {}\n, Severity: {}", id, message, source_string, type_string, severity_string);
+  }
+
+  int InitSDL() {
+    if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
+      spdlog::error("Failed to initialise SDL!\nError: %s", SDL_GetError());
+
+      return -1;
+    }
+
+    if (TTF_Init() < 0) {
+      spdlog::error("Failed to initialise SDL_ttf!\nError: %s", TTF_GetError());
+
+      return -2;
+    }
+
+    srand(SDL_GetTicks());
+
+    spdlog::info("Initialised SDL.");
+
+    return 0;
+  }
+
+  int InitGL() {
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 4);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
+
+    int major_ver, minor_ver;
+    SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &major_ver);
+    SDL_GL_GetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, &minor_ver);
+
+    spdlog::info("Running OpenGL version {}.{}", major_ver, minor_ver);
+
+    glEnable(GL_DEPTH_TEST);
+
+    spdlog::info("Initialised OpenGL.");
+
+    return 0;
+  }
+
+  int InitGLEW() {
+    glewExperimental = GL_TRUE;
+
+    GLenum glew_status = glewInit();
+
+    if (glew_status == GLEW_OK) {
+      spdlog::info("Initialised GLEW.");
+    }
+    else {
+      spdlog::error("Failed to initialise GLEW!");
+    }
+
+    glEnable(GL_DEBUG_OUTPUT);
+    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+    glDebugMessageCallback(glDebugOutput, 0);
+    glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+
+    return 0;
   }
 
   void Shutdown() {

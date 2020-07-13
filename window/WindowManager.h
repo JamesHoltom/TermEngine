@@ -13,7 +13,7 @@
 
 #include "Window.h"
 
-namespace term_engine::window_management {
+namespace term_engine::windows {
   typedef std::shared_ptr<Window> WindowPtr;
   typedef std::unordered_map<std::string, WindowPtr> WindowMap;
   typedef std::pair<std::string, WindowPtr> WindowPair;

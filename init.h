@@ -12,11 +12,11 @@
 #include "includes.h"
 
 namespace term_engine {
+  void APIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const char* message, const void* userParam);
+
   int InitSDL();
   int InitGL();
   int InitGLEW();
-
-  void APIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const char* message, const void* userParam);
 
   void Shutdown();
 }

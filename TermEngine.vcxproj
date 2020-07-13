@@ -138,10 +138,12 @@
     <ClCompile Include="ecs\ComponentManager.cc" />
     <ClCompile Include="init.cc" />
     <ClCompile Include="main.cc" />
-    <ClCompile Include="rendering\ShaderManager.cc" />
-    <ClCompile Include="rendering\VertexManager.cc" />
-    <ClCompile Include="rendering\Window.cc" />
-    <ClCompile Include="rendering\WindowManager.cc" />
+    <ClCompile Include="shaders\Shader.cc" />
+    <ClCompile Include="shaders\ShaderManager.cc" />
+    <ClCompile Include="text\GlyphManager.cc" />
+    <ClCompile Include="text\GlyphSet.cc" />
+    <ClCompile Include="window\Window.cc" />
+    <ClCompile Include="window\WindowManager.cc" />
     <ClCompile Include="scripting\ScriptManager.cc" />
     <ClCompile Include="states\StateManager.cc" />
     <ClCompile Include="timing\FPSManager.cc" />
@@ -151,10 +153,12 @@
   <ItemGroup>
     <ClInclude Include="ecs\ComponentManager.h" />
     <ClInclude Include="init.h" />
-    <ClInclude Include="rendering\VertexManager.h" />
-    <ClInclude Include="rendering\ShaderManager.h" />
-    <ClInclude Include="rendering\Window.h" />
-    <ClInclude Include="rendering\WindowManager.h" />
+    <ClInclude Include="shaders\Shader.h" />
+    <ClInclude Include="shaders\ShaderManager.h" />
+    <ClInclude Include="text\GlyphManager.h" />
+    <ClInclude Include="text\GlyphSet.h" />
+    <ClInclude Include="window\Window.h" />
+    <ClInclude Include="window\WindowManager.h" />
     <ClInclude Include="scripting\Assert.h" />
     <ClInclude Include="scripting\ScriptManager.h" />
     <ClInclude Include="states\StateManager.h" />

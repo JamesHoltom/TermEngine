@@ -12,8 +12,12 @@
 
 #include "../sdl_includes.h"
 #include "../gl_includes.h"
+#include "../shaders/Shader.h"
+#include "../shaders/ShaderManager.h"
+#include "../text/GlyphSet.h"
+#include "../text/GlyphManager.h"
 
-namespace term_engine {
+namespace term_engine::windows {
   constexpr int DEFAULT_WINDOW_WIDTH = 640;
   constexpr int DEFAULT_WINDOW_HEIGHT = 480;
 
@@ -26,10 +30,11 @@ namespace term_engine {
     const std::string GetName() const;
     const int GetID() const;
 
-    GLuint GetProgram() const;
-    void SetProgram(const GLuint& program_id);
-    void SetProgram(const std::string& program_name);
-    void RemoveProgram();
+    void SetShaderProgram(const std::string& program_name);
+    void RemoveShaderProgram();
+
+    void SetGlyphSet(const std::string& glyph_set_name);
+    void RemoveGlyphSet();
 
     std::string GetTitle() const;
     void SetTitle(const std::string& title);
@@ -41,13 +46,14 @@ namespace term_engine {
     void SetSize(const int& width, const int& height);
 
     void Logic(SDL_Event& event);
-    void Render();
+    void Render() const;
 
   private:
 
     static bool glew_init_;
 
-    GLuint program_id_;
+    shaders::ShaderPtr shader_program_;
+    glyphs::GlyphSetPtr glyph_set_;
 
     SDL_GLContext context_;
     SDL_Window* window_;

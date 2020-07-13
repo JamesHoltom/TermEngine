@@ -2,13 +2,11 @@
 #include <tuple>
 
 #include "../init.h"
-#include "../rendering/ShaderManager.h"
-#include "VertexManager.h"
 #include "Window.h"
 
-namespace term_engine {
+namespace term_engine::windows {
   Window::Window(const std::string& name) :
-    program_id_(0),
+    shader_program_(nullptr),
     context_(nullptr),
     window_(nullptr),
     window_id_(0),
@@ -65,26 +63,28 @@ namespace term_engine {
     return window_id_;
   }
 
-  GLuint Window::GetProgram() const {
-    return program_id_;
+  void Window::SetShaderProgram(const std::string& program_name) {
+    shader_program_ = shaders::GetShader(program_name);
+
+    spdlog::info("Window {} has program name {}, and ID {}.", name_, program_name, shader_program_->GetProgramID());
   }
 
-  void Window::SetProgram(const GLuint& program_id) {
-    program_id_ = program_id;
-
-    spdlog::info("Window {} has program ID {}.", name_, program_id_);
-  }
-
-  void Window::SetProgram(const std::string& program_name) {
-    program_id_ = shaders::GetProgram(program_name);
-
-    spdlog::info("Window {} has program name {}, and ID {}.", name_, program_name, program_id_);
-  }
-
-  void Window::RemoveProgram() {
-    program_id_ = 0;
+  void Window::RemoveShaderProgram() {
+    shader_program_ = nullptr;
 
     spdlog::info("Removed program from window {}.", name_);
+  }
+
+  void Window::SetGlyphSet(const std::string& glyph_set_name) {
+    glyph_set_ = glyphs::GetGlyphSet(glyph_set_name);
+
+    spdlog::info("Window {} has glyph set name {}.", name_, glyph_set_name);
+  }
+
+  void Window::RemoveGlyphSet() {
+    glyph_set_ = nullptr;
+
+    spdlog::info("Removed glyph set from window {}.", name_);
   }
 
   std::string Window::GetTitle() const {
@@ -120,23 +120,26 @@ namespace term_engine {
   }
 
   void Window::Logic(SDL_Event& event) {
+    if (event.type == SDL_KEYUP) {
+      switch (event.key.keysym.sym) {
+      case SDLK_p:
+        glyph_set_->Print();
 
+        break;
+      }
+    }
   }
 
-  void Window::Render() {
+  void Window::Render() const {
     SDL_GL_MakeCurrent(window_, context_);
 
-    if (program_id_ > 0) {
+    if (shader_program_->IsBuilt()) {
       glClearColor(0.2f, 0.2f, 0.4f, 1.0f);
-      glClear(GL_COLOR_BUFFER_BIT);
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-      glUseProgram(program_id_);
-
-      glBindVertexArray(vertex_array_object_id_);
-
-      glDrawArrays(GL_QUADS, 0, 4);
-
-      glUseProgram(NULL);
+      shader_program_->Use();
+      glyph_set_->Render();
+      shader_program_->Unuse();
     }
     else {
       glClearColor(0.4f, 0.1f, 0.1f, 1.0f);
