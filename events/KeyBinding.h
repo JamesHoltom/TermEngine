@@ -11,7 +11,7 @@
 #include <string>
 #include <unordered_map>
 
-#include "../includes.h"
+#include "../sdl_includes.h"
 
 namespace term_engine::utilities {
   struct Key {
@@ -35,8 +35,8 @@ namespace term_engine::utilities {
     void SetKey(KeyPtr key);
     void UnsetKey();
 
-    Uint16 GetModifiers() const;
-    void SetModifiers(const Uint16& modifiers);
+    uint16_t GetModifiers() const;
+    void SetModifiers(const uint16_t& modifiers);
     bool CheckModifiers() const;
 
     bool IsDown() const;
@@ -47,7 +47,7 @@ namespace term_engine::utilities {
 
   private:
     std::string action_;
-    Uint16 modifiers_;
+    uint16_t modifiers_;
     KeyWeakPtr key_;
   };
 

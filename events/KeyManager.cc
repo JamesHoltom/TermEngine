@@ -37,36 +37,36 @@ namespace term_engine::modules {
       }
     });
   }
-  
-  bool KeyManager::RegisterAction(const std::string& action, const SDL_Keycode& key, const Uint16& modifiers) {
+
+  bool KeyManager::RegisterAction(const std::string& action, const SDL_Keycode& key, const uint16_t& modifiers) {
     utilities::KeyPtr new_key = RegisterKey(key);
     utilities::KeyBinding new_action(action);
     new_action.SetKey(new_key);
     new_action.SetModifiers(modifiers);
-    
+
     const bool& result = actions_.emplace(action, new_action).second;
-    
+
     if (result) {
       printf("Registered action \'%s\'.\n", action.c_str());
       return true;
     }
-    
+
     printf("Action \'%s\' already exists!\n", action.c_str());
     return false;
   }
-  
+
   bool KeyManager::UnregisterAction(const std::string& action) {
     const bool& result = actions_.erase(action) == 1;
-    
+
     if (result) {
       printf("Unregistered action \'%s\'.\n", action.c_str());
       return true;
     }
-    
+
     printf("Action \'%s\' does not exist!\n", action.c_str());
     return false;
   }
-  
+
   bool KeyManager::ReassignAction(const std::string& action, const SDL_Keycode& key) {
     auto it = actions_.find(action);
 
@@ -81,7 +81,7 @@ namespace term_engine::modules {
     printf("Failed to assign key \'%i\' to action \'%s\'!\n", key, action.c_str());
     return false;
   }
-  
+
   bool KeyManager::UnassignAction(const std::string& action) {
     auto it = actions_.find(action);
 
@@ -96,27 +96,27 @@ namespace term_engine::modules {
     printf("Failed to assign key from action \'%s\'!\n", action.c_str());
     return false;
   }
-  
-  bool KeyManager::SetModifiers(const std::string& action, const Uint16& modifiers) {
+
+  bool KeyManager::SetModifiers(const std::string& action, const uint16_t& modifiers) {
     auto it = actions_.find(action);
-    
+
     if (it != actions_.end()) {
       it->second.SetModifiers(modifiers);
       return true;
     }
-    
+
     printf("Could not find action \'%s\'!\n", action.c_str());
     return false;
   }
-  
+
   bool KeyManager::ClearModifiers(const std::string& action) {
     auto it = actions_.find(action);
-    
+
     if (it != actions_.end()) {
       it->second.SetModifiers(KMOD_NONE);
       return true;
     }
-    
+
     printf("Could not find action \'%s\'!\n", action.c_str());
     return false;
   }
@@ -164,18 +164,18 @@ namespace term_engine::modules {
     printf("Could not find action \'%s\'\n", action.c_str());
     return -1;
   }
-  
+
   utilities::KeyPtr KeyManager::RegisterKey(const SDL_Keycode& key) {
     utilities::KeyPtr new_key = std::make_shared<utilities::Key>(utilities::Key(key));
-    
+
     auto result = keys_.emplace(key, new_key);
-    
+
     if (result.second) {
       printf("Registered key \'%i\'.\n", key);
     } else {
       printf("Key \'%i\' already exists!\n", key);
     }
-    
+
     return result.first->second;
   }
 }

@@ -8,14 +8,14 @@
 #define UTIL_MOUSE_MANAGER_H
 
 #include "../types.h"
-#include "../includes.h"
+#include "../sdl_includes.h"
 
 namespace term_engine::modules {
   struct Mouse {
     bool is_held;
     int held_frames;
   };
-  
+
   class MouseManager {
   public:
     MouseManager();
@@ -23,15 +23,15 @@ namespace term_engine::modules {
     void HandleEvent(const SDL_Event& event);
     void UpdateFrames();
 
-    bool GetMouseDown(const Uint8& type) const;
-    bool GetMousePress(const Uint8& type) const;
-    bool GetMouseRelease(const Uint8& type) const;
+    bool GetMouseDown(const uint8_t& type) const;
+    bool GetMousePress(const uint8_t& type) const;
+    bool GetMouseRelease(const uint8_t& type) const;
 
     utilities::IntVector2D GetMousePosition() const;
     utilities::IntVector2D GetRelativeMousePosition() const;
     utilities::IntVector2D GetMouseScroll() const;
 
-    int GetFramesHeld(const Uint8& type) const;
+    int GetFramesHeld(const uint8_t& type) const;
 
   private:
     Mouse left_button_;

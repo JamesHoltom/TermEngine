@@ -25,17 +25,17 @@ namespace term_engine::utilities {
     key_.reset();
   }
 
-  Uint16 KeyBinding::GetModifiers() const {
+  uint16_t KeyBinding::GetModifiers() const {
     return modifiers_;
   }
 
-  void KeyBinding::SetModifiers(const Uint16& modifiers) {
+  void KeyBinding::SetModifiers(const uint16_t& modifiers) {
     modifiers_ = modifiers;
   }
 
   bool KeyBinding::CheckModifiers() const {
     if (auto tmpKey = key_.lock()) {
-      Uint16 mods = SDL_GetModState();
+      uint16_t mods = SDL_GetModState();
       return (modifiers_ & mods) == modifiers_;
     }
 

@@ -3,14 +3,14 @@
  * James Holtom
  * MIT License
  */
- 
+
 #ifndef KEY_MANAGER_H
 #define KEY_MANAGER_H
 
 #include <string>
 
 #include "KeyBinding.h"
-#include "../includes.h"
+#include "../sdl_includes.h"
 
 namespace term_engine::modules {
   class KeyManager {
@@ -19,14 +19,14 @@ namespace term_engine::modules {
 
       void HandleEvent(const SDL_Event& event);
       void UpdateFrames();
-      
-      bool RegisterAction(const std::string& action, const SDL_Keycode& key, const Uint16& modifiers = KMOD_NONE);
+
+      bool RegisterAction(const std::string& action, const SDL_Keycode& key, const uint16_t& modifiers = KMOD_NONE);
       bool UnregisterAction(const std::string& action);
-      
+
       bool ReassignAction(const std::string& action, const SDL_Keycode& key);
       bool UnassignAction(const std::string& action);
-      
-      bool SetModifiers(const std::string& action, const Uint16& modifiers);
+
+      bool SetModifiers(const std::string& action, const uint16_t& modifiers);
       bool ClearModifiers(const std::string& action);
 
       bool GetKeyDown(const std::string& action) const;

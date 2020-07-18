@@ -1,4 +1,10 @@
-#include "includes.h"
+#ifdef _WIN32
+#include <windows.h>
+#else
+#define APIENTRY
+#endif
+
+#include "sdl_includes.h"
 #include "init.h"
 #include "timing/FPSManager.h"
 #include "window/Window.h"
@@ -90,7 +96,7 @@ int main(int argc, char** argv) {
     term_engine::fps_management::NextFrame();
     term_engine::fps_management::Delay();
   }
-  
+
   term_engine::windows::CleanUpWindows();
   term_engine::shaders::CleanUpShaders();
   term_engine::glyphs::CleanUpGlyphSets();

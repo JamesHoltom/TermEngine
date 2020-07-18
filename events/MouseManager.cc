@@ -68,7 +68,7 @@ namespace term_engine::modules {
     }
   }
 
-  bool MouseManager::GetMouseDown(const Uint8& type) const {
+  bool MouseManager::GetMouseDown(const uint8_t& type) const {
     switch (type) {
     case SDL_BUTTON_LEFT:
       return left_button_.is_held;
@@ -81,7 +81,7 @@ namespace term_engine::modules {
     }
   }
 
-  bool MouseManager::GetMousePress(const Uint8& type) const {
+  bool MouseManager::GetMousePress(const uint8_t& type) const {
     switch (type) {
     case SDL_BUTTON_LEFT:
       return left_button_.is_held && left_button_.held_frames == 0;
@@ -94,7 +94,7 @@ namespace term_engine::modules {
     }
   }
 
-  bool MouseManager::GetMouseRelease(const Uint8& type) const {
+  bool MouseManager::GetMouseRelease(const uint8_t& type) const {
     switch (type) {
     case SDL_BUTTON_LEFT:
       return !left_button_.is_held && left_button_.held_frames > 0;
@@ -107,7 +107,7 @@ namespace term_engine::modules {
     }
   }
 
-  int MouseManager::GetFramesHeld(const Uint8& type) const {
+  int MouseManager::GetFramesHeld(const uint8_t& type) const {
     switch (type) {
     case SDL_BUTTON_LEFT:
       return left_button_.held_frames;
