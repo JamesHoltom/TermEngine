@@ -42,20 +42,14 @@ namespace term_engine {
     case GL_DEBUG_SEVERITY_NOTIFICATION: severity_string = "Notification"; break;
     }
 
-    spdlog::info("GL debug message (#{}): {}\nSource: {}\nType: {}\n, Severity: {}", id, message, source_string, type_string, severity_string);
+    spdlog::error("GL debug message (#{}): {}\nSource: {}\nType: {}\n, Severity: {}", id, message, source_string, type_string, severity_string);
   }
 
   int InitSDL() {
     if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
-      spdlog::error("Failed to initialise SDL!\nError: %s", SDL_GetError());
+      spdlog::error("Failed to initialise SDL!\nError: {}", SDL_GetError());
 
-      return -1;
-    }
-
-    if (TTF_Init() < 0) {
-      spdlog::error("Failed to initialise SDL_ttf!\nError: %s", TTF_GetError());
-
-      return -2;
+      return 1;
     }
 
     srand(SDL_GetTicks());
@@ -105,7 +99,6 @@ namespace term_engine {
   }
 
   void Shutdown() {
-    TTF_Quit();
     SDL_Quit();
 
     spdlog::info("Shut down libraries.");

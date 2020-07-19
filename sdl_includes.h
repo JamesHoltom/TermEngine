@@ -10,8 +10,6 @@
 #include <memory>
 
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
-#include <SDL2/SDL_mixer.h>
 
 namespace term_engine {
   typedef std::remove_pointer<SDL_GLContext>::type SDL_GL_pContext;

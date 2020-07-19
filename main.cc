@@ -1,9 +1,3 @@
-#ifdef _WIN32
-#include <windows.h>
-#else
-#define APIENTRY
-#endif
-
 #include "sdl_includes.h"
 #include "init.h"
 #include "timing/FPSManager.h"
@@ -23,8 +17,9 @@ int main(int argc, char** argv) {
   bool wireframe_mode = false;
   int window_num = 0;
 
-  term_engine::InitSDL();
-  term_engine::InitGL();
+  if (term_engine::InitSDL() > 0 || term_engine::InitGL() > 0) {
+    return -1;
+  }
 
   term_engine::windows::InitDefaultWindow();
   term_engine::shaders::InitGlyphShader();
@@ -38,13 +33,13 @@ int main(int argc, char** argv) {
 
   while (!quit) {
     while (SDL_PollEvent(&evt) != 0) {
-      if (evt.type == SDL_QUIT) {
+      if (evt.type == SDL_EventType::SDL_QUIT) {
         quit = true;
       }
 
-      if (evt.type == SDL_KEYUP) {
+      if (evt.type == SDL_EventType::SDL_KEYUP) {
         switch (evt.key.keysym.sym) {
-          case SDLK_q:
+        case SDLK_q:
             quit = true;
 
             break;

@@ -57,6 +57,9 @@
     <ClCompile Include="text\GlyphSet.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="events\InputManager.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="init.h">
@@ -111,6 +114,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="text\GlyphSet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="events\InputManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

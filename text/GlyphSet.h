@@ -27,7 +27,7 @@ namespace term_engine::glyphs {
     GlyphSet(const int& width, const int& height);
     ~GlyphSet();
 
-    int GetCount() const;
+    size_t GetCount() const;
     glm::ivec2 GetSize() const;
 
     void SetChar(const int& x, const int& y, const char& data);

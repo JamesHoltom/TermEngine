@@ -23,7 +23,7 @@ namespace term_engine::windows {
     return window_list.at(name);
   }
 
-  int GetWindowCount() {
+  size_t GetWindowCount() {
     return window_list.size();
   }
 

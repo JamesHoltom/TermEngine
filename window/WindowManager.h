@@ -23,12 +23,10 @@ namespace term_engine::windows {
 
   WindowPtr GetDefaultWindow();
   WindowPtr GetWindow(const std::string& name);
-  int GetWindowCount();
+  size_t GetWindowCount();
 
   WindowPtr AddWindow(const std::string& name);
   void RemoveWindow(const std::string& name);
-
-  void LogWindowEvents(SDL_Event& event);
 
   void Logic(SDL_Event& event);
   void Render();

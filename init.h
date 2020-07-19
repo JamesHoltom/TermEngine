@@ -11,8 +11,13 @@
 #include "gl_includes.h"
 #include "includes.h"
 
+#ifndef WIN32
+#define __stdcall
+#define APIENTRY
+#endif
+
 namespace term_engine {
-  void APIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const char* message, const void* userParam);
+  void GLAPIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const char* message, const void* userParam);
 
   int InitSDL();
   int InitGL();

@@ -30,8 +30,8 @@ namespace term_engine::glyphs {
     glDeleteBuffers(1, &instance_vbo_id_);
   }
 
-  int GlyphSet::GetCount() const {
-    return set_width_ * set_height_;
+  size_t GlyphSet::GetCount() const {
+    return (size_t)(set_width_ * set_height_);
   }
 
   glm::ivec2 GlyphSet::GetSize() const {
@@ -67,7 +67,7 @@ namespace term_engine::glyphs {
   }
 
   void GlyphSet::StreamData(const int& pos, const int& len, const GlyphData* data) {
-    if (pos + len > set_data_.size()) {
+    if ((size_t)(pos + len) > set_data_.size()) {
       spdlog::warn("Incoming data to StreamData is OOB.");
 
       return;
@@ -99,7 +99,7 @@ namespace term_engine::glyphs {
   void GlyphSet::Render() const {
     glBindVertexArray(vao_id_);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vertice_ebo_id_);
-    glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, set_data_.size());
+    glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, static_cast<GLsizei>(set_data_.size()));
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
   }
@@ -211,7 +211,7 @@ namespace term_engine::glyphs {
     unsigned int length = set_width_ * std::min({ set_height_, new_height });
 
     std::string new_set;
-    new_set.resize(new_width * new_height, ' ');
+    new_set.resize((size_t)(new_width * new_height), ' ');
 
     for (unsigned int pos = 0; pos >= length; pos += set_width_) {
       new_set.assign(set_chars_, pos, offset);
