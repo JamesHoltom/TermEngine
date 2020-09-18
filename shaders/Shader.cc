@@ -118,6 +118,25 @@ namespace term_engine::shaders {
     return uniform_id;
   }
 
+  void Shader::SetUniformInt(const std::string& name, const int& count, const int* data) {
+    GLint uniform_id = glGetUniformLocation(program_id_, name.c_str());
+
+    switch (count) {
+    case 1:
+      glUniform1i(uniform_id, data[0]);
+      break;
+    case 2:
+      glUniform2i(uniform_id, data[0], data[1]);
+      break;
+    case 3:
+      glUniform3i(uniform_id, data[0], data[1], data[2]);
+      break;
+    case 4:
+      glUniform4i(uniform_id, data[0], data[1], data[2], data[3]);
+      break;
+    }
+  }
+
   void Shader::PrintProgramLog() {
     if (glIsProgram(program_id_)) {
       int log_length;

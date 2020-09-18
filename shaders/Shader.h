@@ -38,6 +38,8 @@ namespace term_engine::shaders {
 
     GLuint GetUniformID(const std::string& uniform_name);
 
+    void SetUniformInt(const std::string& name, const int& count, const int* data);
+
   private:
 
     std::string name_;

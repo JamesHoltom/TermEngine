@@ -33,31 +33,40 @@
     <ClCompile Include="scripting\ScriptManager.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ecs\ComponentManager.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="utility\DebugFunctions.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="window\Window.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="window\WindowManager.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="shaders\ShaderManager.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="text\GlyphManager.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="shaders\Shader.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="text\GlyphSet.cc">
+    <ClCompile Include="events\InputManager.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="events\InputManager.cc">
+    <ClCompile Include="rendering\GlyphManager.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="rendering\GlyphSet.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Application.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="utility\FTUtils.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="utility\GLUtils.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="fonts\FontAtlas.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="fonts\FontAtlasManager.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -69,12 +78,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="timing\FPSManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="includes.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="states\StateManager.h">
@@ -92,13 +95,7 @@
     <ClInclude Include="scripting\Assert.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ecs\ComponentManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="utility\DebugFunctions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="window\WindowManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="window\Window.h">
@@ -107,16 +104,34 @@
     <ClInclude Include="shaders\ShaderManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="text\GlyphManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="shaders\Shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="text\GlyphSet.h">
+    <ClInclude Include="events\InputManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="events\InputManager.h">
+    <ClInclude Include="rendering\GlyphManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\GlyphSet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utility\SDLUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Application.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utility\FTUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utility\GLUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fonts\FontAtlas.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fonts\FontAtlasManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

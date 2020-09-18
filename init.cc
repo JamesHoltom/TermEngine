@@ -2,49 +2,10 @@
 #include <spdlog/spdlog.h>
 
 #include "init.h"
+#include "utility/FTUtils.h"
+#include "utility/GLUtils.h"
 
 namespace term_engine {
-  void GLAPIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const char* message, const void* userParam) {
-    // ignore non-significant error/warning codes
-    if (id == 131169 || id == 131185 || id == 131218 || id == 131204) {
-      return;
-    }
-
-    std::string source_string;
-    std::string type_string;
-    std::string severity_string;
-
-    switch (source) {
-    case GL_DEBUG_SOURCE_API:             source_string = "API";             break;
-    case GL_DEBUG_SOURCE_APPLICATION:     source_string = "Application";     break;
-    case GL_DEBUG_SOURCE_SHADER_COMPILER: source_string = "Shader Compiler"; break;
-    case GL_DEBUG_SOURCE_THIRD_PARTY:     source_string = "Third Party";     break;
-    case GL_DEBUG_SOURCE_WINDOW_SYSTEM:   source_string = "Window System";   break;
-    case GL_DEBUG_SOURCE_OTHER:           source_string = "Other";           break;
-    }
-
-    switch (type) {
-    case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: type_string = "Deprecated Behavior"; break;
-    case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR: type_string = "Undefined Behavior"; break;
-    case GL_DEBUG_TYPE_ERROR: type_string = "Error"; break;
-    case GL_DEBUG_TYPE_MARKER: type_string = "Marker"; break;
-    case GL_DEBUG_TYPE_PERFORMANCE: type_string = "Performance"; break;
-    case GL_DEBUG_TYPE_POP_GROUP: type_string = "Pop Group"; break;
-    case GL_DEBUG_TYPE_PUSH_GROUP: type_string = "Push Group"; break;
-    case GL_DEBUG_TYPE_PORTABILITY: type_string = "Portability"; break;
-    case GL_DEBUG_TYPE_OTHER: type_string = "Other"; break;
-    }
-
-    switch (severity) {
-    case GL_DEBUG_SEVERITY_HIGH:         severity_string = "High";         break;
-    case GL_DEBUG_SEVERITY_MEDIUM:       severity_string = "Medium";       break;
-    case GL_DEBUG_SEVERITY_LOW:          severity_string = "Low";          break;
-    case GL_DEBUG_SEVERITY_NOTIFICATION: severity_string = "Notification"; break;
-    }
-
-    spdlog::error("GL debug message (#{}): {}\nSource: {}\nType: {}\n, Severity: {}", id, message, source_string, type_string, severity_string);
-  }
-
   int InitSDL() {
     if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
       spdlog::error("Failed to initialise SDL!\nError: {}", SDL_GetError());
@@ -69,9 +30,9 @@ namespace term_engine {
     SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &major_ver);
     SDL_GL_GetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, &minor_ver);
 
-    spdlog::info("Running OpenGL version {}.{}", major_ver, minor_ver);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-    glEnable(GL_DEPTH_TEST);
+    spdlog::info("Running OpenGL version {}.{}", major_ver, minor_ver);
 
     spdlog::info("Initialised OpenGL.");
 
@@ -88,19 +49,41 @@ namespace term_engine {
     }
     else {
       spdlog::error("Failed to initialise GLEW!");
+
+      return 1;
     }
 
     glEnable(GL_DEBUG_OUTPUT);
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-    glDebugMessageCallback(glDebugOutput, 0);
+    glDebugMessageCallback(GL::glDebugOutput, 0);
     glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
 
     return 0;
   }
 
-  void Shutdown() {
+  int InitFreeType(FT_Library *library) {
+    FT_Error err = FT::Log(FT_Init_FreeType(library));
+
+    if (err != FT_Err_Ok) {
+      spdlog::error("Failed to initialise FreeType. Received error #{}", err);
+
+      return 1;
+    }
+
+    spdlog::info("Initialised FreeType.");
+
+    return 0;
+  }
+
+  void CleanUpSDL() {
     SDL_Quit();
 
-    spdlog::info("Shut down libraries.");
+    spdlog::info("Shut down SDL.");
+  }
+
+  void CleanUpFreeType(const FT_Library& library) {
+    FT::Log(FT_Done_FreeType(library));
+
+    spdlog::info("Shut down FreeType.");
   }
 }

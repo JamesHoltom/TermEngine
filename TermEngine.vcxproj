@@ -73,7 +73,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>E:\Programming\vcpkg\installed\x64-windows-static\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(LibraryPath)</LibraryPath>
+    <LibraryPath>E:\Programming\vcpkg\installed\x64-windows-static\lib;$(LibraryPath)</LibraryPath>
     <ExcludePath>$(ExcludePath)</ExcludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -137,16 +137,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ecs\ComponentManager.cc" />
+    <ClCompile Include="application\Application.cc" />
     <ClCompile Include="events\InputManager.cc" />
+    <ClCompile Include="fonts\FontAtlas.cc" />
+    <ClCompile Include="fonts\FontAtlasManager.cc" />
     <ClCompile Include="init.cc" />
     <ClCompile Include="main.cc" />
     <ClCompile Include="shaders\Shader.cc" />
     <ClCompile Include="shaders\ShaderManager.cc" />
-    <ClCompile Include="text\GlyphManager.cc" />
-    <ClCompile Include="text\GlyphSet.cc" />
+    <ClCompile Include="rendering\GlyphManager.cc" />
+    <ClCompile Include="rendering\GlyphSet.cc" />
+    <ClCompile Include="utility\FTUtils.cc" />
+    <ClCompile Include="utility\GLUtils.cc" />
     <ClCompile Include="window\Window.cc" />
-    <ClCompile Include="window\WindowManager.cc" />
     <ClCompile Include="scripting\ScriptManager.cc" />
     <ClCompile Include="states\StateManager.cc" />
     <ClCompile Include="timing\FPSManager.cc" />
@@ -154,23 +157,25 @@
     <ClCompile Include="utility\DebugFunctions.cc" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ecs\ComponentManager.h" />
+    <ClInclude Include="application\Application.h" />
     <ClInclude Include="events\InputManager.h" />
     <ClInclude Include="init.h" />
+    <ClInclude Include="fonts\FontAtlas.h" />
+    <ClInclude Include="fonts\FontAtlasManager.h" />
     <ClInclude Include="shaders\Shader.h" />
     <ClInclude Include="shaders\ShaderManager.h" />
-    <ClInclude Include="text\GlyphManager.h" />
-    <ClInclude Include="text\GlyphSet.h" />
+    <ClInclude Include="rendering\GlyphManager.h" />
+    <ClInclude Include="rendering\GlyphSet.h" />
+    <ClInclude Include="utility\FTUtils.h" />
+    <ClInclude Include="utility\GLUtils.h" />
+    <ClInclude Include="utility\SDLUtils.h" />
     <ClInclude Include="window\Window.h" />
-    <ClInclude Include="window\WindowManager.h" />
     <ClInclude Include="scripting\Assert.h" />
     <ClInclude Include="scripting\ScriptManager.h" />
     <ClInclude Include="states\StateManager.h" />
     <ClInclude Include="timing\FPSManager.h" />
     <ClInclude Include="timing\Timer.h" />
-    <ClInclude Include="includes.h" />
     <ClInclude Include="sdl_includes.h" />
-    <ClInclude Include="types.h" />
     <ClInclude Include="gl_includes.h" />
     <ClInclude Include="utility\DebugFunctions.h" />
   </ItemGroup>

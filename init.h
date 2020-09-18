@@ -9,21 +9,18 @@
 
 #include "sdl_includes.h"
 #include "gl_includes.h"
-#include "includes.h"
 
-#ifndef WIN32
-#define __stdcall
-#define APIENTRY
-#endif
+#include <ft2build.h>
+#include FT_FREETYPE_H
 
 namespace term_engine {
-  void GLAPIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const char* message, const void* userParam);
-
   int InitSDL();
   int InitGL();
   int InitGLEW();
+  int InitFreeType(FT_Library* library);
 
-  void Shutdown();
+  void CleanUpSDL();
+  void CleanUpFreeType(const FT_Library& library);
 }
 
 #endif // ! INIT_H

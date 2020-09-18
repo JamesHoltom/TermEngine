@@ -14,6 +14,8 @@
 namespace term_engine::debug {
   void LogKeyboardEvents(SDL_Event& event);
   void LogWindowEvents(SDL_Event& event);
+  void LogVAOData();
+  void LogVBOData();
 }
 
 #endif

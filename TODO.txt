@@ -1,0 +1,22 @@
+* Create font caching system with FreeType. Freetype-GL has issues, specificly when deleting font caches. This cache should:
+	- Load glyphs when required.
+	- Store loaded characters in a map.
+	- Store loaded glyphs in 1 texture.
+	- Ideally, manage the space within the texture with an algorithm.
+	- On render, provide the coords in line with the alignment of the GlyphSet (currently centered).
+* Add functions to set multiple glyphs at once (e.g. SetLine, SetBox, SetBorder, etc.).
+	- Ideally, these should take std::functions.
+* Consider tying Shaders as a static reference to GlyphSets, Backgrounds, etc. A GlyphSet, ideally, should only use 1 Shader.
+* Set up Background class.
+	- This holds a background that appears behind the glyphs.
+* Set up StateManager class.
+	- A state should encompass a GlyphSet, Background, InputState, EventState, ScriptState & AudioState.
+	- States should be held in a stack.
+* Set up InputState class.
+	- This manages what inputs are bound to what events for the current State.
+* Set up EventState class.
+	- This manages the events (i.e. input or script-related) that're fired in the current State.
+* Set up ScriptState class.
+	- This manages the Lua scripts, and handles any related events for the current State.
+* Set up AudioState class.
+	- This manages sounds and music to play for the current State.
