@@ -10,9 +10,8 @@
 #include <memory>
 #include <string>
 
-#include "../sdl_includes.h"
-#include "../gl_includes.h"
 #include "../utility/SDLUtils.h"
+#include "../utility/GLUtils.h"
 
 namespace term_engine::windows {
   constexpr int DEFAULT_WIDTH = 640;

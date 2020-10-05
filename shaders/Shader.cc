@@ -1,9 +1,11 @@
 #include <fstream>
 #include <sstream>
+
+#include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <spdlog/spdlog.h>
 
 #include "Shader.h"
+#include "../utility/spdlogUtils.h"
 
 namespace term_engine::shaders {
   Shader::Shader(const std::string& name):
@@ -36,7 +38,7 @@ namespace term_engine::shaders {
     if (shader_compiled == GL_TRUE) {
       shader_id_list_.push_back(shader_id);
 
-      spdlog::info("Generated GLSL shader for ID {}.", shader_id);
+      spdlog::debug("Generated GLSL shader for ID {}.", shader_id);
     }
     else {
       spdlog::error("Failed to compile GLSL shader for ID {}.", shader_id);
@@ -85,7 +87,7 @@ namespace term_engine::shaders {
 
       RemoveShaders();
 
-      spdlog::info("Generated GLSL shader program {}.", program_id_);
+      spdlog::debug("Generated GLSL shader program {}.", program_id_);
     }
     else {
       spdlog::error("Failed to link GLSL shader program {}.", program_id);
@@ -137,6 +139,74 @@ namespace term_engine::shaders {
     }
   }
 
+  void Shader::SetUniformFloat(const std::string& name, const int& count, const float* data) {
+    GLint uniform_id = glGetUniformLocation(program_id_, name.c_str());
+
+    switch (count) {
+    case 1:
+      glUniform1f(uniform_id, data[0]);
+      break;
+    case 2:
+      glUniform2f(uniform_id, data[0], data[1]);
+      break;
+    case 3:
+      glUniform3f(uniform_id, data[0], data[1], data[2]);
+      break;
+    case 4:
+      glUniform4f(uniform_id, data[0], data[1], data[2], data[3]);
+      break;
+    }
+  }
+
+  void Shader::SetUniformMatrix(const std::string& name, const glm::ivec2& dimensions, const GLfloat* data) {
+    GLint uniform_id = glGetUniformLocation(program_id_, name.c_str());
+
+    switch (dimensions.x) {
+    case 2:
+      switch (dimensions.y) {
+      case 2:
+        glUniformMatrix2fv(uniform_id, 1, GL_FALSE, data);
+        break;
+      case 3:
+        glUniformMatrix2x3fv(uniform_id, 1, GL_FALSE, data);
+        break;
+      case 4:
+        glUniformMatrix2x4fv(uniform_id, 1, GL_FALSE, data);
+        break;
+      }
+
+      break;
+    case 3:
+      switch (dimensions.y) {
+      case 2:
+        glUniformMatrix3x2fv(uniform_id, 1, GL_FALSE, data);
+        break;
+      case 3:
+        glUniformMatrix3fv(uniform_id, 1, GL_FALSE, data);
+        break;
+      case 4:
+        glUniformMatrix3x4fv(uniform_id, 1, GL_FALSE, data);
+        break;
+      }
+
+      break;
+    case 4:
+      switch (dimensions.y) {
+      case 2:
+        glUniformMatrix4x2fv(uniform_id, 1, GL_FALSE, data);
+        break;
+      case 3:
+        glUniformMatrix4x3fv(uniform_id, 1, GL_FALSE, data);
+        break;
+      case 4:
+        glUniformMatrix4fv(uniform_id, 1, GL_FALSE, data);
+        break;
+      }
+
+      break;
+    }
+  }
+
   void Shader::PrintProgramLog() {
     if (glIsProgram(program_id_)) {
       int log_length;
@@ -149,10 +219,10 @@ namespace term_engine::shaders {
       glGetProgramInfoLog(program_id_, max_log_length, &log_length, info_log);
 
       if (log_length > 0) {
-        spdlog::info("Program build results:\nID: {}\nMessage: {}", program_id_, info_log);
+        spdlog::debug("Program build results:\nID: {}\nMessage: {}", program_id_, info_log);
       }
       else {
-        spdlog::info("Program build results:\nID: {}\nNo message to display.", program_id_);
+        spdlog::debug("Program build results:\nID: {}\nNo message to display.", program_id_);
       }
 
       delete[] info_log;
@@ -174,10 +244,10 @@ namespace term_engine::shaders {
       glGetShaderInfoLog(shader_id, max_log_length, &log_length, info_log);
 
       if (log_length > 0) {
-        spdlog::info("Shader build results:\nID: {}\nMessage: {}", shader_id, info_log);
+        spdlog::debug("Shader build results:\nID: {}\nMessage: {}", shader_id, info_log);
       }
       else {
-        spdlog::info("Shader build results:\nID: {}\nNo message to display.", shader_id);
+        spdlog::debug("Shader build results:\nID: {}\nNo message to display.", shader_id);
       }
 
       delete[] info_log;

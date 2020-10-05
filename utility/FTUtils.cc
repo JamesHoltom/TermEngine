@@ -1,4 +1,5 @@
 #include "FTUtils.h"
+#include "spdlogUtils.h"
 
 namespace FT {
   FT_Error Log(FT_Error result) {

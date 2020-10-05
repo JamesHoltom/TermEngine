@@ -1,10 +1,10 @@
 #include <chrono>
 #include <thread>
-#include <spdlog/spdlog.h>
 
 #include "FPSManager.h"
+#include "../utility/spdlogUtils.h"
 
-namespace term_engine::fps_management {
+namespace term_engine::timing {
   constexpr int FPS_FRAME_MULTIPLE = 5;
 
   Timer delay_timer_;
@@ -20,7 +20,7 @@ namespace term_engine::fps_management {
   void InitFPS() {
     delay_timer_.Start();
 
-    spdlog::info("Started FPS.");
+    spdlog::debug("Started FPS.");
   }
 
   void Delay() {

@@ -9,7 +9,8 @@
 
 #include <string>
 #include <SDL2/SDL.h>
-#include <spdlog/spdlog.h>
+
+#include "spdlogUtils.h"
 
 namespace term_engine::debug {
   void LogKeyboardEvents(SDL_Event& event);

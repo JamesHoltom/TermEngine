@@ -1,8 +1,6 @@
-#include <string>
-#include <spdlog/spdlog.h>
-
 #include "GlyphManager.h"
 #include "../shaders/ShaderManager.h"
+#include "../utility/spdlogUtils.h"
 
 namespace term_engine::glyphs {
   GlyphSetPtr GetGlyphSet(const std::string& name) {
@@ -10,7 +8,9 @@ namespace term_engine::glyphs {
   }
 
   GlyphSetPtr AddGlyphSet(const std::string& name, const int& width, const int& height) {
-    auto glyph_set = glyph_set_list.emplace(std::make_pair(name, std::make_shared<GlyphSet>("C:\\Windows\\Fonts\\arial.ttf", 18, width, height)));
+    auto glyph_set = glyph_set_list.emplace(std::make_pair(name, std::make_shared<GlyphSet>("C:\\Windows\\Fonts\\arial.ttf", 18)));
+
+    glyph_set.first->second->SetSize(width, height);
 
     return glyph_set.first->second;
   }
@@ -21,7 +21,6 @@ namespace term_engine::glyphs {
 
   void CleanUpGlyphSets() {
     glyph_set_list.clear();
-    CleanUpVertices();
   }
 
   GlyphSetMap glyph_set_list;

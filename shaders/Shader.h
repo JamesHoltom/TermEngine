@@ -7,12 +7,15 @@
 #ifndef SHADER_H
 #define SHADER_H
 
+#include <memory>
 #include <string>
 #include <tuple>
 #include <unordered_map>
 #include <vector>
 
-#include "../gl_includes.h"
+#include <glm/glm.hpp>
+
+#include "../utility/GLUtils.h"
 
 namespace term_engine::shaders {
   typedef std::vector<GLuint> ShaderList;
@@ -39,6 +42,8 @@ namespace term_engine::shaders {
     GLuint GetUniformID(const std::string& uniform_name);
 
     void SetUniformInt(const std::string& name, const int& count, const int* data);
+    void SetUniformFloat(const std::string& name, const int& count, const float* data);
+    void SetUniformMatrix(const std::string& name, const glm::ivec2& dimensions, const GLfloat* data);
 
   private:
 
@@ -54,6 +59,10 @@ namespace term_engine::shaders {
     void RemoveProgram();
     void RemoveShaders();
   };
+
+  typedef std::shared_ptr<Shader> ShaderPtr;
+  typedef std::pair<std::string, ShaderPtr> ShaderIter;
+  typedef std::unordered_map<std::string, ShaderPtr> ShaderMap;
 }
 
 #endif

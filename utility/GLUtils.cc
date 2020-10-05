@@ -1,7 +1,7 @@
 #include <string>
-#include <spdlog/spdlog.h>
 
 #include "GLUtils.h"
+#include "spdlogUtils.h"
 
 namespace GL {
   void GLAPIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const char* message, const void* userParam) {
@@ -42,6 +42,6 @@ namespace GL {
     case GL_DEBUG_SEVERITY_NOTIFICATION: severity_string = "Notification"; break;
     }
 
-    spdlog::error("GL debug message (#{}): {}\nSource: {}\nType: {}\n, Severity: {}", id, message, source_string, type_string, severity_string);
+    spdlog::error("GL debug message (#{}):\nDescription: {}\nSource: {}\nType: {}\nSeverity: {}", id, message, source_string, type_string, severity_string);
   }
 }

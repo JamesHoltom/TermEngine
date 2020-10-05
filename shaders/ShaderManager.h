@@ -8,18 +8,12 @@
 #define SHADER_MANAGER_H
 
 #include <initializer_list>
-#include <memory>
 #include <string>
-#include <unordered_map>
 
-#include "../gl_includes.h"
 #include "Shader.h"
+#include "../utility/GLUtils.h"
 
 namespace term_engine::shaders {
-  typedef std::shared_ptr<Shader> ShaderPtr;
-  typedef std::pair<std::string, ShaderPtr> ShaderIter;
-  typedef std::unordered_map<std::string, ShaderPtr> ShaderMap;
-
   void InitGlyphShader();
 
   ShaderPtr GetShader(const std::string& name);

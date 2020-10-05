@@ -7,8 +7,8 @@
 #ifndef INIT_H
 #define INIT_H
 
-#include "sdl_includes.h"
-#include "gl_includes.h"
+#include "utility/SDLUtils.h"
+#include "utility/GLUtils.h"
 
 #include <ft2build.h>
 #include FT_FREETYPE_H

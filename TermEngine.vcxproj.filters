@@ -69,6 +69,9 @@
     <ClCompile Include="fonts\FontAtlasManager.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="utility\spdlogUtils.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="init.h">
@@ -81,12 +84,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="states\StateManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gl_includes.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="sdl_includes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="scripting\ScriptManager.h">
@@ -132,6 +129,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="fonts\FontAtlasManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utility\spdlogUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

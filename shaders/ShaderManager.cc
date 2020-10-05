@@ -1,17 +1,21 @@
 #include <fstream>
 #include <sstream>
-#include <spdlog/spdlog.h>
 
 #include "ShaderManager.h"
-#include "../gl_includes.h"
+#include "../utility/spdlogUtils.h"
 
 namespace term_engine::shaders {
   void InitGlyphShader() {
     ShaderPtr shader = AddShader("glyph");
 
-    shader->BuildShaderFromString(glyph_fragment_shader, GL_FRAGMENT_SHADER);
-    shader->BuildShaderFromString(glyph_vertex_shader, GL_VERTEX_SHADER);
-    shader->BuildProgram();
+    bool fs_result = shader->BuildShaderFromString(glyph_fragment_shader, GL_FRAGMENT_SHADER);
+    bool vs_result = shader->BuildShaderFromString(glyph_vertex_shader, GL_VERTEX_SHADER);
+    bool prog_result = shader->BuildProgram();
+
+    spdlog::debug("Initialising glyph shader.");
+    spdlog::debug("Fragment shader: {}", fs_result);
+    spdlog::debug("Vertex shader:   {}", vs_result);
+    spdlog::debug("Program:         {}", prog_result);
   }
 
   ShaderPtr GetShader(const std::string& name) {
@@ -35,32 +39,36 @@ namespace term_engine::shaders {
   ShaderMap shader_list;
 
   const GLchar* glyph_fragment_shader = {
-    "#version 330 core\n"
-    "in vec2 f_tex_offset;\n"
+    "#version 440 core\n"
+    "in vec3 f_tex_offset;\n"
     "in vec4 f_fg_color;\n"
     "in vec4 f_bg_color;\n"
     "out vec4 fragment_color;\n"
-    "uniform sampler2D font_texture;\n"
+    "uniform usampler2DArray font_texture;\n"
     "void main() {\n"
-    "\tfragment_color = texture(font_texture, f_tex_offset) * f_fg_color;\n"
+    "\tfloat sampled = texture(font_texture, f_tex_offset).r;\n"
+    "\tfragment_color = mix((vec4(1.0f, 1.0f, 1.0f, 1.0f - sampled) * f_bg_color), (vec4(1.0f, 1.0f, 1.0f, sampled) * f_fg_color), sampled);\n"
     "}\0"
   };
 
   const GLchar* glyph_vertex_shader = {
-    "#version 330 core\n"
+    "#version 440 core\n"
     "layout (location = 0) in vec2 vert_position;\n"
-    "layout (location = 1) in vec2 inst_offset;\n"
-    "layout (location = 2) in vec2 inst_scale;\n"
-    "layout (location = 3) in vec2 tex_offset;\n"
+    "layout (location = 1) in vec2 tex_position;\n"
+    "layout (location = 2) in vec2 vert_offset;\n"
+    "layout (location = 3) in float tex_offset;\n"
     "layout (location = 4) in vec4 fg_color;\n"
     "layout (location = 5) in vec4 bg_color;\n"
-    "out vec2 f_tex_offset;\n"
+    "out vec3 f_tex_offset;\n"
     "out vec4 f_fg_color;\n"
     "out vec4 f_bg_color;\n"
+    "uniform mat4 projection;\n"
+    "uniform ivec2 scale;\n"
     "void main() {\n"
+    "\tf_tex_offset = vec3(tex_position, tex_offset);\n"
     "\tf_fg_color = fg_color;\n"
     "\tf_bg_color = bg_color;\n"
-    "\tgl_Position = vec4((vert_position * inst_scale) + inst_offset, 0.0f, 1.0f);\n"
+    "\tgl_Position = projection * vec4((vert_position * scale) + vert_offset, 0.0f, 1.0f);\n"
     "}\0"
   };
 }

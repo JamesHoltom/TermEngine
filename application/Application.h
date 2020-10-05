@@ -7,8 +7,6 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
-#include <SDL2/SDL.h>
-
 #include "../fonts/FontAtlasManager.h"
 #include "../rendering/GlyphManager.h"
 #include "../shaders/ShaderManager.h"
@@ -27,7 +25,6 @@ namespace term_engine {
     SDL_Event event_;
     bool quit_;
 
-    glyphs::GlyphSetPtr glyphs_;
     shaders::ShaderPtr shader_;
   };
 }

@@ -1,8 +1,6 @@
-#include <spdlog/spdlog.h>
-
 #include "Window.h"
 #include "../init.h"
-#include "../utility/SDLUtils.h"
+#include "../utility/spdlogUtils.h"
 
 namespace term_engine::windows {
   void Init() {
@@ -27,14 +25,14 @@ namespace term_engine::windows {
 
     SDL_GL_MakeCurrent(window.get(), context);
 
-    spdlog::info("Created window.");
+    spdlog::debug("Created window.");
   }
 
   void CleanUp() {
     SDL_GL_DeleteContext(context);
     window.reset();
 
-    spdlog::info("Destroyed window.");
+    spdlog::debug("Destroyed window.");
   }
 
   SDL_GLContext context;

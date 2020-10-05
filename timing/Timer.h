@@ -13,7 +13,7 @@ using Clock = std::chrono::steady_clock;
 using Duration = std::chrono::duration<int, std::chrono::milliseconds>;
 using TimePoint = Clock::time_point;
 
-namespace term_engine {
+namespace term_engine::timing {
   class Timer {
   public:
     Timer();

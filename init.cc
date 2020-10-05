@@ -1,9 +1,9 @@
 #include <stdlib.h>
-#include <spdlog/spdlog.h>
 
 #include "init.h"
 #include "utility/FTUtils.h"
 #include "utility/GLUtils.h"
+#include "utility/spdlogUtils.h"
 
 namespace term_engine {
   int InitSDL() {
@@ -15,7 +15,7 @@ namespace term_engine {
 
     srand(SDL_GetTicks());
 
-    spdlog::info("Initialised SDL.");
+    spdlog::debug("Initialised SDL.");
 
     return 0;
   }
@@ -30,11 +30,8 @@ namespace term_engine {
     SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &major_ver);
     SDL_GL_GetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, &minor_ver);
 
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-    spdlog::info("Running OpenGL version {}.{}", major_ver, minor_ver);
-
-    spdlog::info("Initialised OpenGL.");
+    spdlog::debug("Running OpenGL version {}.{}", major_ver, minor_ver);
+    spdlog::debug("Initialised OpenGL.");
 
     return 0;
   }
@@ -45,13 +42,16 @@ namespace term_engine {
     GLenum glew_status = glewInit();
 
     if (glew_status == GLEW_OK) {
-      spdlog::info("Initialised GLEW.");
+      spdlog::debug("Initialised GLEW.");
     }
     else {
       spdlog::error("Failed to initialise GLEW!");
 
       return 1;
     }
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glEnable(GL_DEBUG_OUTPUT);
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
@@ -70,7 +70,7 @@ namespace term_engine {
       return 1;
     }
 
-    spdlog::info("Initialised FreeType.");
+    spdlog::debug("Initialised FreeType.");
 
     return 0;
   }
@@ -78,12 +78,12 @@ namespace term_engine {
   void CleanUpSDL() {
     SDL_Quit();
 
-    spdlog::info("Shut down SDL.");
+    spdlog::debug("Shut down SDL.");
   }
 
   void CleanUpFreeType(const FT_Library& library) {
     FT::Log(FT_Done_FreeType(library));
 
-    spdlog::info("Shut down FreeType.");
+    spdlog::debug("Shut down FreeType.");
   }
 }

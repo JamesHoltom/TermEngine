@@ -9,7 +9,7 @@
 
 #include "Timer.h"
 
-namespace term_engine::fps_management {
+namespace term_engine::timing {
   void InitFPS();
   void Delay();
   void NextFrame();

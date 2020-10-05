@@ -7,9 +7,12 @@
 #ifndef GL_UTILS_H
 #define GL_UTILS_H
 
-#include "../gl_includes.h"
+#include <GL/glew.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
+#include <SDL2/SDL_opengl.h>
 
-#ifndef WIN32
+#ifndef _WIN32
 #define __stdcall
 #define APIENTRY
 #endif
@@ -18,4 +21,4 @@ namespace GL {
   void GLAPIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const char* message, const void* userParam);
 }
 
-#endif // !GL_UTILS_H
+#endif // ! GL_UTILS_H
