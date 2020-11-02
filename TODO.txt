@@ -1,9 +1,3 @@
-* Create font caching system with FreeType. Freetype-GL has issues, specificly when deleting font caches. This cache should:
-	- Load glyphs when required.
-	- Store loaded characters in a map.
-	- Store loaded glyphs in 1 texture.
-	- Ideally, manage the space within the texture with an algorithm.
-	- On render, provide the coords in line with the alignment of the GlyphSet (currently centered).
 * Add functions to set multiple glyphs at once (e.g. SetLine, SetBox, SetBorder, etc.).
 	- Ideally, these should take std::functions.
 * Consider tying Shaders as a static reference to GlyphSets, Backgrounds, etc. A GlyphSet, ideally, should only use 1 Shader.

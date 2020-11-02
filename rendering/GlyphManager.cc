@@ -8,7 +8,7 @@ namespace term_engine::glyphs {
   }
 
   GlyphSetPtr AddGlyphSet(const std::string& name, const int& width, const int& height) {
-    auto glyph_set = glyph_set_list.emplace(std::make_pair(name, std::make_shared<GlyphSet>("C:\\Windows\\Fonts\\arial.ttf", 18)));
+    auto glyph_set = glyph_set_list.emplace(std::make_pair(name, std::make_shared<GlyphSet>()));
 
     glyph_set.first->second->SetSize(width, height);
 

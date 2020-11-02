@@ -15,13 +15,16 @@ namespace term_engine::glyphs {
       << "Background colour: " << data.background_color.r << ", " << data.background_color.g << ", " << data.background_color.b << ", " << data.background_color.a << std::endl;
   }
 
-  GlyphSet::GlyphSet(const std::string& font, const int& pt_size):
+  GlyphSet::GlyphSet():
     is_dirty_(false),
     vao_id_(0),
     vbo_id_(0),
     set_width_(1),
     set_height_(1),
-    glyph_scale_(glm::ivec2(0)),
+    set_position_(glm::vec2(0.0f)),
+    glyph_scale_(glm::vec2(0.0f)),
+    glyph_padding_(glm::vec2(0.0f)),
+    glyph_spacing_(glm::vec2(0.0f)),
     set_chars_(""),
     set_data_(std::make_unique<GlyphDataList>())
   {
@@ -36,32 +39,34 @@ namespace term_engine::glyphs {
     glDeleteBuffers(1, &vbo_id_);
   }
 
-  char GlyphSet::GetChar(const int& x, const int& y) const {
-    if (x < 0 || x >= set_width_ || y < 0 || y >= set_height_) {
-      spdlog::warn("Invalid coords {},{} given to GetChar.", x, y);
-
-      return '\0';
-    }
-
-    size_t pos = (set_width_ * y) + x;
-
-    return set_chars_.at(pos);
+  glm::vec2 GlyphSet::GetPosition() const {
+    return set_position_;
   }
 
-  glm::ivec2 GlyphSet::GetScale() const {
+  glm::vec2 GlyphSet::GetScale() const {
     return glyph_scale_;
   }
 
-  glm::ivec2 GlyphSet::GetPadding() const {
+  glm::vec2 GlyphSet::GetPadding() const {
     return glyph_padding_;
   }
 
-  glm::ivec2 GlyphSet::GetSpacing() const {
+  glm::vec2 GlyphSet::GetSpacing() const {
     return glyph_spacing_;
   }
 
   glm::ivec2 GlyphSet::GetSize() const {
     return glm::ivec2(set_width_, set_height_);
+  }
+
+  void GlyphSet::SetPosition(const int& x, const int& y) {
+    glm::vec2 new_position = glm::vec2(x, y);
+    glm::vec2 diff = new_position - set_position_;
+    set_position_ = new_position;
+
+    for (int i = 0; i < GetCount(); ++i) {
+      set_data_->at(i).vertex_offset += diff;
+    }
   }
 
   void GlyphSet::SetScale(const int& width, const int& height) {
@@ -122,6 +127,18 @@ namespace term_engine::glyphs {
     is_dirty_ = true;
   }
 
+  char GlyphSet::GetChar(const int& x, const int& y) const {
+    if (x < 0 || x >= set_width_ || y < 0 || y >= set_height_) {
+      spdlog::warn("Invalid coords {},{} given to GetChar.", x, y);
+
+      return '\0';
+    }
+
+    size_t pos = (set_width_ * y) + x;
+
+    return set_chars_.at(pos);
+  }
+
   void GlyphSet::SetChar(const int& x, const int& y, const char& glyph, fonts::FontAtlasPtr& font_atlas) {
     if (x < 0 || x >= set_width_ || y < 0 || y >= set_height_) {
       spdlog::warn("Invalid coords {},{} given to SetChar.", x, y);
@@ -138,7 +155,22 @@ namespace term_engine::glyphs {
     is_dirty_ = true;
   }
 
-  void GlyphSet::SetOffset(const int& x, const int& y, const glm::vec2& offset) {
+  void GlyphSet::SetRelativeOffset(const int& x, const int& y, const glm::vec2& offset) {
+    if (x < 0 || x >= set_width_ || y < 0 || y >= set_height_) {
+      spdlog::warn("Invalid coords {},{} given to SetOffset.", x, y);
+
+      return;
+    }
+
+    size_t pos = (set_width_ * (size_t)y) + (size_t)x;
+    glm::vec2 glyph_origin = set_position_ + (glm::vec2(x, y) * glyph_scale_) + offset;
+    
+    set_data_->at(pos).vertex_offset = glyph_origin;
+    
+    is_dirty_ = true;
+  }
+
+  void GlyphSet::SetAbsoluteOffset(const int& x, const int& y, const glm::vec2& offset) {
     if (x < 0 || x >= set_width_ || y < 0 || y >= set_height_) {
       spdlog::warn("Invalid coords {},{} given to SetOffset.", x, y);
 
@@ -192,14 +224,26 @@ namespace term_engine::glyphs {
     }
 
     size_t pos = (set_width_ * (size_t)y) + (size_t)x;
-    int x_offset;
-    int y_offset;
+    glm::vec2 glyph_origin = set_position_ + (glm::vec2(x, y) * (glyph_scale_ + glyph_spacing_));
 
-
+    set_data_->at(pos).vertex_offset = glyph_origin;
   }
 
   void GlyphSet::ResetAllOffsets() {
+    glm::vec2 glyph_position = set_position_;
+    size_t pos = 0;
 
+    for (int y = 0; y < set_height_; ++y) {
+      for (int x = 0; x < set_width_; ++x) {
+        set_data_->at(pos).vertex_offset = glyph_position;
+
+        pos++;
+        glyph_position.x += glyph_scale_.x + glyph_spacing_.x;
+      }
+
+      glyph_position.x = set_position_.x;
+      glyph_position.y += glyph_scale_.y + glyph_spacing_.y;
+    }
   }
 
   void GlyphSet::Render() {
@@ -219,6 +263,8 @@ namespace term_engine::glyphs {
     set_data_->reserve(MAX_GLYPHS);
     set_data_->resize(set_width_ * set_height_);
     std::fill(set_data_->begin(), set_data_->end(), GlyphData());
+
+    ResetAllOffsets();
   }
 
   void GlyphSet::InitBuffers() {
@@ -278,10 +324,10 @@ namespace term_engine::glyphs {
     glBindBuffer(GL_ARRAY_BUFFER, vbo_id_);
     glBufferData(GL_ARRAY_BUFFER, sizeof(GlyphData) * set_data_->size(), set_data_->data(), GL_DYNAMIC_DRAW);
 
-    spdlog::debug("Logging instance VBO...");
-    debug::LogVBOData();
+    //spdlog::debug("Logging instance VBO...");
+    //debug::LogVBOData();
 
-    PrintData();
+    //PrintData();
   }
 
   void GlyphSet::PrintData() const {

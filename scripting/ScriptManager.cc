@@ -8,4 +8,12 @@ namespace term_engine::scripting {
   ScriptManager::~ScriptManager() {
     
   }
+
+  void ScriptManager::RunInit() {
+    lua_state_.script_file("scripts/init.lua");
+  }
+
+  void ScriptManager::RunTest() {
+    lua_state_.script_file("scripts/test.lua");
+  }
 }

@@ -31,7 +31,7 @@ namespace term_engine::glyphs {
     float texture_offset;
     glm::vec4 foreground_color;
     glm::vec4 background_color;
-    _GlyphData() : vertex_offset(glm::vec2(0.0f)), texture_offset(0), foreground_color(glm::vec4(1.0f)), background_color(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)) {};
+    _GlyphData() : vertex_offset(glm::vec2(0.0f)), texture_offset(-1), foreground_color(glm::vec4(1.0f)), background_color(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)) {};
   } GlyphData;
 
   typedef std::string GlyphCharList;
@@ -44,13 +44,15 @@ namespace term_engine::glyphs {
 
   class GlyphSet {
   public:
-    GlyphSet(const std::string& font, const int& pt_size);
+    GlyphSet();
     ~GlyphSet();
 
-    glm::ivec2 GetScale() const;
-    glm::ivec2 GetPadding() const;
-    glm::ivec2 GetSpacing() const;
+    glm::vec2 GetPosition() const;
+    glm::vec2 GetScale() const;
+    glm::vec2 GetPadding() const;
+    glm::vec2 GetSpacing() const;
     glm::ivec2 GetSize() const;
+    void SetPosition(const int& x, const int& y);
     void SetScale(const int& width, const int& height);
     void SetPadding(const int& x_padding, const int& y_padding);
     void SetSpacing(const int& x_spacing, const int& y_spacing);
@@ -58,7 +60,8 @@ namespace term_engine::glyphs {
 
     char GetChar(const int& x, const int& y) const;
     void SetChar(const int& x, const int& y, const char& glyph, fonts::FontAtlasPtr& font_atlas);
-    void SetOffset(const int& x, const int& y, const glm::vec2& offset);
+    void SetRelativeOffset(const int& x, const int& y, const glm::vec2& offset);
+    void SetAbsoluteOffset(const int& x, const int& y, const glm::vec2& offset);
     void SetFGColor(const int& x, const int& y, const glm::vec4& fg_color);
     void SetBGColor(const int& x, const int& y, const glm::vec4& bg_color);
 
@@ -77,11 +80,11 @@ namespace term_engine::glyphs {
 
     size_t set_width_;
     size_t set_height_;
-    glm::ivec2 set_offset_;
+    glm::vec2 set_position_;
 
-    glm::ivec2 glyph_scale_;
-    glm::ivec2 glyph_padding_;
-    glm::ivec2 glyph_spacing_;
+    glm::vec2 glyph_scale_;
+    glm::vec2 glyph_padding_;
+    glm::vec2 glyph_spacing_;
 
     std::string set_chars_;
     GlyphDataPtr set_data_;
@@ -104,4 +107,4 @@ namespace term_engine::glyphs {
   typedef std::unordered_map<std::string, GlyphSetPtr> GlyphSetMap;
 }
 
-#endif
+#endif // !GLYPH_SET_H

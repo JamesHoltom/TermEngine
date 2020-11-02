@@ -72,6 +72,9 @@
     <ClCompile Include="utility\spdlogUtils.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="utility\enttUtils.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="init.h">
@@ -132,6 +135,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="utility\spdlogUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utility\enttUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utility\SolUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

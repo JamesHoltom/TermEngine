@@ -5,8 +5,6 @@
 #include "../utility/spdlogUtils.h"
 
 namespace term_engine::timing {
-  constexpr int FPS_FRAME_MULTIPLE = 5;
-
   Timer delay_timer_;
   Timer average_timer_;
 
@@ -19,6 +17,7 @@ namespace term_engine::timing {
 
   void InitFPS() {
     delay_timer_.Start();
+    average_timer_.Start();
 
     spdlog::debug("Started FPS.");
   }
@@ -34,16 +33,22 @@ namespace term_engine::timing {
     delay_timer_.Start();
   }
 
+  void CalculateFPS() {
+    if (frame_count_ % FPS_FRAME_MULTIPLE == 0 && frame_count_ > 0) {
+      float time_taken = (float)average_timer_.GetIntervalElapsed() / 1000.0f;
+      average_fps_ = (float)FPS_FRAME_MULTIPLE / time_taken;
+    }
+  }
+
+  uint64_t GetFrameCount() {
+    return frame_count_;
+  }
+
   void NextFrame() {
     ++frame_count_;
   }
 
   float GetAverageFPS() {
-    if (frame_count_ % FPS_FRAME_MULTIPLE == 0 && frame_count_ > 0) {
-      float time_taken = average_timer_.GetIntervalElapsed() / 1000.0f;
-      average_fps_ = (float)FPS_FRAME_MULTIPLE / time_taken;
-    }
-
     return average_fps_;
   }
 
@@ -70,5 +75,13 @@ namespace term_engine::timing {
     use_target_ = false;
     target_fps_ = 0;
     frame_duration_ = 0;
+  }
+
+  void PrintFPS() {
+    if (use_target_) {
+      spdlog::info("Target FPS: {}", target_fps_);
+    }
+    spdlog::info("Average FPS: {}", GetAverageFPS());
+    spdlog::info("Frame count: {}", frame_count_);
   }
 }

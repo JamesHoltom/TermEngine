@@ -10,6 +10,7 @@
 #include "../fonts/FontAtlasManager.h"
 #include "../rendering/GlyphManager.h"
 #include "../shaders/ShaderManager.h"
+#include "../scripting/ScriptManager.h"
 
 #include "../utility/SDLUtils.h"
 
@@ -26,7 +27,10 @@ namespace term_engine {
     bool quit_;
 
     shaders::ShaderPtr shader_;
+    scripting::ScriptManager script_;
   };
+
+  void ChangeSet(glyphs::GlyphSetPtr& set, fonts::FontAtlasPtr& atlas, const int& pattern);
 }
 
 #endif // !APPLICATION_H

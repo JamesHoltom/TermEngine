@@ -10,8 +10,13 @@
 #include "Timer.h"
 
 namespace term_engine::timing {
+  constexpr int FPS_FRAME_MULTIPLE = 5;
+
   void InitFPS();
   void Delay();
+  void CalculateFPS();
+
+  uint64_t GetFrameCount();
   void NextFrame();
 
   float GetAverageFPS();
@@ -20,6 +25,8 @@ namespace term_engine::timing {
   int GetTargetFPS();
   void SetTargetFPS(const int& target);
   void DisableTargetFPS();
+
+  void PrintFPS();
 
   extern Timer delay_timer_;
   extern Timer average_timer_;

@@ -5,7 +5,7 @@ namespace spdlog {
 #ifdef TERM_DEBUG
     spdlog::set_level(spdlog::level::trace);
 #else
-    spdlog::set_level(spdlog::level::warn);
+    spdlog::set_level(spdlog::level::info);
 #endif
   }
 }

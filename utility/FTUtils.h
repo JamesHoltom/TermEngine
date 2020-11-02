@@ -11,6 +11,7 @@
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
+#include FT_GLYPH_H
 
 namespace FT {
   FT_Error Log(FT_Error result);
