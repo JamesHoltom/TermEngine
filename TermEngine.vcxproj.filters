@@ -54,9 +54,6 @@
     <ClCompile Include="rendering\GlyphSet.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="application\Application.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="utility\FTUtils.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -73,6 +70,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="utility\enttUtils.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Application.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -119,9 +119,6 @@
     <ClInclude Include="utility\SDLUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="application\Application.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="utility\FTUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -141,6 +138,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="utility\SolUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Application.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

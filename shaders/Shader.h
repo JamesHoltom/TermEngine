@@ -65,4 +65,4 @@ namespace term_engine::shaders {
   typedef std::unordered_map<std::string, ShaderPtr> ShaderMap;
 }
 
-#endif
+#endif // ! SHADER_H

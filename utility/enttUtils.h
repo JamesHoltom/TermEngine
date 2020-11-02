@@ -11,4 +11,4 @@
 
 extern entt::registry registry;
 
-#endif
+#endif // ! ENTT_UTILS_H

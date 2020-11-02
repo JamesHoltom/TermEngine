@@ -1,3 +1,9 @@
+/*
+ * Copyright 2020
+ * James Holtom
+ * MIT License
+ */
+
 #ifndef SOL_UTILS_H
 #define SOL_UTILS_H
 
@@ -17,4 +23,4 @@
 
 #include "Assert.h"
 
-#endif // !SOL_UTILS_H
+#endif // ! SOL_UTILS_H

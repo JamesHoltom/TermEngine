@@ -4,12 +4,12 @@
  * MIT License
  */
 
-#ifndef MOD_STATE_MANAGER_H
-#define MOD_STATE_MANAGER_H
+#ifndef STATE_MANAGER_H
+#define STATE_MANAGER_H
 
 
 
-namespace term_engine::modules {
+namespace term_engine {
   class StateManager {
   public:
 
@@ -17,4 +17,4 @@ namespace term_engine::modules {
   };
 }
 
-#endif // ! MOD_STATE_MANAGER_H
+#endif // ! STATE_MANAGER_H

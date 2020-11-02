@@ -107,4 +107,4 @@ namespace term_engine::glyphs {
   typedef std::unordered_map<std::string, GlyphSetPtr> GlyphSetMap;
 }
 
-#endif // !GLYPH_SET_H
+#endif // ! GLYPH_SET_H

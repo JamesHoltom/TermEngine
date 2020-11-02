@@ -26,4 +26,4 @@ namespace term_engine::scripting {
 }
 
 
-#endif // !SCRIPT_MANAGER_H
+#endif // ! SCRIPT_MANAGER_H

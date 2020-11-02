@@ -33,4 +33,4 @@ namespace term_engine {
   void ChangeSet(glyphs::GlyphSetPtr& set, fonts::FontAtlasPtr& atlas, const int& pattern);
 }
 
-#endif // !APPLICATION_H
+#endif // ! APPLICATION_H

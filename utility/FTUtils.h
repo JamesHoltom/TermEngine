@@ -17,5 +17,5 @@ namespace FT {
   FT_Error Log(FT_Error result);
 }
 
-#endif // !FT_UTILS_H
+#endif // ! FT_UTILS_H
 

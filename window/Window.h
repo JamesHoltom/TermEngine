@@ -24,4 +24,4 @@ namespace term_engine::windows {
   extern SDL::Window window;
 }
 
-#endif
+#endif // ! WINDOW_H

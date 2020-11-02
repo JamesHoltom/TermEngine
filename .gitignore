@@ -339,5 +339,4 @@ ASALocalRun/
 healthchecksdb
 
 # Custom exclusions
-fonts/
 /resources

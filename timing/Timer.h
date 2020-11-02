@@ -4,8 +4,8 @@
  * MIT License
  */
 
-#ifndef MOD_TIMER_H
-#define MOD_TIMER_H
+#ifndef TIMER_H
+#define TIMER_H
 
 #include <chrono>
 
@@ -41,4 +41,4 @@ namespace term_engine::timing {
   };
 }
 
-#endif // !MOD_TIMER_H
+#endif // ! TIMER_H

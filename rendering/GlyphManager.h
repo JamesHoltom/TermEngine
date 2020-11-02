@@ -22,4 +22,4 @@ namespace term_engine::glyphs {
   extern GlyphSetMap glyph_set_list;
 }
 
-#endif
+#endif // ! GLYPH_MANAGER_H

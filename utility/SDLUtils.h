@@ -62,4 +62,4 @@ namespace SDL {
   typedef std::unique_ptr<SDL_Texture, TextureDestroyer> Texture;
 }
 
-#endif
+#endif // ! SDL_UTILS_H

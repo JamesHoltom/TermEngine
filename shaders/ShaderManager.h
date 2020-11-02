@@ -28,4 +28,4 @@ namespace term_engine::shaders {
   extern const GLchar* glyph_vertex_shader;
 }
 
-#endif
+#endif // ! SHADER_MANAGER_H

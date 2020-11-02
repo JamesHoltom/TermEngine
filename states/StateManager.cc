@@ -1,5 +1,5 @@
 #include "StateManager.h"
 
-namespace term_engine::modules {
+namespace term_engine {
 
 }

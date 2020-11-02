@@ -19,4 +19,4 @@ namespace term_engine::debug {
   void LogVBOData();
 }
 
-#endif
+#endif // !DBEUG_FUNCTIONS_H
