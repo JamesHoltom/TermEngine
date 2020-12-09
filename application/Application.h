@@ -7,30 +7,21 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
-#include "../fonts/FontAtlasManager.h"
-#include "../rendering/GlyphManager.h"
-#include "../shaders/ShaderManager.h"
-#include "../scripting/ScriptManager.h"
-
+#include "../fonts/FontAtlas.h"
+#include "../glyphs/GlyphSet.h"
+#include "../logging/Logger.h"
+#include "../scenes/Scene.h"
+#include "../scripting/ScriptingInterface.h"
+#include "../shaders/Shader.h"
 #include "../utility/SDLUtils.h"
 
-namespace term_engine {
-  class Application {
-  public:
-    Application();
-    ~Application();
+namespace term_engine::application {
+  void Init();
+  void CleanUp();
+  void Run();
 
-    void Run();
-
-  private:
-    SDL_Event event_;
-    bool quit_;
-
-    shaders::ShaderPtr shader_;
-    scripting::ScriptManager script_;
-  };
-
-  void ChangeSet(glyphs::GlyphSetPtr& set, fonts::FontAtlasPtr& atlas, const int& pattern);
+  void ChangeFont(const int& pattern);
+  void ChangeSet(const int& pattern);
 }
 
 #endif // ! APPLICATION_H

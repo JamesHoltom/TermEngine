@@ -1,7 +1,9 @@
 #include <string>
+#include <spdlog/spdlog.h>
+#include <spdlog/fmt/ostr.h>
 
 #include "GLUtils.h"
-#include "spdlogUtils.h"
+#include "../logging/Logger.h"
 
 namespace GL {
   void GLAPIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const char* message, const void* userParam) {
@@ -42,6 +44,18 @@ namespace GL {
     case GL_DEBUG_SEVERITY_NOTIFICATION: severity_string = "Notification"; break;
     }
 
-    spdlog::error("GL debug message (#{}):\nDescription: {}\nSource: {}\nType: {}\nSeverity: {}", id, message, source_string, type_string, severity_string);
+    term_engine::logging::logger->error("GL debug message (#{}):\nDescription: {}\nSource: {}\nType: {}\nSeverity: {}", id, message, source_string, type_string, severity_string);
   }
+}
+
+std::ostream& operator<< (std::ostream& os, const glm::vec2& value) {
+  return os << value.x << ", " << value.y;
+}
+
+std::ostream& operator<< (std::ostream& os, const glm::vec4& value) {
+  return os << value.x << ", " << value.y << ", " << value.z << ", " << value.w;
+}
+
+std::ostream& operator<< (std::ostream& os, const glm::uvec2& value) {
+  return os << value.x << ", " << value.y;
 }

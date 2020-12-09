@@ -2,7 +2,8 @@
 #include <sstream>
 
 #include "ShaderManager.h"
-#include "../utility/spdlogUtils.h"
+#include "../logging/Logger.h"
+#include "../window/Window.h"
 
 namespace term_engine::shaders {
   void InitGlyphShader() {
@@ -12,10 +13,10 @@ namespace term_engine::shaders {
     bool vs_result = shader->BuildShaderFromString(glyph_vertex_shader, GL_VERTEX_SHADER);
     bool prog_result = shader->BuildProgram();
 
-    spdlog::debug("Initialising glyph shader.");
-    spdlog::debug("Fragment shader: {}", fs_result);
-    spdlog::debug("Vertex shader:   {}", vs_result);
-    spdlog::debug("Program:         {}", prog_result);
+    logging::logger->debug("Initialising glyph shader.");
+    logging::logger->debug("Fragment shader: {}", fs_result);
+    logging::logger->debug("Vertex shader:   {}", vs_result);
+    logging::logger->debug("Program:         {}", prog_result);
   }
 
   ShaderPtr GetShader(const std::string& name) {
@@ -48,7 +49,11 @@ namespace term_engine::shaders {
     "void main() {\n"
     "\tif (f_tex_offset.z >= 0) {\n"
     "\t\tfloat sampled = texture(font_texture, f_tex_offset).r;\n"
-    "\t\tfragment_color = mix((vec4(1.0f, 1.0f, 1.0f, 1.0f - sampled) * f_bg_color), (vec4(1.0f, 1.0f, 1.0f, sampled) * f_fg_color), sampled);\n"
+    "\t\tif (sampled > 0.0f) {\n"
+    "\t\t\tfragment_color = vec4(1.0f, 1.0f, 1.0f, sampled) * f_fg_color;\n"
+    "\t\t} else {\n"
+    "\t\t\tfragment_color = vec4(1.0f, 1.0f, 1.0f, 1.0f - sampled) * f_bg_color;\n"
+    "\t\t}\n"
     "\t}\n"
     "\telse {\n"
     "\t\tfragment_color = f_bg_color;\n"
@@ -68,12 +73,13 @@ namespace term_engine::shaders {
     "out vec4 f_fg_color;\n"
     "out vec4 f_bg_color;\n"
     "uniform mat4 projection;\n"
+    "uniform vec2 origin;\n"
     "uniform vec2 scale;\n"
     "void main() {\n"
     "\tf_tex_offset = vec3(tex_position, tex_offset);\n"
     "\tf_fg_color = fg_color;\n"
     "\tf_bg_color = bg_color;\n"
-    "\tgl_Position = projection * vec4((vert_position * scale) + vert_offset, 0.0f, 1.0f);\n"
+    "\tgl_Position = projection * vec4((vert_position * scale) + origin + vert_offset, 0.0f, 1.0f);\n"
     "}\0"
   };
 }

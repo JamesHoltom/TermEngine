@@ -10,12 +10,10 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
-
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include <gl/glew.h>
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 
 namespace term_engine::fonts {
   typedef std::unordered_map<FT_UInt32, GLuint> GlyphAtlas;
@@ -27,15 +25,18 @@ namespace term_engine::fonts {
     FontAtlas(const FT_Library& library, const std::string& font_path, const int& glyph_size);
     ~FontAtlas();
 
+    std::string GetFontPath() const;
+    int GetFontSize() const;
+
     GLint GetCharacter(const FT_ULong &character);
-    glm::ivec2 GetTextureSize() const;
+    const GLuint& GetTextureId() const;
+    glm::uvec2 GetTextureSize() const;
 
     void Use() const;
     void Unuse() const;
 
   private:
     std::string font_path_;
-
     int font_size_;
 
     FT_Face font_face_;
@@ -43,7 +44,7 @@ namespace term_engine::fonts {
 
     GLuint texture_id_;
     GLuint texture_offset_;
-    glm::ivec2 texture_size_;
+    glm::uvec2 texture_size_;
     GLint texture_max_layers_;
 
     GLint LoadChar(const FT_ULong& character);

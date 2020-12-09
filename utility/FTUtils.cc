@@ -1,5 +1,5 @@
 #include "FTUtils.h"
-#include "spdlogUtils.h"
+#include "../logging/Logger.h"
 
 namespace FT {
   FT_Error Log(FT_Error result) {
@@ -112,7 +112,7 @@ namespace FT {
       case FT_Err_Corrupted_Font_Glyphs:         error_message = "Font glyphs are corrupted or insufficient"; break;
       }
 
-      spdlog::error("FreeType error #{}: {}", result, error_message);
+      term_engine::logging::logger->error("FreeType error #{}: {}", result, error_message);
     }
 
     return result;

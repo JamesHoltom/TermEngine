@@ -1,5 +1,6 @@
 #include "DebugFunctions.h"
 #include "GLUtils.h"
+#include "../logging/Logger.h"
 
 namespace term_engine::debug {
   void LogKeyboardEvents(SDL_Event& event) {
@@ -54,7 +55,7 @@ namespace term_engine::debug {
       keyboard_modifiers.erase(0, 2);
     }
 
-    spdlog::debug("Keyboard Event: {}, Key: {}, Modifiers: {}", keyboard_type, SDL_GetKeyName(event.key.keysym.sym), keyboard_modifiers);
+    logging::logger->debug("Keyboard Event: {}, Key: {}, Modifiers: {}", keyboard_type, SDL_GetKeyName(event.key.keysym.sym), keyboard_modifiers);
   }
 
   void LogWindowEvents(SDL_Event& event) {
@@ -82,10 +83,10 @@ namespace term_engine::debug {
 
       if (window_string != "") {
         if (showXY) {
-          spdlog::debug("Window ID: {}, Event: {}, X: {}, Y: {}", event.window.windowID, window_string, event.window.data1, event.window.data2);
+          logging::logger->debug("Window ID: {}, Event: {}, X: {}, Y: {}", event.window.windowID, window_string, event.window.data1, event.window.data2);
         }
         else {
-          spdlog::debug("Window ID: {}, Event: {}", event.window.windowID, window_string);
+          logging::logger->debug("Window ID: {}, Event: {}", event.window.windowID, window_string);
         }
       }
     }
@@ -95,7 +96,7 @@ namespace term_engine::debug {
     int vao_id, ebo_id, ebo_size, max_vertex_attribs, vbo_id;
     int vertex_attrib_is_enabled;
 
-    spdlog::debug("Debugging currently bound VAO...");
+    logging::logger->debug("Debugging currently bound VAO...");
 
     glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &vao_id);
     glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &ebo_id);
@@ -104,9 +105,9 @@ namespace term_engine::debug {
     }
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &max_vertex_attribs);
 
-    spdlog::debug("VAO ID: {}", vao_id);
-    spdlog::debug("EBO ID: {}, size: {}", ebo_id, ebo_size);
-    spdlog::debug("Max vertex attributes: {}", max_vertex_attribs);
+    logging::logger->debug("VAO ID: {}", vao_id);
+    logging::logger->debug("EBO ID: {}, size: {}", ebo_id, ebo_size);
+    logging::logger->debug("Max vertex attributes: {}", max_vertex_attribs);
 
     for (int i = 0; i < max_vertex_attribs; ++i) {
       glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_ENABLED, &vertex_attrib_is_enabled);
@@ -114,10 +115,10 @@ namespace term_engine::debug {
       if (vertex_attrib_is_enabled) {
         glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING, &vbo_id);
 
-        spdlog::debug("Vertex attribute #{} is bound to VBO: {}", i, vbo_id);
+        logging::logger->debug("Vertex attribute #{} is bound to VBO: {}", i, vbo_id);
       }
       else {
-        spdlog::debug("Vertex attribute #{} is unbound.", i);
+        logging::logger->debug("Vertex attribute #{} is unbound.", i);
       }
     }
   }
@@ -125,11 +126,11 @@ namespace term_engine::debug {
   void LogVBOData() {
     int vbo_id, vbo_size;
 
-    spdlog::debug("Debugging currently bound VBO...");
+    logging::logger->debug("Debugging currently bound VBO...");
 
     glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &vbo_id);
     glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &vbo_size);
 
-    spdlog::debug("VBO ID: {}, size: {}", vbo_id, vbo_size);
+    logging::logger->debug("VBO ID: {}, size: {}", vbo_id, vbo_size);
   }
 }

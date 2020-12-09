@@ -1,6 +1,7 @@
 #include "FontAtlas.h"
+#include "../logging/Logger.h"
 #include "../utility/FTUtils.h"
-#include "../utility/spdlogUtils.h"
+#include "../utility/GLUtils.h"
 
 namespace term_engine::fonts {
   FontAtlas::FontAtlas(const FT_Library& library, const std::string& font_path, const int& font_size):
@@ -14,7 +15,7 @@ namespace term_engine::fonts {
     glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &max_layers);
 
     if (MAX_GLYPH_LAYERS > max_layers) {
-      spdlog::warn("Maximum glyph layers of {} exceeds OpenGL\'s limit of {}.", MAX_GLYPH_LAYERS, texture_max_layers_);
+      logging::logger->warn("Maximum glyph layers of {} exceeds OpenGL\'s limit of {}.", MAX_GLYPH_LAYERS, texture_max_layers_);
 
       texture_max_layers_ = max_layers;
     }
@@ -25,7 +26,7 @@ namespace term_engine::fonts {
     FT::Log(FT_New_Face(library, font_path_.c_str(), 0, &font_face_));
     FT::Log(FT_Set_Pixel_Sizes(font_face_, font_size_, font_size_));
 
-    texture_size_ = glm::ivec2((font_face_->bbox.xMax - font_face_->bbox.xMin) >> 6, (font_face_->bbox.yMax - font_face_->bbox.yMin) >> 6);
+    texture_size_ = glm::uvec2((font_face_->bbox.xMax - font_face_->bbox.xMin) >> 6, (font_face_->bbox.yMax - font_face_->bbox.yMin) >> 6);
 
     glGenTextures(1, &texture_id_);
     glActiveTexture(GL_TEXTURE0);
@@ -36,12 +37,20 @@ namespace term_engine::fonts {
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    spdlog::debug("Texture dimensions are {},{} with {} layers.", texture_size_.x, texture_size_.y, texture_max_layers_);
-    spdlog::debug("OpenGL has a max limit of {} layers in a texture array.", max_layers);
+    logging::logger->debug("Texture #{} created with dimensions of {}, {} and {} layers.", texture_id_, texture_size_.x, texture_size_.y, texture_max_layers_);
+    logging::logger->debug("OpenGL has a max limit of {} layers in a texture array.", max_layers);
   }
 
   FontAtlas::~FontAtlas() {
     FT::Log(FT_Done_Face(font_face_));
+  }
+
+  std::string FontAtlas::GetFontPath() const {
+    return font_path_;
+  }
+
+  int FontAtlas::GetFontSize() const {
+    return font_size_;
   }
 
   GLint FontAtlas::GetCharacter(const FT_ULong& character) {
@@ -55,7 +64,11 @@ namespace term_engine::fonts {
     }
   }
 
-  glm::ivec2 FontAtlas::GetTextureSize() const {
+  const GLuint& FontAtlas::GetTextureId() const {
+    return texture_id_;
+  }
+
+  glm::uvec2 FontAtlas::GetTextureSize() const {
     return texture_size_;
   }
 
@@ -88,14 +101,14 @@ namespace term_engine::fonts {
 
       auto new_glyph = font_atlas_.emplace(std::make_pair(character, texture_offset_));
 
-      spdlog::debug("Created character, \'{}\' with dimensions {},{} at layer {} and added to cache.", (char)character, glyph_width, glyph_height, texture_offset_);
+      logging::logger->debug("Created character, \'{}\' with dimensions {},{} at layer {} and added to cache.", (char)character, glyph_width, glyph_height, texture_offset_);
 
       texture_offset_++;
 
       return new_glyph.first->second;
     }
     else {
-      spdlog::error("Failed to load character \'{}\' from font \'{}\'.", character, font_path_);
+      logging::logger->error("Failed to load character \'{}\' from font \'{}\'.", character, font_path_);
 
       return -1;
     }

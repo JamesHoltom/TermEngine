@@ -1,21 +1,21 @@
 #include <stdlib.h>
 
 #include "init.h"
+#include "logging/Logger.h"
 #include "utility/FTUtils.h"
 #include "utility/GLUtils.h"
-#include "utility/spdlogUtils.h"
 
 namespace term_engine {
   int InitSDL() {
     if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
-      spdlog::error("Failed to initialise SDL!\nError: {}", SDL_GetError());
+      logging::logger->error("Failed to initialise SDL!\nError: {}", SDL_GetError());
 
       return 1;
     }
 
     srand(SDL_GetTicks());
 
-    spdlog::debug("Initialised SDL.");
+    logging::logger->debug("Initialised SDL.");
 
     return 0;
   }
@@ -30,8 +30,8 @@ namespace term_engine {
     SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &major_ver);
     SDL_GL_GetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, &minor_ver);
 
-    spdlog::debug("Running OpenGL version {}.{}", major_ver, minor_ver);
-    spdlog::debug("Initialised OpenGL.");
+    logging::logger->debug("Running OpenGL version {}.{}", major_ver, minor_ver);
+    logging::logger->debug("Initialised OpenGL.");
 
     return 0;
   }
@@ -42,10 +42,10 @@ namespace term_engine {
     GLenum glew_status = glewInit();
 
     if (glew_status == GLEW_OK) {
-      spdlog::debug("Initialised GLEW.");
+      logging::logger->debug("Initialised GLEW.");
     }
     else {
-      spdlog::error("Failed to initialise GLEW!");
+      logging::logger->error("Failed to initialise GLEW!");
 
       return 1;
     }
@@ -65,12 +65,12 @@ namespace term_engine {
     FT_Error err = FT::Log(FT_Init_FreeType(library));
 
     if (err != FT_Err_Ok) {
-      spdlog::error("Failed to initialise FreeType. Received error #{}", err);
+      logging::logger->error("Failed to initialise FreeType. Received error #{}", err);
 
       return 1;
     }
 
-    spdlog::debug("Initialised FreeType.");
+    logging::logger->debug("Initialised FreeType.");
 
     return 0;
   }
@@ -78,12 +78,12 @@ namespace term_engine {
   void CleanUpSDL() {
     SDL_Quit();
 
-    spdlog::debug("Shut down SDL.");
+    logging::logger->debug("Shut down SDL.");
   }
 
   void CleanUpFreeType(const FT_Library& library) {
     FT::Log(FT_Done_FreeType(library));
 
-    spdlog::debug("Shut down FreeType.");
+    logging::logger->debug("Shut down FreeType.");
   }
 }

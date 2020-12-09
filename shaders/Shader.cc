@@ -1,18 +1,16 @@
 #include <fstream>
 #include <sstream>
-
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 #include "Shader.h"
-#include "../utility/spdlogUtils.h"
+#include "../logging/Logger.h"
 
 namespace term_engine::shaders {
   Shader::Shader(const std::string& name):
     name_(name),
     program_id_(0),
-    shader_id_list_({}),
-    uniform_id_list_({}) {}
+    shader_id_list_({}) {}
 
   Shader::~Shader() {
     RemoveProgram();
@@ -38,10 +36,10 @@ namespace term_engine::shaders {
     if (shader_compiled == GL_TRUE) {
       shader_id_list_.push_back(shader_id);
 
-      spdlog::debug("Generated GLSL shader for ID {}.", shader_id);
+      logging::logger->debug("Generated GLSL shader for ID {}.", shader_id);
     }
     else {
-      spdlog::error("Failed to compile GLSL shader for ID {}.", shader_id);
+      logging::logger->error("Failed to compile GLSL shader for ID {}.", shader_id);
     }
 
     PrintShaderLog(shader_id);
@@ -65,7 +63,7 @@ namespace term_engine::shaders {
       shader_file.close();
     }
     catch (std::ifstream::failure exception) {
-      spdlog::error("Failed to read GLSL shader from file \'{}\'.", file_name);
+      logging::logger->error("Failed to read GLSL shader from file \'{}\'.", file_name);
     }
 
     return BuildShaderFromString({ shader_source.str().c_str() }, type);
@@ -87,10 +85,10 @@ namespace term_engine::shaders {
 
       RemoveShaders();
 
-      spdlog::debug("Generated GLSL shader program {}.", program_id_);
+      logging::logger->debug("Generated GLSL shader program {}.", program_id_);
     }
     else {
-      spdlog::error("Failed to link GLSL shader program {}.", program_id);
+      logging::logger->error("Failed to link GLSL shader program {}.", program_id);
     }
 
     PrintProgramLog();
@@ -110,17 +108,7 @@ namespace term_engine::shaders {
     glUseProgram(0);
   }
 
-  GLuint Shader::GetUniformID(const std::string& uniform_name) {
-    GLuint uniform_id = glGetUniformLocation(program_id_, uniform_name.c_str());
-
-    if (uniform_id_list_.find(uniform_name) == uniform_id_list_.end()) {
-      uniform_id_list_.insert(std::make_pair(uniform_name, uniform_id));
-    }
-
-    return uniform_id;
-  }
-
-  void Shader::SetUniformInt(const std::string& name, const int& count, const int* data) {
+  void Shader::SetUniformInt(const std::string& name, const GLuint& count, const GLint* data) {
     GLint uniform_id = glGetUniformLocation(program_id_, name.c_str());
 
     switch (count) {
@@ -139,7 +127,26 @@ namespace term_engine::shaders {
     }
   }
 
-  void Shader::SetUniformFloat(const std::string& name, const int& count, const float* data) {
+  void Shader::SetUniformUint(const std::string& name, const GLuint& count, const GLuint* data) {
+    GLint uniform_id = glGetUniformLocation(program_id_, name.c_str());
+
+    switch (count) {
+    case 1:
+      glUniform1ui(uniform_id, data[0]);
+      break;
+    case 2:
+      glUniform2ui(uniform_id, data[0], data[1]);
+      break;
+    case 3:
+      glUniform3ui(uniform_id, data[0], data[1], data[2]);
+      break;
+    case 4:
+      glUniform4ui(uniform_id, data[0], data[1], data[2], data[3]);
+      break;
+    }
+  }
+
+  void Shader::SetUniformFloat(const std::string& name, const GLuint& count, const GLfloat* data) {
     GLint uniform_id = glGetUniformLocation(program_id_, name.c_str());
 
     switch (count) {
@@ -158,7 +165,7 @@ namespace term_engine::shaders {
     }
   }
 
-  void Shader::SetUniformMatrix(const std::string& name, const glm::ivec2& dimensions, const GLfloat* data) {
+  void Shader::SetUniformMatrix(const std::string& name, const glm::uvec2& dimensions, const GLfloat* data) {
     GLint uniform_id = glGetUniformLocation(program_id_, name.c_str());
 
     switch (dimensions.x) {
@@ -219,16 +226,16 @@ namespace term_engine::shaders {
       glGetProgramInfoLog(program_id_, max_log_length, &log_length, info_log);
 
       if (log_length > 0) {
-        spdlog::debug("Program build results:\nID: {}\nMessage: {}", program_id_, info_log);
+        logging::logger->debug("Program build results:\nID: {}\nMessage: {}", program_id_, info_log);
       }
       else {
-        spdlog::debug("Program build results:\nID: {}\nNo message to display.", program_id_);
+        logging::logger->debug("Program build results:\nID: {}\nNo message to display.", program_id_);
       }
 
       delete[] info_log;
     }
     else {
-      spdlog::warn("Program with an ID of {} has not been built.", program_id_);
+      logging::logger->warn("Program with an ID of {} has not been built.", program_id_);
     }
   }
 
@@ -244,16 +251,16 @@ namespace term_engine::shaders {
       glGetShaderInfoLog(shader_id, max_log_length, &log_length, info_log);
 
       if (log_length > 0) {
-        spdlog::debug("Shader build results:\nID: {}\nMessage: {}", shader_id, info_log);
+        logging::logger->debug("Shader build results:\nID: {}\nMessage: {}", shader_id, info_log);
       }
       else {
-        spdlog::debug("Shader build results:\nID: {}\nNo message to display.", shader_id);
+        logging::logger->debug("Shader build results:\nID: {}\nNo message to display.", shader_id);
       }
 
       delete[] info_log;
     }
     else {
-      spdlog::warn("Shader with an ID of {} has not been built.", shader_id);
+      logging::logger->warn("Shader with an ID of {} has not been built.", shader_id);
     }
   }
 

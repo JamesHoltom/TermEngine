@@ -39,19 +39,16 @@ namespace term_engine::shaders {
     void Use() const;
     void Unuse() const;
 
-    GLuint GetUniformID(const std::string& uniform_name);
-
-    void SetUniformInt(const std::string& name, const int& count, const int* data);
-    void SetUniformFloat(const std::string& name, const int& count, const float* data);
-    void SetUniformMatrix(const std::string& name, const glm::ivec2& dimensions, const GLfloat* data);
+    void SetUniformInt(const std::string& name, const GLuint& count, const GLint* data);
+    void SetUniformUint(const std::string& name, const GLuint& count, const GLuint* data);
+    void SetUniformFloat(const std::string& name, const GLuint& count, const GLfloat* data);
+    void SetUniformMatrix(const std::string& name, const glm::uvec2& dimensions, const GLfloat* data);
 
   private:
-
     std::string name_;
 
     GLuint program_id_;
     ShaderList shader_id_list_;
-    UniformMap uniform_id_list_;
 
     void PrintProgramLog();
     void PrintShaderLog(const GLuint& shader_id);

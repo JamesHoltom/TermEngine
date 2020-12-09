@@ -2,7 +2,7 @@
 #include <thread>
 
 #include "FPSManager.h"
-#include "../utility/spdlogUtils.h"
+#include "../logging/Logger.h"
 
 namespace term_engine::timing {
   Timer delay_timer_;
@@ -19,7 +19,7 @@ namespace term_engine::timing {
     delay_timer_.Start();
     average_timer_.Start();
 
-    spdlog::debug("Started FPS.");
+    logging::logger->debug("Started FPS.");
   }
 
   void Delay() {
@@ -67,7 +67,7 @@ namespace term_engine::timing {
       frame_duration_ = std::chrono::milliseconds(1000 / target_fps_).count();
     }
     else {
-      spdlog::warn("Attempted to set FPS to invalid value %i.\n", target);
+      logging::logger->warn("Attempted to set FPS to invalid value %i.\n", target);
     }
   }
 
@@ -79,9 +79,9 @@ namespace term_engine::timing {
 
   void PrintFPS() {
     if (use_target_) {
-      spdlog::info("Target FPS: {}", target_fps_);
+      logging::logger->info("Target FPS: {}", target_fps_);
     }
-    spdlog::info("Average FPS: {}", GetAverageFPS());
-    spdlog::info("Frame count: {}", frame_count_);
+    logging::logger->info("Average FPS: {}", GetAverageFPS());
+    logging::logger->info("Frame count: {}", frame_count_);
   }
 }
