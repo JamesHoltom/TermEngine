@@ -1,7 +1,7 @@
-/*
- * Copyright 2020
- * James Holtom
- * MIT License
+/**
+ * @file
+ * @namespace term_engine::application
+ * @author James Holtom
  */
 
 #ifndef APPLICATION_H

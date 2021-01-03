@@ -15,147 +15,147 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cc">
+    <ClCompile Include="src\application\Application.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="timing\Timer.cc">
+    <ClCompile Include="src\drawing\DrawFunctions.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="timing\FPSManager.cc">
+    <ClCompile Include="src\events\InputManager.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="utility\DebugFunctions.cc">
+    <ClCompile Include="src\fonts\FontAtlas.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="window\Window.cc">
+    <ClCompile Include="src\fonts\FontAtlasManager.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="shaders\ShaderManager.cc">
+    <ClCompile Include="src\glyphs\Glyph.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="shaders\Shader.cc">
+    <ClCompile Include="src\glyphs\GlyphSet.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="events\InputManager.cc">
+    <ClCompile Include="src\logging\Logger.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="utility\FTUtils.cc">
+    <ClCompile Include="src\scenes\Scene.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="utility\GLUtils.cc">
+    <ClCompile Include="src\scenes\SceneManager.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="fonts\FontAtlas.cc">
+    <ClCompile Include="src\scripting\ScriptingInterface.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="fonts\FontAtlasManager.cc">
+    <ClCompile Include="src\shaders\Shader.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="application\Application.cc">
+    <ClCompile Include="src\shaders\ShaderManager.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="glyphs\GlyphSet.cc">
+    <ClCompile Include="src\timing\FPSManager.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="glyphs\Glyph.cc">
+    <ClCompile Include="src\timing\Timer.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="logging\Logger.cc">
+    <ClCompile Include="src\utility\DebugFunctions.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="scenes\SceneManager.cc">
+    <ClCompile Include="src\utility\FTUtils.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="scenes\Scene.cc">
+    <ClCompile Include="src\utility\GLUtils.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="scripting\ScriptingInterface.cc">
+    <ClCompile Include="src\utility\Init.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="utility\Init.cc">
+    <ClCompile Include="src\utility\LoggingUtils.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="utility\LoggingUtils.cc">
+    <ClCompile Include="src\window\Window.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="drawing\DrawFunctions.cc">
+    <ClCompile Include="src\main.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="timing\Timer.h">
+    <ClInclude Include="src\application\Application.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="timing\FPSManager.h">
+    <ClInclude Include="src\drawing\DrawFunctions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="scripting\Assert.h">
+    <ClInclude Include="src\events\InputManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="utility\DebugFunctions.h">
+    <ClInclude Include="src\fonts\FontAtlas.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="window\Window.h">
+    <ClInclude Include="src\fonts\FontAtlasManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="shaders\ShaderManager.h">
+    <ClInclude Include="src\glyphs\Glyph.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="shaders\Shader.h">
+    <ClInclude Include="src\glyphs\GlyphSet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="events\InputManager.h">
+    <ClInclude Include="src\logging\Logger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="utility\SDLUtils.h">
+    <ClInclude Include="src\scenes\Scene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="utility\FTUtils.h">
+    <ClInclude Include="src\scenes\SceneManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="utility\GLUtils.h">
+    <ClInclude Include="src\scripting\Assert.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="fonts\FontAtlas.h">
+    <ClInclude Include="src\scripting\ScriptingInterface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="fonts\FontAtlasManager.h">
+    <ClInclude Include="src\shaders\Shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="utility\SolUtils.h">
+    <ClInclude Include="src\shaders\ShaderManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="application\Application.h">
+    <ClInclude Include="src\timing\FPSManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="glyphs\Glyph.h">
+    <ClInclude Include="src\timing\Timer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="glyphs\GlyphSet.h">
+    <ClInclude Include="src\utility\Color.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="logging\Logger.h">
+    <ClInclude Include="src\utility\DebugFunctions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="scenes\Scene.h">
+    <ClInclude Include="src\utility\FTUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="scenes\SceneManager.h">
+    <ClInclude Include="src\utility\GLUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="scripting\ScriptingInterface.h">
+    <ClInclude Include="src\utility\Init.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="utility\Color.h">
+    <ClInclude Include="src\utility\LoggingUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="utility\Init.h">
+    <ClInclude Include="src\utility\SDLUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="utility\LoggingUtils.h">
+    <ClInclude Include="src\utility\SolUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="drawing\DrawFunctions.h">
+    <ClInclude Include="src\window\Window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
