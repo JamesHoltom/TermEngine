@@ -37,6 +37,12 @@ namespace term_engine::shaders {
     shader_list.clear();
   }
 
+  void GetPointerUsage() {
+    for (ShaderIter shader : shader_list) {
+      logging::logger->info("Shader {} has {} refs.", shader.first, shader.second.use_count());
+    }
+  }
+
   ShaderMap shader_list;
 
   const GLchar* glyph_fragment_shader = {

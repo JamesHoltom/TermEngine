@@ -52,6 +52,8 @@ namespace term_engine::glyphs {
 
     GlyphData& GetGlyph(const glm::uvec2& index);
 
+    void WriteLine(const glm::ivec2& index, const std::string& text, const glm::vec4& fg_color, const glm::vec4& bg_color);
+
     void Clear(GlyphData& glyph);
     void ClearAll();
     void ResetOffset(GlyphData& glyph);

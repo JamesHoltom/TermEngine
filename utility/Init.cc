@@ -1,9 +1,7 @@
 #include <stdlib.h>
 
-#include "init.h"
-#include "logging/Logger.h"
-#include "utility/FTUtils.h"
-#include "utility/GLUtils.h"
+#include "Init.h"
+#include "../logging/Logger.h"
 
 namespace term_engine {
   int InitSDL() {

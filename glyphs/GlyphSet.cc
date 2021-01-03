@@ -23,8 +23,8 @@ namespace term_engine::glyphs {
     InitData();
     InitBuffers();
 
-    logging::logger->info("There are {} font refs.", font.use_count());
-    logging::logger->info("There are {} shader refs.", shader.use_count());
+    logging::logger->info("GS: There are {} font refs.", set_font_.use_count());
+    logging::logger->info("GS: There are {} shader refs.", set_shader_.use_count());
 
     const GLint active_texture = 0;
     set_shader_->Use();
@@ -41,6 +41,9 @@ namespace term_engine::glyphs {
 
     set_font_.reset();
     set_shader_.reset();
+
+    logging::logger->info("~GS: There are {} font refs.", set_font_.use_count());
+    logging::logger->info("~GS: There are {} shader refs.", set_shader_.use_count());
   }
 
   glm::vec2 GlyphSet::GetPosition() const {
@@ -69,9 +72,6 @@ namespace term_engine::glyphs {
 
   void GlyphSet::SetPosition(const glm::vec2& position) {
     set_position_ = position;
-
-    logging::logger->info("There are {} font refs.", set_font_.use_count());
-    logging::logger->info("There are {} shader refs.", set_shader_.use_count());
 
     set_shader_->Use();
     set_shader_->SetUniformFloat("origin", 2, glm::value_ptr(set_position_));
@@ -187,6 +187,17 @@ namespace term_engine::glyphs {
     size_t pos = ((size_t)set_size_.x * (size_t)clamped_index.y) + (size_t)clamped_index.x;
 
     return set_data_.at(pos);
+  }
+
+  void GlyphSet::WriteLine(const glm::ivec2& index, const std::string& text, const glm::vec4& fg_color, const glm::vec4& bg_color) {
+    size_t pos = ((size_t)set_size_.x * (size_t)index.y) + (size_t)index.x;
+
+    for (std::string::const_iterator it = text.begin(); it != text.end(); ++it) {
+      set_data_.at(pos).character_ = *it;
+      set_data_.at(pos).foreground_color_ = fg_color;
+      set_data_.at(pos).background_color_ = bg_color;
+      ++pos;
+    }
   }
 
   void GlyphSet::Clear(GlyphData& glyph) {

@@ -18,8 +18,7 @@ namespace term_engine::fonts {
   }
 
   FontAtlasPtr AddFontAtlas(const std::string& font_path, const int& glyph_height) {
-    FontAtlasPtr new_atlas = std::make_shared<FontAtlas>(font_library, font_path, glyph_height);
-    auto font_atlas = font_atlas_list.emplace(std::make_pair(font_path, std::move(new_atlas)));
+    auto font_atlas = font_atlas_list.emplace(std::make_pair(font_path, std::make_shared<FontAtlas>(font_library, font_path, glyph_height)));
 
     if (font_atlas.second) {
       logging::logger->info("Added font atlas \"{}\".", font_path);
@@ -34,6 +33,12 @@ namespace term_engine::fonts {
 
   void CleanUpFontAtlas() {
     font_atlas_list.clear();
+  }
+
+  void GetPointerUsage() {
+    for (FontAtlasIter font : font_atlas_list) {
+      logging::logger->info("Font {} has {} refs.", font.first, font.second.use_count());
+    }
   }
 
   FT_Library font_library;

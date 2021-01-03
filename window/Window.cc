@@ -1,5 +1,5 @@
 #include "Window.h"
-#include "../init.h"
+#include "../utility/init.h"
 #include "../logging/Logger.h"
 
 namespace term_engine::windows {

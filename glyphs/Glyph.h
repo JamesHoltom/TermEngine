@@ -9,8 +9,8 @@
 
 #include <ostream>
 #include <vector>
-#include <spdlog/fmt/ostr.h>
 
+#include "../utility/LoggingUtils.h"
 #include "../utility/GLUtils.h"
 
 namespace term_engine::glyphs {
@@ -34,10 +34,18 @@ namespace term_engine::glyphs {
     }
   };
 
-  class GlyphData {
-  public:
+  struct GlyphParams {
+    GlyphParams(const char& character, const glm::vec4& fg_color, const glm::vec4& bg_color);
+
+    char character_;
+    glm::vec4 foreground_color_;
+    glm::vec4 background_color_;
+  };
+
+  struct GlyphData {
     GlyphData() = delete;
     GlyphData(const glm::uvec2& index);
+    GlyphData(const glm::uvec2& index, const GlyphParams& glyph);
 
     void Clear();
 

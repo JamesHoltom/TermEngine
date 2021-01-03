@@ -7,21 +7,15 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
-#include "../fonts/FontAtlas.h"
-#include "../glyphs/GlyphSet.h"
-#include "../logging/Logger.h"
-#include "../scenes/Scene.h"
-#include "../scripting/ScriptingInterface.h"
-#include "../shaders/Shader.h"
-#include "../utility/SDLUtils.h"
-
 namespace term_engine::application {
+  // Performs setup of the application and all its sub-systems.
   void Init();
-  void CleanUp();
-  void Run();
 
-  void ChangeFont(const int& pattern);
-  void ChangeSet(const int& pattern);
+  // Performs clean-up of all resources used by the application.
+  void CleanUp();
+
+  // Runs the application. This function will loop continuously until the 'quit' flag is set.
+  void Run();
 }
 
 #endif // ! APPLICATION_H

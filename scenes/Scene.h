@@ -17,6 +17,7 @@ namespace term_engine::scenes {
   class Scene {
   public:
     Scene();
+    ~Scene();
 
     void Render() const;
 

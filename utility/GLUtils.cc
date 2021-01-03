@@ -47,15 +47,3 @@ namespace GL {
     term_engine::logging::logger->error("GL debug message (#{}):\nDescription: {}\nSource: {}\nType: {}\nSeverity: {}", id, message, source_string, type_string, severity_string);
   }
 }
-
-std::ostream& operator<< (std::ostream& os, const glm::vec2& value) {
-  return os << value.x << ", " << value.y;
-}
-
-std::ostream& operator<< (std::ostream& os, const glm::vec4& value) {
-  return os << value.x << ", " << value.y << ", " << value.z << ", " << value.w;
-}
-
-std::ostream& operator<< (std::ostream& os, const glm::uvec2& value) {
-  return os << value.x << ", " << value.y;
-}

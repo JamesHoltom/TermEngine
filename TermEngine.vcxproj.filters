@@ -24,9 +24,6 @@
     <ClCompile Include="timing\FPSManager.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="init.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="utility\DebugFunctions.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -75,11 +72,17 @@
     <ClCompile Include="scripting\ScriptingInterface.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="utility\Init.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="utility\LoggingUtils.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="drawing\DrawFunctions.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="init.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="timing\Timer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -144,6 +147,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="utility\Color.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utility\Init.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utility\LoggingUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="drawing\DrawFunctions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

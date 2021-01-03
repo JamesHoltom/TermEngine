@@ -20,6 +20,7 @@ namespace term_engine::fonts {
   void RemoveFontAtlas(const std::string& font_path);
 
   void CleanUpFontAtlas();
+  void GetPointerUsage();
 
   extern FT_Library font_library;
   extern FontAtlasList font_atlas_list;

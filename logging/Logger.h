@@ -9,6 +9,9 @@
 
 #include <memory>
 #include <spdlog/spdlog.h>
+#include <spdlog/fmt/ostr.h>
+
+#include "../utility/LoggingUtils.h"
 
 namespace term_engine::logging {
   typedef std::shared_ptr<spdlog::logger> LoggerPtr;

@@ -21,6 +21,7 @@ namespace term_engine::shaders {
   void RemoveShader(const std::string& name);
 
   void CleanUpShaders();
+  void GetPointerUsage();
 
   extern ShaderMap shader_list;
 

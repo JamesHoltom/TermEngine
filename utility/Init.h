@@ -7,11 +7,9 @@
 #ifndef INIT_H
 #define INIT_H
 
-#include "utility/SDLUtils.h"
-#include "utility/GLUtils.h"
-
-#include <ft2build.h>
-#include FT_FREETYPE_H
+#include "SDLUtils.h"
+#include "GLUtils.h"
+#include "FTUtils.h"
 
 namespace term_engine {
   int InitSDL();
