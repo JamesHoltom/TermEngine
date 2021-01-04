@@ -1,25 +1,27 @@
-#include "Application.h"
+#include <string>
 
+#include "Application.h"
 #include "../logging/Logger.h"
 #include "../utility/init.h"
+#include "../utility/SDLUtils.h"
 #include "../fonts/FontAtlas.h"
 #include "../glyphs/GlyphSet.h"
-#include "../scenes/Scene.h"
-#include "../scripting/ScriptingInterface.h"
-#include "../shaders/Shader.h"
-#include "../utility/SDLUtils.h"
 #include "../events/InputManager.h"
 #include "../fonts/FontAtlasManager.h"
 #include "../scenes/SceneManager.h"
+#include "../scripting/ScriptingInterface.h"
 #include "../shaders/ShaderManager.h"
 #include "../timing/FPSManager.h"
 #include "../window/Window.h"
 
 namespace term_engine::application {
-  void Init() {
+  void Init()
+  {
     logging::InitLogger();
 
     if (InitSDL() > 0 || InitGL() > 0 || InitFreeType(&fonts::font_library) > 0) {
+      logging::logger->critical("Failed to initialise SDL/GL/FT!");
+
       return;
     }
 
@@ -28,7 +30,6 @@ namespace term_engine::application {
     glyphs::InitVertexData();
     shaders::InitGlyphShader();
     fonts::AddFontAtlas(std::string(fonts::DEFAULT_FONT), fonts::DEFAULT_FONT_SIZE);
-    fonts::AddFontAtlas("resources/fonts/arial.ttf", fonts::DEFAULT_FONT_SIZE);
     scenes::active_scene_ = scenes::AddScene("default");
 
     scripting::InitInterface();
@@ -37,7 +38,8 @@ namespace term_engine::application {
     timing::InitFPS();
   }
 
-  void CleanUp() {
+  void CleanUp()
+  {
     events::CleanUp();
     scripting::CleanUp();
     scenes::CleanUpScenes();
@@ -50,7 +52,8 @@ namespace term_engine::application {
     CleanUpSDL();
   }
 
-  void Run() {
+  void Run()
+  {
     bool quit = false;
     glyphs::GlyphSetPtr glyph_set = scenes::active_scene_->GetGlyphSet();
 

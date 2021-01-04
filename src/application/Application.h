@@ -1,6 +1,4 @@
 /**
- * @file
- * @namespace term_engine::application
  * @author James Holtom
  */
 
@@ -8,13 +6,19 @@
 #define APPLICATION_H
 
 namespace term_engine::application {
-  // Performs setup of the application and all its sub-systems.
+  /**
+   * Performs setup of the application and all its sub-systems.
+   */
   void Init();
 
-  // Performs clean-up of all resources used by the application.
+  /**
+   * Performs clean-up of all resources used by the application.
+   */
   void CleanUp();
 
-  // Runs the application. This function will loop continuously until the 'quit' flag is set.
+  /**
+   * Runs the application. This function will loop continuously until the 'quit' flag is set.
+   */
   void Run();
 }
 

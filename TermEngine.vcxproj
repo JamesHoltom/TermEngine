@@ -175,11 +175,11 @@
     <ClInclude Include="src\application\Application.h" />
     <ClInclude Include="src\drawing\DrawFunctions.h" />
     <ClInclude Include="src\events\InputManager.h" />
+    <ClInclude Include="src\scripting\ScriptingInterface.h" />
     <ClInclude Include="src\utility\Init.h" />
     <ClInclude Include="src\fonts\FontAtlas.h" />
     <ClInclude Include="src\fonts\FontAtlasManager.h" />
     <ClInclude Include="src\glyphs\Glyph.h" />
-    <ClInclude Include="src\scripting\ScriptingInterface.h" />
     <ClInclude Include="src\shaders\Shader.h" />
     <ClInclude Include="src\shaders\ShaderManager.h" />
     <ClInclude Include="src\glyphs\GlyphSet.h" />

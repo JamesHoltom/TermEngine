@@ -1,7 +1,5 @@
-/*
- * Copyright 2020
- * James Holtom
- * MIT License
+/**
+ * @author James Holtom
  */
 
 #ifndef INPUT_MANAGER_H
@@ -14,6 +12,9 @@
 #include "../utility/SDLUtils.h"
 
 namespace term_engine::events {
+  /**
+   * Human-readable names for the mouse buttons when logging.
+   */
   constexpr std::array<char[8], 4> mouse_button_names = {{
     { "Unknown" },
     { "Left" },
@@ -21,9 +22,19 @@ namespace term_engine::events {
     { "Right" }
   }};
 
+  /**
+   * Prepares the keyboard states for use.
+   */
   void Init();
+
+  /**
+   * 
+   */
   void CleanUp();
 
+  /*
+   * 
+   */
   void UpdateEvents();
   void UpdatePrevEvents();
 
