@@ -15,14 +15,16 @@ namespace term_engine::timing {
   uint64_t frame_count_;
   uint64_t frame_duration_;
 
-  void InitFPS() {
+  void InitFPS()
+  {
     delay_timer_.Start();
     average_timer_.Start();
 
     logging::logger->debug("Started FPS.");
   }
 
-  void Delay() {
+  void Delay()
+  {
     uint64_t time_taken = delay_timer_.GetDuration();
     std::chrono::milliseconds time_remaining = std::chrono::milliseconds(frame_duration_ - time_taken);
 
@@ -33,34 +35,41 @@ namespace term_engine::timing {
     delay_timer_.Start();
   }
 
-  void CalculateFPS() {
+  void CalculateFPS()
+  {
     if (frame_count_ % FPS_FRAME_MULTIPLE == 0 && frame_count_ > 0) {
       float time_taken = (float)average_timer_.GetIntervalElapsed() / 1000.0f;
       average_fps_ = (float)FPS_FRAME_MULTIPLE / time_taken;
     }
   }
 
-  uint64_t GetFrameCount() {
+  uint64_t GetFrameCount()
+  {
     return frame_count_;
   }
 
-  void NextFrame() {
+  void NextFrame()
+  {
     ++frame_count_;
   }
 
-  float GetAverageFPS() {
+  float GetAverageFPS()
+  {
     return average_fps_;
   }
 
-  bool isUsingTargetFPS() {
+  bool isUsingTargetFPS()
+  {
     return use_target_;
   }
 
-  int GetTargetFPS() {
+  int GetTargetFPS()
+  {
     return target_fps_;
   }
 
-  void SetTargetFPS(const int& target) {
+  void SetTargetFPS(const int& target)
+  {
     if (target > 0) {
       use_target_ = true;
       target_fps_ = target;
@@ -71,13 +80,15 @@ namespace term_engine::timing {
     }
   }
 
-  void DisableTargetFPS() {
+  void DisableTargetFPS()
+  {
     use_target_ = false;
     target_fps_ = 0;
     frame_duration_ = 0;
   }
 
-  void PrintFPS() {
+  void PrintFPS()
+  {
     if (use_target_) {
       logging::logger->info("Target FPS: {}", target_fps_);
     }

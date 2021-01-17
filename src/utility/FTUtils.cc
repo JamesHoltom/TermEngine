@@ -2,7 +2,8 @@
 #include "../logging/Logger.h"
 
 namespace FT {
-  FT_Error Log(FT_Error result) {
+  FT_Error Log(FT_Error result)
+  {
     if (result != FT_Err_Ok) {
       std::string error_message;
 

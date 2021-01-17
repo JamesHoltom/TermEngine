@@ -22,15 +22,12 @@ namespace term_engine::application {
     if (InitSDL() > 0 || InitGL() > 0 || InitFreeType(&fonts::font_library) > 0) {
       logging::logger->critical("Failed to initialise SDL/GL/FT!");
 
-      return;
+      exit(2);
     }
 
     windows::Init();
     events::Init();
-    glyphs::InitVertexData();
     shaders::InitGlyphShader();
-    fonts::AddFontAtlas(std::string(fonts::DEFAULT_FONT), fonts::DEFAULT_FONT_SIZE);
-    scenes::active_scene_ = scenes::AddScene("default");
 
     scripting::InitInterface();
     scripting::InitScript();
@@ -43,7 +40,6 @@ namespace term_engine::application {
     events::CleanUp();
     scripting::CleanUp();
     scenes::CleanUpScenes();
-    glyphs::CleanUpVertexData();
     fonts::CleanUpFontAtlas();
     shaders::CleanUpShaders();
     windows::CleanUp();
@@ -55,9 +51,10 @@ namespace term_engine::application {
   void Run()
   {
     bool quit = false;
-    glyphs::GlyphSetPtr glyph_set = scenes::active_scene_->GetGlyphSet();
 
-    glyph_set->ResetProjection();
+    // Create the default scene and font.
+    fonts::AddFontAtlas(std::string(fonts::DEFAULT_FONT), fonts::DEFAULT_FONT_SIZE);
+    scenes::active_scene_ = scenes::AddScene("default");
 
     scripting::OnInit();
 

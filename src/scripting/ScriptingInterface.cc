@@ -2,8 +2,10 @@
 #include "../logging/Logger.h"
 #include "../events/InputManager.h"
 #include "../glyphs/GlyphSet.h"
+#include "../drawing/DrawFunctions.h"
 #include "../scenes/SceneManager.h"
 #include "../utility/Color.h"
+#include "../utility/FileUtils.h"
 
 namespace term_engine::scripting {
   void InitInterface() {
@@ -43,32 +45,81 @@ namespace term_engine::scripting {
       "foreground_color", &glyphs::GlyphData::foreground_color_,
       "background_color", &glyphs::GlyphData::background_color_);
 
-    sol::usertype<glyphs::GlyphSet> glyph_set_type = lua_state.new_usertype<glyphs::GlyphSet>(
-      "GlyphSet",
-      sol::no_constructor,
-      "position", sol::property(&glyphs::GlyphSet::GetPosition, &glyphs::GlyphSet::SetPosition),
-      "scale", sol::property(&glyphs::GlyphSet::GetScale, &glyphs::GlyphSet::SetScale),
-      "padding", sol::property(&glyphs::GlyphSet::GetPadding, &glyphs::GlyphSet::SetPadding),
-      "spacing", sol::property(&glyphs::GlyphSet::GetSpacing, &glyphs::GlyphSet::SetSpacing),
-      "size", sol::property(&glyphs::GlyphSet::GetSize, &glyphs::GlyphSet::SetSize),
-      "count", sol::readonly_property(&glyphs::GlyphSet::GetCount),
-      "get", &glyphs::GlyphSet::GetGlyph,
-      "writeLine", &glyphs::GlyphSet::WriteLine,
-      "clear", &glyphs::GlyphSet::ClearAll,
-      "refresh", &glyphs::GlyphSet::Dirty);
+    lua_state["getFileList"] = [&](const std::string& directory) {
+      return file::GetFileList(file::GetRelative(directory));
+    };
 
-    sol::usertype<scenes::Scene> scene_type = lua_state.new_usertype<scenes::Scene>(
-      "Scene",
-      sol::call_constructor, sol::constructors<scenes::Scene()>(),
-      "getGlyphSet", &scenes::Scene::GetGlyphSet);
+    lua_state["getFolderList"] = [&](const std::string& directory) {
+      return file::GetFolderList(file::GetRelative(directory));
+    };
 
-    lua_state["activeScene"] = std::ref(scenes::active_scene_);
+    lua_state["loadProject"] = [&](const std::string& project_path) {
+
+    };
+    lua_state["reloadProject"] = [&]() {
+
+    };
+    lua_state["unloadProject"] = [&]() {
+
+    };
+
+    lua_state["getPosition"] = [&]() {
+      return scenes::active_scene_->GetGlyphSet()->GetPosition();
+    };
+    lua_state["setPosition"] = [&](const glm::vec2& position) {
+      scenes::active_scene_->GetGlyphSet()->SetPosition(position);
+    };
+    lua_state["getPadding"] = [&]() {
+      return scenes::active_scene_->GetGlyphSet()->GetPadding();
+    };
+    lua_state["setPadding"] = [&](const glm::vec2& padding) {
+      scenes::active_scene_->GetGlyphSet()->SetPadding(padding);
+    };
+    lua_state["getSpacing"] = [&]() {
+      return scenes::active_scene_->GetGlyphSet()->GetSpacing();
+    };
+    lua_state["setSpacing"] = [&](const glm::vec2& spacing) {
+      scenes::active_scene_->GetGlyphSet()->SetSpacing(spacing);
+    };
+    lua_state["getGlyphSetSize"] = [&]() {
+      return scenes::active_scene_->GetGlyphSet()->GetSize();
+    };
+    lua_state["setGlyphSetSize"] = [&](const glm::uvec2& size) {
+      scenes::active_scene_->GetGlyphSet()->SetSize(size);
+    };
+    lua_state["getFontPath"] = [&]() {
+      return scenes::active_scene_->GetGlyphSet()->GetFontPath();
+    };
+    lua_state["setFontPath"] = [&](const std::string& font_path) {
+      scenes::active_scene_->GetGlyphSet()->SetFont(font_path);
+    };
+    lua_state["getGlyphCount"] = [&]() {
+      return scenes::active_scene_->GetGlyphSet()->GetCount();
+    };
+    lua_state["resetGlyphOffsets"] = [&]() {
+      scenes::active_scene_->GetGlyphSet()->ResetAllOffsets();
+    };
+    lua_state["resetGlyphScale"] = [&]() {
+      scenes::active_scene_->GetGlyphSet()->ResetAllScale();
+    };
+
+    lua_state["isSetDirty"] = [&]() {
+      return scenes::active_scene_->GetGlyphSet()->IsDirty();
+    };
+
+    lua_state["writeText"] = [&](const std::string& text, const glm::ivec2& start_pos, const glm::ivec2& end_pos) {
+      drawing::WriteText(*(scenes::active_scene_->GetGlyphSet()), start_pos, end_pos, text);
+    };
 
     lua_state["mouseIsDown"] = &events::MouseIsDown;
     lua_state["mouseIsPressed"] = &events::MouseIsPressed;
     lua_state["mouseIsReleased"] = &events::MouseIsReleased;
-    lua_state["mousePosition"] = [&]() { return events::mouse_position; };
-    lua_state["mouseMovement"] = [&]() { return events::mouse_position_delta; };
+    lua_state["mousePosition"] = [&]() {
+      return events::mouse_position;
+    };
+    lua_state["mouseMovement"] = [&]() {
+      return events::mouse_position_delta;
+    };
     lua_state["keyIsDown"] = &events::KeyIsDown;
     lua_state["keyIsPressed"] = &events::KeyIsPressed;
     lua_state["keyIsReleased"] = &events::KeyIsReleased;

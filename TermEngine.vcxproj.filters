@@ -81,6 +81,9 @@
     <ClCompile Include="src\main.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\utility\FileUtils.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\application\Application.h">
@@ -158,5 +161,13 @@
     <ClInclude Include="src\scripting\ScriptingInterface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\utility\FileUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="resources\shaders\core\glyph.fs" />
+    <None Include="resources\shaders\core\glyph.vs" />
+    <None Include="resources\shaders\core\glyph.gs" />
   </ItemGroup>
 </Project>

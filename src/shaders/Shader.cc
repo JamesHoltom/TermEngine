@@ -4,28 +4,34 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "Shader.h"
+#include "../utility/FileUtils.h"
 #include "../logging/Logger.h"
 
 namespace term_engine::shaders {
   Shader::Shader(const std::string& name):
     name_(name),
     program_id_(0),
-    shader_id_list_({}) {}
+    stage_id_list_({})
+  {}
 
-  Shader::~Shader() {
+  Shader::~Shader()
+  {
     RemoveProgram();
     RemoveShaders();
   }
 
-  std::string Shader::GetName() const {
+  std::string Shader::GetName() const
+  {
     return name_;
   }
 
-  GLuint Shader::GetProgramID() const {
+  GLuint Shader::GetProgramID() const
+  {
     return program_id_;
   }
 
-  bool Shader::BuildShaderFromString(const GLchar* source, const GLenum& type) {
+  bool Shader::BuildStageFromString(const GLchar* source, const GLenum& type)
+  {
     GLint shader_compiled = GL_FALSE;
     GLuint shader_id = glCreateShader(type);
 
@@ -34,7 +40,7 @@ namespace term_engine::shaders {
     glGetShaderiv(shader_id, GL_COMPILE_STATUS, &shader_compiled);
 
     if (shader_compiled == GL_TRUE) {
-      shader_id_list_.push_back(shader_id);
+      stage_id_list_.push_back(shader_id);
 
       logging::logger->debug("Generated GLSL shader for ID {}.", shader_id);
     }
@@ -42,38 +48,24 @@ namespace term_engine::shaders {
       logging::logger->error("Failed to compile GLSL shader for ID {}.", shader_id);
     }
 
-    PrintShaderLog(shader_id);
+    PrintStageLog(shader_id);
 
     return shader_compiled;
   }
 
-  bool Shader::BuildShaderFromFile(const std::string& file_name, const GLenum& type) {
-    std::ifstream shader_file;
-    std::stringstream shader_path;
-    std::stringstream shader_source;
+  bool Shader::BuildStageFromFile(const std::string& filename, const GLenum& type)
+  {
+    std::string source_string = file::ReadFromFile(filename);
 
-    shader_file.exceptions(std::ifstream::badbit | std::ifstream::failbit);
-    shader_path << "shaders/" << file_name;
-
-    try {
-      shader_file.open(shader_path.str());
-
-      shader_source << shader_file.rdbuf();
-
-      shader_file.close();
-    }
-    catch (std::ifstream::failure exception) {
-      logging::logger->error("Failed to read GLSL shader from file \'{}\'.", file_name);
-    }
-
-    return BuildShaderFromString({ shader_source.str().c_str() }, type);
+    return BuildStageFromString({ source_string.c_str() }, type);
   }
 
-  bool Shader::BuildProgram() {
+  bool Shader::BuildProgram()
+  {
     GLint program_linked = GL_FALSE;
     GLuint program_id = glCreateProgram();
 
-    for (GLuint shader : shader_id_list_) {
+    for (GLuint shader : stage_id_list_) {
       glAttachShader(program_id, shader);
     }
 
@@ -96,19 +88,23 @@ namespace term_engine::shaders {
     return program_linked;
   }
 
-  bool Shader::IsBuilt() const {
+  bool Shader::IsBuilt() const
+  {
     return program_id_ > 0;
   }
 
-  void Shader::Use() const {
+  void Shader::Use() const
+  {
     glUseProgram(program_id_);
   }
 
-  void Shader::Unuse() const {
+  void Shader::Unuse() const
+  {
     glUseProgram(0);
   }
 
-  void Shader::SetUniformInt(const std::string& name, const GLuint& count, const GLint* data) {
+  void Shader::SetUniformInt(const std::string& name, const GLuint& count, const GLint* data)
+  {
     GLint uniform_id = glGetUniformLocation(program_id_, name.c_str());
 
     switch (count) {
@@ -127,7 +123,8 @@ namespace term_engine::shaders {
     }
   }
 
-  void Shader::SetUniformUint(const std::string& name, const GLuint& count, const GLuint* data) {
+  void Shader::SetUniformUint(const std::string& name, const GLuint& count, const GLuint* data)
+  {
     GLint uniform_id = glGetUniformLocation(program_id_, name.c_str());
 
     switch (count) {
@@ -146,7 +143,8 @@ namespace term_engine::shaders {
     }
   }
 
-  void Shader::SetUniformFloat(const std::string& name, const GLuint& count, const GLfloat* data) {
+  void Shader::SetUniformFloat(const std::string& name, const GLuint& count, const GLfloat* data)
+  {
     GLint uniform_id = glGetUniformLocation(program_id_, name.c_str());
 
     switch (count) {
@@ -165,7 +163,8 @@ namespace term_engine::shaders {
     }
   }
 
-  void Shader::SetUniformMatrix(const std::string& name, const glm::uvec2& dimensions, const GLfloat* data) {
+  void Shader::SetUniformMatrix(const std::string& name, const glm::uvec2& dimensions, const GLfloat* data)
+  {
     GLint uniform_id = glGetUniformLocation(program_id_, name.c_str());
 
     switch (dimensions.x) {
@@ -214,7 +213,8 @@ namespace term_engine::shaders {
     }
   }
 
-  void Shader::PrintProgramLog() {
+  void Shader::PrintProgramLog()
+  {
     if (glIsProgram(program_id_)) {
       int log_length;
       int max_log_length;
@@ -239,7 +239,8 @@ namespace term_engine::shaders {
     }
   }
 
-  void Shader::PrintShaderLog(const GLuint& shader_id) {
+  void Shader::PrintStageLog(const GLuint& shader_id)
+  {
     if (glIsShader(shader_id)) {
       int log_length;
       int max_log_length;
@@ -264,15 +265,17 @@ namespace term_engine::shaders {
     }
   }
 
-  void Shader::RemoveProgram() {
+  void Shader::RemoveProgram()
+  {
     glDeleteProgram(program_id_);
   }
 
-  void Shader::RemoveShaders() {
-    for (GLuint shader : shader_id_list_) {
+  void Shader::RemoveShaders()
+  {
+    for (GLuint shader : stage_id_list_) {
       glDeleteShader(shader);
     }
 
-    shader_id_list_.clear();
+    stage_id_list_.clear();
   }
 }

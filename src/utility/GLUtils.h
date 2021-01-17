@@ -1,8 +1,4 @@
-/*
- * Copyright 2020
- * James Holtom
- * MIT License
- */
+/// @author James Holtom
 
 #ifndef GL_UTILS_H
 #define GL_UTILS_H
@@ -19,7 +15,17 @@
 #endif
 
 namespace GL {
-  void GLAPIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const char* message, const void* userParam);
+  /// Allows OpenGL to log any errors that occur.
+  /**
+   * @param[in] source     In which part of OpenGL did the error occur.
+   * @param[in] type       The type of error that has occured.
+   * @param[in] id         The ID of the error.
+   * @param[in] severity   The error's severity.
+   * @param[in] length     The length of the error message.
+   * @param[in] message    An array pointer to the error message.
+   * @param[in] user_param Unused.
+   */
+  void GLAPIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const char* message, const void* user_param);
 }
 
 #endif // ! GL_UTILS_H

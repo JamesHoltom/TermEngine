@@ -75,6 +75,10 @@
     <IncludePath>E:\Programming\vcpkg\installed\x64-windows-static\include;$(IncludePath)</IncludePath>
     <LibraryPath>E:\Programming\vcpkg\installed\x64-windows-static\lib;$(LibraryPath)</LibraryPath>
     <ExcludePath>$(CommonExcludePath);$(VC_ExecutablePath_x64);$(VC_LibraryPath_x64)</ExcludePath>
+    <CustomBuildBeforeTargets>
+    </CustomBuildBeforeTargets>
+    <CustomBuildAfterTargets>
+    </CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>E:\Programming\vcpkg\installed\x64-windows-static\include;$(IncludePath)</IncludePath>
@@ -111,6 +115,20 @@
     <Lib>
       <SubSystem>Windows</SubSystem>
     </Lib>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+      <Message>
+      </Message>
+    </PostBuildEvent>
+    <CustomBuildStep>
+      <Command>
+      </Command>
+    </CustomBuildStep>
+    <CustomBuildStep>
+      <Message>
+      </Message>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -154,6 +172,7 @@
     <ClCompile Include="src\fonts\FontAtlas.cc" />
     <ClCompile Include="src\fonts\FontAtlasManager.cc" />
     <ClCompile Include="src\glyphs\Glyph.cc" />
+    <ClCompile Include="src\utility\FileUtils.cc" />
     <ClCompile Include="src\utility\Init.cc" />
     <ClCompile Include="src\main.cc" />
     <ClCompile Include="src\scenes\Scene.cc" />
@@ -176,6 +195,7 @@
     <ClInclude Include="src\drawing\DrawFunctions.h" />
     <ClInclude Include="src\events\InputManager.h" />
     <ClInclude Include="src\scripting\ScriptingInterface.h" />
+    <ClInclude Include="src\utility\FileUtils.h" />
     <ClInclude Include="src\utility\Init.h" />
     <ClInclude Include="src\fonts\FontAtlas.h" />
     <ClInclude Include="src\fonts\FontAtlasManager.h" />
@@ -197,6 +217,11 @@
     <ClInclude Include="src\timing\FPSManager.h" />
     <ClInclude Include="src\timing\Timer.h" />
     <ClInclude Include="src\utility\DebugFunctions.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="resources\shaders\core\glyph.fs" />
+    <None Include="resources\shaders\core\glyph.gs" />
+    <None Include="resources\shaders\core\glyph.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,8 +1,4 @@
-/*
- * Copyright 2020
- * James Holtom
- * MIT License
- */
+/// @author James Holtom
 
 #ifndef SOL_UTILS_H
 #define SOL_UTILS_H

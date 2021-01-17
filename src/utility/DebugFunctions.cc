@@ -3,7 +3,8 @@
 #include "../logging/Logger.h"
 
 namespace term_engine::debug {
-  void LogKeyboardEvents(SDL_Event& event) {
+  void LogKeyboardEvents(SDL_Event& event)
+  {
     std::string keyboard_type;
     std::string keyboard_modifiers;
 
@@ -58,7 +59,8 @@ namespace term_engine::debug {
     logging::logger->debug("Keyboard Event: {}, Key: {}, Modifiers: {}", keyboard_type, SDL_GetKeyName(event.key.keysym.sym), keyboard_modifiers);
   }
 
-  void LogWindowEvents(SDL_Event& event) {
+  void LogWindowEvents(SDL_Event& event)
+  {
     if (event.type == SDL_WINDOWEVENT) {
       std::string window_string = "";
       bool showXY = false;
@@ -92,7 +94,8 @@ namespace term_engine::debug {
     }
   }
 
-  void LogVAOData() {
+  void LogVAOData()
+  {
     int vao_id, ebo_id, ebo_size, max_vertex_attribs, vbo_id;
     int vertex_attrib_is_enabled;
 
@@ -123,7 +126,8 @@ namespace term_engine::debug {
     }
   }
 
-  void LogVBOData() {
+  void LogVBOData()
+  {
     int vbo_id, vbo_size;
 
     logging::logger->debug("Debugging currently bound VBO...");

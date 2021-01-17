@@ -4,6 +4,9 @@
 #include "../logging/Logger.h"
 
 namespace term_engine::fonts {
+  FT_Library font_library;
+  FontAtlasList font_atlas_list;
+
   FontAtlasPtr GetFontAtlas(const std::string& font_path) {
     auto result = font_atlas_list.find(font_path);
 
@@ -40,7 +43,4 @@ namespace term_engine::fonts {
       logging::logger->info("Font {} has {} refs.", font.first, font.second.use_count());
     }
   }
-
-  FT_Library font_library;
-  FontAtlasList font_atlas_list;
 }

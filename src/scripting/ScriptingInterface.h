@@ -1,8 +1,4 @@
-/*
- * Copyright 2020
- * James Holtom
- * MIT License
- */
+/// @author James Holtom
 
 #ifndef SCRIPTING_INTERFACE_H
 #define SCRIPTING_INTERFACE_H

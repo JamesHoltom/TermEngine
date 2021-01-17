@@ -1,8 +1,4 @@
-/*
- * Copyright 2020
- * James Holtom
- * MIT License
- */
+/// @author James Holtom
 
 #ifndef LOGGER_H
 #define LOGGER_H
@@ -14,10 +10,13 @@
 #include "../utility/LoggingUtils.h"
 
 namespace term_engine::logging {
+  /// Smart pointer to share a single instance of a `Logger`.
   typedef std::shared_ptr<spdlog::logger> LoggerPtr;
 
+  /// Initialises the logger instance with file and console logging.
   void InitLogger();
 
+  /// The instance of the logger.
   extern LoggerPtr logger;
 }
 

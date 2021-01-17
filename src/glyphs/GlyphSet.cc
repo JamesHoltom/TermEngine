@@ -11,13 +11,19 @@
 #include "../utility/DebugFunctions.h"
 
 namespace term_engine::glyphs {
-  GlyphSet::GlyphSet(const fonts::FontAtlasPtr& font, const shaders::ShaderPtr& shader):
+
+  GLuint vertex_vbo_id = 0;
+  GLuint vertex_ebo_id = 0;
+
+  GlyphSet::GlyphSet(const fonts::FontAtlasPtr& font_atlas, const shaders::ShaderPtr& shader):
+    is_dirty_(false),
     vao_id_(0),
     vbo_id_(0),
-    set_padding_(glm::vec2(0.0f)),
-    set_spacing_(glm::vec2(0.0f)),
+    glyph_padding_(glm::vec2(0.0f)),
+    glyph_spacing_(glm::vec2(0.0f)),
+    set_position_(glm::vec2(0.0f)),
     set_size_(glm::uvec2(DEFAULT_SET_WIDTH, DEFAULT_SET_HEIGHT)),
-    set_font_(font),
+    set_font_(font_atlas),
     set_shader_(shader)
   {
     InitData();
@@ -32,10 +38,12 @@ namespace term_engine::glyphs {
     set_shader_->Unuse();
 
     SetPosition(glm::vec2(0.0f));
-    ResetScale();
+    ResetAllScale();
+    ResetProjection();
   }
 
-  GlyphSet::~GlyphSet() {
+  GlyphSet::~GlyphSet()
+  {
     glDeleteVertexArrays(1, &vao_id_);
     glDeleteBuffers(1, &vbo_id_);
 
@@ -46,31 +54,38 @@ namespace term_engine::glyphs {
     logging::logger->info("~GS: There are {} shader refs.", set_shader_.use_count());
   }
 
-  glm::vec2 GlyphSet::GetPosition() const {
+  glm::vec2 GlyphSet::GetPosition() const
+  {
     return set_position_;
   }
 
-  glm::vec2 GlyphSet::GetScale() const {
-    return set_scale_;
+  glm::vec2 GlyphSet::GetPadding() const
+  {
+    return glyph_padding_;
   }
 
-  glm::vec2 GlyphSet::GetPadding() const {
-    return set_padding_;
+  glm::vec2 GlyphSet::GetSpacing() const
+  {
+    return glyph_spacing_;
   }
 
-  glm::vec2 GlyphSet::GetSpacing() const {
-    return set_spacing_;
-  }
-
-  glm::uvec2 GlyphSet::GetSize() const {
+  glm::uvec2 GlyphSet::GetSize() const
+  {
     return set_size_;
   }
 
-  std::string GlyphSet::GetFontPath() const {
+  GlyphList& GlyphSet::GetData()
+  {
+    return set_data_;
+  }
+
+  std::string GlyphSet::GetFontPath() const
+  {
     return set_font_->GetFontPath();
   }
 
-  void GlyphSet::SetPosition(const glm::vec2& position) {
+  void GlyphSet::SetPosition(const glm::vec2& position)
+  {
     set_position_ = position;
 
     set_shader_->Use();
@@ -78,34 +93,21 @@ namespace term_engine::glyphs {
     set_shader_->Unuse();
   }
 
-  void GlyphSet::SetScale(const glm::vec2& scale) {
-    if (scale.x <= 0 || scale.y <= 0) {
-      logging::logger->warn("Invalid dimensions {}x{} given to SetScale.", scale);
-
-      return;
-    }
-
-    set_scale_ = scale;
-
-    set_shader_->Use();
-    set_shader_->SetUniformFloat("scale", 2, glm::value_ptr(set_scale_));
-    set_shader_->Unuse();
-
+  void GlyphSet::SetPadding(const glm::vec2& padding)
+  {
+    glyph_padding_ = padding;
     is_dirty_ = true;
   }
 
-  void GlyphSet::SetPadding(const glm::vec2& padding) {
-    set_padding_ = padding;
-    is_dirty_ = true;
-  }
-
-  void GlyphSet::SetSpacing(const glm::vec2& spacing) {
-    set_spacing_ = spacing;
+  void GlyphSet::SetSpacing(const glm::vec2& spacing)
+  {
+    glyph_spacing_ = spacing;
     is_dirty_ = true;
   }
 
   // TODO: Fix code to keep contents after resize.
-  void GlyphSet::SetSize(const glm::uvec2& size) {
+  void GlyphSet::SetSize(const glm::uvec2& size)
+  {
     if (size.x * size.y > MAX_GLYPHS || size.x <= 0 || size.y <= 0) {
       logging::logger->warn("Invalid dimensions {}x{} given to SetSize.", size);
 
@@ -151,86 +153,88 @@ namespace term_engine::glyphs {
     logging::logger->debug("Resized to {} set with {} elements.", set_size_, GetCount());
   }
 
-  void GlyphSet::SetFont(const std::string& font_path) {
-    set_font_ = fonts::GetFontAtlas(font_path);
-
+  void GlyphSet::SetFont(const std::string& name)
+  {
+    set_font_ = fonts::GetFontAtlas(name);
     is_dirty_ = true;
   }
 
-  void GlyphSet::SetFont(const fonts::FontAtlasPtr& font) {
+  void GlyphSet::SetFont(const fonts::FontAtlasPtr& font)
+  {
     set_font_ = font;
-
     is_dirty_ = true;
   }
 
-  void GlyphSet::SetShader(const std::string& name) {
+  void GlyphSet::SetShader(const std::string& name)
+  {
     set_shader_ = shaders::GetShader(name);
   }
 
-  void GlyphSet::SetShader(const shaders::ShaderPtr& shader) {
+  void GlyphSet::SetShader(const shaders::ShaderPtr& shader)
+  {
     set_shader_ = shader;
   }
 
-  size_t GlyphSet::GetCount() const {
+  size_t GlyphSet::GetCount() const
+  {
     return (size_t)set_size_.x * (size_t)set_size_.y;
   }
 
-  GlyphData& GlyphSet::GetGlyph(const glm::uvec2& index) {
+  GetGlyphResult GlyphSet::GetGlyph(const glm::uvec2& index)
+  {
     glm::uvec2 clamped_index = index;
 
     if (index.x < 0 || index.x >= set_size_.x || index.y < 0 || index.y >= set_size_.y) {
-      logging::logger->warn("Invalid index {} given to GetGlyph. Doing this will return the closest available glyph.", index);
+      logging::logger->warn("Invalid index {} given to GetGlyph.", index);
       
-      clamped_index = glm::clamp(index, glm::uvec2(0), glm::uvec2(set_size_.x - 1, set_size_.y - 1));
+      return std::make_pair(false, set_data_.at(0));
     }
 
     size_t pos = ((size_t)set_size_.x * (size_t)clamped_index.y) + (size_t)clamped_index.x;
 
-    return set_data_.at(pos);
+    return std::make_pair(true, set_data_.at(pos));
   }
 
-  void GlyphSet::WriteLine(const glm::ivec2& index, const std::string& text, const glm::vec4& fg_color, const glm::vec4& bg_color) {
-    size_t pos = ((size_t)set_size_.x * (size_t)index.y) + (size_t)index.x;
-
-    for (std::string::const_iterator it = text.begin(); it != text.end(); ++it) {
-      set_data_.at(pos).character_ = *it;
-      set_data_.at(pos).foreground_color_ = fg_color;
-      set_data_.at(pos).background_color_ = bg_color;
-      ++pos;
-    }
-  }
-
-  void GlyphSet::Clear(GlyphData& glyph) {
-    glyph.Clear();
-  }
-
-  void GlyphSet::ClearAll() {
+  void GlyphSet::ClearAll()
+  {
     for (GlyphData& glyph : set_data_) {
       glyph.Clear();
     }
-  }
-
-  void GlyphSet::ResetOffset(GlyphData& glyph) {
-    glyph.offset_ = glm::vec2(0.0f);
-  }
-
-  void GlyphSet::ResetAllOffsets() {
-    for (GlyphData& glyph : set_data_) {
-      ResetOffset(glyph);
-    }
-  }
-
-  void GlyphSet::ResetScale() {
-    set_scale_ = glm::vec2(set_font_->GetTextureSize());
-
-    set_shader_->Use();
-    set_shader_->SetUniformFloat("scale", 2, glm::value_ptr(set_scale_));
-    set_shader_->Unuse();
 
     is_dirty_ = true;
   }
 
-  void GlyphSet::PrintData() const {
+  void GlyphSet::ResetAllOffsets()
+  {
+    for (GlyphData& glyph : set_data_) {
+      glyph.offset_ = glm::vec2(0.0f);
+    }
+
+    is_dirty_ = true;
+  }
+
+  void GlyphSet::SetAllScale(const glm::vec2& scale)
+  {
+    if (scale.x <= 0 || scale.y <= 0) {
+      logging::logger->warn("Invalid dimensions {}x{} given to SetAllScale.", scale);
+
+      return;
+    }
+
+    for (GlyphData& glyph : set_data_) {
+      glyph.scale_ = scale;
+    }
+
+    is_dirty_ = true;
+  }
+
+  void GlyphSet::ResetAllScale()
+  {
+    SetAllScale(glm::vec2(set_font_->GetTextureSize()));
+  }
+
+  void GlyphSet::PrintData() const
+  {
     logging::logger->debug("Printing glyph data:");
 
     unsigned int count = 0;
@@ -252,7 +256,8 @@ namespace term_engine::glyphs {
     logging::logger->debug(set_line.str());
   }
 
-  void GlyphSet::ResetProjection() {
+  void GlyphSet::ResetProjection()
+  {
     const glm::ivec2 window_size = windows::GetWindowSize();
     const glm::mat4 projection = glm::ortho(0.0f, (GLfloat)window_size.x, (GLfloat)window_size.y, 0.0f);
 
@@ -263,11 +268,18 @@ namespace term_engine::glyphs {
     set_shader_->Unuse();
   }
 
-  void GlyphSet::Dirty() {
+  bool GlyphSet::IsDirty() const
+  {
+    return is_dirty_;
+  }
+
+  void GlyphSet::Dirty()
+  {
     is_dirty_ = true;
   }
 
-  void GlyphSet::Render() {
+  void GlyphSet::Render()
+  {
     if (is_dirty_) {
       SetGLBuffer();
 
@@ -275,19 +287,17 @@ namespace term_engine::glyphs {
     }
 
     set_shader_->Use();
-
-    
-
     set_font_->Use();
 
     glBindVertexArray(vao_id_);
-    glDrawElementsInstanced(GL_TRIANGLES, VERTEX_COUNT, GL_UNSIGNED_INT, 0, static_cast<GLsizei>(GetCount()));
+    glDrawArrays(GL_POINTS, 0, static_cast<GLsizei>(GetCount()));
 
     set_font_->Unuse();
     set_shader_->Unuse();
   }
 
-  void GlyphSet::InitData() {
+  void GlyphSet::InitData()
+  {
     set_data_.reserve(MAX_GLYPHS);
     
     int count = 0;
@@ -302,73 +312,56 @@ namespace term_engine::glyphs {
     }
   }
 
-  void GlyphSet::InitBuffers() {
+  void GlyphSet::InitBuffers()
+  {
     glGenVertexArrays(1, &vao_id_);
     glBindVertexArray(vao_id_);
 
-    // Create the buffer for the glyph & vertex data.
     glGenBuffers(1, &vbo_id_);
+    glBindVertexBuffer(0, vbo_id_, 0, sizeof(BufferData));
 
-    glBindVertexBuffer(0, vertex_vbo_id, 0, sizeof(VertexData));
-    glBindVertexBuffer(1, vbo_id_, 0, sizeof(BufferData));
-
-    glVertexBindingDivisor(0, 0);
-    glVertexBindingDivisor(1, 1);
-
-    // Configure the vertex position attribute.
+    // Configure the texture layer attribute.
     glEnableVertexAttribArray(0);
-    glVertexAttribFormat(0, 2, GL_FLOAT, GL_FALSE, offsetof(VertexData, vertex_position));
+    glVertexAttribFormat(0, 1, GL_FLOAT, GL_FALSE, offsetof(BufferData, texture_layer_));
     glVertexAttribBinding(0, 0);
 
-    // Configure the texture position attribute.
+    // Configure the glyph offset attribute.
     glEnableVertexAttribArray(1);
-    glVertexAttribFormat(1, 2, GL_FLOAT, GL_FALSE, offsetof(VertexData, texture_position));
+    glVertexAttribFormat(1, 2, GL_FLOAT, GL_FALSE, offsetof(BufferData, offset_));
     glVertexAttribBinding(1, 0);
-
-    // Configure the vertex offset attribute.
+    
+    // Configure the glyph scale attribute.
     glEnableVertexAttribArray(2);
-    glVertexAttribFormat(2, 2, GL_FLOAT, GL_FALSE, offsetof(BufferData, vertex_offset_));
-    glVertexAttribBinding(2, 1);
-
-    // Configure the texture offset attribute.
-    glEnableVertexAttribArray(3);
-    glVertexAttribFormat(3, 2, GL_FLOAT, GL_FALSE, offsetof(BufferData, texture_offset_));
-    glVertexAttribBinding(3, 1);
+    glVertexAttribFormat(2, 2, GL_FLOAT, GL_FALSE, offsetof(BufferData, scale_));
+    glVertexAttribBinding(2, 0);
 
     // Configure the foreground colour attribute.
-    glEnableVertexAttribArray(4);
-    glVertexAttribFormat(4, 4, GL_FLOAT, GL_FALSE, offsetof(BufferData, foreground_color_));
-    glVertexAttribBinding(4, 1);
+    glEnableVertexAttribArray(3);
+    glVertexAttribFormat(3, 4, GL_FLOAT, GL_FALSE, offsetof(BufferData, foreground_color_));
+    glVertexAttribBinding(3, 0);
 
     // Configure the background colour attribute.
-    glEnableVertexAttribArray(5);
-    glVertexAttribFormat(5, 4, GL_FLOAT, GL_FALSE, offsetof(BufferData, background_color_));
-    glVertexAttribBinding(5, 1);
-
-    //SetGLBuffer();
-
-    glBindBuffer(GL_ARRAY_BUFFER, vertex_ebo_id);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vertex_ebo_id);
+    glEnableVertexAttribArray(4);
+    glVertexAttribFormat(4, 4, GL_FLOAT, GL_FALSE, offsetof(BufferData, background_color_));
+    glVertexAttribBinding(4, 0);
 
     debug::LogVAOData();
 
     glBindVertexArray(0);
   }
 
-  void GlyphSet::SetGLBuffer() const {
+  void GlyphSet::SetGLBuffer() const
+  {
     BufferList buffer_data;
     buffer_data.reserve(set_data_.capacity());
 
     for (const GlyphData& glyph : set_data_) {
-      BufferData data;
-      data.vertex_offset_ = GetOffset(glyph);
-      data.texture_offset_ = (GLfloat)set_font_->GetCharacter(glyph.character_);
-      data.foreground_color_ = glyph.foreground_color_;
-      data.background_color_ = glyph.background_color_;
+      BufferData data((GLfloat)set_font_->GetCharacter(glyph.character_), GetGlyphOrigin(glyph), glyph.scale_ + (glyph_padding_ * 2.0f), glyph.foreground_color_, glyph.background_color_);
 
       buffer_data.push_back(data);
     }
 
+    glBindVertexArray(vao_id_);
     glBindBuffer(GL_ARRAY_BUFFER, vbo_id_);
     glBufferData(GL_ARRAY_BUFFER, sizeof(BufferData) * buffer_data.size(), buffer_data.data(), GL_DYNAMIC_DRAW);
 
@@ -379,11 +372,13 @@ namespace term_engine::glyphs {
     PrintBuffer(buffer_data);
   }
 
-  glm::vec2 GlyphSet::GetOffset(const GlyphData& glyph) const {
-    return glm::vec2(glyph.index_) * (set_scale_ + set_spacing_) + glyph.offset_;
+  glm::vec2 GlyphSet::GetGlyphOrigin(const GlyphData& glyph) const
+  {
+    return glm::vec2(glyph.index_) * (glyph.scale_ + glyph_spacing_ + (glyph_padding_ * 2.0f)) + glyph.offset_;
   }
 
-  void GlyphSet::PrintBuffer(const BufferList& data) const {
+  void GlyphSet::PrintBuffer(const BufferList& data) const
+  {
     logging::logger->debug("Printing buffer data:");
 
     unsigned int count = 0;
@@ -391,43 +386,7 @@ namespace term_engine::glyphs {
     for (const BufferData& item : data) {
       logging::logger->debug("Item #{}:{}", count, item);
 
-      count++;
+      ++count;
     }
   }
-
-  void InitVertexData() {
-    VertexData vertex_data[4] = {
-      { glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.0f) },
-      { glm::vec2(1.0f, 0.0f), glm::vec2(1.0f, 0.0f) },
-      { glm::vec2(0.0f, 1.0f), glm::vec2(0.0f, 1.0f) },
-      { glm::vec2(1.0f, 1.0f), glm::vec2(1.0f, 1.0f) }
-    };
-
-    GLuint indice_data[VERTEX_COUNT] = {
-      0, 1, 2,
-      1, 2, 3
-    };
-
-    glGenBuffers(1, &vertex_vbo_id);
-    glBindBuffer(GL_ARRAY_BUFFER, vertex_vbo_id);
-    glBufferStorage(GL_ARRAY_BUFFER, sizeof(vertex_data), vertex_data, 0);
-
-    glGenBuffers(1, &vertex_ebo_id);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vertex_ebo_id);
-    glBufferStorage(GL_ELEMENT_ARRAY_BUFFER, sizeof(indice_data), indice_data, 0);
-
-    logging::logger->debug("Logging vertex VBO...");
-    debug::LogVBOData();
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-  }
-
-  void CleanUpVertexData() {
-    glDeleteBuffers(1, &vertex_vbo_id);
-    glDeleteBuffers(1, &vertex_ebo_id);
-  }
-
-  GLuint vertex_vbo_id = 0;
-  GLuint vertex_ebo_id = 0;
 }

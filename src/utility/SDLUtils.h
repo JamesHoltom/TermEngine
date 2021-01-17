@@ -1,19 +1,12 @@
-/*
- * Copyright 2020
- * James Holtom
- * MIT License
- */
+/// @author James Holtom
 
 #ifndef SDL_UTILS_H
 #define SDL_UTILS_H
 
 #include <memory>
-
 #include <SDL2/SDL.h>
 
 namespace SDL {
-  typedef std::remove_pointer<SDL_GLContext>::type SDL_GL_pContext;
-
   namespace color_mask {
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
     constexpr Uint32 rMask = 0xff000000;
@@ -28,37 +21,53 @@ namespace SDL {
 #endif
   }
 
+  /// Smart pointer destructor used to destroy a _SDL_Window_.
   struct WindowDestroyer {
-    void operator()(SDL_Window* window) const noexcept {
+    /// @param[in,out] window The window to destroy.
+    void operator()(SDL_Window* window) const noexcept
+    {
       SDL_DestroyWindow(window);
       window = nullptr;
     }
   };
 
+  /// Smart pointer destructor used to destroy a _SDL_Renderer_.
   struct RendererDestroyer {
-    void operator()(SDL_Renderer* renderer) const noexcept {
+    /// @param[in,out] renderer The renderer to destroy.
+    void operator()(SDL_Renderer* renderer) const noexcept
+    {
       SDL_DestroyRenderer(renderer);
       renderer = nullptr;
     }
   };
 
+  /// Smart pointer destructor used to destroy a _SDL_Surface_.
   struct SurfaceDestroyer {
-    void operator()(SDL_Surface* surface) const noexcept {
+    /// @param[in,out] surface The surface to destroy.
+    void operator()(SDL_Surface* surface) const noexcept
+    {
       SDL_FreeSurface(surface);
       surface = nullptr;
     }
   };
 
+  /// Smart pointer destructor used to destroy a _SDL_Texture_.
   struct TextureDestroyer {
-    void operator()(SDL_Texture* texture) const noexcept {
+    /// @param[in,out] texture The texture to destroy.
+    void operator()(SDL_Texture* texture) const noexcept
+    {
       SDL_DestroyTexture(texture);
       texture = nullptr;
     }
   };
 
+  /// Wraps _SDL_Window_ with a smart pointer to allow automatic cleanup.
   typedef std::unique_ptr<SDL_Window, WindowDestroyer> Window;
+  /// Wraps _SDL_Renderer_ with a smart pointer to allow automatic cleanup.
   typedef std::unique_ptr<SDL_Renderer, RendererDestroyer> Renderer;
+  /// Wraps _SDL_Surface_ with a smart pointer to allow automatic cleanup.
   typedef std::unique_ptr<SDL_Surface, SurfaceDestroyer> Surface;
+  /// Wraps _SDL_Texture_ with a smart pointer to allow automatic cleanup.
   typedef std::unique_ptr<SDL_Texture, TextureDestroyer> Texture;
 }
 

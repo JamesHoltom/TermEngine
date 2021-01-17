@@ -7,21 +7,25 @@
 #include "../logging/Logger.h"
 
 namespace term_engine::scenes {
-  Scene::Scene() {
+  Scene::Scene()
+  {
     glyph_set_ = std::make_shared<glyphs::GlyphSet>(fonts::GetFontAtlas(std::string(fonts::DEFAULT_FONT)), shaders::GetShader("glyph"));
     logging::logger->info("Scene: There are {} refs.", glyph_set_.use_count());
   }
 
-  Scene::~Scene() {
+  Scene::~Scene()
+  {
     glyph_set_.reset();
     logging::logger->info("~Scene: There are {} refs.", glyph_set_.use_count());
   }
 
-  void Scene::Render() const {
+  void Scene::Render() const
+  {
     glyph_set_->Render();
   }
 
-  glyphs::GlyphSetPtr Scene::GetGlyphSet() {
+  glyphs::GlyphSetPtr Scene::GetGlyphSet()
+  {
     return glyph_set_;
   }
 }

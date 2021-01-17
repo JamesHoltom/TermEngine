@@ -2,7 +2,11 @@
 #include "../logging/Logger.h"
 
 namespace term_engine::scenes {
-  ScenePtr GetScene(const std::string& name) {
+  SceneList scene_list;
+  ScenePtr active_scene_;
+
+  ScenePtr GetScene(const std::string& name)
+  {
     auto result = scene_list.find(name);
 
     if (result == scene_list.end()) {
@@ -15,22 +19,22 @@ namespace term_engine::scenes {
     }
   }
 
-  ScenePtr AddScene(const std::string& name) {
+  ScenePtr AddScene(const std::string& name)
+  {
     ScenePtr new_scene = std::make_shared<Scene>();
     auto result = scene_list.emplace(std::make_pair(name, std::move(new_scene)));
 
     return result.first->second;
   }
 
-  void RemoveScene(const std::string& name) {
+  void RemoveScene(const std::string& name)
+  {
     scene_list.erase(name);
   }
 
-  void CleanUpScenes() {
+  void CleanUpScenes()
+  {
     scenes::active_scene_.reset();
     scene_list.clear();
   }
-
-  SceneList scene_list;
-  ScenePtr active_scene_;
 }

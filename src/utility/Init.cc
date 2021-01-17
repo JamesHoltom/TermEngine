@@ -4,7 +4,8 @@
 #include "../logging/Logger.h"
 
 namespace term_engine {
-  int InitSDL() {
+  int InitSDL()
+  {
     if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
       logging::logger->error("Failed to initialise SDL!\nError: {}", SDL_GetError());
 
@@ -18,7 +19,8 @@ namespace term_engine {
     return 0;
   }
 
-  int InitGL() {
+  int InitGL()
+  {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
@@ -34,7 +36,8 @@ namespace term_engine {
     return 0;
   }
 
-  int InitGLEW() {
+  int InitGLEW()
+  {
     glewExperimental = GL_TRUE;
 
     GLenum glew_status = glewInit();
@@ -59,7 +62,8 @@ namespace term_engine {
     return 0;
   }
 
-  int InitFreeType(FT_Library *library) {
+  int InitFreeType(FT_Library *library)
+  {
     FT_Error err = FT::Log(FT_Init_FreeType(library));
 
     if (err != FT_Err_Ok) {
@@ -73,13 +77,15 @@ namespace term_engine {
     return 0;
   }
 
-  void CleanUpSDL() {
+  void CleanUpSDL()
+  {
     SDL_Quit();
 
     logging::logger->debug("Shut down SDL.");
   }
 
-  void CleanUpFreeType(const FT_Library& library) {
+  void CleanUpFreeType(const FT_Library& library)
+  {
     FT::Log(FT_Done_FreeType(library));
 
     logging::logger->debug("Shut down FreeType.");

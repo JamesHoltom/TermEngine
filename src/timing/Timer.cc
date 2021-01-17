@@ -10,7 +10,8 @@ namespace term_engine::timing {
     is_paused_(false)
   {}
 
-  void Timer::Start() {
+  void Timer::Start()
+  {
     is_started_ = true;
     is_paused_ = false;
 
@@ -20,7 +21,8 @@ namespace term_engine::timing {
     interval_point_ = start_point_;
   }
 
-  void Timer::Stop() {
+  void Timer::Stop()
+  {
     is_started_ = false;
     is_paused_ = false;
 
@@ -29,7 +31,8 @@ namespace term_engine::timing {
     interval_point_ = TimePoint();
   }
 
-  void Timer::Pause() {
+  void Timer::Pause()
+  {
     if (is_started_ && !is_paused_) {
       is_paused_ = true;
 
@@ -37,7 +40,8 @@ namespace term_engine::timing {
     }
   }
 
-  void Timer::Resume() {
+  void Timer::Resume()
+  {
     if (is_started_ && is_paused_) {
       is_paused_ = false;
 
@@ -45,15 +49,18 @@ namespace term_engine::timing {
     }
   }
 
-  bool Timer::IsStarted() const {
+  bool Timer::IsStarted() const
+  {
     return is_started_;
   }
 
-  bool Timer::IsPaused() const {
+  bool Timer::IsPaused() const
+  {
     return is_paused_;
   }
 
-  uint64_t Timer::GetDuration() {
+  uint64_t Timer::GetDuration()
+  {
     uint64_t duration;
 
     if (is_started_) {
@@ -71,7 +78,8 @@ namespace term_engine::timing {
     return duration;
   }
 
-  uint64_t Timer::GetPauseDuration() {
+  uint64_t Timer::GetPauseDuration()
+  {
     uint64_t duration;
 
     if (is_started_ && is_paused_) {
@@ -84,7 +92,8 @@ namespace term_engine::timing {
     return duration;
   }
 
-  uint64_t Timer::GetIntervalElapsed() {
+  uint64_t Timer::GetIntervalElapsed()
+  {
     uint64_t elapsed;
     Clock::time_point now = Clock::now();
 
