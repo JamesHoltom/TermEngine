@@ -6,10 +6,9 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
-#include <gl/glew.h>
-#include <glm/glm.hpp>
 
 #include "../utility/FTUtils.h"
+#include "../utility/GLUtils.h"
 
 namespace term_engine::fonts {
   class FontAtlas;

@@ -14,11 +14,17 @@ namespace term_engine::windows {
   constexpr int DEFAULT_WIDTH = 640;
   /// The default height of the window.
   constexpr int DEFAULT_HEIGHT = 512;
+  /// The default clear color to use when refreshing the window.
+  constexpr glm::uvec3 DEFAULT_WINDOW_CLEAR_COLOR = glm::uvec3(32, 128, 255);
 
   /// The OpenGL context to bind to the window and render to.
   extern SDL_GLContext context;
   /// The window to display.
   extern SDL::Window window;
+  /// The RGB components to use for setting the clear color, i.e. what OpenGL uses to refresh the screen after every frame.
+  extern GLfloat window_color_r, window_color_g, window_color_b;
+  /// Whether to use wireframe rendering or not.
+  extern GLuint window_render_mode;
 
   /// Prepares the window for use.
   /**
@@ -40,6 +46,24 @@ namespace term_engine::windows {
    * @param[in] size The new size of the window.
    */
   void SetWindowSize(const glm::ivec2& size);
+
+  /// Returns the clear color of the window.
+  /**
+   * @returns The clear color of the window.
+   */
+  glm::uvec3 GetWindowClearColor();
+
+  /// Sets the clear color of the window.
+  /**
+   * @param[in] color The clear color to use.
+   */
+  void SetWindowClearColor(const glm::uvec3& color);
+
+  /// Enables wireframe rendering.
+  void EnableWireframe();
+
+  /// Disables wireframe rendering.
+  void DisableWireframe();
 }
 
 #endif // ! WINDOW_H

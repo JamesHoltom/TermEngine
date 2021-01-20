@@ -21,7 +21,7 @@ namespace term_engine::glyphs {
   /// Denotes the default amount of rows in a glyph set.
   constexpr int DEFAULT_SET_HEIGHT = 16;
 
-  /// 
+  /// Represents the results of calling _glyphs::GetGlyph_. The first property denotes if the call was successful, and the second is the returned _GlyphData_.
   typedef std::pair<bool, GlyphData> GetGlyphResult;
   /// Smart pointer to share a single instance of a _GlyphSet_.
   typedef std::shared_ptr<GlyphSet> GlyphSetPtr;
@@ -70,9 +70,9 @@ namespace term_engine::glyphs {
      */
     glm::uvec2 GetSize() const;
 
-    /// 
+    /// Returns the list of data that represents the set.
     /**
-     * 
+     * @returns The set data.
      */
     GlyphList& GetData();
 
@@ -159,9 +159,6 @@ namespace term_engine::glyphs {
     /// Resets the scale of all glyphs in the set.
     void ResetAllScale();
 
-    /// Resets the projection matrix that handles the conversion between window coordinates and OpenGL coordinates.
-    void ResetProjection();
-
     /// Logs the contents of the set.
     void PrintData() const;
 
@@ -215,7 +212,14 @@ namespace term_engine::glyphs {
      * @param[in] glyph The glyph to get the position for.
      * @returns The original position of the glyph, relative to the window.
      */
-    glm::vec2 GetGlyphOrigin(const GlyphData& glyph) const;
+    inline glm::vec2 GetGlyphOrigin(const GlyphData& glyph) const;
+
+    /// Retrieves the full scale (i.e. scale + padding) of the given glyph.
+    /**
+     * @param[in] glyph The glyph to get the full scale.
+     * @returns The full scale of the glyph.
+     */
+    inline glm::vec2 GetGlyphFullScale(const GlyphData& glyph) const;
 
     /// Logs the buffer data that is passed to the GPU.
     /**

@@ -8,7 +8,6 @@
 #include <tuple>
 #include <unordered_map>
 #include <vector>
-#include <glm/glm.hpp>
 
 #include "../utility/GLUtils.h"
 

@@ -6,7 +6,10 @@ layout (location = 2) in vec2 scale;
 layout (location = 3) in vec4 foreground_color;
 layout (location = 4) in vec4 background_color;
 
-uniform mat4 projection;
+layout (std140, binding = 0) uniform CommonData {
+	mat4 projection;
+};
+
 uniform vec2 origin;
 
 out GS_DATA

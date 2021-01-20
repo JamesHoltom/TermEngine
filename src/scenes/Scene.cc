@@ -1,7 +1,5 @@
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
 #include "Scene.h"
+#include "../utility/GLUtils.h"
 #include "../fonts/FontAtlasManager.h"
 #include "../shaders/ShaderManager.h"
 #include "../logging/Logger.h"

@@ -1,20 +1,13 @@
 #include <algorithm>
 #include <sstream>
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
 #include "GlyphSet.h"
 #include "../fonts/FontAtlasManager.h"
 #include "../shaders/ShaderManager.h"
 #include "../logging/Logger.h"
-#include "../window/Window.h"
 #include "../utility/DebugFunctions.h"
 
 namespace term_engine::glyphs {
-
-  GLuint vertex_vbo_id = 0;
-  GLuint vertex_ebo_id = 0;
-
   GlyphSet::GlyphSet(const fonts::FontAtlasPtr& font_atlas, const shaders::ShaderPtr& shader):
     is_dirty_(false),
     vao_id_(0),
@@ -39,7 +32,6 @@ namespace term_engine::glyphs {
 
     SetPosition(glm::vec2(0.0f));
     ResetAllScale();
-    ResetProjection();
   }
 
   GlyphSet::~GlyphSet()
@@ -256,18 +248,6 @@ namespace term_engine::glyphs {
     logging::logger->debug(set_line.str());
   }
 
-  void GlyphSet::ResetProjection()
-  {
-    const glm::ivec2 window_size = windows::GetWindowSize();
-    const glm::mat4 projection = glm::ortho(0.0f, (GLfloat)window_size.x, (GLfloat)window_size.y, 0.0f);
-
-    glViewport(0, 0, window_size.x, window_size.y);
-
-    set_shader_->Use();
-    set_shader_->SetUniformMatrix("projection", glm::ivec2(4, 4), glm::value_ptr(projection));
-    set_shader_->Unuse();
-  }
-
   bool GlyphSet::IsDirty() const
   {
     return is_dirty_;
@@ -356,7 +336,7 @@ namespace term_engine::glyphs {
     buffer_data.reserve(set_data_.capacity());
 
     for (const GlyphData& glyph : set_data_) {
-      BufferData data((GLfloat)set_font_->GetCharacter(glyph.character_), GetGlyphOrigin(glyph), glyph.scale_ + (glyph_padding_ * 2.0f), glyph.foreground_color_, glyph.background_color_);
+      BufferData data((GLfloat)set_font_->GetCharacter(glyph.character_), GetGlyphOrigin(glyph), GetGlyphFullScale(glyph), glyph.foreground_color_, glyph.background_color_);
 
       buffer_data.push_back(data);
     }
@@ -372,9 +352,14 @@ namespace term_engine::glyphs {
     PrintBuffer(buffer_data);
   }
 
-  glm::vec2 GlyphSet::GetGlyphOrigin(const GlyphData& glyph) const
+  inline glm::vec2 GlyphSet::GetGlyphOrigin(const GlyphData& glyph) const
   {
     return glm::vec2(glyph.index_) * (glyph.scale_ + glyph_spacing_ + (glyph_padding_ * 2.0f)) + glyph.offset_;
+  }
+
+  inline glm::vec2 GlyphSet::GetGlyphFullScale(const GlyphData& glyph) const
+  {
+    return glyph.scale_ + (glyph_padding_ * 2.0f);
   }
 
   void GlyphSet::PrintBuffer(const BufferList& data) const

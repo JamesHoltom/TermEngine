@@ -113,6 +113,12 @@ namespace term_engine::glyphs {
      */
     GlyphData(const glm::uvec2& index, const GlyphParams& glyph);
 
+    /// Sets the glyph's data with the given parameters.
+    /**
+     * @param[in] glyph The parameters to apply to the glyph.
+     */
+    void SetParams(const GlyphParams& glyph);
+
     /**
      * Clears the data, returning the object to default values.
      */

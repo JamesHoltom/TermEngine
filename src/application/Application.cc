@@ -11,6 +11,7 @@
 #include "../scenes/SceneManager.h"
 #include "../scripting/ScriptingInterface.h"
 #include "../shaders/ShaderManager.h"
+#include "../shaders/CommonUniform.h"
 #include "../timing/FPSManager.h"
 #include "../window/Window.h"
 
@@ -27,6 +28,7 @@ namespace term_engine::application {
 
     windows::Init();
     events::Init();
+    shaders::InitUBO();
     shaders::InitGlyphShader();
 
     scripting::InitInterface();
@@ -42,6 +44,7 @@ namespace term_engine::application {
     scenes::CleanUpScenes();
     fonts::CleanUpFontAtlas();
     shaders::CleanUpShaders();
+    shaders::CleanUpUBO();
     windows::CleanUp();
 
     CleanUpFreeType(fonts::font_library);
@@ -70,8 +73,9 @@ namespace term_engine::application {
 
       scripting::OnLoop();
 
+      glPolygonMode(GL_FRONT_AND_BACK, windows::window_render_mode);
       glClear(GL_COLOR_BUFFER_BIT);
-      glClearColor(0.0f, 0.2f, 0.5f, 1.0f);
+      glClearColor(windows::window_color_r, windows::window_color_g, windows::window_color_b, 1.0f);
 
       scenes::active_scene_->Render();
 

@@ -1,7 +1,5 @@
 #include "FontAtlas.h"
 #include "../logging/Logger.h"
-#include "../utility/FTUtils.h"
-#include "../utility/GLUtils.h"
 
 namespace term_engine::fonts {
   FontAtlas::FontAtlas(const FT_Library& library, const std::string& font_path, const int& font_size):

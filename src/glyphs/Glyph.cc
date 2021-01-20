@@ -43,6 +43,15 @@ namespace term_engine::glyphs {
     background_color_(data.background_color_)
   {}
 
+  void GlyphData::SetParams(const GlyphParams& glyph)
+  {
+    character_ = glyph.character_;
+    offset_ = glyph.offset_;
+    scale_ = glyph.scale_;
+    foreground_color_ = glyph.foreground_color_;
+    background_color_ = glyph.background_color_;
+  }
+
   void GlyphData::Clear()
   {
     character_ = ' ';

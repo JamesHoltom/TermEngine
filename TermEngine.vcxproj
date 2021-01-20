@@ -172,6 +172,7 @@
     <ClCompile Include="src\fonts\FontAtlas.cc" />
     <ClCompile Include="src\fonts\FontAtlasManager.cc" />
     <ClCompile Include="src\glyphs\Glyph.cc" />
+    <ClCompile Include="src\shaders\CommonUniform.cc" />
     <ClCompile Include="src\utility\FileUtils.cc" />
     <ClCompile Include="src\utility\Init.cc" />
     <ClCompile Include="src\main.cc" />
@@ -195,6 +196,7 @@
     <ClInclude Include="src\drawing\DrawFunctions.h" />
     <ClInclude Include="src\events\InputManager.h" />
     <ClInclude Include="src\scripting\ScriptingInterface.h" />
+    <ClInclude Include="src\shaders\CommonUniform.h" />
     <ClInclude Include="src\utility\FileUtils.h" />
     <ClInclude Include="src\utility\Init.h" />
     <ClInclude Include="src\fonts\FontAtlas.h" />

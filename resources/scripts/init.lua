@@ -1,12 +1,20 @@
 function Init()
 	print("Init -> Init()")
 	
+	local folders = getFolderList("resources")
+	local folderStr = ""
+	
+	for k,v in ipairs(folders) do
+		folderStr = folderStr .. tostring(v) .. "\n"
+	end
+	
+	writeText(folderStr, ivec2(1, 1), ivec2(31, 15))
+	drawOutlinedBox("#", Color(255), Color(0, 0, 0, 255), ivec2(0, 0), ivec2(32, 16))
+	
 	return true
 end
 
 function Loop()
-	--print("Init -> Loop()")
-	
 	if keyIsPressed("m") then
 		print(mousePosition())
 	end
@@ -14,24 +22,6 @@ function Loop()
 	if keyIsPressed("s") then
 		print(getGlyphSetSize())
 	end
-	
-	if keyIsPressed("d") then
-		print(isSetDirty() and "true" or "false")
-	end
-	
-	if keyIsPressed("w") then
-		print("Test")
-		writeText("Test", ivec2(0, 0), ivec2(10, 0))
-		print(isSetDirty() and "true" or "false")
-	end
-	
-	--[[if keyIsPressed("f") then
-		getFileList("resources")
-	end
-	
-	if keyIsPressed("g") then
-		getFolderList("resources")
-	end]]
 end
 
 function Quit()

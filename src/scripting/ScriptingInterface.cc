@@ -4,6 +4,7 @@
 #include "../glyphs/GlyphSet.h"
 #include "../drawing/DrawFunctions.h"
 #include "../scenes/SceneManager.h"
+#include "../window/Window.h"
 #include "../utility/Color.h"
 #include "../utility/FileUtils.h"
 
@@ -29,9 +30,16 @@ namespace term_engine::scripting {
       "x", &glm::uvec2::x,
       "y", &glm::uvec2::y);
 
+    sol::usertype<glm::uvec3> uvec3_type = lua_state.new_usertype<glm::uvec3>(
+      "uvec3",
+      sol::call_constructor, sol::constructors<glm::uvec3(), glm::uvec3(const glm::uint&), glm::uvec3(const glm::uint&, const glm::uint&, const glm::uint&)>(),
+      "x", &glm::uvec3::x,
+      "y", &glm::uvec3::y,
+      "z", &glm::uvec3::z);
+
     sol::usertype<glm::vec4> color_type = lua_state.new_usertype<glm::vec4>(
       "Color",
-      sol::call_constructor, sol::constructors<glm::vec4(), glm::vec4(const float&, const float&, const float&, const float&)>(),
+      sol::call_constructor, sol::constructors<glm::vec4(), glm::vec4(const float&), glm::vec4(const float&, const float&, const float&, const float&)>(),
       "r", &glm::vec4::r,
       "g", &glm::vec4::g,
       "b", &glm::vec4::b,
@@ -44,6 +52,16 @@ namespace term_engine::scripting {
       "character", &glyphs::GlyphData::character_,
       "foreground_color", &glyphs::GlyphData::foreground_color_,
       "background_color", &glyphs::GlyphData::background_color_);
+
+    lua_state.create_named_table("window",
+      "getSize", &windows::GetWindowSize,
+      "setSize", &windows::SetWindowSize,
+      "getClearColor", &windows::GetWindowClearColor,
+      "setClearColor", &windows::SetWindowClearColor);
+
+    lua_state.create_named_table("wireframe",
+      "enable", &windows::EnableWireframe,
+      "disable", &windows::DisableWireframe);
 
     lua_state["getFileList"] = [&](const std::string& directory) {
       return file::GetFileList(file::GetRelative(directory));
@@ -109,6 +127,10 @@ namespace term_engine::scripting {
 
     lua_state["writeText"] = [&](const std::string& text, const glm::ivec2& start_pos, const glm::ivec2& end_pos) {
       drawing::WriteText(*(scenes::active_scene_->GetGlyphSet()), start_pos, end_pos, text);
+    };
+    lua_state["drawOutlinedBox"] = [&](const char& character, const glm::vec4& foreground_color, const glm::vec4& background_color, const glm::ivec2& start_pos, const glm::ivec2& end_pos) {
+      glyphs::GlyphParams params(character, glm::vec2(0.0f), glm::vec2(20.0f, 32.0f), foreground_color, background_color);
+      drawing::DrawOutlinedBox(*(scenes::active_scene_->GetGlyphSet()), start_pos, end_pos, params);
     };
 
     lua_state["mouseIsDown"] = &events::MouseIsDown;

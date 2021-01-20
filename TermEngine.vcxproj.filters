@@ -84,6 +84,9 @@
     <ClCompile Include="src\utility\FileUtils.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\shaders\CommonUniform.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\application\Application.h">
@@ -162,6 +165,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\utility\FileUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\shaders\CommonUniform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
