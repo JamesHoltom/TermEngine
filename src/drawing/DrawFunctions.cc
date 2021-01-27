@@ -2,14 +2,21 @@
 #include "../logging/Logger.h"
 
 namespace term_engine::drawing {
-  void WriteText(glyphs::GlyphSet& glyph_set, const glm::ivec2& start_pos, const glm::ivec2& bounds, const std::string& text, const int& text_offset)
+  void WriteText(
+    glyphs::GlyphSet& glyph_set,
+    const glm::ivec2& start_pos,
+    const glm::ivec2& end_pos,
+    const std::string& text,
+    const glm::vec4& foreground_color,
+    const glm::vec4& background_color,
+    const int& text_offset)
   {
     glyphs::GlyphList& data = glyph_set.GetData();
     glm::ivec2 pos = start_pos;
     int glyph_index = (pos.y * glyph_set.GetSize().x) + pos.x;
 
     for (int text_index = text_offset; text_index < text.length(); ++text_index) {
-      if (pos.x > bounds.x) {
+      if (pos.x > end_pos.x) {
         pos.x = start_pos.x;
         ++pos.y;
         glyph_index = (pos.y * glyph_set.GetSize().x) + pos.x;
@@ -23,14 +30,14 @@ namespace term_engine::drawing {
         continue;
       }
 
-      if (pos.y > bounds.y) {
+      if (pos.y > end_pos.y) {
         break;
       }
 
       glyphs::GlyphData& glyph = data.at(glyph_index);
+      glyph.foreground_color_ = foreground_color;
+      glyph.background_color_ = background_color;
       glyph.character_ = text.at(text_index);
-      glyph.foreground_color_ = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-      glyph.background_color_ = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
 
       ++pos.x;
       ++glyph_index;
@@ -58,9 +65,9 @@ namespace term_engine::drawing {
     size_t index = (start_pos.y *  set_width) + start_pos.x;
 
     // Render the top and bottom sections of the box.
-    for (int row = index; row < dimensions.x; ++row) {
+    for (size_t row = index; row < dimensions.x; ++row) {
       data.at(row).SetParams(glyph);
-      data.at(row + ((dimensions.y - 1) * set_width)).SetParams(glyph);
+      data.at(row + (((size_t)dimensions.y - 1) * set_width)).SetParams(glyph);
     }
 
     index += set_width;

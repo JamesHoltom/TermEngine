@@ -14,36 +14,36 @@ namespace term_engine::scripting {
 
     sol::usertype<glm::vec2> vec2_type = lua_state.new_usertype<glm::vec2>(
       "vec2",
-      sol::call_constructor, sol::constructors<glm::vec2(), glm::vec2(const float&), glm::vec2(const float&, const float&)>(),
+      sol::call_constructor, sol::constructors<void(), void(const float&), void(const float&, const float&)>(),
       "x", &glm::vec2::x,
       "y", &glm::vec2::y);
 
     sol::usertype<glm::ivec2> ivec2_type = lua_state.new_usertype<glm::ivec2>(
       "ivec2",
-      sol::call_constructor, sol::constructors<glm::ivec2(), glm::ivec2(const int&), glm::ivec2(const int&, const int&)>(),
+      sol::call_constructor, sol::constructors<void(), void(const int&), void(const int&, const int&)>(),
       "x", &glm::ivec2::x,
       "y", &glm::ivec2::y);
 
     sol::usertype<glm::uvec2> uvec2_type = lua_state.new_usertype<glm::uvec2>(
       "uvec2",
-      sol::call_constructor, sol::constructors<glm::uvec2(), glm::uvec2(const glm::uint&), glm::uvec2(const glm::uint&, const glm::uint&)>(),
+      sol::call_constructor, sol::constructors<void(), void(const glm::uint&), void(const glm::uint&, const glm::uint&)>(),
       "x", &glm::uvec2::x,
       "y", &glm::uvec2::y);
 
     sol::usertype<glm::uvec3> uvec3_type = lua_state.new_usertype<glm::uvec3>(
       "uvec3",
-      sol::call_constructor, sol::constructors<glm::uvec3(), glm::uvec3(const glm::uint&), glm::uvec3(const glm::uint&, const glm::uint&, const glm::uint&)>(),
+      sol::call_constructor, sol::constructors<void(), void(const glm::uint&), void(const glm::uint&, const glm::uint&, const glm::uint&)>(),
       "x", &glm::uvec3::x,
       "y", &glm::uvec3::y,
       "z", &glm::uvec3::z);
 
-    sol::usertype<glm::vec4> color_type = lua_state.new_usertype<glm::vec4>(
-      "Color",
-      sol::call_constructor, sol::constructors<glm::vec4(), glm::vec4(const float&), glm::vec4(const float&, const float&, const float&, const float&)>(),
-      "r", &glm::vec4::r,
-      "g", &glm::vec4::g,
-      "b", &glm::vec4::b,
-      "a", &glm::vec4::a);
+    sol::usertype<glm::vec4> vec4_type = lua_state.new_usertype<glm::vec4>(
+      "vec4",
+      sol::call_constructor, sol::constructors<void(), void(const float&), void(const float&, const float&, const float&, const float&)>(),
+      "x", &glm::vec4::x,
+      "y", &glm::vec4::y,
+      "z", &glm::vec4::z,
+      "w", &glm::vec4::w);
 
     sol::usertype<glyphs::GlyphData> glyph_data_type = lua_state.new_usertype<glyphs::GlyphData>(
       "Glyph",
@@ -125,10 +125,10 @@ namespace term_engine::scripting {
       return scenes::active_scene_->GetGlyphSet()->IsDirty();
     };
 
-    lua_state["writeText"] = [&](const std::string& text, const glm::ivec2& start_pos, const glm::ivec2& end_pos) {
-      drawing::WriteText(*(scenes::active_scene_->GetGlyphSet()), start_pos, end_pos, text);
+    lua_state["writeText"] = [&](const std::string& text, const glm::ivec2& start_pos, const glm::ivec2& end_pos, const glm::vec4& fg_color, const glm::vec4& bg_color) {
+      drawing::WriteText(*(scenes::active_scene_->GetGlyphSet()), start_pos, end_pos, text, fg_color, bg_color);
     };
-    lua_state["drawOutlinedBox"] = [&](const char& character, const glm::vec4& foreground_color, const glm::vec4& background_color, const glm::ivec2& start_pos, const glm::ivec2& end_pos) {
+    lua_state["drawOutlinedBox"] = [&](const char& character, const glm::ivec2& start_pos, const glm::ivec2& end_pos, const glm::vec4& foreground_color, const glm::vec4& background_color) {
       glyphs::GlyphParams params(character, glm::vec2(0.0f), glm::vec2(20.0f, 32.0f), foreground_color, background_color);
       drawing::DrawOutlinedBox(*(scenes::active_scene_->GetGlyphSet()), start_pos, end_pos, params);
     };
@@ -175,7 +175,7 @@ namespace term_engine::scripting {
 
   void Load(const std::string& filename) {
     try {
-      sol::protected_function_result result = lua_state.script_file(filename);
+      sol::protected_function_result result = lua_state.safe_script_file(filename);
 
       if (result.valid()) {
         lua_file = filename;
