@@ -3,6 +3,8 @@
 #include <spdlog/fmt/ostr.h>
 
 #include "GLUtils.h"
+#include "SDLUtils.h"
+
 #include "../logging/Logger.h"
 
 namespace GL {
@@ -46,5 +48,48 @@ namespace GL {
     }
 
     term_engine::logging::logger->error("GL debug message (#{}):\nDescription: {}\nSource: {}\nType: {}\nSeverity: {}", id, message, source_string, type_string, severity_string);
+  }
+
+  int InitGL()
+  {
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 4);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
+
+    int major_ver, minor_ver;
+    SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &major_ver);
+    SDL_GL_GetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, &minor_ver);
+
+    term_engine::logging::logger->debug("Running OpenGL version {}.{}", major_ver, minor_ver);
+    term_engine::logging::logger->debug("Initialised OpenGL.");
+
+    return 0;
+  }
+
+  int InitGLEW()
+  {
+    glewExperimental = GL_TRUE;
+
+    GLenum glew_status = glewInit();
+
+    if (glew_status == GLEW_OK) {
+      term_engine::logging::logger->debug("Initialised GLEW.");
+    }
+    else {
+      term_engine::logging::logger->error("Failed to initialise GLEW!");
+
+      return 1;
+    }
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glEnable(GL_DEBUG_OUTPUT);
+    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+    glDebugMessageCallback(GL::glDebugOutput, 0);
+    glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+
+    return 0;
   }
 }

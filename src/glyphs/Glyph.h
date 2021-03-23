@@ -28,29 +28,17 @@ namespace term_engine::glyphs {
    * These are converted from _GlyphData_ objects when setting the VBO data.
    */
   struct BufferData {
-    /// The texture layer to render.
-    GLfloat texture_layer_;
-    /// The position of the glyph, relative to the containing _GlyphSet_.
-    glm::vec2 offset_;
-    /// The size of the glyph.
-    glm::vec2 scale_;
-    /// The foreground color, used for the glyph.
-    glm::vec4 foreground_color_;
-    /// The background color.
-    glm::vec4 background_color_;
-
     /// Constructs the buffer data.
     BufferData();
 
     /// Constructs the buffer data with the given parameters.
     /**
      * @param[in] texture_layer    The texture layer to render.
-     * @param[in] offset           The position of the glyph, relative to the containing _GlyphSet_.
-     * @param[in] scale            The size of the glyph.
+     * @param[in] position         The position of the glyph, from its default position in the glyph set.
      * @param[in] foreground_color The foreground color, used for the glyph.
      * @param[in] background_color The background color.
      */
-    BufferData(const GLfloat& texture_layer, const glm::vec2& offset, const glm::vec2& scale, const glm::vec4& foreground_color, const glm::vec4& background_color);
+    BufferData(const GLfloat& texture_layer, const glm::vec2& position, const glm::vec4& foreground_color, const glm::vec4& background_color);
 
     /// Allows _std::stringstream_ to correctly parse a _InstanceData_ object.
     /**
@@ -61,11 +49,19 @@ namespace term_engine::glyphs {
     friend std::ostream& operator<<(std::ostream& os, const BufferData& data) {
       return os << std::endl
         << "Texture layer: " << data.texture_layer_ << std::endl
-        << "Glyph offset: " << data.offset_ << std::endl
-        << "Glyph scale: " << data.scale_ << std::endl
+        << "Position: " << data.position_ << std::endl
         << "Foreground colour: " << data.foreground_color_ << std::endl
         << "Background colour: " << data.background_color_ << std::endl;
     }
+
+    /// The texture layer to render.
+    GLfloat texture_layer_;
+    /// The position of the glyph, from its default position in the glyph set.
+    glm::vec2 position_;
+    /// The foreground color, used for the glyph.
+    glm::vec4 foreground_color_;
+    /// The background color.
+    glm::vec4 background_color_;
   };
 
   /// Used to construct _GlyphData_ objects on creation, and to pass glyph data around.
@@ -73,19 +69,16 @@ namespace term_engine::glyphs {
     /// Constructs the glyph parameters.
     /**
      * @param[in] character        The character that the glyph represents.
-     * @param[in] offset           The position of the glyph, relative to the glyph's origin in the containing _GlyphSet_.
-     * @param[in] scale            The size of the glyph.
+     * @param[in] offset           The offset of the glyph, from its default position in the glyph set.
      * @param[in] foreground_color The foreground color, used for the text.
      * @param[in] background_color The background color.
      */
-    GlyphParams(const char& character, const glm::vec2& offset, const glm::vec2& scale, const glm::vec4& foreground_color, const glm::vec4& background_color);
+    GlyphParams(const char& character, const glm::vec2& offset, const glm::vec4& foreground_color, const glm::vec4& background_color);
 
     /// The character that the glyph represents.
     char character_;
-    /// The position of the glyph, relative to the glyph's origin in the containing _GlyphSet_.
+    /// The offset of the glyph, from its default offset in the glyph set.
     glm::vec2 offset_;
-    /// The size of the glyph.
-    glm::vec2 scale_;
     /// The foreground color, used for the text.
     glm::vec4 foreground_color_;
     /// The background color.
@@ -102,13 +95,13 @@ namespace term_engine::glyphs {
 
     /// Constructs the glyph data with the given index.
     /**
-     * @param[in] index The position of the glyph within the _GlyphSet_.
+     * @param[in] index The offset of the glyph within the _GlyphSet_.
      */
     GlyphData(const glm::uvec2& index);
 
     /// Constructs the glyph data with the given index and parameters.
     /**
-     * @param[in] index The position of the glyph within the _GlyphSet_.
+     * @param[in] index The offset of the glyph within the _GlyphSet_.
      * @param[in] glyph The parameters to construct the glyph with.
      */
     GlyphData(const glm::uvec2& index, const GlyphParams& glyph);
@@ -132,9 +125,8 @@ namespace term_engine::glyphs {
      */
     friend std::ostream& operator<<(std::ostream& os, const GlyphData& data) {
       return os << std::endl
-        << "Position:          " << data.index_ << std::endl
-        << "Offset:            " << data.offset_ << std::endl
-        << "Scale:             " << data.scale_<< std::endl
+        << "Index:             " << data.index_ << std::endl
+        << "Position:          " << data.offset_ << std::endl
         << "Character:         " << data.character_ << std::endl
         << "Foreground colour: " << data.foreground_color_ << std::endl
         << "Background colour: " << data.background_color_ << std::endl;
@@ -144,10 +136,8 @@ namespace term_engine::glyphs {
     const glm::uvec2 index_;
     /// The character that the glyph represents.
     char character_;
-    /// The position of the glyph, relative to the glyph's origin in the containing _GlyphSet_.
+    /// The offset of the glyph, from its default position in the glyph set.
     glm::vec2 offset_;
-    /// The size of the glyph.
-    glm::vec2 scale_;
     /// The foreground color, used for the text.
     glm::vec4 foreground_color_;
     /// The background color.

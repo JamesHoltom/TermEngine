@@ -2,62 +2,41 @@
 
 #include "Application.h"
 #include "../logging/Logger.h"
-#include "../utility/init.h"
-#include "../utility/SDLUtils.h"
-#include "../fonts/FontAtlas.h"
-#include "../glyphs/GlyphSet.h"
 #include "../events/InputManager.h"
 #include "../fonts/FontAtlasManager.h"
-#include "../scenes/SceneManager.h"
+#include "../glyphs/GlyphSet.h"
 #include "../scripting/ScriptingInterface.h"
+#include "../scenes/SceneManager.h"
 #include "../shaders/ShaderManager.h"
-#include "../shaders/CommonUniform.h"
+#include "../system/Window.h"
 #include "../timing/FPSManager.h"
-#include "../window/Window.h"
 
 namespace term_engine::application {
   void Init()
   {
-    logging::InitLogger();
-
-    if (InitSDL() > 0 || InitGL() > 0 || InitFreeType(&fonts::font_library) > 0) {
-      logging::logger->critical("Failed to initialise SDL/GL/FT!");
-
-      exit(2);
-    }
-
-    windows::Init();
-    events::Init();
-    shaders::InitUBO();
-    shaders::InitGlyphShader();
-
-    scripting::InitInterface();
     scripting::InitScript();
 
-    timing::InitFPS();
+    // Create the default scene, shader and font.
+    shaders::InitGlyphShader();
+    fonts::AddFontAtlas(fonts::FontAtlasKey(std::string(fonts::DEFAULT_FONT), fonts::DEFAULT_FONT_SIZE));
+    scenes::active_scene_ = scenes::AddScene("default");
+
+    logging::logger->debug("Finished init!");
   }
 
   void CleanUp()
   {
-    events::CleanUp();
     scripting::CleanUp();
     scenes::CleanUpScenes();
     fonts::CleanUpFontAtlas();
     shaders::CleanUpShaders();
-    shaders::CleanUpUBO();
-    windows::CleanUp();
 
-    CleanUpFreeType(fonts::font_library);
-    CleanUpSDL();
+    logging::logger->debug("Cleaned up!");
   }
 
   void Run()
   {
     bool quit = false;
-
-    // Create the default scene and font.
-    fonts::AddFontAtlas(std::string(fonts::DEFAULT_FONT), fonts::DEFAULT_FONT_SIZE);
-    scenes::active_scene_ = scenes::AddScene("default");
 
     scripting::OnInit();
 
@@ -73,13 +52,11 @@ namespace term_engine::application {
 
       scripting::OnLoop();
 
-      glPolygonMode(GL_FRONT_AND_BACK, windows::window_render_mode);
-      glClear(GL_COLOR_BUFFER_BIT);
-      glClearColor(windows::window_color_r, windows::window_color_g, windows::window_color_b, 1.0f);
+      system::ClearWindow();
 
       scenes::active_scene_->Render();
 
-      SDL_GL_SwapWindow(windows::window.get());
+      system::RefreshWindow();
 
       timing::NextFrame();
 

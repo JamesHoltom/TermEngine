@@ -28,6 +28,20 @@ namespace GL {
    * @param[in] user_param Unused.
    */
   void GLAPIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const char* message, const void* user_param);
+
+  /// Prepares OpenGL for use. Do not call this function! Use `Init()` instead.
+  /**
+   * @returns Was OpenGL successfully initialised?
+   */
+  int InitGL();
+
+  /// Initialises GLEW. Do not call this function! Use `Init()` instead.
+  /**
+   * GLEW needs to be called *after* the window has been initialised.
+   *
+   * @returns Was GLEW successfully initialised?
+   */
+  int InitGLEW();
 }
 
 #endif // ! GL_UTILS_H

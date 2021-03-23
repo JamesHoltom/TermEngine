@@ -3,7 +3,6 @@
 
 #include "ShaderManager.h"
 #include "../logging/Logger.h"
-#include "../window/Window.h"
 
 namespace term_engine::shaders {
   ShaderList shader_list;
@@ -23,27 +22,50 @@ namespace term_engine::shaders {
     logging::logger->debug("Program:         {}", prog_result);
   }
 
-  ShaderPtr GetShader(const std::string& name) {
-    return shader_list.at(name);
+  bool ShaderExists(const std::string& name)
+  {
+    return shader_list.find(name) != shader_list.end();
   }
 
-  ShaderPtr AddShader(const std::string& name) {
+  ShaderPtr GetShader(const std::string& name)
+  {
+    auto result = shader_list.find(name);
+
+    if (result == shader_list.end()) {
+      logging::logger->warn("Could not find shader \"{}\".", name);
+
+      return nullptr;
+    }
+    else {
+      return result->second;
+    }
+  }
+
+  ShaderPtr AddShader(const std::string& name)
+  {
     auto shader = shader_list.emplace(std::make_pair(name, std::make_shared<Shader>(name)));
+
+    if (shader.second) {
+      logging::logger->info("Added shader \"{}\".", name);
+    }
 
     return shader.first->second;
   }
 
-  void RemoveShader(const std::string& name) {
+  void RemoveShader(const std::string& name)
+  {
     shader_list.erase(name);
   }
 
-  void CleanUpShaders() {
+  void CleanUpShaders()
+  {
     shader_list.clear();
   }
 
-  void GetPointerUsage() {
+  void GetPointerUsage()
+  {
     for (ShaderIter shader : shader_list) {
-      logging::logger->info("Shader {} has {} refs.", shader.first, shader.second.use_count());
+      logging::logger->info("Shader \"{}\" has {} refs.", shader.first, shader.second.use_count());
     }
   }
 }

@@ -13,10 +13,6 @@ namespace term_engine::drawing {
   void DrawLine(glyphs::GlyphSet& glyph_set, const glm::ivec2& start_pos, const glm::ivec2& end_pos, const glyphs::GlyphParams& glyph);
   void DrawBox(glyphs::GlyphSet& glyph_set, const glm::ivec2& start_pos, const glm::ivec2& end_pos, const glyphs::GlyphParams& glyph);
   void DrawOutlinedBox(glyphs::GlyphSet& glyph_set, const glm::ivec2& start_pos, const glm::ivec2& end_pos, const glyphs::GlyphParams& glyph);
-
-  void MoveGlyph(glyphs::GlyphSet& glyph_set, const glm::ivec2& source_pos, const glm::ivec2& dest_pos);
-  void MoveLine(glyphs::GlyphSet& glyph_set, const glm::ivec2& source_pos, const glm::ivec2& dest_pos);
-  void MoveBox(glyphs::GlyphSet& glyph_set, const glm::ivec2& source_pos, const glm::ivec2& dest_pos);
 }
 
-#endif
+#endif // ! DRAW_FUNCTIONS_H

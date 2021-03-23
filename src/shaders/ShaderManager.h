@@ -16,6 +16,13 @@ namespace term_engine::shaders {
   /// Creates the default shader for rendering glyphs.
   void InitGlyphShader();
 
+  /// Checks if the shader with the given name exists in the list.
+  /**
+   * @param[in] name The shader name to check.
+   * @returns If the shader exists in the list.
+   */
+  bool ShaderExists(const std::string& name);
+
   /// Returns the shader with the given name.
   /**
    * @param[in] name The name of the shader to get.

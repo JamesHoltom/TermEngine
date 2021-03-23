@@ -53,44 +53,47 @@ namespace term_engine::drawing {
 
   void DrawBox(glyphs::GlyphSet& glyph_set, const glm::ivec2& start_pos, const glm::ivec2& end_pos, const glyphs::GlyphParams& glyph)
   {
+    glyphs::GlyphList& data = glyph_set.GetData();
+    const glm::uvec2 set_size = glyph_set.GetSize();
+    const glm::uvec2 dimensions = end_pos - start_pos;
+    const size_t index = ((size_t)start_pos.y * (size_t)set_size.x) + (size_t)start_pos.x;
 
+    size_t x_count = 0;
+    size_t y_count = 0;
+
+    while (y_count <= dimensions.y) {
+      data.at(index + (y_count * set_size.x) + x_count).SetParams(glyph);
+
+      if (x_count == dimensions.x) {
+        x_count = 0;
+        ++y_count;
+      }
+      else {
+        ++x_count;
+      }
+    }
   }
 
   void DrawOutlinedBox(glyphs::GlyphSet& glyph_set, const glm::ivec2& start_pos, const glm::ivec2& end_pos, const glyphs::GlyphParams& glyph)
   {
     glyphs::GlyphList& data = glyph_set.GetData();
     const size_t set_width = glyph_set.GetSize().x;
-    const glm::ivec2 dimensions = end_pos - start_pos;
+    const glm::ivec2 dimensions = end_pos - start_pos + glm::ivec2(1);
 
     size_t index = (start_pos.y *  set_width) + start_pos.x;
 
     // Render the top and bottom sections of the box.
-    for (size_t row = index; row < dimensions.x; ++row) {
-      data.at(row).SetParams(glyph);
-      data.at(row + (((size_t)dimensions.y - 1) * set_width)).SetParams(glyph);
+    for (size_t row = 0; row < dimensions.x; ++row) {
+      data.at(index + row).SetParams(glyph);
+      data.at(index + row + (((size_t)dimensions.y - 1) * set_width)).SetParams(glyph);
     }
 
     index += set_width;
 
     // Render the left and right sections of the box.
     for (int column = 0; column < dimensions.y - 2; ++column) {
-      data.at(index + (column * set_width) + start_pos.x).SetParams(glyph);
-      data.at(index + (column * set_width) + end_pos.x - 1).SetParams(glyph);
+      data.at(index + (column * set_width)).SetParams(glyph);
+      data.at(index + (column * set_width) + dimensions.x - 1).SetParams(glyph);
     }
-  }
-
-  void MoveGlyph(glyphs::GlyphSet& glyph_set, const glm::ivec2& source_pos, const glm::ivec2& dest_pos)
-  {
-
-  }
-
-  void MoveLine(glyphs::GlyphSet& glyph_set, const glm::ivec2& source_pos, const glm::ivec2& dest_pos)
-  {
-
-  }
-
-  void MoveBox(glyphs::GlyphSet& glyph_set, const glm::ivec2& source_pos, const glm::ivec2& dest_pos)
-  {
-
   }
 }

@@ -2,16 +2,22 @@
 
 #include "FontAtlasManager.h"
 #include "../logging/Logger.h"
+#include "../utility/FTUtils.h"
 
 namespace term_engine::fonts {
-  FT_Library font_library;
   FontAtlasList font_atlas_list;
 
-  FontAtlasPtr GetFontAtlas(const std::string& font_path) {
-    auto result = font_atlas_list.find(font_path);
+  bool FontAtlasExists(const FontAtlasKey& key)
+  {
+    return font_atlas_list.find(key) != font_atlas_list.end();
+  }
+
+  FontAtlasPtr GetFontAtlas(const FontAtlasKey& key)
+  {
+    auto result = font_atlas_list.find(key);
 
     if (result == font_atlas_list.end()) {
-      logging::logger->warn("Could not find font atlas \"{}\".", font_path);
+      logging::logger->warn("Could not find font atlas \"{}\" with size {}.", key.first, key.second);
 
       return nullptr;
     }
@@ -20,18 +26,19 @@ namespace term_engine::fonts {
     }
   }
 
-  FontAtlasPtr AddFontAtlas(const std::string& font_path, const int& glyph_height) {
-    auto font_atlas = font_atlas_list.emplace(std::make_pair(font_path, std::make_shared<FontAtlas>(font_library, font_path, glyph_height)));
+  FontAtlasPtr AddFontAtlas(const FontAtlasKey& key)
+  {
+    auto font_atlas = font_atlas_list.emplace(std::make_pair(key, std::make_shared<FontAtlas>(FT::font_library, key.first, key.second)));
 
     if (font_atlas.second) {
-      logging::logger->info("Added font atlas \"{}\".", font_path);
+      logging::logger->info("Added font atlas \"{}\" with size {}.", key.first, key.second);
     }
 
     return font_atlas.first->second;
   }
 
-  void RemoveFontAtlas(const std::string& font_path) {
-    font_atlas_list.erase(font_path);
+  void RemoveFontAtlas(const FontAtlasKey& key) {
+    font_atlas_list.erase(key);
   }
 
   void CleanUpFontAtlas() {
@@ -40,7 +47,7 @@ namespace term_engine::fonts {
 
   void GetPointerUsage() {
     for (FontAtlasIter font : font_atlas_list) {
-      logging::logger->info("Font {} has {} refs.", font.first, font.second.use_count());
+      logging::logger->info("Font \"{}\" with size {} has {} refs.", font.first.first, font.first.second, font.second.use_count());
     }
   }
 }

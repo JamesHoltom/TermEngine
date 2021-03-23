@@ -4,13 +4,16 @@ layout (points) in;
 layout (triangle_strip, max_vertices = 4) out;
 
 layout (std140, binding = 0) uniform CommonData {
-	mat4 projection;
+	mat4 projection_;
+	vec2 font_size_;
+	vec2 set_position_;
+	vec2 set_padding_;
+	vec2 set_spacing_;
 };
 
 in GS_DATA
 {
 	float texture_layer;
-	vec2 scale;
 	vec4 foreground_color;
 	vec4 background_color;
 } gs_data[];
@@ -33,17 +36,17 @@ void draw_quad(vec4 position)
 	EmitVertex();
 	
 	// Bottom-left corner.
-	gl_Position = position + (projection * vec4(0.0f, gs_data[0].scale.y, 0.0f, 0.0f));
+	gl_Position = position + (projection_ * vec4(0.0f, font_size_.y, 0.0f, 0.0f));
 	fs_data.texture_position = vec3(0.0f, 1.0f, gs_data[0].texture_layer);
 	EmitVertex();
 	
 	// Top-right corner.
-	gl_Position = position + (projection * vec4(gs_data[0].scale.x, 0.0f, 0.0f, 0.0f));
+	gl_Position = position + (projection_ * vec4(font_size_.x, 0.0f, 0.0f, 0.0f));
 	fs_data.texture_position = vec3(1.0f, 0.0f, gs_data[0].texture_layer);
 	EmitVertex();
 	
 	// Bottom-right corner.
-	gl_Position = position + (projection * vec4(gs_data[0].scale.x, gs_data[0].scale.y, 0.0f, 0.0f));
+	gl_Position = position + (projection_ * vec4(font_size_.x, font_size_.y, 0.0f, 0.0f));
 	fs_data.texture_position = vec3(1.0f, 1.0f, gs_data[0].texture_layer);
 	EmitVertex();
 }

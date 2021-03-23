@@ -52,4 +52,4 @@ namespace term_engine {
   }
 }
 
-#endif // !COLOR_H
+#endif // ! COLOR_H

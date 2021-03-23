@@ -1,4 +1,6 @@
 #include "application/Application.h"
+#include "system/CLArguments.h"
+#include "system/Init.h"
 
 /// The entrypoint of the program.
 /**
@@ -7,8 +9,13 @@
  * @returns A status code indicating how the program ended.
  */
 int main(int argc, char** argv) {
+  term_engine::system::GetCLArguments(argc, argv);
+  
+  term_engine::system::Init();
   term_engine::application::Init();
+
   term_engine::application::Run();
+
   term_engine::application::CleanUp();
 
   return 0;

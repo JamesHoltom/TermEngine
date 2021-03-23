@@ -1,12 +1,14 @@
 #include "ScriptingInterface.h"
-#include "../logging/Logger.h"
+#include "../data/Uniform.h"
+#include "../drawing/DrawFunctions.h"
 #include "../events/InputManager.h"
 #include "../glyphs/GlyphSet.h"
-#include "../drawing/DrawFunctions.h"
+#include "../logging/Logger.h"
 #include "../scenes/SceneManager.h"
-#include "../window/Window.h"
+#include "../system/CLArguments.h"
+#include "../system/FileFunctions.h"
+#include "../system/Window.h"
 #include "../utility/Color.h"
-#include "../utility/FileUtils.h"
 
 namespace term_engine::scripting {
   void InitInterface() {
@@ -54,101 +56,97 @@ namespace term_engine::scripting {
       "background_color", &glyphs::GlyphData::background_color_);
 
     lua_state.create_named_table("window",
-      "getSize", &windows::GetWindowSize,
-      "setSize", &windows::SetWindowSize,
-      "getClearColor", &windows::GetWindowClearColor,
-      "setClearColor", &windows::SetWindowClearColor);
+      "getSize", &system::GetWindowSize,
+      "setSize", &system::SetWindowSize,
+      "getClearColor", &system::GetWindowClearColor,
+      "setClearColor", &system::SetWindowClearColor);
+
+    lua_state.create_named_table("glyphSet",
+      "getPosition", &data::GetPosition,
+      "setPosition", &data::SetPosition,
+      "getPadding", &data::GetPadding,
+      "setPadding", &data::SetPadding,
+      "getSpacing", &data::GetSpacing,
+      "setSpacing", &data::SetSpacing,
+      "getSize", [&]() { return scenes::active_scene_->GetGlyphSet()->GetSize(); },
+      "getSize", [&](const glm::uvec2& size) { return scenes::active_scene_->GetGlyphSet()->SetSize(size); },
+      "glyph", lua_state.create_table_with(
+        "count", [&]() { return scenes::active_scene_->GetGlyphSet()->GetCount(); },
+        "resetPositions", [&]() { return scenes::active_scene_->GetGlyphSet()->ResetAllPositions(); },
+        "isDirty", [&]() { return scenes::active_scene_->GetGlyphSet()->IsDirty(); }
+      ),
+      "font", lua_state.create_table_with(
+        "getFontSize", [&]() { return scenes::active_scene_->GetFont()->GetFontSize(); },
+        "getPixelSize", [&]() { return scenes::active_scene_->GetFont()->GetTextureSize(); }
+      ));
+
+    lua_state.create_named_table("draw",
+      "text", [&](const std::string& text, const glm::ivec2& start_pos, const glm::ivec2& end_pos, const glm::vec4& fg_color, const glm::vec4& bg_color) {
+        drawing::WriteText(*(scenes::active_scene_->GetGlyphSet()), start_pos, end_pos, text, fg_color, bg_color);
+      },
+      "box", [&](const char& character, const glm::ivec2& start_pos, const glm::ivec2& end_pos, const glm::vec4& foreground_color, const glm::vec4& background_color) {
+        glyphs::GlyphParams params(character, glm::vec2(0.0f), foreground_color, background_color);
+        drawing::DrawBox(*(scenes::active_scene_->GetGlyphSet()), start_pos, end_pos, params);
+      },
+      "outlinedBox", [&](const char& character, const glm::ivec2& start_pos, const glm::ivec2& end_pos, const glm::vec4& foreground_color, const glm::vec4& background_color) {
+        glyphs::GlyphParams params(character, glm::vec2(0.0f), foreground_color, background_color);
+        drawing::DrawOutlinedBox(*(scenes::active_scene_->GetGlyphSet()), start_pos, end_pos, params);
+      });
+
+    lua_state.create_named_table("mouse",
+      "LEFT", SDL_BUTTON_LEFT,
+      "MIDDLE", SDL_BUTTON_MIDDLE,
+      "RIGHT", SDL_BUTTON_RIGHT,
+      "isDown", &events::MouseIsDown,
+      "isPressed", &events::MouseIsPressed,
+      "isReleased", &events::MouseIsReleased,
+      "position", [&]() { return events::mouse_position; },
+      "movement", [&]() { return events::mouse_position_delta; });
+    
+    lua_state.create_named_table("keyboard",
+      "isDown", &events::KeyIsDown,
+      "isPressed", &events::KeyIsPressed,
+      "isReleased", &events::KeyIsReleased);
+
+    lua_state.create_named_table("project",
+      "load", [&](const std::string& project_path) {},
+      "reload", [&]() {},
+      "unload", [&]() {});
 
     lua_state.create_named_table("wireframe",
-      "enable", &windows::EnableWireframe,
-      "disable", &windows::DisableWireframe);
+      "enable", &system::EnableWireframe,
+      "disable", &system::DisableWireframe);
 
     lua_state["getFileList"] = [&](const std::string& directory) {
-      return file::GetFileList(file::GetRelative(directory));
+      return system::GetFileList(system::GetRelative(directory));
     };
 
     lua_state["getFolderList"] = [&](const std::string& directory) {
-      return file::GetFolderList(file::GetRelative(directory));
+      return system::GetFolderList(system::GetRelative(directory));
     };
 
-    lua_state["loadProject"] = [&](const std::string& project_path) {
+    lua_state["Init"] = [&]() {
+      logging::logger->info("TermEngine has initialised!");
 
+      return true;
     };
-    lua_state["reloadProject"] = [&]() {
+    lua_state["Loop"] = [&]() {};
+    lua_state["Quit"] = [&]() {
+      logging::logger->info("TermEngine is quitting!");
 
+      return true;
     };
-    lua_state["unloadProject"] = [&]() {
-
-    };
-
-    lua_state["getPosition"] = [&]() {
-      return scenes::active_scene_->GetGlyphSet()->GetPosition();
-    };
-    lua_state["setPosition"] = [&](const glm::vec2& position) {
-      scenes::active_scene_->GetGlyphSet()->SetPosition(position);
-    };
-    lua_state["getPadding"] = [&]() {
-      return scenes::active_scene_->GetGlyphSet()->GetPadding();
-    };
-    lua_state["setPadding"] = [&](const glm::vec2& padding) {
-      scenes::active_scene_->GetGlyphSet()->SetPadding(padding);
-    };
-    lua_state["getSpacing"] = [&]() {
-      return scenes::active_scene_->GetGlyphSet()->GetSpacing();
-    };
-    lua_state["setSpacing"] = [&](const glm::vec2& spacing) {
-      scenes::active_scene_->GetGlyphSet()->SetSpacing(spacing);
-    };
-    lua_state["getGlyphSetSize"] = [&]() {
-      return scenes::active_scene_->GetGlyphSet()->GetSize();
-    };
-    lua_state["setGlyphSetSize"] = [&](const glm::uvec2& size) {
-      scenes::active_scene_->GetGlyphSet()->SetSize(size);
-    };
-    lua_state["getFontPath"] = [&]() {
-      return scenes::active_scene_->GetGlyphSet()->GetFontPath();
-    };
-    lua_state["setFontPath"] = [&](const std::string& font_path) {
-      scenes::active_scene_->GetGlyphSet()->SetFont(font_path);
-    };
-    lua_state["getGlyphCount"] = [&]() {
-      return scenes::active_scene_->GetGlyphSet()->GetCount();
-    };
-    lua_state["resetGlyphOffsets"] = [&]() {
-      scenes::active_scene_->GetGlyphSet()->ResetAllOffsets();
-    };
-    lua_state["resetGlyphScale"] = [&]() {
-      scenes::active_scene_->GetGlyphSet()->ResetAllScale();
-    };
-
-    lua_state["isSetDirty"] = [&]() {
-      return scenes::active_scene_->GetGlyphSet()->IsDirty();
-    };
-
-    lua_state["writeText"] = [&](const std::string& text, const glm::ivec2& start_pos, const glm::ivec2& end_pos, const glm::vec4& fg_color, const glm::vec4& bg_color) {
-      drawing::WriteText(*(scenes::active_scene_->GetGlyphSet()), start_pos, end_pos, text, fg_color, bg_color);
-    };
-    lua_state["drawOutlinedBox"] = [&](const char& character, const glm::ivec2& start_pos, const glm::ivec2& end_pos, const glm::vec4& foreground_color, const glm::vec4& background_color) {
-      glyphs::GlyphParams params(character, glm::vec2(0.0f), glm::vec2(20.0f, 32.0f), foreground_color, background_color);
-      drawing::DrawOutlinedBox(*(scenes::active_scene_->GetGlyphSet()), start_pos, end_pos, params);
-    };
-
-    lua_state["mouseIsDown"] = &events::MouseIsDown;
-    lua_state["mouseIsPressed"] = &events::MouseIsPressed;
-    lua_state["mouseIsReleased"] = &events::MouseIsReleased;
-    lua_state["mousePosition"] = [&]() {
-      return events::mouse_position;
-    };
-    lua_state["mouseMovement"] = [&]() {
-      return events::mouse_position_delta;
-    };
-    lua_state["keyIsDown"] = &events::KeyIsDown;
-    lua_state["keyIsPressed"] = &events::KeyIsPressed;
-    lua_state["keyIsReleased"] = &events::KeyIsReleased;
   }
 
   void InitScript() {
-    Load("resources/scripts/init.lua");
+    if (system::script_path != "" && system::IsValidPath(system::script_path)) {
+      logging::logger->info("Loading project...");
+      Load(system::script_path);
+    }
+    else {
+      logging::logger->info("No project to load!");
+      Load(std::string(DEFAULT_SCRIPT_PATH));
+    }
   }
 
   void CleanUp() {

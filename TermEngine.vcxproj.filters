@@ -69,22 +69,28 @@
     <ClCompile Include="src\utility\GLUtils.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\utility\Init.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\utility\LoggingUtils.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\window\Window.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\main.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\utility\FileUtils.cc">
+    <ClCompile Include="src\data\Uniform.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\shaders\CommonUniform.cc">
+    <ClCompile Include="src\system\CLArguments.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\system\Init.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\system\FileFunctions.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\system\Window.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utility\SDLUtils.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -146,9 +152,6 @@
     <ClInclude Include="src\utility\GLUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\utility\Init.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\utility\LoggingUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -158,16 +161,25 @@
     <ClInclude Include="src\utility\SolUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\window\Window.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\scripting\ScriptingInterface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\utility\FileUtils.h">
+    <ClInclude Include="src\data\Uniform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\shaders\CommonUniform.h">
+    <ClInclude Include="src\system\CLArguments.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\system\Init.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\system\FileFunctions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\system\Window.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utility\GenericUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

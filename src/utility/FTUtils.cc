@@ -2,6 +2,8 @@
 #include "../logging/Logger.h"
 
 namespace FT {
+  FT_Library font_library;
+
   FT_Error Log(FT_Error result)
   {
     if (result != FT_Err_Ok) {
@@ -117,5 +119,27 @@ namespace FT {
     }
 
     return result;
+  }
+
+  int InitFreeType()
+  {
+    FT_Error err = Log(FT_Init_FreeType(&font_library));
+
+    if (err != FT_Err_Ok) {
+      term_engine::logging::logger->error("Failed to initialise FreeType. Received error #{}", err);
+
+      return 1;
+    }
+
+    term_engine::logging::logger->debug("Initialised FreeType.");
+
+    return 0;
+  }
+
+  void CleanUpFreeType()
+  {
+    Log(FT_Done_FreeType(font_library));
+
+    term_engine::logging::logger->debug("Shut down FreeType.");
   }
 }

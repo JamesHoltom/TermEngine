@@ -2,10 +2,15 @@
 #include <iostream>
 #include <sstream>
 
-#include "FileUtils.h"
+#include "FileFunctions.h"
 #include "../logging/Logger.h"
 
-namespace term_engine::file {
+namespace term_engine::system {
+  bool IsValidPath(const std::filesystem::path& file_path)
+  {
+    return std::filesystem::exists(file_path);
+  }
+
   std::string ReadFromFile(const std::string& file_path)
   {
     std::ifstream file_stream;

@@ -13,31 +13,35 @@ namespace term_engine::fonts {
   /// The default font size to use when running the engine.
   constexpr int DEFAULT_FONT_SIZE = 16;
 
-  /// The FreeType library instance used to manage and render fonts.
-  extern FT_Library font_library;
   /// Stores a list of font atlas's.
   extern FontAtlasList font_atlas_list;
 
+  /// Checks if the given font path/size exists in the list.
+  /**
+   * @param[in] key The font path/size pair to check.
+   * @returns If the pair exists in the list.
+   */
+  bool FontAtlasExists(const FontAtlasKey& key);
+
   /// Returns a font atlas from the list.
   /** 
-   * @param[in] key_name The key name of the font atlas to get.
+   * @param[in] key The font path/size pair to retrieve.
    * @returns A pointer to the font atlas, or `nullptr` if it was not found.
    */
-  FontAtlasPtr GetFontAtlas(const std::string& key_name);
+  FontAtlasPtr GetFontAtlas(const FontAtlasKey& key);
   
   /// Adds a new font atlas to the list.
-  /** 
-   * @param[in] font_path    The filepath to the font to initialise the font atlas with.
-   * @param[in] glyph_height The font size to initialise the font atlas with.
+  /**
+   * @param[in] key The font path/size pair to add.
    * @returns A pointer to the newly created font atlas.
    */
-  FontAtlasPtr AddFontAtlas(const std::string& font_path, const int& glyph_height);
+  FontAtlasPtr AddFontAtlas(const FontAtlasKey& key);
 
   /// Removes a font atlas from the list.
   /** 
-   * @param[in] key_name The key name of the font atlas to remove.
+   * @param[in] key The font path/size pair to remove.
    */
-  void RemoveFontAtlas(const std::string& key_name);
+  void RemoveFontAtlas(const FontAtlasKey& key);
 
   /// Removes all font atlas from the list.
   void CleanUpFontAtlas();

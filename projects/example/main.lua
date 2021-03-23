@@ -1,23 +1,15 @@
 function Init()
-	local glyph_set = activeScene:getGlyphSet()
-	local size = glyph_set.size
-
-	for x = 0, size.x - 1 do
-		for y = 0, size.y - 1 do
-			local glyph = glyph_set:get(vec2u(x,y))
-			glyph.character = "B"
-			glyph.foreground_color = Color(1 - (x / size.x), 1, 1 - (y / size.y), 1)
-			glyph.background_color = Color(1, 1, 1, 0.5)
-		end
-	end
-
-	glyph_set:refresh()
+	draw.outlinedBox("#", ivec2(0, 0), ivec2(31, 15), vec4(0, 0, 255, 255), vec4(0, 0, 0, 255))
+	draw.box("x", ivec2(1, 5), ivec2(30, 14), vec4(255, 0, 0, 255), vec4(255, 255, 255 ,255))
+	draw.text("Hello World!", ivec2(1, 1), ivec2(30, 1), vec4(255, 255, 255, 255), vec4(0, 0, 0, 255))
+	
+	print("Hello World!")
 	
 	return true
 end
 
 function Loop()
-	if mouseIsPressed(1) then
+	if mouse.isPressed(mouse.LEFT) then
 		print("Pressed")
 	end
 end

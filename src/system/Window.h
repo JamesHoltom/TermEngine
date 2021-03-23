@@ -9,7 +9,7 @@
 #include "../utility/SDLUtils.h"
 #include "../utility/GLUtils.h"
 
-namespace term_engine::windows {
+namespace term_engine::system {
   /// The default width of the window.
   constexpr int DEFAULT_WIDTH = 640;
   /// The default height of the window.
@@ -29,11 +29,12 @@ namespace term_engine::windows {
   /// Prepares the window for use.
   /**
    * When successfully initialised, _term_engine::InitGLEW_ is called.
+   * @returns Was the window successfully created?
    */
-  void Init();
+  int InitWindow();
 
   /// Shuts the window down.
-  void CleanUp();
+  void CleanUpWindow();
 
   /// Returns the size of the window.
   /**
@@ -58,6 +59,12 @@ namespace term_engine::windows {
    * @param[in] color The clear color to use.
    */
   void SetWindowClearColor(const glm::uvec3& color);
+
+  /// Clears the window, ready for the next frame.
+  void ClearWindow();
+
+  /// Flips the window buffers, rendering the current frame's buffer to the screen.
+  void RefreshWindow();
 
   /// Enables wireframe rendering.
   void EnableWireframe();

@@ -8,6 +8,7 @@
 #include <unordered_map>
 
 #include "../utility/FTUtils.h"
+#include "../utility/GenericUtils.h"
 #include "../utility/GLUtils.h"
 
 namespace term_engine::fonts {
@@ -17,10 +18,12 @@ namespace term_engine::fonts {
   typedef std::unordered_map<FT_UInt32, GLuint> GlyphList;
   /// Smart pointer used to share a single instance of a font atlas.
   typedef std::shared_ptr<FontAtlas> FontAtlasPtr;
+  /// Represents the font path/size, and is used as the key in the list.
+  typedef std::pair<std::string, int> FontAtlasKey;
   /// Used to store a list of font atlas, with the font path as the key.
-  typedef std::unordered_map<std::string, FontAtlasPtr> FontAtlasList;
+  typedef std::unordered_map<FontAtlasKey, FontAtlasPtr, PairHashingFunction> FontAtlasList;
   /// Iterates over the elements of a _FontAtlasList_.
-  typedef std::pair<std::string, FontAtlasPtr> FontAtlasIter;
+  typedef std::pair<FontAtlasKey, FontAtlasPtr> FontAtlasIter;
   
   /// Responsible for storing and rendering glyphs for a single font and size.
   /** 
@@ -35,6 +38,13 @@ namespace term_engine::fonts {
      * @param[in] glyph_size The size of the glyphs to render, in pixels (px).
      */
     FontAtlas(const FT_Library& library, const std::string& font_path, const int& glyph_size);
+
+    /// Constructs the font atlas.
+    /**
+     * @param[in] library An instance of the FreeType library.
+     * @param[in] font_key The font path/size pair to use.
+     */
+    FontAtlas(const FT_Library& library, const FontAtlasKey& font_key);
 
     /// Destroys the font atlas.
     ~FontAtlas();
@@ -70,7 +80,7 @@ namespace term_engine::fonts {
     /** 
      * @returns The size of the atlas texture.
      */
-    glm::uvec2 GetTextureSize() const;
+    glm::vec2 GetTextureSize() const;
 
     /// Binds the atlas texture ready for OpenGL to render.
     void Use() const;
@@ -92,9 +102,15 @@ namespace term_engine::fonts {
     /// The next available texture layer to use when loading a new glyph.
     GLuint texture_position_;
     /// The size of the atlas texture. This includes the maximum ascender and descender.
-    glm::uvec2 texture_size_;
+    glm::vec2 texture_size_;
     /// The maximum number of layers allowed in the glyph atlas.
     GLint texture_max_layers_;
+
+    /// Initialise the font atlas.
+    /**
+     * @param[in] library An instance of the FreeType library.
+     */
+    void Init(const FT_Library& library);
 
     /// Loads a glyph from the font, and stores it in the atlas texture.
     /** 

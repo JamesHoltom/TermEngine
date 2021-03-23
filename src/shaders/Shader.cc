@@ -2,8 +2,8 @@
 #include <sstream>
 
 #include "Shader.h"
-#include "../utility/FileUtils.h"
 #include "../logging/Logger.h"
+#include "../system/FileFunctions.h"
 
 namespace term_engine::shaders {
   Shader::Shader(const std::string& name):
@@ -53,7 +53,7 @@ namespace term_engine::shaders {
 
   bool Shader::BuildStageFromFile(const std::string& filename, const GLenum& type)
   {
-    std::string source_string = file::ReadFromFile(filename);
+    std::string source_string = system::ReadFromFile(filename);
 
     return BuildStageFromString({ source_string.c_str() }, type);
   }

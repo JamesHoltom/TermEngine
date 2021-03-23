@@ -38,4 +38,4 @@ std::ostream& operator<< (std::ostream& os, const glm::uvec2& value);
   */
 std::ostream& operator<< (std::ostream& os, const glm::ivec2& value);
 
-#endif
+#endif // ! LOGGING_UTILS_H

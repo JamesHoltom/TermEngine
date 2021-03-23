@@ -91,4 +91,4 @@ namespace term_engine::events {
   bool KeyIsReleased(const std::string& key);
 }
 
-#endif
+#endif // ! INPUT_MANAGER_H

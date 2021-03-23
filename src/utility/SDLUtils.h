@@ -21,6 +21,20 @@ namespace SDL {
 #endif
   }
 
+  struct WindowDestroyer;
+  struct RendererDestroyer;
+  struct SurfaceDestroyer;
+  struct TextureDestroyer;
+
+  /// Wraps _SDL_Window_ with a smart pointer to allow automatic cleanup.
+  typedef std::unique_ptr<SDL_Window, WindowDestroyer> Window;
+  /// Wraps _SDL_Renderer_ with a smart pointer to allow automatic cleanup.
+  typedef std::unique_ptr<SDL_Renderer, RendererDestroyer> Renderer;
+  /// Wraps _SDL_Surface_ with a smart pointer to allow automatic cleanup.
+  typedef std::unique_ptr<SDL_Surface, SurfaceDestroyer> Surface;
+  /// Wraps _SDL_Texture_ with a smart pointer to allow automatic cleanup.
+  typedef std::unique_ptr<SDL_Texture, TextureDestroyer> Texture;
+
   /// Smart pointer destructor used to destroy a _SDL_Window_.
   struct WindowDestroyer {
     /// @param[in,out] window The window to destroy.
@@ -61,14 +75,14 @@ namespace SDL {
     }
   };
 
-  /// Wraps _SDL_Window_ with a smart pointer to allow automatic cleanup.
-  typedef std::unique_ptr<SDL_Window, WindowDestroyer> Window;
-  /// Wraps _SDL_Renderer_ with a smart pointer to allow automatic cleanup.
-  typedef std::unique_ptr<SDL_Renderer, RendererDestroyer> Renderer;
-  /// Wraps _SDL_Surface_ with a smart pointer to allow automatic cleanup.
-  typedef std::unique_ptr<SDL_Surface, SurfaceDestroyer> Surface;
-  /// Wraps _SDL_Texture_ with a smart pointer to allow automatic cleanup.
-  typedef std::unique_ptr<SDL_Texture, TextureDestroyer> Texture;
+  /// Initialises SDL.
+  /**
+   * @returns Was SDL successfully initialised?
+   */
+  int InitSDL();
+
+  /// Shuts down SDL.
+  void CleanUpSDL();
 }
 
 #endif // ! SDL_UTILS_H

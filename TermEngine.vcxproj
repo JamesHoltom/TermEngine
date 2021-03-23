@@ -172,9 +172,9 @@
     <ClCompile Include="src\fonts\FontAtlas.cc" />
     <ClCompile Include="src\fonts\FontAtlasManager.cc" />
     <ClCompile Include="src\glyphs\Glyph.cc" />
-    <ClCompile Include="src\shaders\CommonUniform.cc" />
-    <ClCompile Include="src\utility\FileUtils.cc" />
-    <ClCompile Include="src\utility\Init.cc" />
+    <ClCompile Include="src\data\Uniform.cc" />
+    <ClCompile Include="src\system\FileFunctions.cc" />
+    <ClCompile Include="src\system\Init.cc" />
     <ClCompile Include="src\main.cc" />
     <ClCompile Include="src\scenes\Scene.cc" />
     <ClCompile Include="src\scripting\ScriptingInterface.cc" />
@@ -185,20 +185,22 @@
     <ClCompile Include="src\utility\GLUtils.cc" />
     <ClCompile Include="src\logging\Logger.cc" />
     <ClCompile Include="src\utility\LoggingUtils.cc" />
-    <ClCompile Include="src\window\Window.cc" />
+    <ClCompile Include="src\system\CLArguments.cc" />
+    <ClCompile Include="src\system\Window.cc" />
     <ClCompile Include="src\scenes\SceneManager.cc" />
     <ClCompile Include="src\timing\FPSManager.cc" />
     <ClCompile Include="src\timing\Timer.cc" />
     <ClCompile Include="src\utility\DebugFunctions.cc" />
+    <ClCompile Include="src\utility\SDLUtils.cc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\application\Application.h" />
     <ClInclude Include="src\drawing\DrawFunctions.h" />
     <ClInclude Include="src\events\InputManager.h" />
     <ClInclude Include="src\scripting\ScriptingInterface.h" />
-    <ClInclude Include="src\shaders\CommonUniform.h" />
-    <ClInclude Include="src\utility\FileUtils.h" />
-    <ClInclude Include="src\utility\Init.h" />
+    <ClInclude Include="src\data\Uniform.h" />
+    <ClInclude Include="src\system\FileFunctions.h" />
+    <ClInclude Include="src\system\Init.h" />
     <ClInclude Include="src\fonts\FontAtlas.h" />
     <ClInclude Include="src\fonts\FontAtlasManager.h" />
     <ClInclude Include="src\glyphs\Glyph.h" />
@@ -208,12 +210,14 @@
     <ClInclude Include="src\scenes\Scene.h" />
     <ClInclude Include="src\utility\Color.h" />
     <ClInclude Include="src\utility\FTUtils.h" />
+    <ClInclude Include="src\utility\GenericUtils.h" />
     <ClInclude Include="src\utility\GLUtils.h" />
     <ClInclude Include="src\utility\LoggingUtils.h" />
+    <ClInclude Include="src\system\CLArguments.h" />
     <ClInclude Include="src\utility\SDLUtils.h" />
     <ClInclude Include="src\utility\SolUtils.h" />
     <ClInclude Include="src\logging\Logger.h" />
-    <ClInclude Include="src\window\Window.h" />
+    <ClInclude Include="src\system\Window.h" />
     <ClInclude Include="src\scripting\Assert.h" />
     <ClInclude Include="src\scenes\SceneManager.h" />
     <ClInclude Include="src\timing\FPSManager.h" />

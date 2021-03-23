@@ -1,22 +1,21 @@
 #include "Window.h"
-#include "../utility/init.h"
-#include "../shaders/CommonUniform.h"
+#include "../data/Uniform.h"
 #include "../logging/Logger.h"
 
-namespace term_engine::windows {
+namespace term_engine::system {
   SDL_GLContext context;
   SDL::Window window;
   GLfloat window_color_r, window_color_g, window_color_b;
   GLuint window_render_mode;
 
-  void Init()
+  int InitWindow()
   {
     window = SDL::Window(SDL_CreateWindow("TermEngine", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, DEFAULT_WIDTH, DEFAULT_HEIGHT, SDL_WINDOW_OPENGL));
 
     if (window == nullptr) {
       logging::logger->error("An SDL error occurred: {}", SDL_GetError());
 
-      return;
+      return 1;
     }
 
     context = SDL_GL_CreateContext(window.get());
@@ -25,10 +24,8 @@ namespace term_engine::windows {
     if (context == NULL) {
       logging::logger->error("An SDL error occurred: {}", SDL_GetError());
 
-      return;
+      return 1;
     }
-
-    InitGLEW();
 
     SDL_GL_MakeCurrent(window.get(), context);
 
@@ -39,9 +36,11 @@ namespace term_engine::windows {
     window_render_mode = GL_FILL;
 
     logging::logger->debug("Created window.");
+
+    return 0;
   }
 
-  void CleanUp()
+  void CleanUpWindow()
   {
     SDL_GL_DeleteContext(context);
     window.reset();
@@ -60,7 +59,7 @@ namespace term_engine::windows {
   void SetWindowSize(const glm::ivec2& size)
   {
     SDL_SetWindowSize(window.get(), size.x, size.y);
-    shaders::ResetProjection();
+    data::SetProjection(size);
   }
 
   glm::uvec3 GetWindowClearColor()
@@ -73,6 +72,18 @@ namespace term_engine::windows {
     window_color_r = color.r / 255.0f;
     window_color_g = color.g / 255.0f;
     window_color_b = color.b / 255.0f;
+  }
+
+  void ClearWindow()
+  {
+    glPolygonMode(GL_FRONT_AND_BACK, window_render_mode);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glClearColor(window_color_r, window_color_g, window_color_b, 1.0f);
+  }
+
+  void RefreshWindow()
+  {
+    SDL_GL_SwapWindow(window.get());
   }
 
   void EnableWireframe()
