@@ -2,34 +2,76 @@
 
 #include "Application.h"
 #include "../logging/Logger.h"
+#include "../data/Uniform.h"
 #include "../events/InputManager.h"
-#include "../fonts/FontAtlasManager.h"
-#include "../glyphs/GlyphSet.h"
+#include "../fonts/FontAtlas.h"
+#include "../glyphs/Glyph.h"
+#include "../objects/BaseObject.h"
 #include "../scripting/ScriptingInterface.h"
-#include "../scenes/SceneManager.h"
-#include "../shaders/ShaderManager.h"
+#include "../shaders/Shader.h"
 #include "../system/Window.h"
+#include "../timing/FPSManager.h"
+#include "../utility/SDLUtils.h"
+#include "../utility/GLUtils.h"
+#include "../utility/FTUtils.h"
 #include "../timing/FPSManager.h"
 
 namespace term_engine::application {
   void Init()
   {
-    scripting::InitScript();
+    logging::InitLogger();
 
-    // Create the default scene, shader and font.
-    shaders::InitGlyphShader();
-    fonts::AddFontAtlas(fonts::FontAtlasKey(std::string(fonts::DEFAULT_FONT), fonts::DEFAULT_FONT_SIZE));
-    scenes::active_scene_ = scenes::AddScene("default");
+    if (SDL::InitSDL() > 0 || GL::InitGL() > 0 || FT::InitFreeType() > 0) {
+      logging::logger->critical("Failed to initialise SDL/GL/FT!");
+
+      exit(2);
+    }
+
+    if (system::InitWindow() > 0) {
+      logging::logger->critical("Failed to initialise window!");
+
+      exit(2);
+    }
+
+    if (GL::InitGLEW() > 0) {
+      logging::logger->critical("Failed to initialise GLEW!");
+
+      exit(2);
+    }
+
+    events::Init();
+
+    data::Init();
+    data::SetProjection(system::GetWindowSize());
+
+    if (shaders::Init() > 0 || fonts::Init() > 0 || glyphs::Init() > 0) {
+      logging::logger->error("Failed to initialise application!");
+
+      exit(3);
+    }
+
+    fonts::LoadChar(' ');
+
+    timing::InitFPS();
+    scripting::InitInterface();
+    scripting::InitScript();
 
     logging::logger->debug("Finished init!");
   }
 
   void CleanUp()
   {
+    objects::CleanUp();
     scripting::CleanUp();
-    scenes::CleanUpScenes();
-    fonts::CleanUpFontAtlas();
-    shaders::CleanUpShaders();
+    fonts::CleanUp();
+    shaders::CleanUp();
+
+    data::CleanUp();
+    events::CleanUp();
+    system::CleanUpWindow();
+
+    FT::CleanUpFreeType();
+    SDL::CleanUpSDL();
 
     logging::logger->debug("Cleaned up!");
   }
@@ -54,7 +96,8 @@ namespace term_engine::application {
 
       system::ClearWindow();
 
-      scenes::active_scene_->Render();
+      objects::Render();
+      glyphs::Render();
 
       system::RefreshWindow();
 

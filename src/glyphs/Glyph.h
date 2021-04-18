@@ -3,25 +3,41 @@
 #ifndef GLYPH_H
 #define GLYPH_H
 
-#include <ostream>
 #include <vector>
 
-#include "../utility/LoggingUtils.h"
+#include "../logging/Logger.h"
 #include "../utility/GLUtils.h"
 
 namespace term_engine::glyphs {
+  struct GlyphParams;
   struct BufferData;
-  struct GlyphData;
 
+  constexpr char DEFAULT_CHARACTER = ' ';
   /// The default foreground color (i.e. text color) to use for glyphs.
   constexpr glm::vec4 DEFAULT_FOREGROUND_COLOR = glm::vec4(1.0f);
   /// The default background color to use for glyphs.
   constexpr glm::vec4 DEFAULT_BACKGROUND_COLOR = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
-  /// Used to store a set of glyphs.
-  typedef std::vector<GlyphData> GlyphList;
   /// Used to store data in a VBO.
   typedef std::vector<BufferData> BufferList;
+
+  /// Used to construct _GlyphData_ objects on creation, and to pass glyph data around.
+  struct GlyphParams {
+    /// Constructs the glyph parameters.
+    /**
+     * @param[in] character        The character that the glyph represents.
+     * @param[in] foreground_color The foreground color, used for the text.
+     * @param[in] background_color The background color.
+     */
+    GlyphParams(const char& character = DEFAULT_CHARACTER, const glm::vec4& foreground_color = DEFAULT_FOREGROUND_COLOR, const glm::vec4& background_color = DEFAULT_BACKGROUND_COLOR);
+
+    /// The character that the glyph represents.
+    char character_;
+    /// The foreground color, used for the text.
+    glm::vec4 foreground_color_;
+    /// The background color.
+    glm::vec4 background_color_;
+  };
 
   /// Represents the glyph data that is passed to the GPU.
   /**
@@ -40,6 +56,10 @@ namespace term_engine::glyphs {
      */
     BufferData(const GLfloat& texture_layer, const glm::vec2& position, const glm::vec4& foreground_color, const glm::vec4& background_color);
 
+    void Set(const GlyphParams& params, const bool& normalised = false);
+
+    void SetPosition(const glm::vec2& position);
+
     /// Allows _std::stringstream_ to correctly parse a _InstanceData_ object.
     /**
      * @param[in] os   The stream to output the value to.
@@ -49,9 +69,9 @@ namespace term_engine::glyphs {
     friend std::ostream& operator<<(std::ostream& os, const BufferData& data) {
       return os << std::endl
         << "Texture layer: " << data.texture_layer_ << std::endl
-        << "Position: " << data.position_ << std::endl
-        << "Foreground colour: " << data.foreground_color_ << std::endl
-        << "Background colour: " << data.background_color_ << std::endl;
+        << "Position: " << data.position_.x << ", " << data.position_.y << std::endl
+        << "Foreground colour: " << data.foreground_color_.r << ", " << data.foreground_color_.g << ", " << data.foreground_color_.b << ", " << data.foreground_color_.a << std::endl
+        << "Background colour: " << data.background_color_.r << ", " << data.background_color_.g << ", " << data.background_color_.b << ", " << data.background_color_.a << std::endl;
     }
 
     /// The texture layer to render.
@@ -64,85 +84,18 @@ namespace term_engine::glyphs {
     glm::vec4 background_color_;
   };
 
-  /// Used to construct _GlyphData_ objects on creation, and to pass glyph data around.
-  struct GlyphParams {
-    /// Constructs the glyph parameters.
-    /**
-     * @param[in] character        The character that the glyph represents.
-     * @param[in] offset           The offset of the glyph, from its default position in the glyph set.
-     * @param[in] foreground_color The foreground color, used for the text.
-     * @param[in] background_color The background color.
-     */
-    GlyphParams(const char& character, const glm::vec2& offset, const glm::vec4& foreground_color, const glm::vec4& background_color);
+  /// Prepares the OpenGL buffers ready for use.
+  int Init();
+  void CleanUp();
+  void Render();
 
-    /// The character that the glyph represents.
-    char character_;
-    /// The offset of the glyph, from its default offset in the glyph set.
-    glm::vec2 offset_;
-    /// The foreground color, used for the text.
-    glm::vec4 foreground_color_;
-    /// The background color.
-    glm::vec4 background_color_;
-  };
-
-  /// Used to represent glyphs within a _GlyphSet_.
-  /**
-   * Unlike _GlyphParams_, these objects have a fixed position within a _GlyphSet_, which cannot be changed after creation.
-   */
-  struct GlyphData {
-    /// Do not allow _GlyphData_ objects to be constructed without parameters. The index, which relates to it's position within a _GlyphSet_, is required.
-    GlyphData() = delete;
-
-    /// Constructs the glyph data with the given index.
-    /**
-     * @param[in] index The offset of the glyph within the _GlyphSet_.
-     */
-    GlyphData(const glm::uvec2& index);
-
-    /// Constructs the glyph data with the given index and parameters.
-    /**
-     * @param[in] index The offset of the glyph within the _GlyphSet_.
-     * @param[in] glyph The parameters to construct the glyph with.
-     */
-    GlyphData(const glm::uvec2& index, const GlyphParams& glyph);
-
-    /// Sets the glyph's data with the given parameters.
-    /**
-     * @param[in] glyph The parameters to apply to the glyph.
-     */
-    void SetParams(const GlyphParams& glyph);
-
-    /**
-     * Clears the data, returning the object to default values.
-     */
-    void Clear();
-
-    /// Allows _std::stringstream_ to correctly parse a _GlyphData_ object.
-    /**
-     * @param[in] os   The stream to output the value to.
-     * @param[in] data The data to parse.
-     * @returns The updated stream.
-     */
-    friend std::ostream& operator<<(std::ostream& os, const GlyphData& data) {
-      return os << std::endl
-        << "Index:             " << data.index_ << std::endl
-        << "Position:          " << data.offset_ << std::endl
-        << "Character:         " << data.character_ << std::endl
-        << "Foreground colour: " << data.foreground_color_ << std::endl
-        << "Background colour: " << data.background_color_ << std::endl;
-    }
-
-    /// The position of the glyph within the _GlyphSet_.
-    const glm::uvec2 index_;
-    /// The character that the glyph represents.
-    char character_;
-    /// The offset of the glyph, from its default position in the glyph set.
-    glm::vec2 offset_;
-    /// The foreground color, used for the text.
-    glm::vec4 foreground_color_;
-    /// The background color.
-    glm::vec4 background_color_;
-  };
+  /// The _Vertex Array Object_ ID of the VAO used to contain both the quad's VBO, as well as the set's VBO.
+  extern GLuint vao_id;
+  /// The _Vertex Buffer Object_ ID of the VBO used to store the glyph's _BufferData_.
+  extern GLuint vbo_id;
+  extern glm::uvec2 dimensions;
+  extern BufferList data;
+  extern GlyphParams default_glyph;
 }
 
 #endif // ! GLYPH_H

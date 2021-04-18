@@ -1,6 +1,5 @@
 #include "application/Application.h"
 #include "system/CLArguments.h"
-#include "system/Init.h"
 
 /// The entrypoint of the program.
 /**
@@ -11,7 +10,6 @@
 int main(int argc, char** argv) {
   term_engine::system::GetCLArguments(argc, argv);
   
-  term_engine::system::Init();
   term_engine::application::Init();
 
   term_engine::application::Run();

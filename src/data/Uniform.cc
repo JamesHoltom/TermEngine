@@ -5,7 +5,7 @@ namespace term_engine::data {
   GLuint ubo_id;
   UniformData ubo_data;
 
-  void InitUBO()
+  void Init()
   {
     glGenBuffers(1, &ubo_id);
     glBindBuffer(GL_UNIFORM_BUFFER, ubo_id);
@@ -14,7 +14,7 @@ namespace term_engine::data {
     glBindBufferBase(GL_UNIFORM_BUFFER, 0, ubo_id);
   }
 
-  void CleanUpUBO()
+  void CleanUp()
   {
     glDeleteBuffers(1, &ubo_id);
   }
@@ -38,15 +38,6 @@ namespace term_engine::data {
   void SetFontSize(const glm::vec2& size)
   {
     ubo_data.font_size_ = size;
-
-    glBindBuffer(GL_UNIFORM_BUFFER, ubo_id);
-    glBufferSubData(GL_UNIFORM_BUFFER, offsetof(UniformData, font_size_), sizeof(glm::vec2), glm::value_ptr(ubo_data.font_size_));
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
-  }
-
-  void SetFontSize(const fonts::FontAtlasPtr& font)
-  {
-    ubo_data.font_size_ = font->GetTextureSize();
 
     glBindBuffer(GL_UNIFORM_BUFFER, ubo_id);
     glBufferSubData(GL_UNIFORM_BUFFER, offsetof(UniformData, font_size_), sizeof(glm::vec2), glm::value_ptr(ubo_data.font_size_));

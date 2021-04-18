@@ -1,14 +1,17 @@
+#include <memory>
+
 #include "ScriptingInterface.h"
 #include "../data/Uniform.h"
-#include "../drawing/DrawFunctions.h"
 #include "../events/InputManager.h"
-#include "../glyphs/GlyphSet.h"
 #include "../logging/Logger.h"
-#include "../scenes/SceneManager.h"
 #include "../system/CLArguments.h"
 #include "../system/FileFunctions.h"
 #include "../system/Window.h"
 #include "../utility/Color.h"
+
+#include "../objects/BoxObject.h"
+#include "../objects/OutlineBoxObject.h"
+#include "../objects/TextObject.h"
 
 namespace term_engine::scripting {
   void InitInterface() {
@@ -47,51 +50,45 @@ namespace term_engine::scripting {
       "z", &glm::vec4::z,
       "w", &glm::vec4::w);
 
-    sol::usertype<glyphs::GlyphData> glyph_data_type = lua_state.new_usertype<glyphs::GlyphData>(
+    sol::usertype<glyphs::GlyphParams> glyph_parameters_type = lua_state.new_usertype<glyphs::GlyphParams>(
       "Glyph",
+      sol::call_constructor, sol::constructors<void(const char&, const glm::vec4&, const glm::vec4&)>(),
+      "character", &glyphs::GlyphParams::character_,
+      "foreground_color", &glyphs::GlyphParams::foreground_color_,
+      "background_color", &glyphs::GlyphParams::background_color_);
+
+    sol::usertype<objects::BoxObject> box_object_type = lua_state.new_usertype<objects::BoxObject>(
+      "Box",
       sol::no_constructor,
-      "position", sol::readonly(&glyphs::GlyphData::index_),
-      "character", &glyphs::GlyphData::character_,
-      "foreground_color", &glyphs::GlyphData::foreground_color_,
-      "background_color", &glyphs::GlyphData::background_color_);
+      "position", sol::property(&objects::BoxObject::GetPosition, &objects::BoxObject::SetPosition));
+    
+    sol::usertype<objects::OutlinedBoxObject> outlined_box_object_type = lua_state.new_usertype<objects::OutlinedBoxObject>(
+      "OutlinedBox",
+      sol::no_constructor,
+      "position", sol::property(&objects::OutlinedBoxObject::GetPosition, &objects::OutlinedBoxObject::SetPosition));
+    
+    sol::usertype<objects::TextObject> text_object_type = lua_state.new_usertype<objects::TextObject>(
+      "Text",
+      sol::no_constructor,
+      "position", sol::property(&objects::TextObject::GetPosition, &objects::TextObject::SetPosition),
+      "text", sol::property(&objects::TextObject::GetText, &objects::TextObject::SetText));
+
+    lua_state.create_named_table("object",
+      "addBox", [=](const glm::ivec2& position, const glm::ivec2& size, const glyphs::GlyphParams& params) {
+        return (objects::BoxObject*)objects::object_list.emplace_back(new objects::BoxObject(position, size, params));
+      },
+      "addOutlinedBox", [=](const glm::ivec2& position, const glm::ivec2& size, const glyphs::GlyphParams& params) {
+        return (objects::OutlinedBoxObject*)objects::object_list.emplace_back(new objects::OutlinedBoxObject(position, size, params));
+      },
+      "addText", [=](const glm::ivec2& position, const glm::ivec2& size, const std::string& text, const glm::vec4& fg_color, const glm::vec4& bg_color) {
+        return (objects::TextObject*)objects::object_list.emplace_back(new objects::TextObject(text, position, fg_color, bg_color, size));
+      });
 
     lua_state.create_named_table("window",
       "getSize", &system::GetWindowSize,
       "setSize", &system::SetWindowSize,
       "getClearColor", &system::GetWindowClearColor,
       "setClearColor", &system::SetWindowClearColor);
-
-    lua_state.create_named_table("glyphSet",
-      "getPosition", &data::GetPosition,
-      "setPosition", &data::SetPosition,
-      "getPadding", &data::GetPadding,
-      "setPadding", &data::SetPadding,
-      "getSpacing", &data::GetSpacing,
-      "setSpacing", &data::SetSpacing,
-      "getSize", [&]() { return scenes::active_scene_->GetGlyphSet()->GetSize(); },
-      "getSize", [&](const glm::uvec2& size) { return scenes::active_scene_->GetGlyphSet()->SetSize(size); },
-      "glyph", lua_state.create_table_with(
-        "count", [&]() { return scenes::active_scene_->GetGlyphSet()->GetCount(); },
-        "resetPositions", [&]() { return scenes::active_scene_->GetGlyphSet()->ResetAllPositions(); },
-        "isDirty", [&]() { return scenes::active_scene_->GetGlyphSet()->IsDirty(); }
-      ),
-      "font", lua_state.create_table_with(
-        "getFontSize", [&]() { return scenes::active_scene_->GetFont()->GetFontSize(); },
-        "getPixelSize", [&]() { return scenes::active_scene_->GetFont()->GetTextureSize(); }
-      ));
-
-    lua_state.create_named_table("draw",
-      "text", [&](const std::string& text, const glm::ivec2& start_pos, const glm::ivec2& end_pos, const glm::vec4& fg_color, const glm::vec4& bg_color) {
-        drawing::WriteText(*(scenes::active_scene_->GetGlyphSet()), start_pos, end_pos, text, fg_color, bg_color);
-      },
-      "box", [&](const char& character, const glm::ivec2& start_pos, const glm::ivec2& end_pos, const glm::vec4& foreground_color, const glm::vec4& background_color) {
-        glyphs::GlyphParams params(character, glm::vec2(0.0f), foreground_color, background_color);
-        drawing::DrawBox(*(scenes::active_scene_->GetGlyphSet()), start_pos, end_pos, params);
-      },
-      "outlinedBox", [&](const char& character, const glm::ivec2& start_pos, const glm::ivec2& end_pos, const glm::vec4& foreground_color, const glm::vec4& background_color) {
-        glyphs::GlyphParams params(character, glm::vec2(0.0f), foreground_color, background_color);
-        drawing::DrawOutlinedBox(*(scenes::active_scene_->GetGlyphSet()), start_pos, end_pos, params);
-      });
 
     lua_state.create_named_table("mouse",
       "LEFT", SDL_BUTTON_LEFT,

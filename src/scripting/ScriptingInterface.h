@@ -5,6 +5,7 @@
 
 #include <string>
 
+#include "../objects/BaseObject.h"
 #include "../utility/SolUtils.h"
 
 namespace term_engine::scripting {
@@ -14,10 +15,10 @@ namespace term_engine::scripting {
   /// Creates the Lua functions and usertypes that interface with TermEngine.
   void InitInterface();
 
-  /// 
+  /// Selects the project script to execute, or the "No Program" script if one is not set.
   void InitScript();
 
-  /// 
+  /// Runs garbage collection on the Lua state.
   void CleanUp();
 
   /// Runs a Lua function, and returns the result of execution.
@@ -48,10 +49,10 @@ namespace term_engine::scripting {
    */
   bool OnQuit();
 
-  /// 
+  /// The Lua state that stores all of the loaded script functions, variables, etc.
   extern sol::state lua_state;
 
-  /// 
+  /// The filepath of the currently loaded project.
   extern std::string lua_file;
 }
 

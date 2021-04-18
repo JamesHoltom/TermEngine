@@ -30,10 +30,10 @@ namespace term_engine::data {
   };
 
   /// Initialises the Uniform Buffer Object.
-  void InitUBO();
+  void Init();
 
   /// Deletes the Uniform Buffer Object.
-  void CleanUpUBO();
+  void CleanUp();
 
   /// Updates the projection matrix in the UBO to the window's current size.
   void SetProjection(const glm::ivec2& window_size);
@@ -49,12 +49,6 @@ namespace term_engine::data {
    * @param[in] size The scale to resize the glyphs to.
    */
   void SetFontSize(const glm::vec2& size);
-
-  /// Resizes the glyphs to the given font's texture size.
-  /**
-   * @param[in] font The font atlas to get the new glyph size from.
-   */
-  void SetFontSize(const fonts::FontAtlasPtr& font);
 
   /// Returns the position of the glyph set on the screen.
   /**

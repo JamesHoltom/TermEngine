@@ -7,8 +7,6 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/ostr.h>
 
-#include "../utility/LoggingUtils.h"
-
 namespace term_engine::logging {
   /// Smart pointer to share a single instance of a `Logger`.
   typedef std::shared_ptr<spdlog::logger> LoggerPtr;
