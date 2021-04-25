@@ -1,7 +1,7 @@
 #include "OutlineBoxObject.h"
 
 namespace term_engine::objects {
-  OutlinedBoxObject::OutlinedBoxObject(const glm::ivec2& position, const glm::ivec2& size, const glyphs::GlyphParams& params) :
+  OutlinedBoxObject::OutlinedBoxObject(const glm::vec2& position, const glm::ivec2& size, const glyphs::GlyphParams& params) :
     size_(size),
     params_(params)
   {
@@ -26,5 +26,49 @@ namespace term_engine::objects {
       data.at(index + (column * (size_t)glyphs::dimensions.x)).Set(params_);
       data.at(index + (column * (size_t)glyphs::dimensions.x) + size_.x).Set(params_);
     }
+  }
+
+  glyphs::GlyphParams OutlinedBoxObject::GetParams() const
+  {
+    return params_;
+  }
+
+  char OutlinedBoxObject::GetCharacter() const
+  {
+    return params_.character_;
+  }
+
+  glm::vec4 OutlinedBoxObject::GetForegroundColor() const
+  {
+    return params_.foreground_color_;
+  }
+
+  glm::vec4 OutlinedBoxObject::GetBackgroundColor() const
+  {
+    return params_.background_color_;
+  }
+
+  void OutlinedBoxObject::SetParams(const glyphs::GlyphParams& params)
+  {
+    params_ = params;
+    is_dirty = true;
+  }
+
+  void OutlinedBoxObject::SetCharacter(const char& character)
+  {
+    params_.character_ = character;
+    is_dirty = true;
+  }
+
+  void OutlinedBoxObject::SetForegroundColor(const glm::vec4& fg_color)
+  {
+    params_.foreground_color_ = fg_color;
+    is_dirty = true;
+  }
+
+  void OutlinedBoxObject::SetBackgroundColor(const glm::vec4& bg_color)
+  {
+    params_.background_color_ = bg_color;
+    is_dirty = true;
   }
 }

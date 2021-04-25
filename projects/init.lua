@@ -10,7 +10,7 @@ function Init()
 	return true
 end
 
-function Loop()
+function Loop(timestep)
 	
 end
 

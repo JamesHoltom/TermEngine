@@ -15,7 +15,7 @@ namespace term_engine::objects {
     /**
      * @param[in] text
      */
-    TextObject(const std::string& text, const glm::ivec2& position, const glm::vec4& fg_color, const glm::vec4& bg_color, const glm::ivec2& size = glm::ivec2(-1));
+    TextObject(const std::string& text, const glm::vec2& position, const glm::vec4& fg_color, const glm::vec4& bg_color, const glm::ivec2& size = glm::ivec2(-1));
 
     /// Renders the textbox to the given glyph set.
     /**
@@ -24,8 +24,14 @@ namespace term_engine::objects {
     void Render(glyphs::BufferList& data);
 
     std::string GetText() const;
+    glyphs::GlyphParams GetParams() const;
+    glm::vec4 GetForegroundColor() const;
+    glm::vec4 GetBackgroundColor() const;
 
     void SetText(const std::string& text);
+    void SetParams(const glyphs::GlyphParams& params);
+    void SetForegroundColor(const glm::vec4& fg_color);
+    void SetBackgroundColor(const glm::vec4& bg_color);
 
   private:
     std::string text_;

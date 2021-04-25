@@ -8,8 +8,8 @@
 namespace term_engine::timing {
   /// Used to measure time.
   using Clock = std::chrono::steady_clock;
-  /// Represents a span of time, in milliseconds (ms).
-  using Duration = std::chrono::duration<int, std::chrono::milliseconds>;
+  /// Represents a span of time, in seconds.
+  using Duration = std::chrono::duration<float>;
   /// Represents a specific point in time.
   using TimePoint = Clock::time_point;
 
@@ -57,13 +57,21 @@ namespace term_engine::timing {
      */
     uint64_t GetPauseDuration();
 
-    /// Returns the duration of time since the last interval.
+    /// Returns the duration of time since the last interval, in milliseconds.
     /**
      * _interval_point_ is also set to now, so the next call to _GetIntervalElapsed_ gets the interval since this call.
      * 
      * @returns The duration of time since the timer was started, or when _GetIntervalElapsed_ was last called.
      */
-    uint64_t GetIntervalElapsed();
+    uint64_t GetIntervalElapsedMs();
+
+    /// Returns the duration of time since the last interval, in seconds.
+    /**
+     * _interval_point_ is also set to now, so the next call to _GetIntervalElapsed_ gets the interval since this call.
+     * 
+     * @returns The duration of time since the timer was started, or when _GetIntervalElapsed_ was last called.
+     */
+    float GetIntervalElapsed();
 
   private:
     /// The point in time when the _Timer_ was started.

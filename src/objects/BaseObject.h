@@ -29,17 +29,17 @@ namespace term_engine::objects {
     /**
      * @returns The position of the object.
      */
-    glm::ivec2 GetPosition() const;
+    glm::vec2 GetPosition() const;
 
     /// Sets the position of the object.
     /**
      * @param[in] position The position to move the object to.
      */
-    void SetPosition(const glm::ivec2& position);
+    void SetPosition(const glm::vec2& position);
 
   protected:
     /// The top-left position of the object, within a glyph set.
-    glm::ivec2 position_;
+    glm::vec2 position_;
   };
 
   void Render();

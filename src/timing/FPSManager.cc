@@ -38,7 +38,7 @@ namespace term_engine::timing {
   void CalculateFPS()
   {
     if (frame_count_ % FPS_FRAME_MULTIPLE == 0 && frame_count_ > 0) {
-      float time_taken = (float)average_timer_.GetIntervalElapsed() / 1000.0f;
+      float time_taken = average_timer_.GetIntervalElapsed();
       average_fps_ = (float)FPS_FRAME_MULTIPLE / time_taken;
     }
   }

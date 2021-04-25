@@ -1,12 +1,12 @@
 #include "BaseObject.h"
 
 namespace term_engine::objects {
-  glm::ivec2 BaseObject::GetPosition() const
+  glm::vec2 BaseObject::GetPosition() const
   {
     return position_;
   }
 
-  void BaseObject::SetPosition(const glm::ivec2& position)
+  void BaseObject::SetPosition(const glm::vec2& position)
   {
     position_ = position;
     is_dirty = true;

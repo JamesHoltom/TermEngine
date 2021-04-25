@@ -79,6 +79,8 @@ namespace term_engine::application {
   void Run()
   {
     bool quit = false;
+    timing::Timer timestep;
+    timestep.Start();
 
     scripting::OnInit();
 
@@ -87,12 +89,14 @@ namespace term_engine::application {
       if (SDL_QuitRequested()) {
         if (scripting::OnQuit()) {
           quit = true;
+
+          break;
         }
       }
 
       events::UpdateEvents();
 
-      scripting::OnLoop();
+      scripting::OnLoop(timestep.GetIntervalElapsed());
 
       system::ClearWindow();
 
@@ -108,5 +112,7 @@ namespace term_engine::application {
       timing::CalculateFPS();
       timing::Delay();
     }
+
+    timestep.Stop();
   }
 }

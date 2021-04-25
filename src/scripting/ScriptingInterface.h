@@ -6,11 +6,12 @@
 #include <string>
 
 #include "../objects/BaseObject.h"
+#include "../timing/Timer.h"
 #include "../utility/SolUtils.h"
 
 namespace term_engine::scripting {
   /// The location of the "No Program" script to run, only if a project was not loaded.
-  constexpr char DEFAULT_SCRIPT_PATH[] = "resources/scripts/init.lua";
+  constexpr char DEFAULT_SCRIPT_PATH[] = "projects/init.lua";
 
   /// Creates the Lua functions and usertypes that interface with TermEngine.
   void InitInterface();
@@ -20,13 +21,6 @@ namespace term_engine::scripting {
 
   /// Runs garbage collection on the Lua state.
   void CleanUp();
-
-  /// Runs a Lua function, and returns the result of execution.
-  /**
-   * @param[in] function_name The name of the Lua function to run.
-   * @returns The result of running this function, and any errors that have occurred from execution.
-   */
-  sol::protected_function_result Run(const std::string& function_name);
 
   /// Loads the contents of a Lua file into the state, allowing subsequent scripts to use the contents.
   /**
@@ -41,7 +35,7 @@ namespace term_engine::scripting {
   bool OnInit();
 
   /// Runs the "Loop" Lua function, which is used to execute game code every frame.
-  void OnLoop();
+  void OnLoop(const float& timestep);
 
   /// Runs the "Quit" Lua function, which runs game code before closing TermEngine.
   /**

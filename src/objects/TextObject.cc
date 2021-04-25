@@ -1,7 +1,7 @@
 #include "TextObject.h"
 
 namespace term_engine::objects {
-  TextObject::TextObject(const std::string& text, const glm::ivec2& position, const glm::vec4& fg_color, const glm::vec4& bg_color, const glm::ivec2& size) :
+  TextObject::TextObject(const std::string& text, const glm::vec2& position, const glm::vec4& fg_color, const glm::vec4& bg_color, const glm::ivec2& size) :
     text_(text),
     params_(' ', fg_color, bg_color)
   {
@@ -57,9 +57,42 @@ namespace term_engine::objects {
     return text_;
   }
 
+  glyphs::GlyphParams TextObject::GetParams() const
+  {
+    return params_;
+  }
+
+  glm::vec4 TextObject::GetForegroundColor() const
+  {
+    return params_.foreground_color_;
+  }
+
+  glm::vec4 TextObject::GetBackgroundColor() const
+  {
+    return params_.background_color_;
+  }
+
   void TextObject::SetText(const std::string& text)
   {
     text_ = text;
+    is_dirty = true;
+  }
+
+  void TextObject::SetParams(const glyphs::GlyphParams& params)
+  {
+    params_ = params;
+    is_dirty = true;
+  }
+
+  void TextObject::SetForegroundColor(const glm::vec4& fg_color)
+  {
+    params_.foreground_color_ = fg_color;
+    is_dirty = true;
+  }
+
+  void TextObject::SetBackgroundColor(const glm::vec4& bg_color)
+  {
+    params_.background_color_ = bg_color;
     is_dirty = true;
   }
 }

@@ -60,18 +60,26 @@ namespace term_engine::scripting {
     sol::usertype<objects::BoxObject> box_object_type = lua_state.new_usertype<objects::BoxObject>(
       "Box",
       sol::no_constructor,
-      "position", sol::property(&objects::BoxObject::GetPosition, &objects::BoxObject::SetPosition));
+      "position", sol::property(&objects::BoxObject::GetPosition, &objects::BoxObject::SetPosition),
+      "character", sol::property(&objects::BoxObject::GetCharacter, &objects::BoxObject::SetCharacter),
+      "foreground_color", sol::property(&objects::BoxObject::GetForegroundColor, &objects::BoxObject::SetForegroundColor),
+      "background_color", sol::property(&objects::BoxObject::GetBackgroundColor, &objects::BoxObject::SetBackgroundColor));
     
     sol::usertype<objects::OutlinedBoxObject> outlined_box_object_type = lua_state.new_usertype<objects::OutlinedBoxObject>(
       "OutlinedBox",
       sol::no_constructor,
-      "position", sol::property(&objects::OutlinedBoxObject::GetPosition, &objects::OutlinedBoxObject::SetPosition));
+      "position", sol::property(&objects::OutlinedBoxObject::GetPosition, &objects::OutlinedBoxObject::SetPosition),
+      "character", sol::property(&objects::OutlinedBoxObject::GetCharacter, &objects::OutlinedBoxObject::SetCharacter),
+      "foreground_color", sol::property(&objects::OutlinedBoxObject::GetForegroundColor, &objects::OutlinedBoxObject::SetForegroundColor),
+      "background_color", sol::property(&objects::OutlinedBoxObject::GetBackgroundColor, &objects::OutlinedBoxObject::SetBackgroundColor));
     
     sol::usertype<objects::TextObject> text_object_type = lua_state.new_usertype<objects::TextObject>(
       "Text",
       sol::no_constructor,
       "position", sol::property(&objects::TextObject::GetPosition, &objects::TextObject::SetPosition),
-      "text", sol::property(&objects::TextObject::GetText, &objects::TextObject::SetText));
+      "text", sol::property(&objects::TextObject::GetText, &objects::TextObject::SetText),
+      "foreground_color", sol::property(&objects::TextObject::GetForegroundColor, &objects::TextObject::SetForegroundColor),
+      "background_color", sol::property(&objects::TextObject::GetBackgroundColor, &objects::TextObject::SetBackgroundColor));
 
     lua_state.create_named_table("object",
       "addBox", [=](const glm::ivec2& position, const glm::ivec2& size, const glyphs::GlyphParams& params) {
@@ -97,18 +105,18 @@ namespace term_engine::scripting {
       "isDown", &events::MouseIsDown,
       "isPressed", &events::MouseIsPressed,
       "isReleased", &events::MouseIsReleased,
-      "position", [&]() { return events::mouse_position; },
-      "movement", [&]() { return events::mouse_position_delta; });
+      "position", sol::var(&events::mouse_position),
+      "movement", sol::var(&events::mouse_position_delta));
     
     lua_state.create_named_table("keyboard",
       "isDown", &events::KeyIsDown,
       "isPressed", &events::KeyIsPressed,
       "isReleased", &events::KeyIsReleased);
 
-    lua_state.create_named_table("project",
+    /* lua_state.create_named_table("project",
       "load", [&](const std::string& project_path) {},
       "reload", [&]() {},
-      "unload", [&]() {});
+      "unload", [&]() {}); */
 
     lua_state.create_named_table("wireframe",
       "enable", &system::EnableWireframe,
@@ -127,7 +135,7 @@ namespace term_engine::scripting {
 
       return true;
     };
-    lua_state["Loop"] = [&]() {};
+    lua_state["Loop"] = [&](const float& timestep) {};
     lua_state["Quit"] = [&]() {
       logging::logger->info("TermEngine is quitting!");
 
@@ -150,24 +158,6 @@ namespace term_engine::scripting {
     lua_state.collect_garbage();
   }
 
-  sol::protected_function_result Run(const std::string& function_name) {
-    sol::protected_function_result result;
-
-    try {
-      result = lua_state[function_name]();
-
-      if (!result.valid()) {
-        sol::error err = result;
-        logging::logger->error("Received Lua error: {}", err.what());
-      }
-    }
-    catch (const std::exception& err) {
-      logging::logger->error("A scripting error occurred!\nFile: {}\nError: {}", lua_file, err.what());
-    }
-
-    return result;
-  }
-
   void Load(const std::string& filename) {
     try {
       sol::protected_function_result result = lua_state.safe_script_file(filename);
@@ -186,15 +176,55 @@ namespace term_engine::scripting {
   }
 
   bool OnInit() {
-    return (bool)Run("Init");
+    sol::protected_function_result result;
+
+    try {
+      result = lua_state["Init"]();
+
+      if (!result.valid()) {
+        sol::error err = result;
+        logging::logger->error("Received Lua error on init: {}", err.what());
+      }
+    }
+    catch (const std::exception& err) {
+      logging::logger->error("A scripting error occurred!\nFile: {}\nError: {}", lua_file, err.what());
+    }
+
+    return (bool)result;
   }
 
-  void OnLoop() {
-    Run("Loop");
+  void OnLoop(const float& timestep) {
+    sol::protected_function_result result;
+
+    try {
+      result = lua_state["Loop"](timestep);
+
+      if (!result.valid()) {
+        sol::error err = result;
+        logging::logger->error("Received Lua error on loop: {}", err.what());
+      }
+    }
+    catch (const std::exception& err) {
+      logging::logger->error("A scripting error occurred!\nFile: {}\nError: {}", lua_file, err.what());
+    }
   }
 
   bool OnQuit() {
-    return (bool)Run("Quit");
+    sol::protected_function_result result;
+
+    try {
+      result = lua_state["Quit"]();
+
+      if (!result.valid()) {
+        sol::error err = result;
+        logging::logger->error("Received Lua error on quit: {}", err.what());
+      }
+    }
+    catch (const std::exception& err) {
+      logging::logger->error("A scripting error occurred!\nFile: {}\nError: {}", lua_file, err.what());
+    }
+
+    return (bool)result;
   }
 
   sol::state lua_state;

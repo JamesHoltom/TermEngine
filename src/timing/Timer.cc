@@ -92,7 +92,7 @@ namespace term_engine::timing {
     return duration;
   }
 
-  uint64_t Timer::GetIntervalElapsed()
+  uint64_t Timer::GetIntervalElapsedMs()
   {
     uint64_t elapsed;
     Clock::time_point now = Clock::now();
@@ -103,6 +103,22 @@ namespace term_engine::timing {
     }
     else {
       elapsed = 0;
+    }
+
+    return elapsed;
+  }
+
+  float Timer::GetIntervalElapsed()
+  {
+    float elapsed;
+    Clock::time_point now = Clock::now();
+
+    if (is_started_ && !is_paused_) {
+      elapsed = std::chrono::duration_cast<Duration>(now - interval_point_).count();
+      interval_point_ = now;
+    }
+    else {
+      elapsed = 0.0f;
     }
 
     return elapsed;
