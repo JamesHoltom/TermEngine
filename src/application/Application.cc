@@ -6,7 +6,7 @@
 #include "../events/InputManager.h"
 #include "../fonts/FontAtlas.h"
 #include "../glyphs/Glyph.h"
-#include "../objects/BaseObject.h"
+#include "../objects/ObjectManager.h"
 #include "../scripting/ScriptingInterface.h"
 #include "../shaders/Shader.h"
 #include "../system/Window.h"
@@ -82,7 +82,9 @@ namespace term_engine::application {
     timing::Timer timestep;
     timestep.Start();
 
-    scripting::OnInit();
+    if (!scripting::OnInit()) {
+      quit = true;
+    }
 
     while (!quit) {
       // Using the side-effect of SDL_QuitRequested() calling SDL_PumpEvents() to omit it from the below code.

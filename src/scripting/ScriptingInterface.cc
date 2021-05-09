@@ -1,4 +1,4 @@
-#include <memory>
+#include <filesystem>
 
 #include "ScriptingInterface.h"
 #include "../data/Uniform.h"
@@ -9,19 +9,29 @@
 #include "../system/Window.h"
 #include "../utility/Color.h"
 
-#include "../objects/BoxObject.h"
-#include "../objects/OutlineBoxObject.h"
-#include "../objects/TextObject.h"
+#include "../objects/ObjectManager.h"
 
 namespace term_engine::scripting {
   void InitInterface() {
-    lua_state.open_libraries(sol::lib::base, sol::lib::package);
+    lua_state.open_libraries(sol::lib::base, sol::lib::package, sol::lib::string);
 
     sol::usertype<glm::vec2> vec2_type = lua_state.new_usertype<glm::vec2>(
       "vec2",
       sol::call_constructor, sol::constructors<void(), void(const float&), void(const float&, const float&)>(),
       "x", &glm::vec2::x,
-      "y", &glm::vec2::y);
+      "y", &glm::vec2::y,
+      sol::meta_function::addition, sol::overload([](const glm::vec2& lhs, const glm::vec2& rhs) { return lhs + rhs; }),
+      sol::meta_function::subtraction, sol::overload([](const glm::vec2& lhs, const glm::vec2& rhs) { return lhs - rhs; }),
+      sol::meta_function::multiplication, sol::overload(
+        [](const glm::vec2& lhs, const glm::vec2& rhs) { return lhs * rhs; },
+        [](const glm::vec2& lhs, const float& rhs) { return lhs * rhs; },
+        [](const float& lhs, const glm::vec2& rhs) { return lhs * rhs; }
+      ),
+      sol::meta_function::division, sol::overload(
+        [](const glm::vec2& lhs, const glm::vec2& rhs) { return lhs / rhs; },
+        [](const glm::vec2& lhs, const float& rhs) { return lhs / rhs; }
+      ),
+      "floor", [](const glm::vec2& self) { return glm::floor(self); });
 
     sol::usertype<glm::ivec2> ivec2_type = lua_state.new_usertype<glm::ivec2>(
       "ivec2",
@@ -29,69 +39,36 @@ namespace term_engine::scripting {
       "x", &glm::ivec2::x,
       "y", &glm::ivec2::y);
 
-    sol::usertype<glm::uvec2> uvec2_type = lua_state.new_usertype<glm::uvec2>(
-      "uvec2",
-      sol::call_constructor, sol::constructors<void(), void(const glm::uint&), void(const glm::uint&, const glm::uint&)>(),
-      "x", &glm::uvec2::x,
-      "y", &glm::uvec2::y);
-
-    sol::usertype<glm::uvec3> uvec3_type = lua_state.new_usertype<glm::uvec3>(
-      "uvec3",
-      sol::call_constructor, sol::constructors<void(), void(const glm::uint&), void(const glm::uint&, const glm::uint&, const glm::uint&)>(),
-      "x", &glm::uvec3::x,
-      "y", &glm::uvec3::y,
-      "z", &glm::uvec3::z);
-
-    sol::usertype<glm::vec4> vec4_type = lua_state.new_usertype<glm::vec4>(
-      "vec4",
-      sol::call_constructor, sol::constructors<void(), void(const float&), void(const float&, const float&, const float&, const float&)>(),
-      "x", &glm::vec4::x,
-      "y", &glm::vec4::y,
-      "z", &glm::vec4::z,
-      "w", &glm::vec4::w);
+    sol::usertype<glm::vec3> vec3_type = lua_state.new_usertype<glm::vec3>(
+      "vec3",
+      sol::call_constructor, sol::constructors<void(), void(const float&), void(const float&, const float&, const float&)>(),
+      "x", &glm::vec3::x,
+      "y", &glm::vec3::y,
+      "z", &glm::vec3::z,
+      "r", &glm::vec3::r,
+      "g", &glm::vec3::g,
+      "b", &glm::vec3::b);
 
     sol::usertype<glyphs::GlyphParams> glyph_parameters_type = lua_state.new_usertype<glyphs::GlyphParams>(
       "Glyph",
-      sol::call_constructor, sol::constructors<void(const char&, const glm::vec4&, const glm::vec4&)>(),
+      sol::call_constructor, sol::constructors<void(const char&, const glm::vec3&, const glm::vec3&)>(),
       "character", &glyphs::GlyphParams::character_,
       "foreground_color", &glyphs::GlyphParams::foreground_color_,
       "background_color", &glyphs::GlyphParams::background_color_);
 
-    sol::usertype<objects::BoxObject> box_object_type = lua_state.new_usertype<objects::BoxObject>(
-      "Box",
+    sol::usertype<objects::Object> box_object_type = lua_state.new_usertype<objects::Object>(
+      "Object",
       sol::no_constructor,
-      "position", sol::property(&objects::BoxObject::GetPosition, &objects::BoxObject::SetPosition),
-      "character", sol::property(&objects::BoxObject::GetCharacter, &objects::BoxObject::SetCharacter),
-      "foreground_color", sol::property(&objects::BoxObject::GetForegroundColor, &objects::BoxObject::SetForegroundColor),
-      "background_color", sol::property(&objects::BoxObject::GetBackgroundColor, &objects::BoxObject::SetBackgroundColor));
-    
-    sol::usertype<objects::OutlinedBoxObject> outlined_box_object_type = lua_state.new_usertype<objects::OutlinedBoxObject>(
-      "OutlinedBox",
-      sol::no_constructor,
-      "position", sol::property(&objects::OutlinedBoxObject::GetPosition, &objects::OutlinedBoxObject::SetPosition),
-      "character", sol::property(&objects::OutlinedBoxObject::GetCharacter, &objects::OutlinedBoxObject::SetCharacter),
-      "foreground_color", sol::property(&objects::OutlinedBoxObject::GetForegroundColor, &objects::OutlinedBoxObject::SetForegroundColor),
-      "background_color", sol::property(&objects::OutlinedBoxObject::GetBackgroundColor, &objects::OutlinedBoxObject::SetBackgroundColor));
-    
-    sol::usertype<objects::TextObject> text_object_type = lua_state.new_usertype<objects::TextObject>(
-      "Text",
-      sol::no_constructor,
-      "position", sol::property(&objects::TextObject::GetPosition, &objects::TextObject::SetPosition),
-      "text", sol::property(&objects::TextObject::GetText, &objects::TextObject::SetText),
-      "foreground_color", sol::property(&objects::TextObject::GetForegroundColor, &objects::TextObject::SetForegroundColor),
-      "background_color", sol::property(&objects::TextObject::GetBackgroundColor, &objects::TextObject::SetBackgroundColor));
+      "name", sol::readonly_property(&objects::Object::GetName),
+      "position", sol::property(&objects::Object::GetPosition, &objects::Object::SetPosition),
+      "size", sol::property(&objects::Object::GetSize, &objects::Object::SetSize),
+      "data", sol::readonly_property(&objects::Object::GetData));
 
-    lua_state.create_named_table("object",
-      "addBox", [=](const glm::ivec2& position, const glm::ivec2& size, const glyphs::GlyphParams& params) {
-        return (objects::BoxObject*)objects::object_list.emplace_back(new objects::BoxObject(position, size, params));
-      },
-      "addOutlinedBox", [=](const glm::ivec2& position, const glm::ivec2& size, const glyphs::GlyphParams& params) {
-        return (objects::OutlinedBoxObject*)objects::object_list.emplace_back(new objects::OutlinedBoxObject(position, size, params));
-      },
-      "addText", [=](const glm::ivec2& position, const glm::ivec2& size, const std::string& text, const glm::vec4& fg_color, const glm::vec4& bg_color) {
-        return (objects::TextObject*)objects::object_list.emplace_back(new objects::TextObject(text, position, fg_color, bg_color, size));
-      });
-
+    lua_state.create_named_table("objects",
+      "add", &objects::Add,
+      "get", &objects::Get,
+      "remove", &objects::Remove);
+    
     lua_state.create_named_table("window",
       "getSize", &system::GetWindowSize,
       "setSize", &system::SetWindowSize,
@@ -144,9 +121,13 @@ namespace term_engine::scripting {
   }
 
   void InitScript() {
-    if (system::script_path != "" && system::IsValidPath(system::script_path)) {
+    Load(std::string(FUNCTIONS_SCRIPT_PATH));
+
+    std::filesystem::path project_file = system::script_path / std::string(PROJECT_ENTRYPOINT);
+
+    if (system::script_path != "" && system::IsValidPath(project_file)) {
       logging::logger->info("Loading project...");
-      Load(system::script_path);
+      Load(project_file.string());
     }
     else {
       logging::logger->info("No project to load!");
@@ -176,12 +157,15 @@ namespace term_engine::scripting {
   }
 
   bool OnInit() {
-    sol::protected_function_result result;
+    bool return_value = true;
 
     try {
-      result = lua_state["Init"]();
+      sol::protected_function_result result = lua_state["Init"]();
 
-      if (!result.valid()) {
+      if (result.valid()) {
+        return_value = (bool)result;
+      }
+      else {
         sol::error err = result;
         logging::logger->error("Received Lua error on init: {}", err.what());
       }
@@ -190,14 +174,12 @@ namespace term_engine::scripting {
       logging::logger->error("A scripting error occurred!\nFile: {}\nError: {}", lua_file, err.what());
     }
 
-    return (bool)result;
+    return return_value;
   }
 
   void OnLoop(const float& timestep) {
-    sol::protected_function_result result;
-
     try {
-      result = lua_state["Loop"](timestep);
+      sol::protected_function_result result = lua_state["Loop"](timestep);
 
       if (!result.valid()) {
         sol::error err = result;
@@ -210,12 +192,15 @@ namespace term_engine::scripting {
   }
 
   bool OnQuit() {
-    sol::protected_function_result result;
+    bool return_value = true;
 
     try {
-      result = lua_state["Quit"]();
+      sol::protected_function_result result = lua_state["Quit"]();
 
-      if (!result.valid()) {
+      if (result.valid()) {
+        return_value = (bool)result;
+      }
+      else {
         sol::error err = result;
         logging::logger->error("Received Lua error on quit: {}", err.what());
       }
@@ -224,7 +209,7 @@ namespace term_engine::scripting {
       logging::logger->error("A scripting error occurred!\nFile: {}\nError: {}", lua_file, err.what());
     }
 
-    return (bool)result;
+    return return_value;
   }
 
   sol::state lua_state;

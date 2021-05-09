@@ -12,11 +12,7 @@ namespace term_engine::glyphs {
   struct GlyphParams;
   struct BufferData;
 
-  constexpr char DEFAULT_CHARACTER = ' ';
-  /// The default foreground color (i.e. text color) to use for glyphs.
-  constexpr glm::vec4 DEFAULT_FOREGROUND_COLOR = glm::vec4(1.0f);
-  /// The default background color to use for glyphs.
-  constexpr glm::vec4 DEFAULT_BACKGROUND_COLOR = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+  constexpr char NO_CHARACTER = (char)0;
 
   /// Used to store data in a VBO.
   typedef std::vector<BufferData> BufferList;
@@ -29,14 +25,14 @@ namespace term_engine::glyphs {
      * @param[in] foreground_color The foreground color, used for the text.
      * @param[in] background_color The background color.
      */
-    GlyphParams(const char& character = DEFAULT_CHARACTER, const glm::vec4& foreground_color = DEFAULT_FOREGROUND_COLOR, const glm::vec4& background_color = DEFAULT_BACKGROUND_COLOR);
+    GlyphParams(const char& character = NO_CHARACTER, const glm::vec3& foreground_color = glm::vec3(0.0f), const glm::vec3& background_color = glm::vec3(0.0f));
 
     /// The character that the glyph represents.
     char character_;
     /// The foreground color, used for the text.
-    glm::vec4 foreground_color_;
+    glm::vec3 foreground_color_;
     /// The background color.
-    glm::vec4 background_color_;
+    glm::vec3 background_color_;
   };
 
   /// Represents the glyph data that is passed to the GPU.
@@ -54,7 +50,7 @@ namespace term_engine::glyphs {
      * @param[in] foreground_color The foreground color, used for the glyph.
      * @param[in] background_color The background color.
      */
-    BufferData(const GLfloat& texture_layer, const glm::vec2& position, const glm::vec4& foreground_color, const glm::vec4& background_color);
+    BufferData(const GLfloat& texture_layer, const glm::vec2& position, const glm::vec3& foreground_color, const glm::vec3& background_color);
 
     void Set(const GlyphParams& params, const bool& normalised = false);
 
@@ -70,8 +66,8 @@ namespace term_engine::glyphs {
       return os << std::endl
         << "Texture layer: " << data.texture_layer_ << std::endl
         << "Position: " << data.position_.x << ", " << data.position_.y << std::endl
-        << "Foreground colour: " << data.foreground_color_.r << ", " << data.foreground_color_.g << ", " << data.foreground_color_.b << ", " << data.foreground_color_.a << std::endl
-        << "Background colour: " << data.background_color_.r << ", " << data.background_color_.g << ", " << data.background_color_.b << ", " << data.background_color_.a << std::endl;
+        << "Foreground colour: " << data.foreground_color_.r << ", " << data.foreground_color_.g << ", " << data.foreground_color_.b << std::endl
+        << "Background colour: " << data.background_color_.r << ", " << data.background_color_.g << ", " << data.background_color_.b << std::endl;
     }
 
     /// The texture layer to render.
@@ -79,9 +75,9 @@ namespace term_engine::glyphs {
     /// The position of the glyph, from its default position in the glyph set.
     glm::vec2 position_;
     /// The foreground color, used for the glyph.
-    glm::vec4 foreground_color_;
+    glm::vec3 foreground_color_;
     /// The background color.
-    glm::vec4 background_color_;
+    glm::vec3 background_color_;
   };
 
   /// Prepares the OpenGL buffers ready for use.
@@ -93,7 +89,7 @@ namespace term_engine::glyphs {
   extern GLuint vao_id;
   /// The _Vertex Buffer Object_ ID of the VBO used to store the glyph's _BufferData_.
   extern GLuint vbo_id;
-  extern glm::uvec2 dimensions;
+  extern glm::ivec2 dimensions;
   extern BufferList data;
   extern GlyphParams default_glyph;
 }

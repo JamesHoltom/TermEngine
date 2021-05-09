@@ -1,29 +1,31 @@
 /// @author James Holtom
 
-#ifndef BASE_OBJECT_H
-#define BASE_OBJECT_H
+#ifndef OBJECT_H
+#define OBJECT_H
 
-#include <list>
-#include <memory>
+#include <functional>
+#include <string>
+#include <vector>
 #include <glm/glm.hpp>
 
 #include "../glyphs/Glyph.h"
 
 namespace term_engine::objects {
-  class BaseObject;
+  class Object;
 
-  typedef std::list<BaseObject*> ObjectList;
+  typedef std::vector<glyphs::GlyphParams> GlyphData;
 
-  class BaseObject {
+  class Object {
   public:
-    /// Destroys the object.
-    virtual ~BaseObject() {};
+    Object(const std::string& name, const glm::vec2& position, const glm::ivec2& size);
 
     /// Renders the object to the given glyph set.
     /**
      * @param[in] data
      */
-    virtual void Render(glyphs::BufferList& data) = 0;
+    void Render(glyphs::BufferList& data) const;
+
+    std::string GetName() const;
 
     /// Returns the position of the object.
     /**
@@ -31,22 +33,29 @@ namespace term_engine::objects {
      */
     glm::vec2 GetPosition() const;
 
+    glm::ivec2 GetSize() const;
+
+    GlyphData& GetData();
+
     /// Sets the position of the object.
     /**
      * @param[in] position The position to move the object to.
      */
     void SetPosition(const glm::vec2& position);
 
+    void SetSize(const glm::ivec2& size);
+
   protected:
+    std::string name_;
+
     /// The top-left position of the object, within a glyph set.
     glm::vec2 position_;
+    glm::ivec2 size_;
+
+    GlyphData data_;
   };
 
-  void Render();
-  void CleanUp();
-
   extern bool is_dirty;
-  extern ObjectList object_list;
 }
 
-#endif // ! BASE_OBJECT_H
+#endif // ! OBJECT_H

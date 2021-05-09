@@ -5,13 +5,16 @@
 
 #include <string>
 
-#include "../objects/BaseObject.h"
 #include "../timing/Timer.h"
 #include "../utility/SolUtils.h"
 
 namespace term_engine::scripting {
   /// The location of the "No Program" script to run, only if a project was not loaded.
   constexpr char DEFAULT_SCRIPT_PATH[] = "projects/init.lua";
+
+  constexpr char FUNCTIONS_SCRIPT_PATH[] = "projects/funcs.lua";
+
+  constexpr char PROJECT_ENTRYPOINT[] = "main.lua";
 
   /// Creates the Lua functions and usertypes that interface with TermEngine.
   void InitInterface();

@@ -69,19 +69,10 @@
     <ClCompile Include="src\utility\SDLUtils.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\objects\BaseObject.cc">
+    <ClCompile Include="src\objects\Object.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\objects\BoxObject.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\objects\OutlineBoxObject.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\objects\TextObject.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\objects\SpriteObject.cc">
+    <ClCompile Include="src\objects\ObjectManager.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -149,19 +140,10 @@
     <ClInclude Include="src\utility\GenericUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\objects\BaseObject.h">
+    <ClInclude Include="src\objects\Object.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\objects\BoxObject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\objects\OutlineBoxObject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\objects\TextObject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\objects\SpriteObject.h">
+    <ClInclude Include="src\objects\ObjectManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

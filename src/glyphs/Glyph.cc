@@ -4,7 +4,7 @@
 #include "../utility/DebugFunctions.h"
 
 namespace term_engine::glyphs {
-  GlyphParams::GlyphParams(const char& character, const glm::vec4& foreground_color, const glm::vec4& background_color) :
+  GlyphParams::GlyphParams(const char& character, const glm::vec3& foreground_color, const glm::vec3& background_color) :
     character_(character),
     foreground_color_(foreground_color),
     background_color_(background_color)
@@ -13,11 +13,11 @@ namespace term_engine::glyphs {
   BufferData::BufferData() :
     texture_layer_(0.0f),
     position_(glm::vec2(0.0f)),
-    foreground_color_(DEFAULT_FOREGROUND_COLOR),
-    background_color_(DEFAULT_BACKGROUND_COLOR)
+    foreground_color_(glm::vec4(0.0f)),
+    background_color_(glm::vec4(0.0f))
   {}
 
-  BufferData::BufferData(const GLfloat& texture_layer, const glm::vec2& position, const glm::vec4& foreground_color, const glm::vec4& background_color) :
+  BufferData::BufferData(const GLfloat& texture_layer, const glm::vec2& position, const glm::vec3& foreground_color, const glm::vec3& background_color) :
     texture_layer_(texture_layer),
     position_(position),
     foreground_color_(foreground_color),
@@ -29,8 +29,8 @@ namespace term_engine::glyphs {
     texture_layer_ = (GLfloat)fonts::GetCharacter(params.character_);
 
     if (!normalised) {
-      foreground_color_ = params.foreground_color_ / glm::vec4(255.0f);
-      background_color_ = params.background_color_ / glm::vec4(255.0f);
+      foreground_color_ = params.foreground_color_ / glm::vec3(255.0f);
+      background_color_ = params.background_color_ / glm::vec3(255.0f);
     }
     else {
       foreground_color_ = params.foreground_color_;
@@ -53,7 +53,6 @@ namespace term_engine::glyphs {
     int count = 0;
 
     for (glyphs::BufferData& glyph : data) {
-      glyph.foreground_color_ = DEFAULT_FOREGROUND_COLOR;
       glyph.position_ = glm::vec2((count % dimensions.x) * font_size.x, (count / dimensions.x) * font_size.y);
 
       ++count;
@@ -77,12 +76,12 @@ namespace term_engine::glyphs {
 
     // Configure the foreground colour attribute.
     glEnableVertexAttribArray(2);
-    glVertexAttribFormat(2, 4, GL_FLOAT, GL_FALSE, offsetof(BufferData, foreground_color_));
+    glVertexAttribFormat(2, 3, GL_FLOAT, GL_FALSE, offsetof(BufferData, foreground_color_));
     glVertexAttribBinding(2, 0);
 
     // Configure the background colour attribute.
     glEnableVertexAttribArray(3);
-    glVertexAttribFormat(3, 4, GL_FLOAT, GL_FALSE, offsetof(BufferData, background_color_));
+    glVertexAttribFormat(3, 3, GL_FLOAT, GL_FALSE, offsetof(BufferData, background_color_));
     glVertexAttribBinding(3, 0);
 
     debug::LogVAOData();
@@ -114,7 +113,7 @@ namespace term_engine::glyphs {
 
   GLuint vao_id;
   GLuint vbo_id;
-  glm::uvec2 dimensions;
+  glm::ivec2 dimensions;
   BufferList data;
   GlyphParams default_glyph = GlyphParams();
 }

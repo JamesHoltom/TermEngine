@@ -14,15 +14,15 @@ layout (std140, binding = 0) uniform CommonData {
 in GS_DATA
 {
 	float texture_layer;
-	vec4 foreground_color;
-	vec4 background_color;
+	vec3 foreground_color;
+	vec3 background_color;
 } gs_data[];
 
 out FS_DATA
 {
 	vec3 texture_position;
-	vec4 foreground_color;
-	vec4 background_color;
+	vec3 foreground_color;
+	vec3 background_color;
 } fs_data;
 
 void draw_quad(vec4 position)

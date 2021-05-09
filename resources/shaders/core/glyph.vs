@@ -2,8 +2,8 @@
 
 layout (location = 0) in float texture_layer;
 layout (location = 1) in vec2 position;
-layout (location = 2) in vec4 foreground_color;
-layout (location = 3) in vec4 background_color;
+layout (location = 2) in vec3 foreground_color;
+layout (location = 3) in vec3 background_color;
 
 layout (std140, binding = 0) uniform CommonData {
 	mat4 projection_;
@@ -16,8 +16,8 @@ layout (std140, binding = 0) uniform CommonData {
 out GS_DATA
 {
 	float texture_layer;
-	vec4 foreground_color;
-	vec4 background_color;
+	vec3 foreground_color;
+	vec3 background_color;
 } gs_data;
 
 void main()

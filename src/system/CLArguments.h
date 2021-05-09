@@ -3,17 +3,17 @@
 #ifndef CL_ARGUMENTS_H
 #define CL_ARGUMENTS_H
 
-#include <string>
+#include <filesystem>
 
 namespace term_engine::system {
   /*
    * The command-line arguments are laid out as follows:
    * 
-   * TermEngine.exe <script_path> --fullscreen
+   * TermEngine.exe --project <script_path> --fullscreen
    */
 
   /// The path to the script to execute from the command line.
-  extern std::string script_path;
+  extern std::filesystem::path script_path;
 
   /// Should the program start running in fullscreen?
   extern bool is_fullscreen;

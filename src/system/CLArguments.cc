@@ -5,21 +5,21 @@
 #include "../logging/Logger.h"
 
 namespace term_engine::system {
-  std::string script_path;
+  std::filesystem::path script_path;
   bool is_fullscreen;
 
   void GetCLArguments(int& argc, char**& argv)
   {
     cxxopts::Options options("TermEngine", "Test.");
     options.add_options()
-      ("script_path", "Path to the script to execute.", cxxopts::value<std::string>()->default_value(""))
+      ("project", "The project to execute.", cxxopts::value<std::filesystem::path>()->default_value(""))
       ("fullscreen", "Start in fullscreen?");
 
     try
     {
       auto result = options.parse(argc, argv);
 
-      script_path = result["script_path"].as<std::string>();
+      script_path = result["project"].as<std::filesystem::path>();
       is_fullscreen = result["fullscreen"].as<bool>();
     }
     catch (cxxopts::OptionException ex)

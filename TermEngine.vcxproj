@@ -162,7 +162,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>SDL2.lib;SDL2main.lib;glew32.lib;opengl32.lib;glu32.lib;freetype.lib;lua.lib;spdlog.lib;imm32.lib;setupapi.lib;winmm.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <IgnoreSpecificDefaultLibraries>LIBCMT</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>
+      </IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -171,11 +172,8 @@
     <ClCompile Include="src\fonts\FontAtlas.cc" />
     <ClCompile Include="src\glyphs\Glyph.cc" />
     <ClCompile Include="src\data\Uniform.cc" />
-    <ClCompile Include="src\objects\BaseObject.cc" />
-    <ClCompile Include="src\objects\BoxObject.cc" />
-    <ClCompile Include="src\objects\OutlineBoxObject.cc" />
-    <ClCompile Include="src\objects\SpriteObject.cc" />
-    <ClCompile Include="src\objects\TextObject.cc" />
+    <ClCompile Include="src\objects\Object.cc" />
+    <ClCompile Include="src\objects\ObjectManager.cc" />
     <ClCompile Include="src\system\FileFunctions.cc" />
     <ClCompile Include="src\main.cc" />
     <ClCompile Include="src\scripting\ScriptingInterface.cc" />
@@ -193,11 +191,8 @@
   <ItemGroup>
     <ClInclude Include="src\application\Application.h" />
     <ClInclude Include="src\events\InputManager.h" />
-    <ClInclude Include="src\objects\BaseObject.h" />
-    <ClInclude Include="src\objects\BoxObject.h" />
-    <ClInclude Include="src\objects\OutlineBoxObject.h" />
-    <ClInclude Include="src\objects\SpriteObject.h" />
-    <ClInclude Include="src\objects\TextObject.h" />
+    <ClInclude Include="src\objects\Object.h" />
+    <ClInclude Include="src\objects\ObjectManager.h" />
     <ClInclude Include="src\scripting\ScriptingInterface.h" />
     <ClInclude Include="src\data\Uniform.h" />
     <ClInclude Include="src\system\FileFunctions.h" />
