@@ -14,7 +14,7 @@ namespace term_engine::fonts {
   struct FontAtlas;
 
   /// The default font path to use when running the engine.
-  constexpr char DEFAULT_FONT[] = "resources/fonts/lucon.ttf";
+  constexpr char DEFAULT_FONT[] = "resources/fonts/RobotoMono-Regular.ttf";
   /// The default font size to use when running the engine.
   constexpr int DEFAULT_FONT_SIZE = 16;
   
