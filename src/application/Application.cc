@@ -50,7 +50,7 @@ namespace term_engine::application {
       exit(3);
     }
 
-    fonts::LoadChar(' ');
+    system::SetWindowSize(glm::ivec2(fonts::texture_size) * glyphs::dimensions);
 
     timing::InitFPS();
     scripting::InitInterface();
