@@ -26,9 +26,9 @@ namespace term_engine::objects {
 
   /// Adds an object to the list.
   /**
-   * @param[in] name    The name of the object.
-   * @param[in] postion The position of the object.
-   * @param[in] size    The size of the object, in rows & columns.
+   * @param[in] name     The name of the object.
+   * @param[in] position The position of the object.
+   * @param[in] size     The size of the object, in rows & columns.
    * @returns A smart pointer to the object if it was added to the list, or a null pointer if it failed.
    */
   ObjectPtr Add(const std::string& name, const glm::vec2& position, const glm::ivec2& size);
