@@ -11,9 +11,9 @@
 namespace term_engine::scripting {
   /// The location of the "No Program" script to run, only if a project was not loaded.
   constexpr char DEFAULT_SCRIPT_PATH[] = "projects/init.lua";
-
+  /// The location of Lua functions that're used in the engine.
   constexpr char FUNCTIONS_SCRIPT_PATH[] = "projects/funcs.lua";
-
+  /// The entry file that is run when a project is loaded.
   constexpr char PROJECT_ENTRYPOINT[] = "main.lua";
 
   /// Creates the Lua functions and usertypes that interface with TermEngine.
@@ -38,6 +38,9 @@ namespace term_engine::scripting {
   bool OnInit();
 
   /// Runs the "Loop" Lua function, which is used to execute game code every frame.
+  /**
+   * @param[in] timestep The timestep for this frame, i.e. the amount of time since the last frame ticked.
+   */
   void OnLoop(const float& timestep);
 
   /// Runs the "Quit" Lua function, which runs game code before closing TermEngine.

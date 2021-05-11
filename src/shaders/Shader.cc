@@ -11,9 +11,9 @@ namespace term_engine::shaders {
     GLint program_linked = GL_FALSE;
     program_id = glCreateProgram();
 
-    GLuint vs_id = AddShaderFile(GLSL_VERTEX_FILE, GL_VERTEX_SHADER);
-    GLuint gs_id = AddShaderFile(GLSL_GEOMETRY_FILE, GL_GEOMETRY_SHADER);
-    GLuint fs_id = AddShaderFile(GLSL_FRAGMENT_FILE, GL_FRAGMENT_SHADER);
+    GLuint vs_id = AddShaderFile(std::string(GLSL_VERTEX_FILE), GL_VERTEX_SHADER);
+    GLuint gs_id = AddShaderFile(std::string(GLSL_GEOMETRY_FILE), GL_GEOMETRY_SHADER);
+    GLuint fs_id = AddShaderFile(std::string(GLSL_FRAGMENT_FILE), GL_FRAGMENT_SHADER);
 
     glLinkProgram(program_id);
     glGetProgramiv(program_id, GL_LINK_STATUS, &program_linked);
@@ -62,14 +62,14 @@ namespace term_engine::shaders {
       glAttachShader(program_id, shader_id);
 
       logging::logger->debug("Generated GLSL shader for ID {}.", shader_id);
+
+      return shader_id;
     }
     else {
       logging::logger->error("Failed to compile GLSL shader for ID {}.", shader_id);
 
-      return 1;
+      return 0;
     }
-
-    return 0;
   }
 
   void PrintProgramLog()

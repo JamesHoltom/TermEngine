@@ -8,7 +8,7 @@ namespace term_engine::fonts {
     font_path = DEFAULT_FONT;
     font_size = DEFAULT_FONT_SIZE;
     texture_id = 0;
-    texture_position = 0;
+    glyph_count = 0;
     GLint texture_max_layers = 0;
 
     /*
@@ -81,14 +81,14 @@ namespace term_engine::fonts {
       glPixelStorei(GL_UNPACK_ROW_LENGTH, glyph_width);
       glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, glyph_height);
 
-      glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, glyph_left, glyph_top, texture_position, glyph_width, glyph_height, 1, GL_RED, GL_UNSIGNED_BYTE, font_face->glyph->bitmap.buffer);
+      glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, glyph_left, glyph_top, glyph_count, glyph_width, glyph_height, 1, GL_RED, GL_UNSIGNED_BYTE, font_face->glyph->bitmap.buffer);
       glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 
-      auto new_glyph = font_atlas.emplace(std::make_pair(character, texture_position));
+      auto new_glyph = font_atlas.emplace(std::make_pair(character, glyph_count));
 
-      logging::logger->debug("Created character, \'{}\' with dimensions {},{} at layer {} and added to cache.", (char)character, glyph_width, glyph_height, texture_position);
+      logging::logger->debug("Created character, \'{}\' with dimensions {},{} at layer {} and added to cache.", (char)character, glyph_width, glyph_height, glyph_count);
 
-      texture_position++;
+      glyph_count++;
 
       return new_glyph.first->second;
     }
@@ -104,6 +104,6 @@ namespace term_engine::fonts {
   FT_Face font_face;
   GlyphList font_atlas;
   GLuint texture_id;
-  GLuint texture_position;
+  GLuint glyph_count;
   glm::vec2 texture_size;
 }

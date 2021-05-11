@@ -104,9 +104,6 @@
     <ClInclude Include="src\timing\Timer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\utility\Color.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\utility\DebugFunctions.h">
       <Filter>Header Files</Filter>
     </ClInclude>

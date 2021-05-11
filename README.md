@@ -10,16 +10,17 @@ TermEngine can currently be been built on Windows, with Linux support in the wor
 
 ### Prerequisites
 
-TermEngine requires the following libraries to build:
+TermEngine uses the following libraries:
 
 * SDL2 2.0.12
 * OpenGL 4.4
 * OpenGL Extension Wrangler (GLEW) 2.1.0
 * OpenGL Mathematics (GLM) 9.9.7
-* FreeType 2.10
+* FreeType 2.10.2
 * Lua 5.3
-* sol3 3.2.0
+* sol3 3.2.1
 * spdlog 1.6.0
+* cxxopts 2.2.0
 
 ### Download
 

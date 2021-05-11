@@ -7,7 +7,6 @@
 #include "../system/CLArguments.h"
 #include "../system/FileFunctions.h"
 #include "../system/Window.h"
-#include "../utility/Color.h"
 
 #include "../objects/ObjectManager.h"
 
@@ -15,6 +14,7 @@ namespace term_engine::scripting {
   void InitInterface() {
     lua_state.open_libraries(sol::lib::base, sol::lib::package, sol::lib::string);
 
+    // Create usertypes for commonly used complex types.
     sol::usertype<glm::vec2> vec2_type = lua_state.new_usertype<glm::vec2>(
       "vec2",
       sol::call_constructor, sol::constructors<void(), void(const float&), void(const float&, const float&)>(),
@@ -49,6 +49,7 @@ namespace term_engine::scripting {
       "g", &glm::vec3::g,
       "b", &glm::vec3::b);
 
+    // Create usertypes for TermEngine-specific complex types.
     sol::usertype<glyphs::GlyphParams> glyph_parameters_type = lua_state.new_usertype<glyphs::GlyphParams>(
       "Glyph",
       sol::call_constructor, sol::constructors<void(const char&, const glm::vec3&, const glm::vec3&)>(),
@@ -64,6 +65,7 @@ namespace term_engine::scripting {
       "size", sol::property(&objects::Object::GetSize, &objects::Object::SetSize),
       "data", sol::readonly_property(&objects::Object::GetData));
 
+    // Create bindings for C++ functions.
     lua_state.create_named_table("objects",
       "add", &objects::Add,
       "get", &objects::Get,
@@ -100,13 +102,14 @@ namespace term_engine::scripting {
       "disable", &system::DisableWireframe);
 
     lua_state["getFileList"] = [&](const std::string& directory) {
-      return system::GetFileList(system::GetRelative(directory));
+      return system::GetFileList(File::Relative(std::filesystem::path(directory)));
     };
 
     lua_state["getFolderList"] = [&](const std::string& directory) {
-      return system::GetFolderList(system::GetRelative(directory));
+      return system::GetFolderList(File::Relative(std::filesystem::path(directory)));
     };
 
+    // Create bindings for the main game functions.
     lua_state["Init"] = [&]() {
       logging::logger->info("TermEngine has initialised!");
 
@@ -125,7 +128,7 @@ namespace term_engine::scripting {
 
     std::filesystem::path project_file = system::script_path / std::string(PROJECT_ENTRYPOINT);
 
-    if (system::script_path != "" && system::IsValidPath(project_file)) {
+    if (system::script_path != "" && File::Exists(project_file)) {
       logging::logger->info("Loading project...");
       Load(project_file.string());
     }

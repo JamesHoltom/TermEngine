@@ -12,12 +12,13 @@ namespace term_engine::glyphs {
   struct GlyphParams;
   struct BufferData;
 
+  /// Used to indicate no character is set.
   constexpr char NO_CHARACTER = (char)0;
 
   /// Used to store data in a VBO.
   typedef std::vector<BufferData> BufferList;
 
-  /// Used to construct _GlyphData_ objects on creation, and to pass glyph data around.
+  /// Used to construct _BufferData_ objects, and to pass data between scripts and the program.
   struct GlyphParams {
     /// Constructs the glyph parameters.
     /**
@@ -36,9 +37,6 @@ namespace term_engine::glyphs {
   };
 
   /// Represents the glyph data that is passed to the GPU.
-  /**
-   * These are converted from _GlyphData_ objects when setting the VBO data.
-   */
   struct BufferData {
     /// Constructs the buffer data.
     BufferData();
@@ -81,16 +79,26 @@ namespace term_engine::glyphs {
   };
 
   /// Prepares the OpenGL buffers ready for use.
+  /**
+   * @returns If the OpenGL buffers were successfully set up.
+   */
   int Init();
+
+  /// Destroys the OpenGL buffers.
   void CleanUp();
+
+  /// Renders the current buffer data to the window.
   void Render();
 
   /// The _Vertex Array Object_ ID of the VAO used to contain both the quad's VBO, as well as the set's VBO.
   extern GLuint vao_id;
   /// The _Vertex Buffer Object_ ID of the VBO used to store the glyph's _BufferData_.
   extern GLuint vbo_id;
+  /// The dimensions of the view in the window, in rows & columns.
   extern glm::ivec2 dimensions;
+  /// The buffer of object data to render to the window.
   extern BufferList data;
+  /// Default glyph data to copy.
   extern GlyphParams default_glyph;
 }
 

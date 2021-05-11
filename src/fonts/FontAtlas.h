@@ -21,7 +21,13 @@ namespace term_engine::fonts {
   /// Used to store characters and the texture layers of the glyph they represent.
   typedef std::unordered_map<FT_UInt32, GLuint> GlyphList;
 
+  /// Initialises the font atlas and prepares it for use.
+  /**
+   * @returns If the font atlas was successfully set up.
+   */
   int Init();
+
+  /// Destroys the font atlas.
   void CleanUp();
 
   /// Finds a glyph in the atlas and returns the texture layer the glyph is on.
@@ -44,12 +50,14 @@ namespace term_engine::fonts {
   extern std::string font_path;
   /// The font size, in pixels (px).
   extern int font_size;
+  /// A handler for the loaded font face. This also refers to the currently loaded glyph.
   extern FT_Face font_face;
   /// The list containing all glyphs loaded from the font.
   extern GlyphList font_atlas;
   /// The texture ID for OpenGL to use when rendering.
   extern GLuint texture_id;
-  extern GLuint texture_position;
+  /// The amount of glyphs currently stored in the font atlas.
+  extern GLuint glyph_count;
   /// The size of the atlas texture. This includes the maximum ascender and descender.
   extern glm::vec2 texture_size;
 }

@@ -6,12 +6,7 @@
 #include "../logging/Logger.h"
 
 namespace term_engine::system {
-  bool IsValidPath(const std::filesystem::path& file_path)
-  {
-    return std::filesystem::exists(file_path);
-  }
-
-  std::string ReadFromFile(const std::string& file_path)
+  std::string ReadFromFile(const std::filesystem::path& directory)
   {
     std::ifstream file_stream;
     std::stringstream output_stream;
@@ -19,7 +14,7 @@ namespace term_engine::system {
     file_stream.exceptions(std::ifstream::badbit | std::ifstream::failbit);
 
     try {
-      file_stream.open(file_path);
+      file_stream.open(directory);
 
       output_stream << file_stream.rdbuf();
 
@@ -28,7 +23,7 @@ namespace term_engine::system {
       return output_stream.str();
     }
     catch (std::ifstream::failure exception) {
-      logging::logger->error("Failed to read from file \'{}\'.\nError: {}", file_path, exception.what());
+      logging::logger->error("Failed to read from file \'{}\'.\nError: {}", directory, exception.what());
 
       return "";
     }
@@ -59,16 +54,42 @@ namespace term_engine::system {
 
     return folder_list;
   }
+}
 
-  std::filesystem::path GetRelative(const std::string& path)
+namespace File {
+  std::filesystem::path Absolute(const std::filesystem::path& directory)
   {
     std::error_code err;
-    std::filesystem::path relative = std::filesystem::relative(std::filesystem::path(path), err);
+    std::filesystem::path absolute = std::filesystem::absolute(directory, err);
 
     if (err) {
-      logging::logger->error(err.message());
+      term_engine::logging::logger->error(err.message());
+    }
+
+    return absolute;
+  }
+
+  std::filesystem::path Relative(const std::filesystem::path& directory)
+  {
+    std::error_code err;
+    std::filesystem::path relative = std::filesystem::relative(directory, err);
+
+    if (err) {
+      term_engine::logging::logger->error(err.message());
     }
 
     return relative;
+  }
+
+  bool Exists(const std::filesystem::path& directory)
+  {
+    std::error_code err;
+    bool result = std::filesystem::exists(directory, err);
+
+    if (err) {
+      term_engine::logging::logger->error(err.message());
+    }
+
+    return result;
   }
 }
