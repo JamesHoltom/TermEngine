@@ -168,6 +168,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\application\Application.cc" />
+    <ClCompile Include="src\background\Background.cc" />
     <ClCompile Include="src\events\InputManager.cc" />
     <ClCompile Include="src\fonts\FontAtlas.cc" />
     <ClCompile Include="src\glyphs\Glyph.cc" />
@@ -178,6 +179,7 @@
     <ClCompile Include="src\main.cc" />
     <ClCompile Include="src\scripting\ScriptingInterface.cc" />
     <ClCompile Include="src\shaders\Shader.cc" />
+    <ClCompile Include="src\system\ImageFunctions.cc" />
     <ClCompile Include="src\utility\FTUtils.cc" />
     <ClCompile Include="src\utility\GLUtils.cc" />
     <ClCompile Include="src\logging\Logger.cc" />
@@ -190,6 +192,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\application\Application.h" />
+    <ClInclude Include="src\background\Background.h" />
     <ClInclude Include="src\events\InputManager.h" />
     <ClInclude Include="src\objects\Object.h" />
     <ClInclude Include="src\objects\ObjectManager.h" />
@@ -199,6 +202,7 @@
     <ClInclude Include="src\fonts\FontAtlas.h" />
     <ClInclude Include="src\glyphs\Glyph.h" />
     <ClInclude Include="src\shaders\Shader.h" />
+    <ClInclude Include="src\system\ImageFunctions.h" />
     <ClInclude Include="src\utility\FTUtils.h" />
     <ClInclude Include="src\utility\GenericUtils.h" />
     <ClInclude Include="src\utility\GLUtils.h" />
@@ -213,9 +217,12 @@
     <ClInclude Include="src\utility\DebugFunctions.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="resources\shaders\core\glyph.fs" />
-    <None Include="resources\shaders\core\glyph.gs" />
-    <None Include="resources\shaders\core\glyph.vs" />
+    <None Include="resources\shaders\core\background.frag" />
+    <None Include="resources\shaders\core\background.geom" />
+    <None Include="resources\shaders\core\background.vert" />
+    <None Include="resources\shaders\core\glyph.frag" />
+    <None Include="resources\shaders\core\glyph.geom" />
+    <None Include="resources\shaders\core\glyph.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

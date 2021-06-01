@@ -101,13 +101,9 @@ namespace term_engine::scripting {
       "enable", &system::EnableWireframe,
       "disable", &system::DisableWireframe);
 
-    lua_state["getFileList"] = [&](const std::string& directory) {
-      return system::GetFileList(File::Relative(std::filesystem::path(directory)));
-    };
-
-    lua_state["getFolderList"] = [&](const std::string& directory) {
-      return system::GetFolderList(File::Relative(std::filesystem::path(directory)));
-    };
+    lua_state.create_named_table("fs",
+      "getFileList", [&](const std::string& directory) { return system::GetFileList(File::Relative(std::filesystem::path(directory))); },
+      "getFolderList", [&](const std::string& directory) { return system::GetFolderList(File::Relative(std::filesystem::path(directory))); });
 
     // Create bindings for the main game functions.
     lua_state["Init"] = [&]() {

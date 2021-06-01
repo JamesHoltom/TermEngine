@@ -44,7 +44,7 @@ namespace term_engine::application {
     data::Init();
     data::SetProjection(system::GetWindowSize());
 
-    if (shaders::Init() > 0 || fonts::Init() > 0 || glyphs::Init() > 0) {
+    if (fonts::Init() > 0 || glyphs::Init() > 0) {
       logging::logger->error("Failed to initialise application!");
 
       exit(3);
@@ -64,8 +64,7 @@ namespace term_engine::application {
     objects::CleanUp();
     scripting::CleanUp();
     fonts::CleanUp();
-    shaders::CleanUp();
-
+    glyphs::CleanUp();
     data::CleanUp();
     events::CleanUp();
     system::CleanUpWindow();

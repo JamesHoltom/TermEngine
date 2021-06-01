@@ -75,6 +75,12 @@
     <ClCompile Include="src\objects\ObjectManager.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\background\Background.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\system\ImageFunctions.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\application\Application.h">
@@ -143,10 +149,19 @@
     <ClInclude Include="src\objects\ObjectManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\background\Background.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\system\ImageFunctions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="resources\shaders\core\glyph.fs" />
-    <None Include="resources\shaders\core\glyph.vs" />
-    <None Include="resources\shaders\core\glyph.gs" />
+    <None Include="resources\shaders\core\glyph.frag" />
+    <None Include="resources\shaders\core\glyph.vert" />
+    <None Include="resources\shaders\core\glyph.geom" />
+    <None Include="resources\shaders\core\background.vert" />
+    <None Include="resources\shaders\core\background.frag" />
+    <None Include="resources\shaders\core\background.geom" />
   </ItemGroup>
 </Project>

@@ -1,6 +1,7 @@
 #include "Glyph.h"
 #include "../data/Uniform.h"
 #include "../fonts/FontAtlas.h"
+#include "../shaders/Shader.h"
 #include "../utility/DebugFunctions.h"
 
 namespace term_engine::glyphs {
@@ -45,7 +46,7 @@ namespace term_engine::glyphs {
 
   int Init()
   {
-    dimensions = glm::uvec2(32, 16);
+    dimensions = DEFAULT_DIMENSIONS;
     data.reserve((size_t)dimensions.x * (size_t)dimensions.y);
     data.resize((size_t)dimensions.x * (size_t)dimensions.y);
 
@@ -58,6 +59,36 @@ namespace term_engine::glyphs {
       ++count;
     }
 
+    CreateBuffers();
+    CreateShader();
+
+    return 0;
+  }
+
+  void CleanUp()
+  {
+    data.clear();
+
+    CleanUpBuffers();
+    CleanUpShader();
+  }
+
+  void Render()
+  {
+    glUseProgram(program_id);
+    glBindVertexArray(vao_id);
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(BufferData) * data.capacity(), data.data(), GL_DYNAMIC_DRAW);
+
+    glDrawArrays(GL_POINTS, 0, static_cast<GLsizei>(dimensions.x * dimensions.y));
+
+    glBindVertexArray(0);
+    glUseProgram(0);
+  }
+
+  void CreateBuffers()
+  {
     glGenVertexArrays(1, &vao_id);
     glBindVertexArray(vao_id);
 
@@ -74,12 +105,12 @@ namespace term_engine::glyphs {
     glVertexAttribFormat(1, 2, GL_FLOAT, GL_FALSE, offsetof(BufferData, position_));
     glVertexAttribBinding(1, 0);
 
-    // Configure the foreground colour attribute.
+    // Configure the foreground color attribute.
     glEnableVertexAttribArray(2);
     glVertexAttribFormat(2, 3, GL_FLOAT, GL_FALSE, offsetof(BufferData, foreground_color_));
     glVertexAttribBinding(2, 0);
 
-    // Configure the background colour attribute.
+    // Configure the background color attribute.
     glEnableVertexAttribArray(3);
     glVertexAttribFormat(3, 3, GL_FLOAT, GL_FALSE, offsetof(BufferData, background_color_));
     glVertexAttribBinding(3, 0);
@@ -90,27 +121,32 @@ namespace term_engine::glyphs {
     glBufferData(GL_ARRAY_BUFFER, sizeof(BufferData) * data.capacity(), data.data(), GL_DYNAMIC_DRAW);
 
     glBindVertexArray(0);
-
-    return 0;
   }
 
-  void CleanUp()
+  void CreateShader()
   {
-    data.clear();
+    program_id = shaders::CreateProgram();
+
+    shaders::AddShaderFile(program_id, shaders::ShaderInitialisationPair(GL_VERTEX_SHADER, std::string(GLYPH_VERTEX_FILE)));
+    shaders::AddShaderFile(program_id, shaders::ShaderInitialisationPair(GL_FRAGMENT_SHADER, std::string(GLYPH_FRAGMENT_FILE)));
+    shaders::AddShaderFile(program_id, shaders::ShaderInitialisationPair(GL_GEOMETRY_SHADER, std::string(GLYPH_GEOMETRY_FILE)));
+    shaders::LinkProgram(program_id);
+
+    glUseProgram(0);
+  }
+
+  void CleanUpBuffers()
+  {
     glDeleteVertexArrays(1, &vao_id);
     glDeleteBuffers(1, &vbo_id);
   }
 
-  void Render()
+  void CleanUpShader()
   {
-    glBindVertexArray(vao_id);
-
-    glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(BufferData) * data.capacity(), data.data(), GL_DYNAMIC_DRAW);
-
-    glDrawArrays(GL_POINTS, 0, static_cast<GLsizei>(dimensions.x * dimensions.y));
+    glDeleteProgram(program_id);
   }
 
+  GLuint program_id;
   GLuint vao_id;
   GLuint vbo_id;
   glm::ivec2 dimensions;

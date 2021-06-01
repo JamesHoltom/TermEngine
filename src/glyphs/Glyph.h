@@ -14,6 +14,14 @@ namespace term_engine::glyphs {
 
   /// Used to indicate no character is set.
   constexpr char NO_CHARACTER = (char)0;
+  /// The default number of rows/columns in the view.
+  constexpr glm::uvec2 DEFAULT_DIMENSIONS = glm::uvec2(32, 16);
+  /// The location of the vertex GLSL file for the glyph shader.
+  constexpr char GLYPH_VERTEX_FILE[] = "resources/shaders/core/glyph.vert";
+  /// The location of the geometry GLSL file for the glyph shader.
+  constexpr char GLYPH_GEOMETRY_FILE[] = "resources/shaders/core/glyph.geom";
+  /// The location of the fragment GLSL file for the glyph shader.
+  constexpr char GLYPH_FRAGMENT_FILE[] = "resources/shaders/core/glyph.frag";
 
   /// Used to store data in a VBO.
   typedef std::vector<BufferData> BufferList;
@@ -78,21 +86,35 @@ namespace term_engine::glyphs {
     glm::vec3 background_color_;
   };
 
-  /// Prepares the OpenGL buffers ready for use.
+  /// Prepares the OpenGL buffers and shader ready for use.
   /**
-   * @returns If the OpenGL buffers were successfully set up.
+   * @returns If the OpenGL buffers and shader were successfully set up.
    */
   int Init();
 
-  /// Destroys the OpenGL buffers.
+  /// Destroys the OpenGL buffers and shader.
   void CleanUp();
+
+  /// Sets up the OpenGL buffers.
+  void CreateBuffers();
+
+  /// Sets up the glyph shader.
+  void CreateShader();
+
+  /// Destroys the OpenGL buffers.
+  void CleanUpBuffers();
+
+  /// Destroys the glyph shader.
+  void CleanUpShader();
 
   /// Renders the current buffer data to the window.
   void Render();
 
-  /// The _Vertex Array Object_ ID of the VAO used to contain both the quad's VBO, as well as the set's VBO.
+  /// The ID of the glyph shader program.
+  extern GLuint program_id;
+  /// The ID of the VAO used to contain both the quad's VBO, as well as the set's VBO.
   extern GLuint vao_id;
-  /// The _Vertex Buffer Object_ ID of the VBO used to store the glyph's _BufferData_.
+  /// The ID of the VBO used to store the glyph's _BufferData_.
   extern GLuint vbo_id;
   /// The dimensions of the view in the window, in rows & columns.
   extern glm::ivec2 dimensions;
