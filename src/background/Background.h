@@ -4,7 +4,9 @@
 #define BACKGROUND_H
 
 #include <string>
-#include <glm/glm.hpp>
+
+#include "../system/ImageFunctions.h"
+#include "../utility/GLUtils.h"
 
 namespace term_engine::background {
   struct BackgroundData;
@@ -41,10 +43,12 @@ namespace term_engine::background {
 
   /// The ID of the background shader program.
   extern GLuint program_id;
-  /// The _Vertex Buffer Object_ ID of the VBO used to store the glyph's _BufferData_.
+  /// The ID of the VAO used to contain the VBO.
+  extern GLuint vao_id;
+  /// The ID of the VBO used to store the buffer-related data.
   extern GLuint vbo_id;
 
-  extern std::string filename;
+  extern system::ImageData current_background;
 
   extern BackgroundData data;
 }

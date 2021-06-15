@@ -5,8 +5,14 @@
 namespace SDL {
   int InitSDL()
   {
-    if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
-      term_engine::logging::logger->error("Failed to initialise SDL!\nError: {}", SDL_GetError());
+    if (SDL_Init(SDL_INIT_FLAGS) < 0) {
+      term_engine::logging::logger->error("Failed to fully initialise SDL!\nError: {}", SDL_GetError());
+
+      return 1;
+    }
+
+    if (IMG_Init(IMG_INIT_FLAGS) != IMG_INIT_FLAGS) {
+      term_engine::logging::logger->error("Failed to fully initialise SDL_image!\nError: {}", IMG_GetError());
 
       return 1;
     }
@@ -20,6 +26,7 @@ namespace SDL {
 
   void CleanUpSDL()
   {
+    IMG_Quit();
     SDL_Quit();
 
     term_engine::logging::logger->debug("Shut down SDL.");

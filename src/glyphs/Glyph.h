@@ -13,7 +13,11 @@ namespace term_engine::glyphs {
   struct BufferData;
 
   /// Used to indicate no character is set.
-  constexpr char NO_CHARACTER = (char)0;
+  constexpr char NO_CHARACTER = '\0';
+  /// The default foreground color for glyphs.
+  constexpr glm::vec3 DEFAULT_FOREGROUND_COLOR = glm::vec3(255.0f);
+  /// The default background color for glyphs.
+  constexpr glm::vec3 DEFAULT_BACKGROUND_COLOR = glm::vec3(0.0f);
   /// The default number of rows/columns in the view.
   constexpr glm::uvec2 DEFAULT_DIMENSIONS = glm::uvec2(32, 16);
   /// The location of the vertex GLSL file for the glyph shader.
@@ -34,7 +38,7 @@ namespace term_engine::glyphs {
      * @param[in] foreground_color The foreground color, used for the text.
      * @param[in] background_color The background color.
      */
-    GlyphParams(const char& character = NO_CHARACTER, const glm::vec3& foreground_color = glm::vec3(0.0f), const glm::vec3& background_color = glm::vec3(0.0f));
+    GlyphParams(const char& character = NO_CHARACTER, const glm::vec3& foreground_color = DEFAULT_FOREGROUND_COLOR, const glm::vec3& background_color = DEFAULT_BACKGROUND_COLOR);
 
     /// The character that the glyph represents.
     char character_;
@@ -42,6 +46,16 @@ namespace term_engine::glyphs {
     glm::vec3 foreground_color_;
     /// The background color.
     glm::vec3 background_color_;
+
+    /// Allows for comparing 2 sets of _GlyphParams_ objects.
+    /**
+     * @param[in] lhs The left-hand side object.
+     * @param[in] rhs The right-hand side object.
+     * @returns If the 2 objects have equal values.
+     */
+    friend bool operator== (const GlyphParams& lhs, const GlyphParams& rhs) {
+      return (lhs.character_ == rhs.character_) && (lhs.foreground_color_ == rhs.foreground_color_) && (lhs.background_color_ == rhs.background_color_);
+    }
   };
 
   /// Represents the glyph data that is passed to the GPU.
@@ -112,7 +126,7 @@ namespace term_engine::glyphs {
 
   /// The ID of the glyph shader program.
   extern GLuint program_id;
-  /// The ID of the VAO used to contain both the quad's VBO, as well as the set's VBO.
+  /// The ID of the VAO used to contain the VBO.
   extern GLuint vao_id;
   /// The ID of the VBO used to store the glyph's _BufferData_.
   extern GLuint vbo_id;

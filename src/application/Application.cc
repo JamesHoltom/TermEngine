@@ -2,6 +2,7 @@
 
 #include "Application.h"
 #include "../logging/Logger.h"
+#include "../background/Background.h"
 #include "../data/Uniform.h"
 #include "../events/InputManager.h"
 #include "../fonts/FontAtlas.h"
@@ -9,6 +10,7 @@
 #include "../objects/ObjectManager.h"
 #include "../scripting/ScriptingInterface.h"
 #include "../shaders/Shader.h"
+#include "../system/ImageFunctions.h"
 #include "../system/Window.h"
 #include "../timing/FPSManager.h"
 #include "../utility/SDLUtils.h"
@@ -44,7 +46,7 @@ namespace term_engine::application {
     data::Init();
     data::SetProjection(system::GetWindowSize());
 
-    if (fonts::Init() > 0 || glyphs::Init() > 0) {
+    if (fonts::Init() > 0 || glyphs::Init() > 0 || background::Init() > 0) {
       logging::logger->error("Failed to initialise application!");
 
       exit(3);
@@ -68,6 +70,7 @@ namespace term_engine::application {
     data::CleanUp();
     events::CleanUp();
     system::CleanUpWindow();
+    background::RemoveBackground();
 
     FT::CleanUpFreeType();
     SDL::CleanUpSDL();
@@ -101,6 +104,7 @@ namespace term_engine::application {
 
       system::ClearWindow();
 
+      background::Render();
       objects::Render();
       glyphs::Render();
 

@@ -5,14 +5,13 @@
 
 #include <string>
 
-#include "../timing/Timer.h"
 #include "../utility/SolUtils.h"
 
 namespace term_engine::scripting {
   /// The location of the "No Program" script to run, only if a project was not loaded.
-  constexpr char DEFAULT_SCRIPT_PATH[] = "projects/init.lua";
-  /// The location of Lua functions that're used in the engine.
-  constexpr char FUNCTIONS_SCRIPT_PATH[] = "projects/funcs.lua";
+  constexpr char DEFAULT_SCRIPT_PATH[] = "projects/noprogram.lua";
+  /// The location of Lua file loader that's used to load core scripts to be used.
+  constexpr char LOADER_SCRIPT_PATH[] = "projects/load.lua";
   /// The entry file that is run when a project is loaded.
   constexpr char PROJECT_ENTRYPOINT[] = "main.lua";
 

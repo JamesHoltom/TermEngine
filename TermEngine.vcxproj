@@ -45,6 +45,7 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -52,6 +53,7 @@
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -104,6 +106,8 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PreprocessorDefinitions>TERM_DEBUG=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -156,6 +160,7 @@
       <PreprocessorDefinitions>TERM_RELEASE=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -196,6 +201,15 @@
     <ClInclude Include="src\events\InputManager.h" />
     <ClInclude Include="src\objects\Object.h" />
     <ClInclude Include="src\objects\ObjectManager.h" />
+    <ClInclude Include="src\scripting\bindings\BackgroundBindings.h" />
+    <ClInclude Include="src\scripting\bindings\FileBindings.h" />
+    <ClInclude Include="src\scripting\bindings\FontBindings.h" />
+    <ClInclude Include="src\scripting\bindings\glmBindings.h" />
+    <ClInclude Include="src\scripting\bindings\GlyphBindings.h" />
+    <ClInclude Include="src\scripting\bindings\EventBindings.h" />
+    <ClInclude Include="src\scripting\bindings\ObjectBindings.h" />
+    <ClInclude Include="src\scripting\bindings\ProjectBindings.h" />
+    <ClInclude Include="src\scripting\bindings\WindowBindings.h" />
     <ClInclude Include="src\scripting\ScriptingInterface.h" />
     <ClInclude Include="src\data\Uniform.h" />
     <ClInclude Include="src\system\FileFunctions.h" />

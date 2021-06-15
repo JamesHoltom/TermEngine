@@ -1,4 +1,5 @@
 #include "Object.h"
+#include "../logging/Logger.h"
 
 namespace term_engine::objects {
   Object::Object(const std::string& name, const glm::vec2& position, const glm::ivec2& size) :

@@ -27,6 +27,7 @@ namespace term_engine::glyphs {
 
   void BufferData::Set(const GlyphParams& params, const bool& normalised)
   {
+    fonts::Use();
     texture_layer_ = (GLfloat)fonts::GetCharacter(params.character_);
 
     if (!normalised) {
@@ -77,12 +78,14 @@ namespace term_engine::glyphs {
   {
     glUseProgram(program_id);
     glBindVertexArray(vao_id);
+    fonts::Use();
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
     glBufferData(GL_ARRAY_BUFFER, sizeof(BufferData) * data.capacity(), data.data(), GL_DYNAMIC_DRAW);
 
     glDrawArrays(GL_POINTS, 0, static_cast<GLsizei>(dimensions.x * dimensions.y));
 
+    fonts::Unuse();
     glBindVertexArray(0);
     glUseProgram(0);
   }
@@ -128,8 +131,8 @@ namespace term_engine::glyphs {
     program_id = shaders::CreateProgram();
 
     shaders::AddShaderFile(program_id, shaders::ShaderInitialisationPair(GL_VERTEX_SHADER, std::string(GLYPH_VERTEX_FILE)));
-    shaders::AddShaderFile(program_id, shaders::ShaderInitialisationPair(GL_FRAGMENT_SHADER, std::string(GLYPH_FRAGMENT_FILE)));
     shaders::AddShaderFile(program_id, shaders::ShaderInitialisationPair(GL_GEOMETRY_SHADER, std::string(GLYPH_GEOMETRY_FILE)));
+    shaders::AddShaderFile(program_id, shaders::ShaderInitialisationPair(GL_FRAGMENT_SHADER, std::string(GLYPH_FRAGMENT_FILE)));
     shaders::LinkProgram(program_id);
 
     glUseProgram(0);

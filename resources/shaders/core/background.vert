@@ -20,7 +20,7 @@ out GS_DATA
 
 void main()
 {
-	gl_Position = projection_ * vec4(vert_position, 1.0f, 1.0f)
+	gl_Position = projection_ * vec4(vert_position, 1.0f, 1.0f);
 
 	gs_data.size = size;
 	gs_data.color = color;

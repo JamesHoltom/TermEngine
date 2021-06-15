@@ -46,10 +46,15 @@ namespace term_engine::fonts {
     */
   GLint LoadChar(const FT_ULong& character);
 
+  int SetFont(const std::string& filename, const FT_UInt& size);
+
+  void Use();
+  void Unuse();
+
   /// The relative filepath of the font being used.
   extern std::string font_path;
   /// The font size, in pixels (px).
-  extern int font_size;
+  extern FT_UInt font_size;
   /// A handler for the loaded font face. This also refers to the currently loaded glyph.
   extern FT_Face font_face;
   /// The list containing all glyphs loaded from the font.
@@ -60,6 +65,8 @@ namespace term_engine::fonts {
   extern GLuint glyph_count;
   /// The size of the atlas texture. This includes the maximum ascender and descender.
   extern glm::vec2 texture_size;
+
+  extern GLint texture_max_layers;
 }
 
 #endif // ! FONT_ATLAS_H

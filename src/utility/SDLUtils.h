@@ -8,6 +8,9 @@
 #include <SDL2/SDL_image.h>
 
 namespace SDL {
+  constexpr int SDL_INIT_FLAGS = SDL_INIT_EVERYTHING;
+  constexpr int IMG_INIT_FLAGS = IMG_INIT_PNG;
+
   namespace color_mask {
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
     constexpr Uint32 rMask = 0xff000000;

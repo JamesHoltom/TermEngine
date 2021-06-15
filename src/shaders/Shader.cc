@@ -13,6 +13,8 @@ namespace term_engine::shaders {
 
   GLint AddShaderFile(const GLuint& program_id, const ShaderInitialisationPair& shader)
   {
+    logging::logger->info("Compiling shader stage \'{}\'...", shader.second);
+
     GLint shader_compiled = GL_FALSE;
     GLuint shader_id = glCreateShader(shader.first);
 

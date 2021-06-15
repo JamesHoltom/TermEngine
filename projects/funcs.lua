@@ -1,45 +1,168 @@
-function addBox(name, position, size, content)
-	local box = objects.add(name, position, size)
-	
-	for k = 1, #box.data do
-		box.data[k] = content
-	end
-	
-	return box
-end
+empty_glyph = Glyph(glyphs.NO_CHARACTER, glyphs.DEFAULT_FG, vec3(255))
 
-function addOutlinedBox(name, position, size, content)
-	local outline = objects.add(name, position, size)
+function BoxObject(_name, _position, _size)
+	local self = {
+		name = _name,
+		obj = objects.add(_name, _position, _size),
+		fill = empty_glyph,
+		outline = empty_glyph,
+		has_outline = false
+	}
 	
-	for top = 1, size.x do
-		outline.data[top] = content
-	end
-	
-	for bottom = #outline.data - size.x + 1, #outline.data do
-		outline.data[bottom] = content
-	end
-	
-	for left = 1, #outline.data - size.x + 1, size.x do
-		outline.data[left] = content
-	end
-	
-	for right = size.x, #outline.data, size.x do
-		outline.data[right] = content
-	end
-	
-	return outline
-end
-
-function addText(name, position, size, text, foreground_color, background_color)
-	local textbox = objects.add(name, position, size)
-	local index = 1
-	
-	for w in text:gmatch(".") do
-		if index > #textbox.data then break end
+	local _setData = function()
+		local w = self.obj.size.x
 		
-		textbox.data[index] = Glyph(w, foreground_color, background_color)
-		index = index + 1
+		for k = 1, #self.obj.data do
+			if self.has_outline and (k <= w or k > (#self.obj.data - w) or (k % w) <= 1) then
+				self.obj.data[k] = self.outline
+			else
+				self.obj.data[k] = self.fill
+			end
+		end
+		
+		objects.dirty()
 	end
 	
-	return textbox
+	local getName = function()
+		return self.name
+	end
+	
+	local getPosition = function()
+		return self.obj.position
+	end
+	
+	local setPosition = function(_position)
+		self.obj.position = _position
+	end
+	
+	local getSize = function()
+		return self.obj.position
+	end
+	
+	local setSize = function(_size)
+		self.obj.size = _size
+	end
+	
+	local getFill = function()
+		return self.fill
+	end
+	
+	local setFill = function(_glyph)
+		self.fill = _glyph
+		
+		_setData()
+	end
+	
+	local hasOutline = function()
+		return self.has_outline
+	end
+	
+	local getOutline = function()
+		return self.outline
+	end
+	
+	local setOutline = function(_glyph)
+		self.outline = _glyph
+		self.has_outline = true
+		
+		_setData()
+	end
+	
+	local unsetOutline = function()
+		self.outline = empty_glyph
+		self.has_outline = false
+		
+		_setData()
+	end
+	
+	return {
+		getName = getName,
+		getPosition = getPosition,
+		setPosition = setPosition,
+		getSize = getSize,
+		setSize = setSize,
+		getFill = getFill,
+		setFill = setFill,
+		hasOutline = hasOutline,
+		getOutline = getOutline,
+		setOutline = setOutline,
+		unsetOutline = unsetOutline
+	}
+end
+
+function TextObject(_name, _position, _size)
+	local self = {
+		name = _name,
+		obj = objects.add(_name, _position, _size),
+		text = "",
+		fg_color = vec3(0),
+		bg_color = vec3(0)
+	}
+	
+	function _setData()
+		local str_table = { string.byte(self.text, 1, #self.text) }
+		
+		for k = 1, #self.obj.data do
+			if k <= #str_table then
+				self.obj.data[k] = Glyph(string.char(str_table[k]), self.fg_color, self.bg_color)
+			else
+				self.obj.data[k] = empty_glyph
+			end
+		end
+		
+		objects.dirty()
+	end
+	
+	local getName = function()
+		return self.name
+	end
+	
+	local getPosition = function()
+		return self.obj.position
+	end
+	
+	local setPosition = function(_position)
+		self.obj.position = _position
+	end
+	
+	local getSize = function()
+		return self.obj.position
+	end
+	
+	local setSize = function(_size)
+		self.obj.size = _size
+	end
+	
+	local getText = function()
+		return self.text
+	end
+	
+	local setText = function(_text)
+		self.text = tostring(_text)
+		
+		_setData()
+	end
+	
+	local getColors = function()
+		return self.fg_color, self.bg_color
+	end
+	
+	local setColors = function(_fg_color, _bg_color)
+		self.fg_color = _fg_color or self.fg_color
+		self.bg_color = _bg_color or self.bg_color
+		
+		_setData()
+	end
+	
+	return {
+		getName = getName,
+		getPosition = getPosition,
+		setPosition = setPosition,
+		getSize = getSize,
+		setSize = setSize,
+		getText = getText,
+		setText = setText,
+		getColors = getColors,
+		setColors = setColors
+	}
 end
