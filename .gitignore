@@ -342,4 +342,5 @@ healthchecksdb
 /docs/html
 /logs
 /resources/fonts/*
+/resources/images/*
 NOTICE

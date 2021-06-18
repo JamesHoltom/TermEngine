@@ -22,7 +22,7 @@ out GS_DATA
 
 void main()
 {
-	gl_Position = projection_ * vec4(set_position_ + position, 0.0f, 1.0f);
+	gl_Position = projection_ * vec4(set_position_ + (position * font_size_), 0.0f, 1.0f);
 
 	gs_data.texture_layer = texture_layer;
 	gs_data.foreground_color = foreground_color;

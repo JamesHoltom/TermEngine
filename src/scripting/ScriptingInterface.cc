@@ -42,6 +42,8 @@ namespace term_engine::scripting {
 
       return true;
     };
+
+    lua_state["gc"] = [&]() { lua_state.collect_garbage(); };
   }
 
   void InitScript() {

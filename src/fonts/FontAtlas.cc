@@ -115,6 +115,9 @@ namespace term_engine::fonts {
 
     data::SetFontSize(texture_size);
 
+    font_path = filename;
+    font_size = size;
+
     logging::logger->debug("Texture #{} created with dimensions of {}, {} and {} layers.", texture_id, texture_size.x, texture_size.y, texture_max_layers);
 
     return 0;

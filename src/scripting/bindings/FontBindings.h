@@ -11,8 +11,10 @@ namespace term_engine::scripting::bindings {
   {
     state.create_named_table("font",
       "set", &fonts::SetFont,
-      "getName", &fonts::font_path,
-      "getSize", &fonts::font_size);
+      "font_name", [&]() { return fonts::font_path; },
+      "font_size", [&]() { return fonts::font_size; },
+      "DEFAULT_FONT_NAME", std::string(fonts::DEFAULT_FONT),
+      "DEFAULT_FONT_SIZE", fonts::DEFAULT_FONT_SIZE);
   }
 }
 

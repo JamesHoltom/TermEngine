@@ -19,9 +19,9 @@ namespace term_engine::scripting::bindings {
       sol::meta_function::equal_to, sol::overload([](const glyphs::GlyphParams& lhs, const glyphs::GlyphParams& rhs) { return lhs == rhs; }));
 
     state.create_named_table("glyphs",
-      "NO_CHARACTER", &glyphs::NO_CHARACTER,
-      "DEFAULT_FG", &glyphs::DEFAULT_FOREGROUND_COLOR,
-      "DEFAULT_BG", &glyphs::DEFAULT_BACKGROUND_COLOR);
+      "NO_CHARACTER", glyphs::NO_CHARACTER,
+      "DEFAULT_FG", glyphs::DEFAULT_FOREGROUND_COLOR,
+      "DEFAULT_BG", glyphs::DEFAULT_BACKGROUND_COLOR);
   }
 }
 

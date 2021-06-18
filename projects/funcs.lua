@@ -1,4 +1,4 @@
-empty_glyph = Glyph(glyphs.NO_CHARACTER, glyphs.DEFAULT_FG, vec3(255))
+empty_glyph = Glyph(glyphs.NO_CHARACTER, glyphs.DEFAULT_FG, glyphs.DEFAULT_BG)
 
 function BoxObject(_name, _position, _size)
 	local self = {
@@ -36,11 +36,13 @@ function BoxObject(_name, _position, _size)
 	end
 	
 	local getSize = function()
-		return self.obj.position
+		return self.obj.size
 	end
 	
 	local setSize = function(_size)
 		self.obj.size = _size
+		
+		_setData()
 	end
 	
 	local getFill = function()
@@ -63,7 +65,12 @@ function BoxObject(_name, _position, _size)
 	
 	local setOutline = function(_glyph)
 		self.outline = _glyph
-		self.has_outline = true
+		
+		if _glyph.character == glyphs.NO_CHARACTER then
+			self.has_outline = false
+		else
+			self.has_outline = true
+		end
 		
 		_setData()
 	end

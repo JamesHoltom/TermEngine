@@ -34,6 +34,20 @@ function Loop(timestep)
 			box.setOutline(Glyph("*", vec3(0, 255, 0), vec3(255)))
 		end
 	end
+	
+	if keyboard.isPressed("y") then
+		if font.font_name() == font.DEFAULT_FONT_NAME then
+			-- The consola font is used here as an example.
+			-- Replace this value with the font of your choosing.
+			font.set("projects/example/consola.ttf", 12)
+		else
+			font.set(font.DEFAULT_FONT_NAME, font.DEFAULT_FONT_SIZE)
+		end
+	end
+	
+	if keyboard.isPressed("g") then
+		gc()
+	end
 
 	local speed = 9 * timestep
 	local pos = box.getPosition()

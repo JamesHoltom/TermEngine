@@ -55,7 +55,7 @@ namespace term_engine::glyphs {
     int count = 0;
 
     for (glyphs::BufferData& glyph : data) {
-      glyph.position_ = glm::vec2((count % dimensions.x) * font_size.x, (count / dimensions.x) * font_size.y);
+      glyph.position_ = glm::vec2(count % dimensions.x, count / dimensions.x);
 
       ++count;
     }
