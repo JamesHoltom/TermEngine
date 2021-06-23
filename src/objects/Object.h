@@ -21,23 +21,16 @@ namespace term_engine::objects {
   public:
     /// Constructs the object with the given parameters.
     /**
-     * @param[in] name     The name of the object to add. This can later be retrieved in-script with "objects.get()".
      * @param[in] position The position of the object in the window.
      * @param[in] size     The size of the object, i.e. how many rows & columns.
      */
-    Object(const std::string& name, const glm::vec2& position, const glm::ivec2& size);
+    Object(const glm::vec2& position, const glm::ivec2& size);
 
     /// Renders the object to the given buffer.
     /**
      * @param[in] data The data to render.
      */
     void Render(glyphs::BufferList& data) const;
-
-    /// Returns the name of the object.
-    /**
-     * @returns The name of the object.
-     */
-    std::string GetName() const;
 
     /// Returns the position of the object.
     /**
@@ -69,19 +62,43 @@ namespace term_engine::objects {
      */
     void SetSize(const glm::ivec2& size);
 
+    /// Returns if the 'Is Dirty' flag is set, and there are objects that need to be re-rendered.
+    /**
+     * @returns If the 'Is Dirty' flag is set.
+     */
+    static bool IsDirty();
+
+    /// Sets the 'Is Dirty' flag.
+    /**
+     * @param[in] flag The value to set the flag to.
+     */
+    static void SetDirty(const bool& flag);
+
+    /// Returns if 2 objects share the same ID.
+    /**
+     * @param[in] rhs The object to compare this object to.
+     * @returns If the 2 objects are the same.
+     */
+    bool operator==(const Object& rhs) const
+    {
+      return object_id_ == rhs.object_id_;
+    }
+
   protected:
-    /// The name of the object.
-    std::string name_;
     /// The top-left position of the object.
     glm::vec2 position_;
     /// The size of the object, in rows & columns.
     glm::ivec2 size_;
     /// The glyph parameters that will copied to the buffer when rendered.
     GlyphData data_;
-  };
+    /// The ID of the object.
+    int object_id_;
 
-  /// A flag to check if any objects have been modified, and will need to be re-rendered.
-  extern bool is_dirty;
+    /// Represents the ID to use for the next object.
+    static int object_next_id_;
+    /// A flag to check if any objects have been modified, and will need to be re-rendered.
+    static bool is_dirty_;
+  };
 }
 
 #endif // ! OBJECT_H

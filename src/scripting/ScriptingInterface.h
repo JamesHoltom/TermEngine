@@ -21,9 +21,6 @@ namespace term_engine::scripting {
   /// Selects the project script to execute, or the "No Program" script if one is not set.
   void InitScript();
 
-  /// Runs garbage collection on the Lua state.
-  void CleanUp();
-
   /// Loads the contents of a Lua file into the state, allowing subsequent scripts to use the contents.
   /**
    * @param[in] filename The file name/path of the Lua script to load.

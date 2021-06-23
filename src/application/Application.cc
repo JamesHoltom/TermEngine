@@ -64,7 +64,6 @@ namespace term_engine::application {
   void CleanUp()
   {
     objects::CleanUp();
-    scripting::CleanUp();
     fonts::CleanUp();
     glyphs::CleanUp();
     data::CleanUp();

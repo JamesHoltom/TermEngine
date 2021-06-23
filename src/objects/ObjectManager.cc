@@ -1,18 +1,20 @@
+#include <algorithm>
+
 #include "ObjectManager.h"
 
 namespace term_engine::objects {
   void Render()
   {
-    if (is_dirty) {
+    if (Object::IsDirty()) {
       for (auto& glyph : glyphs::data) {
         glyph.Set(glyphs::default_glyph);
       }
 
       for (auto& object : objects::object_list) {
-        object.second->Render(glyphs::data);
+        object->Render(glyphs::data);
       }
 
-      is_dirty = false;
+      Object::SetDirty(false);
     }
   }
 
@@ -21,28 +23,18 @@ namespace term_engine::objects {
     object_list.clear();
   }
 
-  ObjectPtr Add(const std::string& name, const glm::vec2& position, const glm::ivec2& size)
+  ObjectPtr& Add(const glm::vec2& position, const glm::ivec2& size)
   {
-    auto result = object_list.insert_or_assign(name, std::make_shared<Object>(name, position, size));
-
-    return result.first->second;
+    return object_list.emplace_back(std::make_shared<Object>(position, size));
   }
 
-  ObjectPtr Get(const std::string& name)
+  void Remove(const ObjectPtr& obj)
   {
-    auto result = object_list.find(name);
+    ObjectList::iterator position = std::find(object_list.begin(), object_list.end(), obj);
 
-    if (result != object_list.end()) {
-      return result->second;
+    if (position != object_list.end()) {
+      object_list.erase(position);
     }
-    else {
-      return nullptr;
-    }
-  }
-
-  void Remove(const std::string& name)
-  {
-    object_list.erase(name);
   }
 
   ObjectList object_list;

@@ -1,3 +1,5 @@
+#include <filesystem>
+
 #include "FontAtlas.h"
 #include "../data/Uniform.h"
 #include "../logging/Logger.h"
@@ -30,14 +32,28 @@ namespace term_engine::fonts {
     auto found_char = font_atlas.find(character);
 
     if (found_char == font_atlas.end()) {
-      return LoadChar(character);
+      return _LoadChar(character);
     }
     else {
       return found_char->second;
     }
   }
 
-  GLint LoadChar(const FT_ULong& character)
+  GLint _LoadChar(const FT_ULong& character)
+  {
+    if (_CreateCharTexture(character, glyph_count)) {
+      auto new_glyph = font_atlas.emplace(std::make_pair(character, glyph_count));
+
+      glyph_count++;
+
+      return new_glyph.first->second;
+    }
+    else {
+      return -1;
+    }
+  }
+
+  bool _CreateCharTexture(const FT_ULong& character, const GLint texture_layer)
   {
     if (FT::Log(FT_Load_Char(font_face, character, FT_LOAD_RENDER)) == FT_Err_Ok) {
       // Glyph metrics are stored in an unscaled, 1/64th of a pixel per unit format, and must be converted before use.
@@ -51,26 +67,28 @@ namespace term_engine::fonts {
       glPixelStorei(GL_UNPACK_ROW_LENGTH, glyph_width);
       glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, glyph_height);
 
-      glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, glyph_left, glyph_top, glyph_count, glyph_width, glyph_height, 1, GL_RED, GL_UNSIGNED_BYTE, font_face->glyph->bitmap.buffer);
+      glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, glyph_left, glyph_top, texture_layer, glyph_width, glyph_height, 1, GL_RED, GL_UNSIGNED_BYTE, font_face->glyph->bitmap.buffer);
       glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 
-      auto new_glyph = font_atlas.emplace(std::make_pair(character, glyph_count));
+      logging::logger->debug("Created character, \'{}\' for font \'{}\' with dimensions {},{} at layer {} and added to cache.", (char)character, font_path, glyph_width, glyph_height, texture_layer);
 
-      logging::logger->debug("Created character, \'{}\' with dimensions {},{} at layer {} and added to cache.", (char)character, glyph_width, glyph_height, glyph_count);
-
-      glyph_count++;
-
-      return new_glyph.first->second;
+      return true;
     }
     else {
       logging::logger->error("Failed to load character \'{}\' from font \'{}\'.", character, font_path);
 
-      return -1;
+      return false;
     }
   }
 
   int SetFont(const std::string& filename, const FT_UInt& size)
   {
+    if (!std::filesystem::exists(filename)) {
+      logging::logger->warn("Attempting to set font to one that doesn't exist: {}", filename);
+
+      return 1;
+    }
+
     if (filename != font_path) {
       if (font_path != "") {
         if (FT::Log(FT_Done_Face(font_face)) != FT_Err_Ok) {
@@ -91,13 +109,14 @@ namespace term_engine::fonts {
       glGenTextures(1, &texture_id);
     }
 
-    if (filename != font_path && size != font_size) {
-      if (FT::Log(FT_Set_Pixel_Sizes(font_face, size, size)) != FT_Err_Ok) {
-        logging::logger->error("Failed to set font size.");
+    if (FT::Log(FT_Set_Pixel_Sizes(font_face, size, size)) != FT_Err_Ok) {
+      logging::logger->error("Failed to set font size.");
 
-        return 1;
-      }
+      return 1;
     }
+
+    font_path = filename;
+    font_size = size;
 
     /*
      * Using the bounding box, we can get the size of the texture, including ascender and descender.
@@ -113,10 +132,11 @@ namespace term_engine::fonts {
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 
-    data::SetFontSize(texture_size);
+    for (auto& glyph : font_atlas) {
+      _CreateCharTexture(glyph.first, glyph.second);
+    }
 
-    font_path = filename;
-    font_size = size;
+    data::SetFontSize(texture_size);
 
     logging::logger->debug("Texture #{} created with dimensions of {}, {} and {} layers.", texture_id, texture_size.x, texture_size.y, texture_max_layers);
 

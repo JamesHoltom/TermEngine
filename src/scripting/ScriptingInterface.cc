@@ -42,8 +42,6 @@ namespace term_engine::scripting {
 
       return true;
     };
-
-    lua_state["gc"] = [&]() { lua_state.collect_garbage(); };
   }
 
   void InitScript() {
@@ -61,17 +59,13 @@ namespace term_engine::scripting {
     }
   }
 
-  void CleanUp() {
-    lua_state.collect_garbage();
-  }
-
   void Load(const std::string& filename) {
     try {
       sol::protected_function_result result = lua_state.safe_script_file(filename);
 
       if (result.valid()) {
         lua_file = filename;
-        logging::logger->info("Loaded Lua script {}.", filename);
+        logging::logger->debug("Loaded Lua script {}.", filename);
       }
       else {
         logging::logger->error("Failed to load Lua script {}. ", filename);

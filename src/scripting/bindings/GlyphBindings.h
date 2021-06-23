@@ -12,11 +12,12 @@ namespace term_engine::scripting::bindings {
   {
     state.new_usertype<glyphs::GlyphParams>(
       "Glyph",
+      sol::meta_function::construct, sol::constructors<void(const char&, const glm::vec3&, const glm::vec3&)>(),
       sol::call_constructor, sol::constructors<void(const char&, const glm::vec3&, const glm::vec3&)>(),
+      sol::meta_function::equal_to, sol::overload([](const glyphs::GlyphParams& lhs, const glyphs::GlyphParams& rhs) { return lhs == rhs; }),
       "character", &glyphs::GlyphParams::character_,
       "foreground_color", &glyphs::GlyphParams::foreground_color_,
-      "background_color", &glyphs::GlyphParams::background_color_,
-      sol::meta_function::equal_to, sol::overload([](const glyphs::GlyphParams& lhs, const glyphs::GlyphParams& rhs) { return lhs == rhs; }));
+      "background_color", &glyphs::GlyphParams::background_color_);
 
     state.create_named_table("glyphs",
       "NO_CHARACTER", glyphs::NO_CHARACTER,

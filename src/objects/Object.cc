@@ -2,8 +2,8 @@
 #include "../logging/Logger.h"
 
 namespace term_engine::objects {
-  Object::Object(const std::string& name, const glm::vec2& position, const glm::ivec2& size) :
-    name_(name),
+  Object::Object(const glm::vec2& position, const glm::ivec2& size) :
+    object_id_(Object::object_next_id_++),
     position_(position),
     size_(size)
   {
@@ -11,7 +11,7 @@ namespace term_engine::objects {
     data_.reserve(data_size);
     data_.resize(data_size);
 
-    logging::logger->info("Created {}x{} object with {} elements.", size.x, size.y, data_size);
+    logging::logger->debug("Created {}x{} object with {} elements.", size.x, size.y, data_size);
   }
 
   void Object::Render(glyphs::BufferList& data) const
@@ -35,11 +35,6 @@ namespace term_engine::objects {
     }
   }
 
-  std::string Object::GetName() const
-  {
-    return name_;
-  }
-
   glm::vec2 Object::GetPosition() const
   {
     return position_;
@@ -58,7 +53,7 @@ namespace term_engine::objects {
   void Object::SetPosition(const glm::vec2& position)
   {
     position_ = position;
-    is_dirty = true;
+    Object::is_dirty_ = true;
   }
 
   void Object::SetSize(const glm::ivec2& size)
@@ -74,8 +69,19 @@ namespace term_engine::objects {
     data_.shrink_to_fit();
 
     size_ = size;
-    is_dirty = true;
+    Object::is_dirty_ = true;
   }
 
-  bool is_dirty = true;
+  bool Object::IsDirty()
+  {
+    return Object::is_dirty_;
+  }
+
+  void Object::SetDirty(const bool& flag)
+  {
+    Object::is_dirty_ = flag;
+  }
+
+  int Object::object_next_id_ = 0;
+  bool Object::is_dirty_ = true;
 }

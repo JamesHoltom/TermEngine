@@ -1,9 +1,8 @@
 empty_glyph = Glyph(glyphs.NO_CHARACTER, glyphs.DEFAULT_FG, glyphs.DEFAULT_BG)
 
-function BoxObject(_name, _position, _size)
+function BoxObject(_position, _size)
 	local self = {
-		name = _name,
-		obj = objects.add(_name, _position, _size),
+		obj = Object(_position, _size),
 		fill = empty_glyph,
 		outline = empty_glyph,
 		has_outline = false
@@ -21,10 +20,6 @@ function BoxObject(_name, _position, _size)
 		end
 		
 		objects.dirty()
-	end
-	
-	local getName = function()
-		return self.name
 	end
 	
 	local getPosition = function()
@@ -83,7 +78,6 @@ function BoxObject(_name, _position, _size)
 	end
 	
 	return {
-		getName = getName,
 		getPosition = getPosition,
 		setPosition = setPosition,
 		getSize = getSize,
@@ -97,10 +91,9 @@ function BoxObject(_name, _position, _size)
 	}
 end
 
-function TextObject(_name, _position, _size)
+function TextObject(_position, _size)
 	local self = {
-		name = _name,
-		obj = objects.add(_name, _position, _size),
+		obj = Object(_position, _size),
 		text = "",
 		fg_color = vec3(0),
 		bg_color = vec3(0)
@@ -118,10 +111,6 @@ function TextObject(_name, _position, _size)
 		end
 		
 		objects.dirty()
-	end
-	
-	local getName = function()
-		return self.name
 	end
 	
 	local getPosition = function()
@@ -162,7 +151,6 @@ function TextObject(_name, _position, _size)
 	end
 	
 	return {
-		getName = getName,
 		getPosition = getPosition,
 		setPosition = setPosition,
 		getSize = getSize,

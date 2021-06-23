@@ -11,18 +11,17 @@ namespace term_engine::scripting::bindings {
   {
     state.new_usertype<objects::Object>(
       "Object",
-      sol::no_constructor,
-      "name", sol::readonly_property(&objects::Object::GetName),
+      sol::meta_function::construct, sol::factories(&objects::Add),
+      sol::call_constructor, sol::factories(&objects::Add),
+      sol::meta_function::garbage_collect, sol::destructor(&objects::Remove),
       "position", sol::property(&objects::Object::GetPosition, &objects::Object::SetPosition),
       "size", sol::property(&objects::Object::GetSize, &objects::Object::SetSize),
-      "data", sol::readonly_property(&objects::Object::GetData));
+      "data", sol::property(&objects::Object::GetData));
 
     state.create_named_table("objects",
-      "add", &objects::Add,
-      "get", &objects::Get,
-      "remove", &objects::Remove,
-      "dirty", [&]() { objects::is_dirty = true; },
-      "is_dirty", [&]() { return objects::is_dirty; });
+      "count", [&]() -> size_t { return objects::object_list.size(); },
+      "dirty", [&]() { objects::Object::SetDirty(true); },
+      "is_dirty", &objects::Object::IsDirty);
   }
 }
 

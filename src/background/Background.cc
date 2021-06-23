@@ -1,3 +1,5 @@
+#include <filesystem>
+
 #include "Background.h"
 
 #include "../logging/Logger.h"
@@ -8,6 +10,12 @@
 namespace term_engine::background {
   void SetBackground(const std::string& file)
   {
+    if (!std::filesystem::exists(file)) {
+      logging::logger->warn("Attempting to set background to one that doesn't exist: {}", file);
+
+      return;
+    }
+
     if (current_background.texture_id_ > 0) {
       RemoveBackground();
     }

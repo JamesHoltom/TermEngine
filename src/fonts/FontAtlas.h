@@ -44,7 +44,9 @@ namespace term_engine::fonts {
     * @param[in] character The character to load.
     * @returns The texture layer where the loaded glyph has been stored.
     */
-  GLint LoadChar(const FT_ULong& character);
+  GLint _LoadChar(const FT_ULong& character);
+
+  bool _CreateCharTexture(const FT_ULong& character, const GLint texture_layer);
 
   int SetFont(const std::string& filename, const FT_UInt& size);
 
