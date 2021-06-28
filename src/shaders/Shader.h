@@ -8,6 +8,7 @@
 #include "../utility/GLUtils.h"
 
 namespace term_engine::shaders {
+  /// Used to initialise a a shader, consisting of a shader stage type & path to a shader file.
   using ShaderInitialisationPair = std::pair<GLenum, std::string>;
 
   /// Creates an OpenGL shader program.

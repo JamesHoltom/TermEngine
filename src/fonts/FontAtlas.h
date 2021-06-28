@@ -46,12 +46,22 @@ namespace term_engine::fonts {
     */
   GLint _LoadChar(const FT_ULong& character);
 
+  /// Creates the texture of a character, and stores it in the font texture.
+  /**
+   * @param[in] character     The character to render.
+   * @param[in] texture_layer The texture layer to render the character to.
+   * @returns If the character was successfully rendered.
+   */
   bool _CreateCharTexture(const FT_ULong& character, const GLint texture_layer);
 
+  /// Sets the font being used to render characters.
+  /**
+   * All existing characters in the font atlas are re-rendered when this is called.
+   * @param[in] filename The path to the font file to load.
+   * @param[in] size     The size, in pixels (px), to render the characters at.
+   * @returns If the font was successfully loaded.
+   */
   int SetFont(const std::string& filename, const FT_UInt& size);
-
-  void Use();
-  void Unuse();
 
   /// The relative filepath of the font being used.
   extern std::string font_path;

@@ -14,27 +14,6 @@ namespace term_engine::objects {
     logging::logger->debug("Created {}x{} object with {} elements.", size.x, size.y, data_size);
   }
 
-  void Object::Render(glyphs::BufferList& data) const
-  {
-    for (size_t object_index = 0; object_index < (size_t)size_.x * (size_t)size_.y; ++object_index) {
-      glm::ivec2 world_pos = glm::ivec2(position_) + glm::ivec2(object_index % size_.x, object_index / size_.x);
-      size_t view_index = ((size_t)glyphs::dimensions.x * (size_t)world_pos.y) + (size_t)world_pos.x;
-
-      // Do not render the glyph if it is obscured from view.
-      // i.e. If the top-left corner of the object is beyond the right/bottom edges of the view, or if the bottom-right corner of the object is beyond the top/left edges of the view.
-      if (glm::any(glm::lessThan(world_pos, glm::ivec2(0))) || glm::any(glm::greaterThanEqual(world_pos, glyphs::dimensions))) {
-        continue;
-      }
-
-      // Do not render the glyph if it is invisible.
-      if (data_.at(object_index).character_ == glyphs::NO_CHARACTER) {
-        continue;
-      }
-
-      data.at(view_index).Set(data_.at(object_index));
-    }
-  }
-
   glm::vec2 Object::GetPosition() const
   {
     return position_;

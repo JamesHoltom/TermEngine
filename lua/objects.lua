@@ -18,8 +18,6 @@ function BoxObject(_position, _size)
 				self.obj.data[k] = self.fill
 			end
 		end
-		
-		objects.dirty()
 	end
 	
 	local getPosition = function()
@@ -109,8 +107,6 @@ function TextObject(_position, _size)
 				self.obj.data[k] = empty_glyph
 			end
 		end
-		
-		objects.dirty()
 	end
 	
 	local getPosition = function()

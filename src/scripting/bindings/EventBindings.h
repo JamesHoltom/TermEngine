@@ -7,6 +7,10 @@
 #include "../../utility/SolUtils.h"
 
 namespace term_engine::scripting::bindings {
+  /// Binds the input and event-related script functions to the Lua state.
+  /**
+   * @params[in] state The lua state to bind to.
+   */
   void BindEventToState(sol::state& state)
   {
     state.create_named_table("mouse",
@@ -16,8 +20,8 @@ namespace term_engine::scripting::bindings {
       "isDown", &events::MouseIsDown,
       "isPressed", &events::MouseIsPressed,
       "isReleased", &events::MouseIsReleased,
-      "position", sol::var(&events::mouse_position),
-      "movement", sol::var(&events::mouse_position_delta));
+      "position", [&]() -> glm::ivec2 { return events::mouse_position; },
+      "movement", [&]() -> glm::ivec2 { return events::mouse_position_delta; });
 
     state.create_named_table("keyboard",
       "isDown", &events::KeyIsDown,

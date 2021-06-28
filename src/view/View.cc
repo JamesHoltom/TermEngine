@@ -1,93 +1,90 @@
-#include "Glyph.h"
+#include "View.h"
 #include "../data/Uniform.h"
-#include "../fonts/FontAtlas.h"
+#include "../objects/Object.h"
+#include "../objects/ObjectManager.h"
 #include "../shaders/Shader.h"
 #include "../utility/DebugFunctions.h"
+#include "../utility/Glyph.h"
 
-namespace term_engine::glyphs {
-  GlyphParams::GlyphParams(const char& character, const glm::vec3& foreground_color, const glm::vec3& background_color) :
-    character_(character),
-    foreground_color_(foreground_color),
-    background_color_(background_color)
-  {}
-
-  BufferData::BufferData() :
-    texture_layer_(0.0f),
-    position_(glm::vec2(0.0f)),
-    foreground_color_(glm::vec4(0.0f)),
-    background_color_(glm::vec4(0.0f))
-  {}
-
-  BufferData::BufferData(const GLfloat& texture_layer, const glm::vec2& position, const glm::vec3& foreground_color, const glm::vec3& background_color) :
-    texture_layer_(texture_layer),
-    position_(position),
-    foreground_color_(foreground_color),
-    background_color_(background_color)
-  {}
-
-  void BufferData::Set(const GlyphParams& params, const bool& normalised)
+namespace term_engine::views {
+  void Init()
   {
-    fonts::Use();
-    texture_layer_ = (GLfloat)fonts::GetCharacter(params.character_);
-
-    if (!normalised) {
-      foreground_color_ = params.foreground_color_ / glm::vec3(255.0f);
-      background_color_ = params.background_color_ / glm::vec3(255.0f);
-    }
-    else {
-      foreground_color_ = params.foreground_color_;
-      background_color_ = params.background_color_;
-    }
-  }
-
-  void BufferData::SetPosition(const glm::vec2& position)
-  {
-    position_ = position;
-  }
-
-  int Init()
-  {
-    dimensions = DEFAULT_DIMENSIONS;
-    data.reserve((size_t)dimensions.x * (size_t)dimensions.y);
-    data.resize((size_t)dimensions.x * (size_t)dimensions.y);
-
-    glm::vec2 font_size = data::GetFontSize();
-    int count = 0;
-
-    for (glyphs::BufferData& glyph : data) {
-      glyph.position_ = glm::vec2(count % dimensions.x, count / dimensions.x);
-
-      ++count;
-    }
-
     CreateBuffers();
     CreateShader();
-
-    return 0;
+    SetSize(DEFAULT_DIMENSIONS);
   }
 
   void CleanUp()
   {
-    data.clear();
-
     CleanUpBuffers();
     CleanUpShader();
   }
 
   void Render()
   {
+    if (objects::Object::IsDirty()) {
+      for (auto& glyph : data) {
+        glyph.Set(default_glyph);
+      }
+
+      for (objects::ObjectPtr& object : objects::object_list) {
+        const objects::GlyphData& obj_data = object->GetData();
+        const glm::ivec2 obj_size = object->GetSize();
+
+        for (size_t object_index = 0; object_index < (size_t)obj_size.x * (size_t)obj_size.y; ++object_index) {
+          glm::ivec2 world_pos = glm::ivec2(object->GetPosition()) + glm::ivec2(object_index % obj_size.x, object_index / obj_size.x);
+          size_t view_index = ((size_t)view_size.x * (size_t)world_pos.y) + (size_t)world_pos.x;
+
+          // Do not render the glyph if it is obscured from view.
+          // i.e. If the top-left corner of the object is beyond the right/bottom edges of the view, or if the bottom-right corner of the object is beyond the top/left edges of the view.
+          if (glm::any(glm::lessThan(world_pos, glm::ivec2(0))) || glm::any(glm::greaterThanEqual(world_pos, view_size))) {
+            continue;
+          }
+
+          // Do not render the glyph if it is invisible.
+          if (obj_data.at(object_index).character_ == NO_CHARACTER) {
+            continue;
+          }
+
+          data.at(view_index).Set(obj_data.at(object_index));
+        }
+      }
+
+      objects::Object::SetDirty(false);
+    }
+
     glUseProgram(program_id);
     glBindVertexArray(vao_id);
-    fonts::Use();
-
     glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
     glBufferData(GL_ARRAY_BUFFER, sizeof(BufferData) * data.capacity(), data.data(), GL_DYNAMIC_DRAW);
 
-    glDrawArrays(GL_POINTS, 0, static_cast<GLsizei>(dimensions.x * dimensions.y));
+    glDrawArrays(GL_POINTS, 0, static_cast<GLsizei>(data.capacity()));
 
-    fonts::Unuse();
     glBindVertexArray(0);
     glUseProgram(0);
+  }
+
+  void SetPosition(const glm::vec2& position)
+  {
+    view_position = position;
+    data::SetPosition(position);
+  }
+
+  void SetSize(const glm::ivec2& size)
+  {
+    data.reserve((size_t)size.x * (size_t)size.y);
+    data.resize((size_t)size.x * (size_t)size.y);
+    data.shrink_to_fit();
+
+    view_size = size;
+
+    size_t count = 0;
+
+    for (BufferData& glyph : data) {
+      glyph.position_ = glm::vec2(count % size.x, count / size.x);
+
+      ++count;
+    }
   }
 
   void CreateBuffers()
@@ -152,7 +149,7 @@ namespace term_engine::glyphs {
   GLuint program_id;
   GLuint vao_id;
   GLuint vbo_id;
-  glm::ivec2 dimensions;
+  glm::vec2 view_position;
+  glm::ivec2 view_size;
   BufferList data;
-  GlyphParams default_glyph = GlyphParams();
 }

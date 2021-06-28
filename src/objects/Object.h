@@ -8,15 +8,18 @@
 #include <vector>
 #include <glm/glm.hpp>
 
-#include "../glyphs/Glyph.h"
+#include "../utility/Glyph.h"
 
 namespace term_engine::objects {
   class Object;
 
   /// Used to store a collection of glyph parameters, which represents an object.
-  typedef std::vector<glyphs::GlyphParams> GlyphData;
+  typedef std::vector<GlyphParams> GlyphData;
 
-  /// 
+  /// Used to represent a game object, that is rendered to the screen.
+  /**
+   * Other attributes can be added at the script level; this structure only cares about rendering glyphs to the screen.
+   */
   class Object {
   public:
     /// Constructs the object with the given parameters.
@@ -25,12 +28,6 @@ namespace term_engine::objects {
      * @param[in] size     The size of the object, i.e. how many rows & columns.
      */
     Object(const glm::vec2& position, const glm::ivec2& size);
-
-    /// Renders the object to the given buffer.
-    /**
-     * @param[in] data The data to render.
-     */
-    void Render(glyphs::BufferList& data) const;
 
     /// Returns the position of the object.
     /**
@@ -62,6 +59,16 @@ namespace term_engine::objects {
      */
     void SetSize(const glm::ivec2& size);
 
+    /// Returns if 2 objects share the same ID.
+    /**
+     * @param[in] rhs The object to compare this object to.
+     * @returns If the 2 objects are the same.
+     */
+    bool operator==(const Object& rhs) const
+    {
+      return object_id_ == rhs.object_id_;
+    }
+
     /// Returns if the 'Is Dirty' flag is set, and there are objects that need to be re-rendered.
     /**
      * @returns If the 'Is Dirty' flag is set.
@@ -73,16 +80,6 @@ namespace term_engine::objects {
      * @param[in] flag The value to set the flag to.
      */
     static void SetDirty(const bool& flag);
-
-    /// Returns if 2 objects share the same ID.
-    /**
-     * @param[in] rhs The object to compare this object to.
-     * @returns If the 2 objects are the same.
-     */
-    bool operator==(const Object& rhs) const
-    {
-      return object_id_ == rhs.object_id_;
-    }
 
   protected:
     /// The top-left position of the object.

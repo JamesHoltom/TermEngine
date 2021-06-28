@@ -8,16 +8,12 @@
 #include <vector>
 
 #include "Object.h"
-#include "../glyphs/Glyph.h"
 
 namespace term_engine::objects {
   /// Smart pointer to an object.
   typedef std::shared_ptr<Object> ObjectPtr;
   /// Used to store a list of objects.
   typedef std::vector<ObjectPtr> ObjectList;
-
-  /// Renders the list of objects to the window.
-  void Render();
 
   /// Destroys all objects in the list.
   void CleanUp();
@@ -32,7 +28,7 @@ namespace term_engine::objects {
 
   /// Removes an object from the list.
   /**
-   * @param[in] name The name of the object.
+   * @param[in] name A smart pointer to the object.
    */
   void Remove(const ObjectPtr& obj);
 

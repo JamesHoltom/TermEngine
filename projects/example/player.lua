@@ -28,28 +28,42 @@ function Player(_pos)
 		end
 		
 		local pos = self.box.getPosition()
+		local has_moved = false
 		
 		if keyboard.isDown("left") then
+			print("Pressing left")
 			pos.x = pos.x - (self.speed * _timestep)
+			has_moved = true
 		end
 		
 		if keyboard.isDown("right") then
+			print("Pressing right")
 			pos.x = pos.x + (self.speed * _timestep)
+			has_moved = true
 		end
 		
 		if keyboard.isDown("up") then
+			print("Pressing up")
 			pos.y = pos.y - (self.speed * _timestep)
+			has_moved = true
 		end
 		
 		if keyboard.isDown("down") then
+			print("Pressing down")
 			pos.y = pos.y + (self.speed * _timestep)
+			has_moved = true
 		end
 		
 		if keyboard.isReleased("left") or keyboard.isReleased("right") or keyboard.isReleased("up") or keyboard.isReleased("down") then
 			pos = pos:floor() + vec2(0.5)
+			print("Released")
+			has_moved = true
 		end
 		
-		self.box.setPosition(pos)
+		if has_moved then
+			print("Is moving")
+			self.box.setPosition(pos)
+		end
 		
 		if keyboard.isPressed("space") then
 			if self.box.getSize() == ivec2(2) then

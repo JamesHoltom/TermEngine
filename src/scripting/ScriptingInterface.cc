@@ -9,6 +9,8 @@
 #include "bindings/GlyphBindings.h"
 #include "bindings/ObjectBindings.h"
 #include "bindings/ProjectBindings.h"
+#include "bindings/UtilityBindings.h"
+#include "bindings/ViewBindings.h"
 #include "bindings/WindowBindings.h"
 #include "../logging/Logger.h"
 #include "../system/CLArguments.h"
@@ -17,7 +19,7 @@
 
 namespace term_engine::scripting {
   void InitInterface() {
-    lua_state.open_libraries(sol::lib::base, sol::lib::package, sol::lib::string);
+    lua_state.open_libraries(sol::lib::base, sol::lib::package, sol::lib::math, sol::lib::string);
 
     // Create bindings for C++ functions.
     bindings::BindGlmToState(lua_state);
@@ -28,6 +30,8 @@ namespace term_engine::scripting {
     bindings::BindGlyphToState(lua_state);
     bindings::BindObjectToState(lua_state);
     bindings::BindProjectToState(lua_state);
+    bindings::BindUtilitiesToState(lua_state);
+    bindings::BindViewToState(lua_state);
     bindings::BindWindowToState(lua_state);
 
     // Create bindings for the main game functions.
@@ -47,7 +51,7 @@ namespace term_engine::scripting {
   void InitScript() {
     Load(std::string(LOADER_SCRIPT_PATH));
 
-    std::filesystem::path project_file = system::script_path / std::string(PROJECT_ENTRYPOINT);
+    std::filesystem::path project_file = std::filesystem::absolute(system::script_path / std::string(PROJECT_ENTRYPOINT));
 
     if (system::script_path != "" && File::Exists(project_file)) {
       logging::logger->info("Loading project...");
@@ -61,14 +65,15 @@ namespace term_engine::scripting {
 
   void Load(const std::string& filename) {
     try {
-      sol::protected_function_result result = lua_state.safe_script_file(filename);
+      sol::protected_function_result result = lua_state.script_file(filename);
 
       if (result.valid()) {
         lua_file = filename;
         logging::logger->debug("Loaded Lua script {}.", filename);
       }
       else {
-        logging::logger->error("Failed to load Lua script {}. ", filename);
+        sol::error err = result;
+        logging::logger->error("Failed to load Lua script {}\nError: {}. ", filename, err.what());
       }
     }
     catch (const std::exception& err) {

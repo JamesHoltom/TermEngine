@@ -24,9 +24,6 @@
     <ClCompile Include="src\fonts\FontAtlas.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\glyphs\Glyph.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\logging\Logger.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -81,6 +78,12 @@
     <ClCompile Include="src\system\ImageFunctions.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\view\View.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utility\Glyph.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\application\Application.h">
@@ -90,9 +93,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\fonts\FontAtlas.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\glyphs\Glyph.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\logging\Logger.h">
@@ -180,6 +180,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\scripting\bindings\FontBindings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scripting\bindings\UtilityBindings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\view\View.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utility\Glyph.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\scripting\bindings\ViewBindings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -3,21 +3,6 @@
 #include "ObjectManager.h"
 
 namespace term_engine::objects {
-  void Render()
-  {
-    if (Object::IsDirty()) {
-      for (auto& glyph : glyphs::data) {
-        glyph.Set(glyphs::default_glyph);
-      }
-
-      for (auto& object : objects::object_list) {
-        object->Render(glyphs::data);
-      }
-
-      Object::SetDirty(false);
-    }
-  }
-
   void CleanUp()
   {
     object_list.clear();

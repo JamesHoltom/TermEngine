@@ -7,6 +7,10 @@
 #include "../../utility/SolUtils.h"
 
 namespace term_engine::scripting::bindings {
+  /// Binds the _Object_ type as a usertype, as well as other object-related script functions to the Lua state.
+  /**
+   * @params[in] state The lua state to bind to.
+   */
   void BindObjectToState(sol::state& state)
   {
     state.new_usertype<objects::Object>(

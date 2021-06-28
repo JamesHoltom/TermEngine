@@ -40,7 +40,7 @@ namespace term_engine::data {
 
   /// Returns the scale of a glyph on the screen.
   /**
-   * @returns The scale a glyph.
+   * @returns The scale of a glyph.
    */
   glm::vec2 GetFontSize();
 

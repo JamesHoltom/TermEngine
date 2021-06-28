@@ -143,16 +143,6 @@ namespace term_engine::fonts {
     return 0;
   }
 
-  void Use()
-  {
-    glBindTexture(GL_TEXTURE_2D_ARRAY, texture_id);
-  }
-
-  void Unuse()
-  {
-    glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
-  }
-
   std::string font_path;
   FT_UInt font_size;
   FT_Face font_face;

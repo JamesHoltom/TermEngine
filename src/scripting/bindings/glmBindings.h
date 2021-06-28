@@ -9,12 +9,20 @@
 #include "../../utility/SolUtils.h"
 
 namespace term_engine::scripting::bindings {
+  /// Binds GLM vector types as usertypes to the Lua state.
+  /**
+   * @params[in] state The lua state to bind to.
+   */
   void BindGlmToState(sol::state& state)
   {
     state.new_usertype<glm::ivec2>(
       "ivec2",
-      sol::meta_function::construct, sol::constructors<void(), void(const int&), void(const int&, const int&)>(),
-      sol::call_constructor, sol::constructors<void(), void(const int&), void(const int&, const int&)>(),
+      sol::meta_function::construct, sol::constructors<void(),
+                                                       void(const int&), void(const int&, const int&),
+                                                       void(const glm::ivec2&), void(const glm::vec2&)>(),
+      sol::call_constructor, sol::constructors<void(),
+                                               void(const int&), void(const int&, const int&),
+                                               void(const glm::ivec2&), void(const glm::vec2&)>(),
       sol::meta_function::equal_to, sol::overload([](const glm::ivec2& lhs, const glm::ivec2& rhs) -> bool { return lhs == rhs; }),
       sol::meta_function::addition, sol::overload([](const glm::ivec2& lhs, const glm::ivec2& rhs) -> glm::ivec2 { return lhs + rhs; }),
       sol::meta_function::subtraction, sol::overload([](const glm::ivec2& lhs, const glm::ivec2& rhs) -> glm::ivec2 { return lhs - rhs; }),
@@ -32,8 +40,12 @@ namespace term_engine::scripting::bindings {
 
     state.new_usertype<glm::vec2>(
       "vec2",
-      sol::meta_function::construct, sol::constructors<void(), void(const float&), void(const float&, const float&)>(),
-      sol::call_constructor, sol::constructors<void(), void(const float&), void(const float&, const float&)>(),
+      sol::meta_function::construct, sol::constructors<void(),
+                                                       void(const float&), void(const float&, const float&),
+                                                       void(const glm::vec2&), void(const glm::ivec2&)>(),
+      sol::call_constructor, sol::constructors<void(),
+                                               void(const float&), void(const float&, const float&),
+                                               void(const glm::vec2&), void(const glm::ivec2&)>(),
       sol::meta_function::equal_to, sol::overload([](const glm::vec2& lhs, const glm::vec2& rhs) -> bool { return lhs == rhs; }),
       sol::meta_function::addition, sol::overload([](const glm::vec2& lhs, const glm::vec2& rhs) -> glm::vec2 { return lhs + rhs; }),
       sol::meta_function::subtraction, sol::overload([](const glm::vec2& lhs, const glm::vec2& rhs) -> glm::vec2 { return lhs - rhs; }),
@@ -53,8 +65,14 @@ namespace term_engine::scripting::bindings {
 
     state.new_usertype<glm::vec3>(
       "vec3",
-      sol::meta_function::construct, sol::constructors<void(), void(const float&), void(const float&, const float&, const float&)>(),
-      sol::call_constructor, sol::constructors<void(), void(const float&), void(const float&, const float&, const float&)>(),
+      sol::meta_function::construct, sol::constructors<void(),
+                                                       void(const float&), void(const float&, const float&, const float&),
+                                                       void(const glm::ivec2&, const float&), void(const glm::vec2&, const float&),
+                                                       void(const glm::vec3&)>(),
+      sol::call_constructor, sol::constructors<void(),
+                                               void(const float&), void(const float&, const float&, const float&),
+                                               void(const glm::ivec2&, const float&), void(const glm::vec2&, const float&),
+                                               void(const glm::vec3&)>(),
       sol::meta_function::equal_to, sol::overload([](const glm::vec3& lhs, const glm::vec3& rhs) -> bool { return lhs == rhs; }),
       sol::meta_function::addition, sol::overload([](const glm::vec3& lhs, const glm::vec3& rhs) -> glm::vec3 { return lhs + rhs; }),
       sol::meta_function::subtraction, sol::overload([](const glm::vec3& lhs, const glm::vec3& rhs) -> glm::vec3 { return lhs - rhs; }),

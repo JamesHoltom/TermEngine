@@ -63,21 +63,6 @@ namespace term_engine::background {
     CleanUpShader();
   }
 
-  void Render()
-  {
-    if (current_background.texture_id_ >= 0) {
-      glUseProgram(program_id);
-      glBindVertexArray(vao_id);
-      glBindTexture(GL_TEXTURE_2D, current_background.texture_id_);
-
-      glDrawArrays(GL_POINTS, 0, 1);
-
-      glBindTexture(GL_TEXTURE_2D, 0);
-      glBindVertexArray(0);
-      glUseProgram(0);
-    }
-  }
-
   void CreateBuffers()
   {
     glGenVertexArrays(1, &vao_id);
@@ -129,6 +114,21 @@ namespace term_engine::background {
   void CleanUpShader()
   {
     glDeleteProgram(program_id);
+  }
+
+  void Render()
+  {
+    if (current_background.texture_id_ >= 0) {
+      glUseProgram(program_id);
+      glBindVertexArray(vao_id);
+      glBindTexture(GL_TEXTURE_2D, current_background.texture_id_);
+
+      glDrawArrays(GL_POINTS, 0, 1);
+
+      glBindTexture(GL_TEXTURE_2D, 0);
+      glBindVertexArray(0);
+      glUseProgram(0);
+    }
   }
 
   GLuint program_id;

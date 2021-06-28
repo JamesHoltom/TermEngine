@@ -8,7 +8,7 @@
 #include "../logging/Logger.h"
 #include "../utility/GLUtils.h"
 
-namespace term_engine::glyphs {
+namespace term_engine {
   struct GlyphParams;
   struct BufferData;
 
@@ -18,14 +18,6 @@ namespace term_engine::glyphs {
   constexpr glm::vec3 DEFAULT_FOREGROUND_COLOR = glm::vec3(255.0f);
   /// The default background color for glyphs.
   constexpr glm::vec3 DEFAULT_BACKGROUND_COLOR = glm::vec3(0.0f);
-  /// The default number of rows/columns in the view.
-  constexpr glm::uvec2 DEFAULT_DIMENSIONS = glm::uvec2(32, 16);
-  /// The location of the vertex GLSL file for the glyph shader.
-  constexpr char GLYPH_VERTEX_FILE[] = "resources/shaders/core/glyph.vert";
-  /// The location of the geometry GLSL file for the glyph shader.
-  constexpr char GLYPH_GEOMETRY_FILE[] = "resources/shaders/core/glyph.geom";
-  /// The location of the fragment GLSL file for the glyph shader.
-  constexpr char GLYPH_FRAGMENT_FILE[] = "resources/shaders/core/glyph.frag";
 
   /// Used to store data in a VBO.
   typedef std::vector<BufferData> BufferList;
@@ -38,14 +30,10 @@ namespace term_engine::glyphs {
      * @param[in] foreground_color The foreground color, used for the text.
      * @param[in] background_color The background color.
      */
-    GlyphParams(const char& character = NO_CHARACTER, const glm::vec3& foreground_color = DEFAULT_FOREGROUND_COLOR, const glm::vec3& background_color = DEFAULT_BACKGROUND_COLOR);
-
-    /// The character that the glyph represents.
-    char character_;
-    /// The foreground color, used for the text.
-    glm::vec3 foreground_color_;
-    /// The background color.
-    glm::vec3 background_color_;
+    GlyphParams(const char& character = NO_CHARACTER, const glm::vec3& foreground_color = DEFAULT_FOREGROUND_COLOR, const glm::vec3& background_color = DEFAULT_BACKGROUND_COLOR) :
+      character_(character),
+      foreground_color_(foreground_color),
+      background_color_(background_color) {}
 
     /// Allows for comparing 2 sets of _GlyphParams_ objects.
     /**
@@ -53,15 +41,27 @@ namespace term_engine::glyphs {
      * @param[in] rhs The right-hand side object.
      * @returns If the 2 objects have equal values.
      */
-    friend bool operator== (const GlyphParams& lhs, const GlyphParams& rhs) {
+    friend bool operator== (const GlyphParams& lhs, const GlyphParams& rhs)
+    {
       return (lhs.character_ == rhs.character_) && (lhs.foreground_color_ == rhs.foreground_color_) && (lhs.background_color_ == rhs.background_color_);
     }
+
+    /// The character that the glyph represents.
+    char character_;
+    /// The foreground color, used for the text.
+    glm::vec3 foreground_color_;
+    /// The background color.
+    glm::vec3 background_color_;
   };
 
-  /// Represents the glyph data that is passed to the GPU.
+  /// Represents the structure of the buffer used to render glyphs.
   struct BufferData {
     /// Constructs the buffer data.
-    BufferData();
+    BufferData() :
+      texture_layer_(0.0f),
+      position_(glm::vec2(0.0f)),
+      foreground_color_(glm::vec4(0.0f)),
+      background_color_(glm::vec4(0.0f)) {}
 
     /// Constructs the buffer data with the given parameters.
     /**
@@ -70,13 +70,26 @@ namespace term_engine::glyphs {
      * @param[in] foreground_color The foreground color, used for the glyph.
      * @param[in] background_color The background color.
      */
-    BufferData(const GLfloat& texture_layer, const glm::vec2& position, const glm::vec3& foreground_color, const glm::vec3& background_color);
+    BufferData(const GLfloat& texture_layer, const glm::vec2& position, const glm::vec3& foreground_color, const glm::vec3& background_color) :
+      texture_layer_(texture_layer),
+      position_(position),
+      foreground_color_(foreground_color),
+      background_color_(background_color) {}
 
+    /// Sets the parameters for the glyph.
+    /**
+     * @param[in] params     The parameters to apply to the glyph.
+     * @param[in] normalised If the foreground and background colors are normalised (i.e. from 0~1, rather than 0~255).
+     */
     void Set(const GlyphParams& params, const bool& normalised = false);
 
+    /// Sets the position of the glyph, relative to the window.
+    /**
+     * @param[in] position The position to move the glyph to.
+     */
     void SetPosition(const glm::vec2& position);
 
-    /// Allows _std::stringstream_ to correctly parse a _InstanceData_ object.
+    /// Allows _std::stringstream_ to correctly parse a _BufferData_ object.
     /**
      * @param[in] os   The stream to output the value to.
      * @param[in] data The data to parse.
@@ -92,7 +105,7 @@ namespace term_engine::glyphs {
 
     /// The texture layer to render.
     GLfloat texture_layer_;
-    /// The position of the glyph, from its default position in the glyph set.
+    /// The position of the glyph, relative to the window.
     glm::vec2 position_;
     /// The foreground color, used for the glyph.
     glm::vec3 foreground_color_;
@@ -100,40 +113,6 @@ namespace term_engine::glyphs {
     glm::vec3 background_color_;
   };
 
-  /// Prepares the OpenGL buffers and shader ready for use.
-  /**
-   * @returns If the OpenGL buffers and shader were successfully set up.
-   */
-  int Init();
-
-  /// Destroys the OpenGL buffers and shader.
-  void CleanUp();
-
-  /// Sets up the OpenGL buffers.
-  void CreateBuffers();
-
-  /// Sets up the glyph shader.
-  void CreateShader();
-
-  /// Destroys the OpenGL buffers.
-  void CleanUpBuffers();
-
-  /// Destroys the glyph shader.
-  void CleanUpShader();
-
-  /// Renders the current buffer data to the window.
-  void Render();
-
-  /// The ID of the glyph shader program.
-  extern GLuint program_id;
-  /// The ID of the VAO used to contain the VBO.
-  extern GLuint vao_id;
-  /// The ID of the VBO used to store the glyph's _BufferData_.
-  extern GLuint vbo_id;
-  /// The dimensions of the view in the window, in rows & columns.
-  extern glm::ivec2 dimensions;
-  /// The buffer of object data to render to the window.
-  extern BufferList data;
   /// Default glyph data to copy.
   extern GlyphParams default_glyph;
 }

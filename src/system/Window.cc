@@ -1,6 +1,8 @@
 #include "Window.h"
 #include "../data/Uniform.h"
+#include "../fonts/FontAtlas.h"
 #include "../logging/Logger.h"
+#include "../view/View.h"
 
 namespace term_engine::system {
   SDL_GLContext context;
@@ -60,6 +62,11 @@ namespace term_engine::system {
   {
     SDL_SetWindowSize(window.get(), size.x, size.y);
     data::SetProjection(size);
+  }
+
+  void ResizeWindowToView()
+  {
+    SetWindowSize(glm::ivec2(fonts::texture_size) * views::view_size);
   }
 
   glm::uvec3 GetWindowClearColor()

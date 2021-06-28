@@ -48,6 +48,9 @@ namespace term_engine::system {
    */
   void SetWindowSize(const glm::ivec2& size);
 
+  /// Sets the size of the window to fit the view.
+  void ResizeWindowToView();
+
   /// Returns the clear color of the window.
   /**
    * @returns The clear color of the window.

@@ -6,7 +6,6 @@
 #include "../data/Uniform.h"
 #include "../events/InputManager.h"
 #include "../fonts/FontAtlas.h"
-#include "../glyphs/Glyph.h"
 #include "../objects/ObjectManager.h"
 #include "../scripting/ScriptingInterface.h"
 #include "../shaders/Shader.h"
@@ -16,7 +15,7 @@
 #include "../utility/SDLUtils.h"
 #include "../utility/GLUtils.h"
 #include "../utility/FTUtils.h"
-#include "../timing/FPSManager.h"
+#include "../view/View.h"
 
 namespace term_engine::application {
   void Init()
@@ -46,13 +45,14 @@ namespace term_engine::application {
     data::Init();
     data::SetProjection(system::GetWindowSize());
 
-    if (fonts::Init() > 0 || glyphs::Init() > 0 || background::Init() > 0) {
+    if (fonts::Init() > 0 || background::Init() > 0) {
       logging::logger->error("Failed to initialise application!");
 
       exit(3);
     }
 
-    system::SetWindowSize(glm::ivec2(fonts::texture_size) * glyphs::dimensions);
+    views::Init();
+    system::ResizeWindowToView();
 
     timing::InitFPS();
     scripting::InitInterface();
@@ -65,7 +65,7 @@ namespace term_engine::application {
   {
     objects::CleanUp();
     fonts::CleanUp();
-    glyphs::CleanUp();
+    views::CleanUp();
     data::CleanUp();
     events::CleanUp();
     system::CleanUpWindow();
@@ -104,8 +104,7 @@ namespace term_engine::application {
       system::ClearWindow();
 
       background::Render();
-      objects::Render();
-      glyphs::Render();
+      views::Render();
 
       system::RefreshWindow();
 

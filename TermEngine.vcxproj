@@ -176,7 +176,6 @@
     <ClCompile Include="src\background\Background.cc" />
     <ClCompile Include="src\events\InputManager.cc" />
     <ClCompile Include="src\fonts\FontAtlas.cc" />
-    <ClCompile Include="src\glyphs\Glyph.cc" />
     <ClCompile Include="src\data\Uniform.cc" />
     <ClCompile Include="src\objects\Object.cc" />
     <ClCompile Include="src\objects\ObjectManager.cc" />
@@ -193,7 +192,9 @@
     <ClCompile Include="src\timing\FPSManager.cc" />
     <ClCompile Include="src\timing\Timer.cc" />
     <ClCompile Include="src\utility\DebugFunctions.cc" />
+    <ClCompile Include="src\utility\Glyph.cc" />
     <ClCompile Include="src\utility\SDLUtils.cc" />
+    <ClCompile Include="src\view\View.cc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\application\Application.h" />
@@ -209,12 +210,13 @@
     <ClInclude Include="src\scripting\bindings\EventBindings.h" />
     <ClInclude Include="src\scripting\bindings\ObjectBindings.h" />
     <ClInclude Include="src\scripting\bindings\ProjectBindings.h" />
+    <ClInclude Include="src\scripting\bindings\UtilityBindings.h" />
+    <ClInclude Include="src\scripting\bindings\ViewBindings.h" />
     <ClInclude Include="src\scripting\bindings\WindowBindings.h" />
     <ClInclude Include="src\scripting\ScriptingInterface.h" />
     <ClInclude Include="src\data\Uniform.h" />
     <ClInclude Include="src\system\FileFunctions.h" />
     <ClInclude Include="src\fonts\FontAtlas.h" />
-    <ClInclude Include="src\glyphs\Glyph.h" />
     <ClInclude Include="src\shaders\Shader.h" />
     <ClInclude Include="src\system\ImageFunctions.h" />
     <ClInclude Include="src\utility\FTUtils.h" />
@@ -229,6 +231,8 @@
     <ClInclude Include="src\timing\FPSManager.h" />
     <ClInclude Include="src\timing\Timer.h" />
     <ClInclude Include="src\utility\DebugFunctions.h" />
+    <ClInclude Include="src\utility\Glyph.h" />
+    <ClInclude Include="src\view\View.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\shaders\core\background.frag" />

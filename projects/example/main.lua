@@ -17,4 +17,10 @@ end
 
 function Loop(timestep)
 	player.doInput(timestep)
+	
+	if keyboard.isPressed("r") then
+		print("Number 1, 0~1:    " .. rand.get())
+		print("Number 2, 0~10:   " .. rand.get(10))
+		print("Number 3, 10~100: " .. rand.get(90, 10))
+	end
 end
