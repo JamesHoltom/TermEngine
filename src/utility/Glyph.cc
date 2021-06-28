@@ -2,6 +2,8 @@
 #include "../fonts/FontAtlas.h"
 
 namespace term_engine {
+  GlyphParams default_glyph;
+
   void BufferData::Set(const GlyphParams& params, const bool& normalised)
   {
     glBindTexture(GL_TEXTURE_2D_ARRAY, fonts::texture_id);
@@ -21,6 +23,4 @@ namespace term_engine {
   {
     position_ = position;
   }
-
-  GlyphParams default_glyph;
 }

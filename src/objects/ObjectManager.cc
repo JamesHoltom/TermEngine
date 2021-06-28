@@ -3,6 +3,8 @@
 #include "ObjectManager.h"
 
 namespace term_engine::objects {
+  ObjectList object_list;
+
   void CleanUp()
   {
     object_list.clear();
@@ -21,6 +23,4 @@ namespace term_engine::objects {
       object_list.erase(position);
     }
   }
-
-  ObjectList object_list;
 }

@@ -18,6 +18,9 @@
 
 
 namespace term_engine::scripting {
+  sol::state lua_state;
+  std::string lua_file;
+
   void InitInterface() {
     lua_state.open_libraries(sol::lib::base, sol::lib::package, sol::lib::math, sol::lib::string);
 
@@ -33,19 +36,6 @@ namespace term_engine::scripting {
     bindings::BindUtilitiesToState(lua_state);
     bindings::BindViewToState(lua_state);
     bindings::BindWindowToState(lua_state);
-
-    // Create bindings for the main game functions.
-    lua_state["Init"] = [&]() {
-      logging::logger->info("TermEngine has initialised!");
-
-      return true;
-    };
-    lua_state["Loop"] = [&](const float& timestep) {};
-    lua_state["Quit"] = [&]() {
-      logging::logger->info("TermEngine is quitting!");
-
-      return true;
-    };
   }
 
   void InitScript() {
@@ -136,7 +126,4 @@ namespace term_engine::scripting {
 
     return return_value;
   }
-
-  sol::state lua_state;
-  std::string lua_file;
 }

@@ -7,6 +7,13 @@
 #include "../utility/Glyph.h"
 
 namespace term_engine::views {
+  GLuint program_id;
+  GLuint vao_id;
+  GLuint vbo_id;
+  glm::vec2 view_position;
+  glm::ivec2 view_size;
+  BufferList data;
+
   void Init()
   {
     CreateBuffers();
@@ -145,11 +152,4 @@ namespace term_engine::views {
   {
     glDeleteProgram(program_id);
   }
-
-  GLuint program_id;
-  GLuint vao_id;
-  GLuint vbo_id;
-  glm::vec2 view_position;
-  glm::ivec2 view_size;
-  BufferList data;
 }

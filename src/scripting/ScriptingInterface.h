@@ -15,6 +15,11 @@ namespace term_engine::scripting {
   /// The entry file that is run when a project is loaded.
   constexpr char PROJECT_ENTRYPOINT[] = "main.lua";
 
+  /// The Lua state that stores all of the loaded script functions, variables, etc.
+  extern sol::state lua_state;
+  /// The filepath of the currently loaded project.
+  extern std::string lua_file;
+
   /// Creates the Lua functions and usertypes that interface with TermEngine.
   void InitInterface();
 
@@ -44,11 +49,6 @@ namespace term_engine::scripting {
    * @returns A boolean value, indicating if TermEngine can close. This can be used by scripters to ask the player before closing, or to run clean-up code.
    */
   bool OnQuit();
-
-  /// The Lua state that stores all of the loaded script functions, variables, etc.
-  extern sol::state lua_state;
-  /// The filepath of the currently loaded project.
-  extern std::string lua_file;
 }
 
 #endif // ! SCRIPTING_INTERFACE_H

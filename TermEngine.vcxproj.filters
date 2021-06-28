@@ -84,6 +84,9 @@
     <ClCompile Include="src\utility\Glyph.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\events\EventManager.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\application\Application.h">
@@ -192,6 +195,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\scripting\bindings\ViewBindings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\events\EventManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

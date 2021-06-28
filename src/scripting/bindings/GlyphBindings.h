@@ -11,7 +11,7 @@
 namespace term_engine::scripting::bindings {
   /// Binds the _Glyph_ type as a usertype to the Lua state.
   /**
-   * @params[in] state The lua state to bind to.
+   * @param[in] state The lua state to bind to.
    */
   void BindGlyphToState(sol::state& state)
   {

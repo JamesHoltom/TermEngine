@@ -7,11 +7,9 @@
 namespace term_engine::timing {
   Timer delay_timer_;
   Timer average_timer_;
-
   bool use_target_;
   float average_fps_;
   int target_fps_;
-
   uint64_t frame_count_;
   uint64_t frame_duration_;
 

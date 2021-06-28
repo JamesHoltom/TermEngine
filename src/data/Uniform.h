@@ -11,7 +11,6 @@ namespace term_engine::data {
 
   /// The ID of the Uniform Buffer Object (UBO), that stores the uniforms used in the shaders.
   extern GLuint ubo_id;
-
   /// The uniform data held in memory.
   extern UniformData ubo_data;
 

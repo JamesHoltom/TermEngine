@@ -4,6 +4,7 @@
 #include "../logging/Logger.h"
 #include "../background/Background.h"
 #include "../data/Uniform.h"
+#include "../events/EventManager.h"
 #include "../events/InputManager.h"
 #include "../fonts/FontAtlas.h"
 #include "../objects/ObjectManager.h"
@@ -98,6 +99,7 @@ namespace term_engine::application {
       }
 
       events::UpdateEvents();
+      events::DoEvents(scripting::lua_state);
 
       scripting::OnLoop(timestep.GetIntervalElapsed());
 

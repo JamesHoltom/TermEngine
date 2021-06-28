@@ -11,15 +11,30 @@
 #include "../utility/GLUtils.h"
 
 namespace term_engine::fonts {
-  struct FontAtlas;
+  /// Used to store characters and the texture layers of the glyph they represent.
+  typedef std::unordered_map<FT_UInt32, GLuint> GlyphList;
 
   /// The default font path to use when running the engine.
   constexpr char DEFAULT_FONT[] = "resources/fonts/RobotoMono-Regular.ttf";
   /// The default font size to use when running the engine.
   constexpr int DEFAULT_FONT_SIZE = 16;
   
-  /// Used to store characters and the texture layers of the glyph they represent.
-  typedef std::unordered_map<FT_UInt32, GLuint> GlyphList;
+  /// The relative filepath of the font being used.
+  extern std::string font_path;
+  /// The font size, in pixels (px).
+  extern FT_UInt font_size;
+  /// A handler for the loaded font face. This also refers to the currently loaded glyph.
+  extern FT_Face font_face;
+  /// The list containing all glyphs loaded from the font.
+  extern GlyphList font_atlas;
+  /// The texture ID for OpenGL to use when rendering.
+  extern GLuint texture_id;
+  /// The amount of glyphs currently stored in the font atlas.
+  extern GLuint glyph_count;
+  /// The size of the atlas texture. This includes the maximum ascender and descender.
+  extern glm::vec2 texture_size;
+  /// The maximum amount of layers in the atlas texture array.
+  extern GLint texture_max_layers;
 
   /// Initialises the font atlas and prepares it for use.
   /**
@@ -62,23 +77,6 @@ namespace term_engine::fonts {
    * @returns If the font was successfully loaded.
    */
   int SetFont(const std::string& filename, const FT_UInt& size);
-
-  /// The relative filepath of the font being used.
-  extern std::string font_path;
-  /// The font size, in pixels (px).
-  extern FT_UInt font_size;
-  /// A handler for the loaded font face. This also refers to the currently loaded glyph.
-  extern FT_Face font_face;
-  /// The list containing all glyphs loaded from the font.
-  extern GlyphList font_atlas;
-  /// The texture ID for OpenGL to use when rendering.
-  extern GLuint texture_id;
-  /// The amount of glyphs currently stored in the font atlas.
-  extern GLuint glyph_count;
-  /// The size of the atlas texture. This includes the maximum ascender and descender.
-  extern glm::vec2 texture_size;
-
-  extern GLint texture_max_layers;
 }
 
 #endif // ! FONT_ATLAS_H

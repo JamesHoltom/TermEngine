@@ -16,6 +16,19 @@ namespace term_engine::views {
   /// The default number of rows/columns in the view.
   constexpr glm::uvec2 DEFAULT_DIMENSIONS = glm::uvec2(32, 16);
 
+  /// The ID of the glyph shader program.
+  extern GLuint program_id;
+  /// The ID of the VAO used to contain the VBO.
+  extern GLuint vao_id;
+  /// The ID of the VBO used to store the buffer-related data.
+  extern GLuint vbo_id;
+  /// The position of the view.
+  extern glm::vec2 view_position;
+  /// The size of the view, in rows/columns.
+  extern glm::ivec2 view_size;
+  /// The buffer of view data to render to the window.
+  extern BufferList data;
+
   /// Creates the default view.
   void Init();
 
@@ -48,19 +61,6 @@ namespace term_engine::views {
 
   /// Destroys the glyph shader.
   void CleanUpShader();
-
-  /// The ID of the glyph shader program.
-  extern GLuint program_id;
-  /// The ID of the VAO used to contain the VBO.
-  extern GLuint vao_id;
-  /// The ID of the VBO used to store the buffer-related data.
-  extern GLuint vbo_id;
-  /// The position of the view.
-  extern glm::vec2 view_position;
-  /// The size of the view, in rows/columns.
-  extern glm::ivec2 view_size;
-  /// The buffer of view data to render to the window.
-  extern BufferList data;
 }
 
 #endif // ! VIEW_H

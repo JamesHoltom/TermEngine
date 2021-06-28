@@ -11,7 +11,7 @@
 namespace term_engine::scripting::bindings {
   /// Binds GLM vector types as usertypes to the Lua state.
   /**
-   * @params[in] state The lua state to bind to.
+   * @param[in] state The lua state to bind to.
    */
   void BindGlmToState(sol::state& state)
   {
@@ -67,11 +67,11 @@ namespace term_engine::scripting::bindings {
       "vec3",
       sol::meta_function::construct, sol::constructors<void(),
                                                        void(const float&), void(const float&, const float&, const float&),
-                                                       void(const glm::ivec2&, const float&), void(const glm::vec2&, const float&),
+                                                       void(const glm::vec2&, const float&),
                                                        void(const glm::vec3&)>(),
       sol::call_constructor, sol::constructors<void(),
                                                void(const float&), void(const float&, const float&, const float&),
-                                               void(const glm::ivec2&, const float&), void(const glm::vec2&, const float&),
+                                               void(const glm::vec2&, const float&),
                                                void(const glm::vec3&)>(),
       sol::meta_function::equal_to, sol::overload([](const glm::vec3& lhs, const glm::vec3& rhs) -> bool { return lhs == rhs; }),
       sol::meta_function::addition, sol::overload([](const glm::vec3& lhs, const glm::vec3& rhs) -> glm::vec3 { return lhs + rhs; }),

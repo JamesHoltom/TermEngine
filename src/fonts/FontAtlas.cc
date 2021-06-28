@@ -5,6 +5,15 @@
 #include "../logging/Logger.h"
 
 namespace term_engine::fonts {
+  std::string font_path;
+  FT_UInt font_size;
+  FT_Face font_face;
+  GlyphList font_atlas;
+  GLuint texture_id;
+  GLuint glyph_count;
+  glm::vec2 texture_size;
+  GLint texture_max_layers;
+
   int Init()
   {
     /*
@@ -142,13 +151,4 @@ namespace term_engine::fonts {
 
     return 0;
   }
-
-  std::string font_path;
-  FT_UInt font_size;
-  FT_Face font_face;
-  GlyphList font_atlas;
-  GLuint texture_id;
-  GLuint glyph_count;
-  glm::vec2 texture_size;
-  GLint texture_max_layers;
 }

@@ -4,10 +4,19 @@ LUA Scripting
 ## Data Types
 
 ### vec2
+*Constructors: vec2(), vec2(number), vec2(number, number), vec2(vec2), vec2(ivec2)*
+
+A 2-dimensional vector, that takes floating-point numbers.
 
 ### ivec2
+*Constructors: vec2(), ivec2(number), ivec2(number, number), ivec2(vec2), ivec2(ivec2)*
+
+A 2-dimensional vector, that takes integer numbers.
 
 ### vec3
+*Constructors: vec3(), vec3(number), vec3(number, number, number), vec3(vec2, number), vec3(vec3)*
+
+A 3-dimensional vector, that takes floating-point numbers.
 
 ### Glyph
 

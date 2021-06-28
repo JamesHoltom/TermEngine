@@ -15,6 +15,9 @@ namespace term_engine::objects {
   /// Used to store a list of objects.
   typedef std::vector<ObjectPtr> ObjectList;
 
+  /// The list of objects.
+  extern ObjectList object_list;
+
   /// Destroys all objects in the list.
   void CleanUp();
 
@@ -28,12 +31,9 @@ namespace term_engine::objects {
 
   /// Removes an object from the list.
   /**
-   * @param[in] name A smart pointer to the object.
+   * @param[in] obj A smart pointer to the object.
    */
   void Remove(const ObjectPtr& obj);
-
-  /// The list of objects.
-  extern ObjectList object_list;
 }
 
 #endif // ! OBJECT_MANAGER_H

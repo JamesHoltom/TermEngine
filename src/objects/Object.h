@@ -11,8 +11,6 @@
 #include "../utility/Glyph.h"
 
 namespace term_engine::objects {
-  class Object;
-
   /// Used to store a collection of glyph parameters, which represents an object.
   typedef std::vector<GlyphParams> GlyphData;
 

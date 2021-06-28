@@ -18,13 +18,24 @@ namespace term_engine::background {
   /// The location of the fragment GLSL file for the background shader.
   constexpr char BG_FRAGMENT_FILE[] = "resources/shaders/core/background.frag";
 
+  /// The ID of the background shader program.
+  extern GLuint program_id;
+  /// The ID of the VAO used to contain the VBO.
+  extern GLuint vao_id;
+  /// The ID of the VBO used to store the buffer-related data.
+  extern GLuint vbo_id;
+  /// The pixel data of the background image, if set.
+  extern system::ImageData current_background;
+  /// The buffer of background data to render to the window.
+  extern BackgroundData data;
+
   /// Represents the structure of the buffer used for rendering the background.
   struct BackgroundData {
     /// The position of the background, relative to the window.
     glm::vec2 position_;
     /// The size of the background, in pixels.
     glm::vec2 size_;
-    /// 
+    /// The color of the background. This will blend with the texture.
     glm::vec3 color_;
   };
 
@@ -60,17 +71,6 @@ namespace term_engine::background {
 
   /// Renders the background to the window.
   void Render();
-
-  /// The ID of the background shader program.
-  extern GLuint program_id;
-  /// The ID of the VAO used to contain the VBO.
-  extern GLuint vao_id;
-  /// The ID of the VBO used to store the buffer-related data.
-  extern GLuint vbo_id;
-  /// The pixel data of the background image, if set.
-  extern system::ImageData current_background;
-  /// The buffer of background data to render to the window.
-  extern BackgroundData data;
 }
 
 #endif // ! BACKGROUND_H

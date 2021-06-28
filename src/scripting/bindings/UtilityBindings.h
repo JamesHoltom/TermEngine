@@ -11,7 +11,7 @@
 namespace term_engine::scripting::bindings {
   /// Binds any utility script functions to the Lua state.
   /**
-   * @params[in] state The lua state to bind to.
+   * @param[in] state The lua state to bind to.
    */
   void BindUtilitiesToState(sol::state& state)
   {

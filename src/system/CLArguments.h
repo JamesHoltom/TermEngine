@@ -14,7 +14,6 @@ namespace term_engine::system {
 
   /// The path to the script to execute from the command line.
   extern std::filesystem::path script_path;
-
   /// Should the program start running in fullscreen?
   extern bool is_fullscreen;
 

@@ -5,6 +5,8 @@
 #include "Logger.h"
 
 namespace term_engine::logging {
+  LoggerPtr logger;
+
   void InitLogger() {
     try {
       std::vector<spdlog::sink_ptr> sinks;
@@ -25,6 +27,4 @@ namespace term_engine::logging {
       std::cout << "Log init failed: " << ex.what() << std::endl;
     }
   }
-
-  LoggerPtr logger;
 }

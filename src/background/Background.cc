@@ -8,6 +8,12 @@
 #include "../utility/DebugFunctions.h"
 
 namespace term_engine::background {
+  GLuint program_id;
+  GLuint vao_id;
+  GLuint vbo_id;
+  system::ImageData current_background;
+  BackgroundData data;
+
   void SetBackground(const std::string& file)
   {
     if (!std::filesystem::exists(file)) {
@@ -130,10 +136,4 @@ namespace term_engine::background {
       glUseProgram(0);
     }
   }
-
-  GLuint program_id;
-  GLuint vao_id;
-  GLuint vbo_id;
-  system::ImageData current_background;
-  BackgroundData data;
 }

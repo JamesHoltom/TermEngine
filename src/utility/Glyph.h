@@ -22,6 +22,9 @@ namespace term_engine {
   /// Used to store data in a VBO.
   typedef std::vector<BufferData> BufferList;
 
+  /// Default glyph data to copy.
+  extern GlyphParams default_glyph;
+
   /// Used to construct _BufferData_ objects, and to pass data between scripts and the program.
   struct GlyphParams {
     /// Constructs the glyph parameters.
@@ -112,9 +115,6 @@ namespace term_engine {
     /// The background color.
     glm::vec3 background_color_;
   };
-
-  /// Default glyph data to copy.
-  extern GlyphParams default_glyph;
 }
 
 #endif // ! GLYPH_H
