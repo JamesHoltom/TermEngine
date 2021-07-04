@@ -45,6 +45,12 @@ namespace term_engine::objects {
      */
     GlyphData& GetData();
 
+    /// Returns if the object is active.
+    /**
+     * @returns If the object is active.
+     */
+    bool IsActive() const;
+
     /// Sets the position of the object.
     /**
      * @param[in] position The position to move the object to.
@@ -56,6 +62,12 @@ namespace term_engine::objects {
      * @param[in] size The new size of the object.
      */
     void SetSize(const glm::ivec2& size);
+
+    /// Sets if the object is active.
+    /**
+     * @param[in] flag The value to set.
+     */
+    void SetActive(const bool& flag);
 
     /// Returns if 2 objects share the same ID.
     /**
@@ -88,6 +100,8 @@ namespace term_engine::objects {
     GlyphData data_;
     /// The ID of the object.
     int object_id_;
+    /// Is the object active? (i.e. Is the object being rendered and acted on?)
+    bool is_active_;
 
     /// Represents the ID to use for the next object.
     static int object_next_id_;

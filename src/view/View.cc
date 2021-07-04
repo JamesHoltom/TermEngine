@@ -35,6 +35,10 @@ namespace term_engine::views {
       }
 
       for (objects::ObjectPtr& object : objects::object_list) {
+        if (!object->IsActive()) {
+          continue;
+        }
+
         const objects::GlyphData& obj_data = object->GetData();
         const glm::ivec2 obj_size = object->GetSize();
 

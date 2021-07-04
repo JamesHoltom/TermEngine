@@ -29,6 +29,11 @@ namespace term_engine::objects {
     return data_;
   }
 
+  bool Object::IsActive() const
+  {
+    return is_active_;
+  }
+
   void Object::SetPosition(const glm::vec2& position)
   {
     position_ = position;
@@ -49,6 +54,11 @@ namespace term_engine::objects {
 
     size_ = size;
     Object::is_dirty_ = true;
+  }
+
+  void Object::SetActive(const bool& flag)
+  {
+    is_active_ = flag;
   }
 
   bool Object::IsDirty()

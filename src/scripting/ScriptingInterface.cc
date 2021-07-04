@@ -22,7 +22,7 @@ namespace term_engine::scripting {
   std::string lua_file;
 
   void InitInterface() {
-    lua_state.open_libraries(sol::lib::base, sol::lib::package, sol::lib::math, sol::lib::string);
+    lua_state.open_libraries(sol::lib::base, sol::lib::package, sol::lib::math, sol::lib::string, sol::lib::table);
 
     // Create bindings for C++ functions.
     bindings::BindGlmToState(lua_state);

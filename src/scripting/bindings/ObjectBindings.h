@@ -20,7 +20,8 @@ namespace term_engine::scripting::bindings {
       sol::meta_function::garbage_collect, sol::destructor(&objects::Remove),
       "position", sol::property(&objects::Object::GetPosition, &objects::Object::SetPosition),
       "size", sol::property(&objects::Object::GetSize, &objects::Object::SetSize),
-      "data", sol::property(&objects::Object::GetData));
+      "data", sol::property(&objects::Object::GetData),
+      "active", sol::property(&objects::Object::IsActive, &objects::Object::SetActive));
 
     state.create_named_table("objects",
       "count", [&]() -> size_t { return objects::object_list.size(); },

@@ -4,68 +4,194 @@ LUA Scripting
 ## Data Types
 
 ### vec2
-*Constructors: vec2(), vec2(number), vec2(number, number), vec2(vec2), vec2(ivec2)*
-
 A 2-dimensional vector, that takes floating-point numbers.
 
-### ivec2
-*Constructors: vec2(), ivec2(number), ivec2(number, number), ivec2(vec2), ivec2(ivec2)*
+#### Constructors
+- *vec2()*
+- *vec2( xy `number` )*
+- *vec2( x `number`, y `number` )*
+- *vec2( vector `vec2` )*
+- *vec2( vector `ivec2` )*
 
+#### Parameters
+- *x* `number`
+- *y* `number`
+
+### ivec2
 A 2-dimensional vector, that takes integer numbers.
 
-### vec3
-*Constructors: vec3(), vec3(number), vec3(number, number, number), vec3(vec2, number), vec3(vec3)*
+#### Constructors
+- *ivec2()*
+- *ivec2( xy `number` )*
+- *ivec2( x `number`, y `number` )*
+- *ivec2( vector `vec2` )*
+- *ivec2( vector `ivec2` )*
 
+#### Parameters
+- *x* `number`
+- *y* `number`
+
+### vec3
 A 3-dimensional vector, that takes floating-point numbers.
 
+#### Constructors
+- *vec3()*
+- *vec3( xyz `number` )*
+- *vec3( x `number`, y `number`, z `number` )*
+- *vec3( xy `vec2`, z `number` )*
+- *vec3( vector `vec3` )*
+
+#### Parameters
+- *x* `number`
+- *y* `number`
+- *z* `number`
+- *r* `number`
+- *g* `number`
+- *b* `number`
+
 ### Glyph
+Represents a character on the window, combined with its foreground/background colors.
+
+#### Constructors
+- *Glyph( character `string`, foreground_color `vec3`, background_color `vec3` )*
+
+#### Parameters
+- *character* `string`
+- *foreground_color* `vec3`
+- *background_color* `vec3`
 
 ### Object
+Represents an object, or a collection of *Glyphs*.
+
+#### Constructors
+- *Object( position `vec2`, size `ivec2` )*
+
+#### Parameters
+- *position* `vec2`
+- *size* `ivec2`
 
 ## Events
 
-### Init() => `boolean`
+### Init
+Fires when TermEngine has initialised.
 
-### Loop(`float` _timestep_)
+If false is returned here, the application will close.
 
-### Quit() => `boolean`
+#### Returns
+`boolean`
 
-## Globals
+### Loop
+Fires every frame.
 
-### mouse.LEFT => `integer`
+#### Parameters
+- *timestep* `number`
 
-### mouse.MIDDLE => `integer`
+### Quit
+Fires when the user closes TermEngine.
 
-### mouse.RIGHT => `integer`
+If false is returned here, the application will not close.
 
-### mouse.position => `ivec2`
+#### Returns
+`boolean`
 
-### mouse.movement => `ivec2`
+### OnKeyDown
+Fires when a key is held down.
 
-## Functions
+#### Parameters
+- *key* `string`
 
-### mouse.isDown(`integer` _button_) => `boolean`
+### OnKeyPress
+Fires when a key has been pressed.
 
-### mouse.isPressed(`integer` _button_) => `boolean`
+#### Parameters
+- *key* `string`
 
-### mouse.isReleased(`integer` _button_) => `boolean`
+### OnKeyRelease
+Fires when a key has been released.
 
-### keyboard.isDown(`string` _key_) => `boolean`
+#### Parameters
+- *key* `string`
 
-### keyboard.isPressed(`string` _key_) => `boolean`
+### OnMouseDown
+Fires when a mouse button is held down.
 
-### keyboard.isReleased(`string` _key_) => `boolean`
+#### Parameters
+- *button* `number`
 
-### wireframe.enable()
+### OnMousePress
+Fires when a mouse button has been pressed.
 
-### wireframe.disable()
+#### Parameters
+- *button* `number`
 
-### getFileList(`string` _directory_) => `Array<string>`
+### OnMouseRelease
+Fires when a mouse button has been released.
 
-### getFolderList(`string` _directory_) => `Array<string>`
+#### Parameters
+- *button* `number`
 
-### addBox(`string` _name_, `vec2` _position_, `ivec2` _size_, `Glyph` _content_) => `Object`
+### OnMouseMove
+Fires when the mouse moves.
 
-### addOutlinedBox(`string` _name_, `vec2` _position_, `ivec2` _size_, `Glyph` _content_) => `Object`
+## Namespaces
 
-### addText(`string` _name_, `vec2` _position_, `ivec2` _size_, `string` _text_, `vec3` _foreground_color_, `vec3` _background_color_) => `Object`
+### background
+
+#### Functions
+- *set( filename `string` )*
+- *remove()*
+
+### file
+
+#### Functions
+- *getFileList( directory `string` )* `array`
+- *getFolderList( directory `string` )* `array`
+
+### glyphs
+
+#### Members
+- *size* `vec2`
+- *NO_CHARACTER* `string`
+- *DEFAULT_FG* `vec3`
+- *DEFAULT_BG* `vec3`
+
+### keyboard
+
+#### Functions
+- *isDown( key `string` )* `boolean`
+- *isPressed( key `string` )* `boolean`
+- *isReleased( key `string` )* `boolean`
+
+### mouse
+
+#### Members
+- *LEFT* `number`
+- *MIDDLE* `number`
+- *RIGHT* `number`
+- *position* `ivec2`
+- *movement* `ivec2`
+
+#### Functions
+- *isDown( button `number` )* `boolean`
+- *isPressed( button `number` )* `boolean`
+- *isReleased( button `number` )* `boolean`
+
+### objects
+
+#### Functions
+- *count()* `number`
+- *dirty()*
+- *is_dirty()* `boolean`
+
+### rand
+
+#### Functions
+- *get()* `number`
+- *get( range `number` )* `number`
+- *get( range `number`, offset `number` )* `number`
+
+### wireframe
+
+#### Functions
+- *enable()*
+- *disable()*

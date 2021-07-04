@@ -8,8 +8,6 @@ function Player(_pos)
 	
 	local doInput = function(_timestep)
 		if mouse.isPressed(mouse.LEFT) then
-			print("Pressed left mouse")
-			
 			if self.box.getFill().character == "o" then
 				self.box.setFill(Glyph("x", vec3(0, 0, 255), vec3(0)))
 			else
@@ -18,8 +16,6 @@ function Player(_pos)
 		end
 		
 		if mouse.isPressed(mouse.RIGHT) then
-			print("Pressed right mouse")
-			
 			if self.box.hasOutline() then
 				self.box.setOutline(empty_glyph)
 			else
@@ -31,37 +27,31 @@ function Player(_pos)
 		local has_moved = false
 		
 		if keyboard.isDown("left") then
-			print("Pressing left")
 			pos.x = pos.x - (self.speed * _timestep)
 			has_moved = true
 		end
 		
 		if keyboard.isDown("right") then
-			print("Pressing right")
 			pos.x = pos.x + (self.speed * _timestep)
 			has_moved = true
 		end
 		
 		if keyboard.isDown("up") then
-			print("Pressing up")
 			pos.y = pos.y - (self.speed * _timestep)
 			has_moved = true
 		end
 		
 		if keyboard.isDown("down") then
-			print("Pressing down")
 			pos.y = pos.y + (self.speed * _timestep)
 			has_moved = true
 		end
 		
 		if keyboard.isReleased("left") or keyboard.isReleased("right") or keyboard.isReleased("up") or keyboard.isReleased("down") then
 			pos = pos:floor() + vec2(0.5)
-			print("Released")
 			has_moved = true
 		end
 		
 		if has_moved then
-			print("Is moving")
 			self.box.setPosition(pos)
 		end
 		
