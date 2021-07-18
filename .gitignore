@@ -344,3 +344,7 @@ healthchecksdb
 /resources/fonts/*
 /resources/images/*
 NOTICE
+CMakeCache.txt
+/CMakeFiles
+cmake_install.cmake
+Makefile
