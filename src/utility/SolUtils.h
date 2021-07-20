@@ -17,6 +17,6 @@
 
 #pragma warning(pop)
 
-#include "Assert.h"
+#include "../scripting/Assert.h"
 
 #endif // ! SOL_UTILS_H

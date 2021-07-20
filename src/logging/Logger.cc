@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/sinks/basic_file_sink.h>
 
 #include "Logger.h"
@@ -11,7 +12,7 @@ namespace term_engine::logging {
     try {
       std::vector<spdlog::sink_ptr> sinks;
 
-      auto console_sink = std::make_shared<spdlog::sinks::wincolor_stdout_sink_mt>();
+      auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
       auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("logs/term_engine.log", true);
 
       console_sink->set_level(spdlog::level::info);
