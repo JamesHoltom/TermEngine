@@ -8,7 +8,7 @@
 #include <SDL2/SDL_image.h>
 
 namespace SDL {
-  constexpr int SDL_INIT_FLAGS = SDL_INIT_EVERYTHING;
+  constexpr int SDL_INIT_FLAGS = SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER;
   constexpr int IMG_INIT_FLAGS = IMG_INIT_PNG;
 
   namespace color_mask {

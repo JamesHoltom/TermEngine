@@ -31,6 +31,16 @@ namespace term_engine::system {
    * @returns The list of folder names found in the directory.
    */
   FileList GetFolderList(const std::filesystem::path& directory);
+
+  std::filesystem::path GetRootPath();
+
+  /// Finds the given font file in the system's default location, or in the resources folder.
+  /**
+   * If the file isn't found anywhere, a blank string is returned.
+   * @param[in] filename The path of the font file.
+   * @returns The absolute path to the font file, or a blank string if not found.
+   */
+  std::filesystem::path SearchForFontPath(const std::string& filename);
 }
 
 namespace File {

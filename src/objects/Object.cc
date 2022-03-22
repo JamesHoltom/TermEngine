@@ -5,7 +5,8 @@ namespace term_engine::objects {
   Object::Object(const glm::vec2& position, const glm::ivec2& size) :
     object_id_(Object::object_next_id_++),
     position_(position),
-    size_(size)
+    size_(size),
+    is_active_(true)
   {
     size_t data_size = (size_t)size.x * (size_t)size.y;
     data_.reserve(data_size);

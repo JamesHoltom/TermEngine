@@ -15,9 +15,13 @@ namespace term_engine::fonts {
   typedef std::unordered_map<FT_UInt32, GLuint> GlyphList;
 
   /// The default font path to use when running the engine.
-  constexpr char DEFAULT_FONT[] = "resources/fonts/RobotoMono-Regular.ttf";
+#ifdef linux
+  constexpr char DEFAULT_FONT[] = "truetype/ubuntu/UbuntuMono-R.ttf";
+#elif defined(_WIN32) || defined (WIN32)
+  constexpr char DEFAULT_FONT[] = "arial.ttf";
+#endif
   /// The default font size to use when running the engine.
-  constexpr int DEFAULT_FONT_SIZE = 16;
+  constexpr int DEFAULT_FONT_SIZE = 32;
   
   /// The relative filepath of the font being used.
   extern std::string font_path;
@@ -77,6 +81,18 @@ namespace term_engine::fonts {
    * @returns If the font was successfully loaded.
    */
   int SetFont(const std::string& filename, const FT_UInt& size);
+
+  /// Gets the font size, in pixels (px).
+  /**
+   * @returns The font size.
+   */
+  int GetFontSize();
+
+  /// Get the size of the font texture, in pixels (px).
+  /**
+   * @returns The font texture size.
+   */
+  glm::vec2 GetTextureSize();
 }
 
 #endif // ! FONT_ATLAS_H

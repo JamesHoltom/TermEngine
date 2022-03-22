@@ -34,7 +34,7 @@ namespace term_engine::scripting::bindings {
       sol::meta_function::division, sol::overload(
         [](const glm::ivec2& lhs, const glm::ivec2& rhs) -> glm::ivec2 { return lhs / rhs; },
         [](const glm::ivec2& lhs, const int& rhs) -> glm::ivec2 { return lhs / rhs; }),
-      sol::meta_function::to_string, [&](const glm::ivec2& self) -> std::string { return std::to_string(self.x) + ", " + std::to_string(self.y); },
+      sol::meta_function::to_string, [](const glm::ivec2& self) -> std::string { return std::to_string(self.x) + ", " + std::to_string(self.y); },
       "x", &glm::ivec2::x,
       "y", &glm::ivec2::y);
 
@@ -58,7 +58,7 @@ namespace term_engine::scripting::bindings {
         [](const glm::vec2& lhs, const glm::vec2& rhs) -> glm::vec2 { return lhs / rhs; },
         [](const glm::vec2& lhs, const float& rhs) -> glm::vec2 { return lhs / rhs; }
       ),
-      sol::meta_function::to_string, [&](const glm::vec2& self) -> std::string { return std::to_string(self.x) + ", " + std::to_string(self.y); },
+      sol::meta_function::to_string, [](const glm::vec2& self) -> std::string { return std::to_string(self.x) + ", " + std::to_string(self.y); },
       "x", &glm::vec2::x,
       "y", &glm::vec2::y,
       "floor", [](const glm::vec2& self) -> glm::vec2 { return glm::floor(self); });
@@ -84,7 +84,7 @@ namespace term_engine::scripting::bindings {
       sol::meta_function::division, sol::overload(
         [](const glm::vec3& lhs, const glm::vec3& rhs) -> glm::vec3 { return lhs / rhs; },
         [](const glm::vec3& lhs, const float& rhs) -> glm::vec3 { return lhs / rhs; }),
-      sol::meta_function::to_string, [&](const glm::vec3& self) -> std::string { return std::to_string(self.x) + ", " + std::to_string(self.y) + ", " + std::to_string(self.z); },
+      sol::meta_function::to_string, [](const glm::vec3& self) -> std::string { return std::to_string(self.x) + ", " + std::to_string(self.y) + ", " + std::to_string(self.z); },
       "x", &glm::vec3::x,
       "y", &glm::vec3::y,
       "z", &glm::vec3::z,

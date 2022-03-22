@@ -20,12 +20,13 @@ namespace term_engine::scripting::bindings {
       sol::meta_function::construct, sol::constructors<void(const char&, const glm::vec3&, const glm::vec3&)>(),
       sol::call_constructor, sol::constructors<void(const char&, const glm::vec3&, const glm::vec3&)>(),
       sol::meta_function::equal_to, sol::overload([](const GlyphParams& lhs, const GlyphParams& rhs) { return lhs == rhs; }),
-      "character", sol::property(&GlyphParams::character_),
-      "foreground_color", sol::property(&GlyphParams::foreground_color_),
-      "background_color", sol::property(&GlyphParams::background_color_));
+      "character", &GlyphParams::character_,
+      "foreground_color", &GlyphParams::foreground_color_,
+      "background_color", &GlyphParams::background_color_);
 
     state.create_named_table("glyphs",
-      "size", [&]() -> glm::vec2 { return fonts::texture_size; },
+      "size", &fonts::GetTextureSize,
+      "font_size", &fonts::GetFontSize,
       "NO_CHARACTER", NO_CHARACTER,
       "DEFAULT_FG", DEFAULT_FOREGROUND_COLOR,
       "DEFAULT_BG", DEFAULT_BACKGROUND_COLOR);
