@@ -41,9 +41,14 @@ namespace term_engine::scripting {
   void InitScript() {
     Load(std::string(LOADER_SCRIPT_PATH));
 
-    std::filesystem::path project_file = std::filesystem::absolute(system::script_path / std::string(PROJECT_ENTRYPOINT));
+    std::filesystem::path project_file = system::SearchForProjectPath(system::script_path / std::string(PROJECT_ENTRYPOINT));
 
-    if (system::script_path != "" && File::Exists(project_file)) {
+    if (project_file != "") {
+      // Add the project to the Lua path, so that projects can "require()" files relative to the project folder.
+      const std::string packagePath = lua_state["package"]["path"];
+      const std::string projectDirectory = project_file.parent_path();
+      lua_state["package"]["path"] = packagePath + ";" + projectDirectory + "/?.lua;" + projectDirectory + "/?/init.lua";
+
       logging::logger->info("Loading project...");
       Load(project_file.string());
     }

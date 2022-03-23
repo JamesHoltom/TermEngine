@@ -67,9 +67,14 @@ namespace term_engine::objects {
     return Object::is_dirty_;
   }
 
-  void Object::SetDirty(const bool& flag)
+  void Object::SetDirty()
   {
-    Object::is_dirty_ = flag;
+    Object::is_dirty_ = true;
+  }
+
+  void Object::Clean()
+  {
+    Object::is_dirty_ = false;
   }
 
   int Object::object_next_id_ = 0;

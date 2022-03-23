@@ -23,4 +23,9 @@ namespace term_engine::objects {
       object_list.erase(position);
     }
   }
+
+  int Count()
+  {
+    return object_list.size();
+  }
 }

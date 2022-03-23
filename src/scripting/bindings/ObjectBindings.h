@@ -24,9 +24,9 @@ namespace term_engine::scripting::bindings {
       "active", sol::property(&objects::Object::IsActive, &objects::Object::SetActive));
 
     state.create_named_table("objects",
-      "count", [&]() -> size_t { return objects::object_list.size(); },
-      "dirty", [&]() { objects::Object::SetDirty(true); },
-      "is_dirty", &objects::Object::IsDirty);
+      "count", &objects::Count,
+      "is_dirty", &objects::Object::IsDirty,
+      "dirty", &objects::Object::SetDirty);
   }
 }
 

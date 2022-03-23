@@ -61,7 +61,7 @@ namespace term_engine::views {
         }
       }
 
-      objects::Object::SetDirty(false);
+      objects::Object::Clean();
     }
 
     glUseProgram(program_id);

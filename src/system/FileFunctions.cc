@@ -10,6 +10,7 @@
 #endif
 
 #include "FileFunctions.h"
+#include "CLArguments.h"
 #include "../logging/Logger.h"
 
 namespace term_engine::system {
@@ -81,8 +82,37 @@ namespace term_engine::system {
     return std::filesystem::path{ szPath }.parent_path() / "";
   }
 
+  std::filesystem::path SearchForProjectPath(const std::filesystem::path& filename)
+  {
+    if (std::filesystem::exists(filename))
+    {
+      return filename;
+    }
+
+    const std::filesystem::path rootPath = GetRootPath();
+    const std::filesystem::path locations[] = {
+      rootPath,
+      rootPath / "projects"
+    };
+
+    for (const std::filesystem::path& location : locations)
+    {
+      const std::filesystem::path fullPath = location / filename;
+
+      if (std::filesystem::exists(fullPath))
+      {
+        return fullPath;
+      }
+    }
+
+    logging::logger->warn("Could not find project directory {}!", filename);
+
+    return "";
+  }
+
   std::filesystem::path SearchForFontPath(const std::string& filename)
   {
+    const std::filesystem::path rootPath = GetRootPath();
     const std::filesystem::path locations[] = {
 #ifdef linux
       "/usr/share/fonts/",
@@ -90,14 +120,12 @@ namespace term_engine::system {
 #elif defined(_WIN32) || defined (WIN32)
       "C:/Windows/Fonts/",
 #endif
-      GetRootPath()
+      rootPath
     };
 
     for (const std::filesystem::path& location : locations)
     {
       const std::filesystem::path fullPath = location / filename;
-
-      logging::logger->info("Checking path {}.", fullPath);
 
       if (std::filesystem::exists(fullPath))
       {

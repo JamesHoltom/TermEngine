@@ -34,6 +34,12 @@ namespace term_engine::objects {
    * @param[in] obj A smart pointer to the object.
    */
   void Remove(const ObjectPtr& obj);
+
+  /// Returns the number of objects.
+  /**
+   * @returns The number of objects.
+   */
+  int Count();
 }
 
 #endif // ! OBJECT_MANAGER_H

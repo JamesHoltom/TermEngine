@@ -4,8 +4,10 @@
 #define UTILITY_BINDINGS_H
 
 #include <random>
+#include <string>
 
 #include "../../system/Window.h"
+#include "../../timing/FPSManager.h"
 #include "../../utility/SolUtils.h"
 
 namespace term_engine::scripting::bindings {
@@ -15,7 +17,13 @@ namespace term_engine::scripting::bindings {
    */
   void BindUtilitiesToState(sol::state& state)
   {
-    state.create_named_table("rand",
+    state.create_named_table("fps",
+      "print", &timing::PrintFPS,
+      "average", &timing::GetAverageFPS,
+      "target", &timing::GetTargetFPS,
+      "frames", &timing::GetFrameCount);
+
+    state.create_named_table("random",
       "get", sol::overload(
         [&]() -> float { return (float)rand() / RAND_MAX; },
         [&](const float& range) -> float { return ((float)rand() / RAND_MAX) * range; },

@@ -86,11 +86,7 @@ namespace term_engine::fonts {
       GLuint glyph_width = font_face->glyph->bitmap.width;
       GLuint glyph_height = font_face->glyph->bitmap.rows;
       GLuint glyph_left = ((GLsizei)texture_size.x - glyph_width + (font_face->glyph->metrics.horiBearingX >> 6)) / 2;
-      //GLuint glyph_top = ((GLsizei)texture_size.y - (font_face->glyph->metrics.horiBearingY >> 6));
       GLuint glyph_top = ((font_face->size->metrics.ascender - font_face->glyph->metrics.horiBearingY) >> 6);
-      //GLuint glyph_top = ((GLsizei)texture_size.y - glyph_height + (font_face->glyph->metrics.horiBearingY >> 6)) / 2;
-      //GLuint glyph_top = ((font_face->size->metrics.height - font_face->glyph->metrics.horiBearingY) >> 6) / 2;
-      //GLuint glyph_top = 0;
 
       glBindTexture(GL_TEXTURE_2D_ARRAY, texture_id);
       glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -100,7 +96,7 @@ namespace term_engine::fonts {
       glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, glyph_left, glyph_top, texture_layer, glyph_width, glyph_height, 1, GL_RED, GL_UNSIGNED_BYTE, font_face->glyph->bitmap.buffer);
       glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 
-      logging::logger->info("Created character, \'{}\' for font \'{}\' with dimensions {},{} at pos {},{} at layer {} and added to cache.", (char)character, font_path, glyph_width, glyph_height, glyph_left, glyph_top, texture_layer);
+      logging::logger->debug("Created character, \'{}\' for font \'{}\' with dimensions {},{} at pos {},{} at layer {} and added to cache.", (char)character, font_path, glyph_width, glyph_height, glyph_left, glyph_top, texture_layer);
 
       return true;
     }

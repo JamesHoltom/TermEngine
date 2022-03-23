@@ -32,7 +32,13 @@ namespace term_engine::system {
    */
   FileList GetFolderList(const std::filesystem::path& directory);
 
+  /// Gets the directory that the TermEngine executable is located in.
+  /**
+   * @returns The root directory.
+   */
   std::filesystem::path GetRootPath();
+
+  std::filesystem::path SearchForProjectPath(const std::filesystem::path& directory);
 
   /// Finds the given font file in the system's default location, or in the resources folder.
   /**

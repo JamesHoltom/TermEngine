@@ -85,11 +85,11 @@ namespace term_engine::objects {
      */
     static bool IsDirty();
 
-    /// Sets the 'Is Dirty' flag.
-    /**
-     * @param[in] flag The value to set the flag to.
-     */
-    static void SetDirty(const bool& flag);
+    /// Sets the 'Is Dirty' flag to true.
+    static void SetDirty();
+
+    /// Sets the 'Is Dirty' flag to false;
+    static void Clean();
 
   protected:
     /// The top-left position of the object.
