@@ -66,8 +66,16 @@ namespace term_engine::events {
    */
   bool MouseIsReleased(const int& button);
 
+  /// Returns the position of the mouse on the screen.
+  /**
+   * @returns The mouse position.
+   */
   glm::ivec2 GetMousePosition();
 
+  /// Returns the amount of mouse movement this frame.
+  /**
+   * @returns The amount of mouse movement.
+   */
   glm::ivec2 GetMouseMovement();
 
   /// Checks if a key is being pressed.
