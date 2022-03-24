@@ -21,13 +21,13 @@ namespace term_engine::scripting::bindings {
       "isDown", &events::MouseIsDown,
       "isPressed", &events::MouseIsPressed,
       "isReleased", &events::MouseIsReleased,
-      "position", [&]() -> glm::ivec2 { return events::mouse_position; },
-      "movement", [&]() -> glm::ivec2 { return events::mouse_position_delta; });
+      "position", &events::GetMousePosition,
+      "movement", &events::GetMouseMovement);
 
     state.create_named_table("keyboard",
-      "isDown", [&](const std::string& key) -> bool { return events::KeyIsDown(key); },
-      "isPressed", [&](const std::string& key) -> bool { return events::KeyIsPressed(key); },
-      "isReleased", [&](const std::string& key) -> bool { return events::KeyIsReleased(key); });
+      "isDown", &events::KeyIsDown,
+      "isPressed", &events::KeyIsPressed,
+      "isReleased", &events::KeyIsReleased);
 
     // Create bindings for the main game functions.
     state["Init"] = [&]() -> bool {

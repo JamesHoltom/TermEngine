@@ -17,7 +17,7 @@ namespace term_engine::events {
 
         state["OnKeyDown"](key);
 
-        if (events::KeyIsPressed(event.key.keysym.scancode)) {
+        if (events::ScancodeIsPressed(event.key.keysym.scancode)) {
           state["OnKeyPress"](key);
         }
 
@@ -25,7 +25,7 @@ namespace term_engine::events {
       case SDL_KEYUP:
         key = SDL_GetScancodeName(event.key.keysym.scancode);
 
-        if (events::KeyIsReleased(event.key.keysym.scancode)) {
+        if (events::ScancodeIsReleased(event.key.keysym.scancode)) {
           state["OnKeyRelease"](key);
         }
 

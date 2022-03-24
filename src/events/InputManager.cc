@@ -58,6 +58,16 @@ namespace term_engine::events {
     return result;
   }
 
+  glm::ivec2 GetMousePosition()
+  {
+    return mouse_position;
+  }
+
+  glm::ivec2 GetMouseMovement()
+  {
+    return mouse_position_delta;
+  }
+
   bool KeyIsDown(const std::string& key)
   {
     SDL_Scancode code = SDL_GetScancodeFromName(key.c_str());
@@ -72,13 +82,13 @@ namespace term_engine::events {
     }
   }
 
-  bool KeyIsDown(const SDL_Scancode& code)
+  bool ScancodeIsDown(const SDL_Scancode& code)
   {
     if (code != SDL_SCANCODE_UNKNOWN) {
       return current_key_state[code];
     }
     else {
-      logging::logger->warn("Unknown scancode '{}' passed to KeyIsDown.", code);
+      logging::logger->warn("Unknown scancode '{}' passed to ScancodeIsDown.", code);
 
       return false;
     }
@@ -98,13 +108,13 @@ namespace term_engine::events {
     }
   }
 
-  bool KeyIsPressed(const SDL_Scancode& code)
+  bool ScancodeIsPressed(const SDL_Scancode& code)
   {
     if (code != SDL_SCANCODE_UNKNOWN) {
       return current_key_state[code] && !previous_key_state[code];
     }
     else {
-      logging::logger->warn("Unknown scancode '{}' passed to KeyIsPressed.", code);
+      logging::logger->warn("Unknown scancode '{}' passed to ScancodeIsPressed.", code);
 
       return false;
     }
@@ -124,13 +134,13 @@ namespace term_engine::events {
     }
   }
 
-  bool KeyIsReleased(const SDL_Scancode& code)
+  bool ScancodeIsReleased(const SDL_Scancode& code)
   {
     if (code != SDL_SCANCODE_UNKNOWN) {
       return !current_key_state[code] && previous_key_state[code];
     }
     else {
-      logging::logger->warn("Unknown key '{}' passed to KeyIsReleased.", code);
+      logging::logger->warn("Unknown scancode '{}' passed to ScancodeIsReleased.", code);
 
       return false;
     }

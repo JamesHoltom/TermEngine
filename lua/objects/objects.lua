@@ -127,6 +127,8 @@ function TextObject(_position, _size)
 	
 	local setSize = function(_size)
 		self.obj.size = _size
+		
+		_setData()
 	end
 	
 	local getText = function()

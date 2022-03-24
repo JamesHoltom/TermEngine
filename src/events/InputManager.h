@@ -66,6 +66,10 @@ namespace term_engine::events {
    */
   bool MouseIsReleased(const int& button);
 
+  glm::ivec2 GetMousePosition();
+
+  glm::ivec2 GetMouseMovement();
+
   /// Checks if a key is being pressed.
   /**
    * @param[in] key The key to check. This corresponds with a *Key Name* in SDL2.
@@ -80,7 +84,7 @@ namespace term_engine::events {
    * @see [SDL scancodes](https://wiki.libsdl.org/SDL_Scancode)
    * @returns If the key is being pressed.
    */
-  bool KeyIsDown(const SDL_Scancode& code);
+  bool ScancodeIsDown(const SDL_Scancode& code);
 
   /// Checks if a key has just been pressed, i.e. it was pressed this frame, but not in the previous frame.
   /**
@@ -96,7 +100,7 @@ namespace term_engine::events {
    * @see [SDL scancodes](https://wiki.libsdl.org/SDL_Scancode)
    * @returns If the key has just been pressed this frame.
    */
-  bool KeyIsPressed(const SDL_Scancode& code);
+  bool ScancodeIsPressed(const SDL_Scancode& code);
 
   /// Checks if a key has just been released, i.e. it was pressed in the previous frame, and released this frame.
   /**
@@ -112,7 +116,7 @@ namespace term_engine::events {
    * @see [SDL scancodes](https://wiki.libsdl.org/SDL_Scancode)
    * @returns If the key has just been released this frame.
    */
-  bool KeyIsReleased(const SDL_Scancode& code);
+  bool ScancodeIsReleased(const SDL_Scancode& code);
 }
 
 #endif // ! INPUT_MANAGER_H
