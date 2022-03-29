@@ -42,7 +42,7 @@ namespace term_engine::scripting::bindings {
       return true;
     };
 
-    state["OnMouseMove"] = [&]() -> void {};
+    state["OnMouseMove"] = [&](const glm::ivec2& delta) -> void {};
     state["OnMouseDown"] = [&](const int& button) -> void {};
     state["OnMousePress"] = [&](const int& button) -> void {};
     state["OnMouseRelease"] = [&](const int& button) -> void {};

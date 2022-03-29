@@ -81,117 +81,119 @@ Fires when TermEngine has initialised.
 If *false* is returned here, the application will close.
 
 ### Loop
+
+*Loop( timestep `number` )* `void`
+
 Fires every frame.
 
-#### Parameters
-- *timestep* `number`
-
 ### Quit
+
+*Quit()* `boolean`
+
 Fires when the user closes TermEngine.
 
-If false is returned here, the application will not close.
-
-#### Returns
-`boolean`
+If *false* is returned here, the application will not close.
 
 ### OnKeyDown
-Fires when a key is held down.
 
-#### Parameters
-- *key* `string`
+*OnKeyDown( key `string` )* `void`
+
+Fires when a *key* is held down.
 
 ### OnKeyPress
-Fires when a key has been pressed.
 
-#### Parameters
-- *key* `string`
+*OnKeyPress( key `string` )* `void`
+
+Fires when a *key* has been pressed.
 
 ### OnKeyRelease
-Fires when a key has been released.
 
-#### Parameters
-- *key* `string`
+*OnKeyRelease( key `string` )* `void`
+
+Fires when a *key* has been released.
 
 ### OnMouseDown
-Fires when a mouse button is held down.
 
-#### Parameters
-- *button* `number`
+*OnMouseDown( button `number` )* `void`
+
+Fires when a mouse *button* is held down.
 
 ### OnMousePress
-Fires when a mouse button has been pressed.
 
-#### Parameters
-- *button* `number`
+*OnMousePress( button `number` )* `void`
+
+Fires when a mouse *button* has been pressed.
 
 ### OnMouseRelease
-Fires when a mouse button has been released.
 
-#### Parameters
-- *button* `number`
+*OnMouseRelease( button `number` )* `void`
+
+Fires when a mouse *button* has been released.
 
 ### OnMouseMove
+
+*OnMouseMove( delta `ivec2` )* `void`
+
 Fires when the mouse moves.
 
 ## Namespaces
 
 ### background
 
-- *set( filename `string` )*
-- *remove()*
+- *background.set( filename `string` )*
+- *background.remove()*
 
 ### file
 
-- *getFileList( directory `string` )* `array`
-- *getFolderList( directory `string` )* `array`
+- *file.getFileList( directory `string` )* `array`
+- *file.getFolderList( directory `string` )* `array`
 
 ### glyphs
 
-- *size* `vec2` Returns the size of glyphs, in pixels.
-- *NO_CHARACTER* `string`
-- *DEFAULT_FG* `vec3`
-- *DEFAULT_BG* `vec3`
+- *glyphs.size* `vec2` Returns the size of glyphs, in pixels.
+- *glyphs.NO_CHARACTER* `string`
+- *glyphs.DEFAULT_FG* `vec3`
+- *glyphs.DEFAULT_BG* `vec3`
 
 ### keyboard
 
-- *isDown( key `string` )* `boolean` Checks if a key is being held down.
-- *isPressed( key `string` )* `boolean` Checks if a key has been pressed.
-- *isReleased( key `string` )* `boolean` Checks if a key has been released.
+- *keyboard.isDown( key `string` )* `boolean` Checks if a key is being held down.
+- *keyboard.isPressed( key `string` )* `boolean` Checks if a key has been pressed.
+- *keyboard.isReleased( key `string` )* `boolean` Checks if a key has been released.
 
 ### mouse
 
-- *LEFT* `number`
-- *MIDDLE* `number`
-- *RIGHT* `number`
-- *position* `ivec2`
-- *movement* `ivec2`
-
-- *isDown( button `number` )* `boolean` Checks if a button is being held down.
-- *isPressed( button `number` )* `boolean` Checks if a button has been pressed.
-- *isReleased( button `number` )* `boolean` Checks if a button has been released.
+- *mouse.LEFT* `number`
+- *mouse.MIDDLE* `number`
+- *mouse.RIGHT* `number`
+- *mouse.position* `ivec2` The position of the mouse, in pixels (px).
+- *mouse.movement* `ivec2` The amount of mouse movement since the last frame, in pixels (px).
+- *mouse.isDown( button `number` )* `boolean` Checks if a button is being held down.
+- *mouse.isPressed( button `number` )* `boolean` Checks if a button has been pressed.
+- *mouse.isReleased( button `number` )* `boolean` Checks if a button has been released.
 
 ### objects
 
-- *count()* `number` Returns the number of created objects.
-- *dirty()* `void` Forces an update of all objects, redrawing them to the window.
-- *is_dirty()* `boolean` 
+- *objects.count()* `number` Returns the number of created objects.
+- *objects.dirty()* `void` Forces an update of all objects, redrawing them to the window.
+- *objects.is_dirty()* `boolean` 
 
 ### random
 
-- *get()* `number` Returns a random number between *0* and *1*.
-- *get( range `number` )* `number` Returns a random number between *0* and `range`.
-- *get( range `number`, offset `number` )* `number` Returns a random number between `range` and `range + offset`.
+- *random.get()* `number` Returns a random number between *0* and *1*.
+- *random.get( range `number` )* `number` Returns a random number between *0* and `range`.
+- *random.get( range `number`, offset `number` )* `number` Returns a random number between `range` and `range + offset`.
 
 ### fps
 
-- *print()* `void` Prints framerate information to the log.
-- *average()* `number` Returns the average framerate of the program.
-- *usingTarget()* `boolean` Returns if a target framerate is set.
-- *getTarget()* `number` Returns the target framerate, or *0* if disabled.
-- *setTarget( target `number` )* `void` Sets the target framerate. Setting it to *0* will disable the target framerate.
-- *frames()* `number` Returns the number of frames since the program started.
+- *fps.print()* `void` Prints framerate information to the log.
+- *fps.average()* `number` Returns the average framerate of the program.
+- *fps.usingTarget()* `boolean` Returns if a target framerate is set.
+- *fps.getTarget()* `number` Returns the target framerate, or *0* if disabled.
+- *fps.setTarget( target `number` )* `void` Sets the target framerate. Setting it to *0* will disable the target framerate.
+- *fps.frames()* `number` Returns the number of frames since the program started.
 
 ### wireframe
 
-- *enable()* `void` 
-- *disable()* `void` 
+- *wireframe.enable()* `void` Enables wireframe mode. For debugging purposes.
+- *wireframe.disable()* `void` Disables wireframe mode.

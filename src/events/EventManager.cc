@@ -1,3 +1,4 @@
+#include <glm/glm.hpp>
 #include "EventManager.h"
 #include "../utility/DebugFunctions.h"
 
@@ -45,7 +46,7 @@ namespace term_engine::events {
 
         break;
       case SDL_MOUSEMOTION:
-        state["OnMouseMove"]();
+        state["OnMouseMove"](glm::ivec2(event.motion.x, event.motion.y));
 
         break;
       }
