@@ -92,7 +92,8 @@ namespace term_engine::system {
     const std::filesystem::path rootPath = GetRootPath();
     const std::filesystem::path locations[] = {
       rootPath,
-      rootPath / "projects"
+      rootPath / "projects",
+      rootPath / "lua"
     };
 
     for (const std::filesystem::path& location : locations)

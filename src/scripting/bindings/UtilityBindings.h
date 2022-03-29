@@ -20,7 +20,9 @@ namespace term_engine::scripting::bindings {
     state.create_named_table("fps",
       "print", &timing::PrintFPS,
       "average", &timing::GetAverageFPS,
-      "target", &timing::GetTargetFPS,
+      "usingTarget", &timing::IsUsingTargetFPS,
+      "getTarget", &timing::GetTargetFPS,
+      "setTarget", &timing::SetTargetFPS,
       "frames", &timing::GetFrameCount);
 
     state.create_named_table("random",

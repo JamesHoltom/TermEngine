@@ -91,7 +91,9 @@ namespace term_engine::scripting::bindings {
       "r", &glm::vec3::r,
       "g", &glm::vec3::g,
       "b", &glm::vec3::b,
-      "floor", [](const glm::vec3& self) -> glm::vec3 { return glm::floor(self); });
+      "floor", [](const glm::vec3& self) -> glm::vec3 { return glm::floor(self); },
+      "ceil", [](const glm::vec3& self) -> glm::vec3 { return glm::ceil(self); },
+      "round", [](const glm::vec3& self) -> glm::vec3 { return glm::round(self); });
   }
 }
 

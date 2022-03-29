@@ -13,8 +13,6 @@ namespace term_engine::timing {
   extern Timer delay_timer_;
   /// The timer used to calculate the average frame rate.
   extern Timer average_timer_;
-  /// Should the frame rate be capped to a target rate?
-  extern bool use_target_;
   /// The average frame rate while running the program.
   extern float average_fps_;
   /// The target frame rate the program can run up to, if it set.
@@ -52,7 +50,7 @@ namespace term_engine::timing {
   /**
    * @returns If the frame rate is being capped to a target rate.
    */
-  bool isUsingTargetFPS();
+  bool IsUsingTargetFPS();
 
   /// Retrieves the target frame rate.
   /**
@@ -60,14 +58,11 @@ namespace term_engine::timing {
    */
   int GetTargetFPS();
 
-  /// Sets the target frame rate.
+  /// Sets the target frame rate. Setting this to 0 will disable the target framerate.
   /**
    * @param[in] target The target frame rate to set.
    */
   void SetTargetFPS(const int& target);
-
-  /// Disables the target frame rate.
-  void DisableTargetFPS();
 
   /// Logs the average and target frame rates.
   void PrintFPS();

@@ -73,12 +73,12 @@ Represents an object, or a collection of *Glyphs*.
 ## Events
 
 ### Init
+
+*Init()* `boolean` 
+
 Fires when TermEngine has initialised.
 
-If false is returned here, the application will close.
-
-#### Returns
-`boolean`
+If *false* is returned here, the application will close.
 
 ### Loop
 Fires every frame.
@@ -137,61 +137,61 @@ Fires when the mouse moves.
 
 ### background
 
-#### Functions
 - *set( filename `string` )*
 - *remove()*
 
 ### file
 
-#### Functions
 - *getFileList( directory `string` )* `array`
 - *getFolderList( directory `string` )* `array`
 
 ### glyphs
 
-#### Members
-- *size* `vec2`
+- *size* `vec2` Returns the size of glyphs, in pixels.
 - *NO_CHARACTER* `string`
 - *DEFAULT_FG* `vec3`
 - *DEFAULT_BG* `vec3`
 
 ### keyboard
 
-#### Functions
-- *isDown( key `string` )* `boolean`
-- *isPressed( key `string` )* `boolean`
-- *isReleased( key `string` )* `boolean`
+- *isDown( key `string` )* `boolean` Checks if a key is being held down.
+- *isPressed( key `string` )* `boolean` Checks if a key has been pressed.
+- *isReleased( key `string` )* `boolean` Checks if a key has been released.
 
 ### mouse
 
-#### Members
 - *LEFT* `number`
 - *MIDDLE* `number`
 - *RIGHT* `number`
 - *position* `ivec2`
 - *movement* `ivec2`
 
-#### Functions
-- *isDown( button `number` )* `boolean`
-- *isPressed( button `number` )* `boolean`
-- *isReleased( button `number` )* `boolean`
+- *isDown( button `number` )* `boolean` Checks if a button is being held down.
+- *isPressed( button `number` )* `boolean` Checks if a button has been pressed.
+- *isReleased( button `number` )* `boolean` Checks if a button has been released.
 
 ### objects
 
-#### Functions
-- *count()* `number`
-- *dirty()*
-- *is_dirty()* `boolean`
+- *count()* `number` Returns the number of created objects.
+- *dirty()* `void` Forces an update of all objects, redrawing them to the window.
+- *is_dirty()* `boolean` 
 
-### rand
+### random
 
-#### Functions
-- *get()* `number`
-- *get( range `number` )* `number`
-- *get( range `number`, offset `number` )* `number`
+- *get()* `number` Returns a random number between *0* and *1*.
+- *get( range `number` )* `number` Returns a random number between *0* and `range`.
+- *get( range `number`, offset `number` )* `number` Returns a random number between `range` and `range + offset`.
+
+### fps
+
+- *print()* `void` Prints framerate information to the log.
+- *average()* `number` Returns the average framerate of the program.
+- *usingTarget()* `boolean` Returns if a target framerate is set.
+- *getTarget()* `number` Returns the target framerate, or *0* if disabled.
+- *setTarget( target `number` )* `void` Sets the target framerate. Setting it to *0* will disable the target framerate.
+- *frames()* `number` Returns the number of frames since the program started.
 
 ### wireframe
 
-#### Functions
-- *enable()*
-- *disable()*
+- *enable()* `void` 
+- *disable()* `void` 

@@ -7,7 +7,6 @@
 namespace term_engine::timing {
   Timer delay_timer_;
   Timer average_timer_;
-  bool use_target_;
   float average_fps_;
   int target_fps_;
   uint64_t frame_count_;
@@ -56,9 +55,9 @@ namespace term_engine::timing {
     return average_fps_;
   }
 
-  bool isUsingTargetFPS()
+  bool IsUsingTargetFPS()
   {
-    return use_target_;
+    return target_fps_ > 0;
   }
 
   int GetTargetFPS()
@@ -69,25 +68,18 @@ namespace term_engine::timing {
   void SetTargetFPS(const int& target)
   {
     if (target > 0) {
-      use_target_ = true;
       target_fps_ = target;
       frame_duration_ = std::chrono::milliseconds(1000 / target_fps_).count();
     }
     else {
-      logging::logger->warn("Attempted to set FPS to invalid value %i.\n", target);
+      target_fps_ = 0;
+      frame_duration_ = 0;
     }
-  }
-
-  void DisableTargetFPS()
-  {
-    use_target_ = false;
-    target_fps_ = 0;
-    frame_duration_ = 0;
   }
 
   void PrintFPS()
   {
-    if (use_target_) {
+    if (target_fps_ > 0) {
       logging::logger->info("Target FPS: {}", target_fps_);
     }
     logging::logger->info("Average FPS: {}", GetAverageFPS());

@@ -95,8 +95,8 @@ function TextObject(_position, _size)
 	local self = {
 		obj = Object(_position, _size),
 		text = "",
-		fg_color = vec3(0),
-		bg_color = vec3(0)
+		fg_color = glyphs.DEFAULT_FG,
+		bg_color = glyphs.DEFAULT_BG
 	}
 	
 	function _setData()

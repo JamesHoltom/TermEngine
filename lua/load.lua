@@ -1,3 +1,5 @@
+require "lua/readonly"
 require "lua/objects/objects"
 require "lua/objects/menu"
-require "lua/colors"
+require "lua/constants/colours"
+require "lua/constants/values"
