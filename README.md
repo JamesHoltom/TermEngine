@@ -4,50 +4,44 @@ TermEngine is an engine that focuses on creating text-based games, with addition
 
 This project is currently a work-in-progress, with intermittent updates.
 
-## Building
+## Example
 
-TermEngine can currently be been built on Windows, with Linux support in the works.
+```
+local hello_world
 
-### Prerequisites
+function Init()
+  hello_world = TextObject(Values.VEC2_ONE, ivec2(12, 1))
+	hello_world.setText("Hello World!")
+  
+  return true
+end
 
-TermEngine uses the following libraries:
+```
 
-* SDL2
-* SDL2_image, which is dependent on:
-	* libpng
-	* zlib
-* OpenGL 4.4
-* OpenGL Extension Wrangler (GLEW)
-* OpenGL Mathematics (GLM)
-* FreeType, which is dependent on:
-	* Brotli
-	* bzip2
-	* libpng
-	* zlib
-* sol2
-	* Lua 5.3
-* spdlog, which is dependent on:
-	* fmt
-* cxxopts
+Additional examples can be found in __projects/example__.
 
-Licensing information can be found in the __licenses__ directory.
-
-### Download
+## Download
 
 Clone a copy of the repository here:
 
 `git clone https://github.com/JamesHoltom/TermEngine.git`
 
-### Visual Studio 2019
+## Building
 
-Open `termengine.sln` in Visual Studio and build the project.
+TermEngine can currently be been built on Windows and Linux.
 
-### Makefile
+Instructions can be found in __BUILDING__.
 
-Makefile support is being developed.
+# Documentation
 
-## Documentation
-
-Source code documentation can be built with Doxygen.
+Source code documentation can be built with [Doxygen](https://www.doxygen.org/index.html).
 
 To build the documentation, run `doxygen doxygen.conf`.
+
+Documentation for the Lua API can be found at the [wiki](https://github.com/JamesHoltom/TermEngine/wiki).
+
+## License
+
+TermEngine is released under the MIT license. License information can be found in __LICENSE__.
+
+Licensing information for TermEngine's dependencies can be found in the __licenses__ directory.

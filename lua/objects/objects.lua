@@ -95,8 +95,8 @@ function TextObject(_position, _size)
 	local self = {
 		obj = Object(_position, _size),
 		text = "",
-		fg_color = glyphs.DEFAULT_FG,
-		bg_color = glyphs.DEFAULT_BG
+		fg_colour = glyphs.DEFAULT_FG,
+		bg_colour = glyphs.DEFAULT_BG
 	}
 	
 	function _setData()
@@ -104,7 +104,7 @@ function TextObject(_position, _size)
 		
 		for k = 1, #self.obj.data do
 			if k <= #str_table then
-				self.obj.data[k] = Glyph(string.char(str_table[k]), self.fg_color, self.bg_color)
+				self.obj.data[k] = Glyph(string.char(str_table[k]), self.fg_colour, self.bg_colour)
 			else
 				self.obj.data[k] = empty_glyph
 			end
@@ -141,14 +141,14 @@ function TextObject(_position, _size)
 		_setData()
 	end
 	
-	local getColors = function()
-		return self.fg_color, self.bg_color
+	local getColours = function()
+		return self.fg_colour, self.bg_colour
 	end
 	
-	local setColors = function(_fg_color, _bg_color)
-		self.fg_color = _fg_color or self.fg_color
-		self.bg_color = _bg_color or self.bg_color
-		
+	local setColours = function(_fg_colour, _bg_colour)
+		self.fg_colour = _fg_colour or self.fg_colour
+		self.bg_colour = _bg_colour or self.bg_colour
+
 		_setData()
 	end
 	
@@ -159,7 +159,7 @@ function TextObject(_position, _size)
 		setSize = setSize,
 		getText = getText,
 		setText = setText,
-		getColors = getColors,
-		setColors = setColors
+		getColours = getColours,
+		setColours = setColours
 	}
 end
