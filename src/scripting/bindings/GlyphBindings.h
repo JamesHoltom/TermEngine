@@ -3,7 +3,6 @@
 #ifndef GLYPH_BINDINGS_H
 #define GLYPH_BINDINGS_H
 
-#include "../../fonts/FontAtlas.h"
 #include "../../utility/Glyph.h"
 #include "../../utility/GLUtils.h"
 #include "../../utility/SolUtils.h"
@@ -25,8 +24,6 @@ namespace term_engine::scripting::bindings {
       "background_color", &GlyphParams::background_color_);
 
     state.create_named_table("glyphs",
-      "size", &fonts::GetTextureSize,
-      "font_size", &fonts::GetFontSize,
       "NO_CHARACTER", NO_CHARACTER,
       "DEFAULT_FG", DEFAULT_FOREGROUND_COLOR,
       "DEFAULT_BG", DEFAULT_BACKGROUND_COLOR);

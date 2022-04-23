@@ -55,12 +55,10 @@ namespace term_engine::background {
     }
   }
 
-  int Init()
+  void Init()
   {
     CreateBuffers();
     CreateShader();
-
-    return 0;
   }
 
   void CleanUp()

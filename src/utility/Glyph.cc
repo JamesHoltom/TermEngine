@@ -1,5 +1,5 @@
 #include "Glyph.h"
-#include "../fonts/FontAtlas.h"
+#include "../resources/FontAtlas.h"
 
 namespace term_engine {
   GlyphParams default_glyph;

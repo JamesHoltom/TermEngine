@@ -49,10 +49,7 @@ namespace term_engine::background {
   void RemoveBackground();
 
   /// Prepares the OpenGL buffers and shader ready for use.
-  /**
-   * @returns If the OpenGL buffers and shader were successfully set up.
-   */
-  int Init();
+  void Init();
 
   /// Destroys the OpenGL buffers and shader.
   void CleanUp();

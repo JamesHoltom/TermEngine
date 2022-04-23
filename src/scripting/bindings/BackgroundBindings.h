@@ -3,7 +3,7 @@
 #ifndef BACKGROUND_BINDINGS_H
 #define BACKGROUND_BINDINGS_H
 
-#include "../../background/Background.h"
+#include "../../resources/Background.h"
 #include "../../utility/SolUtils.h"
 
 namespace term_engine::scripting::bindings {

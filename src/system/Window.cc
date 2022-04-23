@@ -1,6 +1,6 @@
 #include "Window.h"
 #include "../data/Uniform.h"
-#include "../fonts/FontAtlas.h"
+#include "../resources/FontAtlas.h"
 #include "../logging/Logger.h"
 #include "../view/View.h"
 

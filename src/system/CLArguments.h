@@ -9,13 +9,13 @@ namespace term_engine::system {
   /**
    * The command-line arguments are laid out as follows:
    * 
-   * TermEngine.exe --project [script_path] --fullscreen
+   * TermEngine.exe --project [scriptPath] --fullscreen
    */
 
   /// The path to the script to execute from the command line.
-  extern std::filesystem::path script_path;
+  extern std::filesystem::path scriptPath;
   /// Should the program start running in fullscreen?
-  extern bool is_fullscreen;
+  extern bool isFullscreen;
 
   /// Gets the command-line arguments passed to the program.
   /**

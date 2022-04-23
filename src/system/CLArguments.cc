@@ -5,8 +5,8 @@
 #include "../logging/Logger.h"
 
 namespace term_engine::system {
-  std::filesystem::path script_path;
-  bool is_fullscreen;
+  std::filesystem::path scriptPath;
+  bool isFullscreen;
 
   void GetCLArguments(int& argc, char**& argv)
   {
@@ -19,8 +19,8 @@ namespace term_engine::system {
     {
       auto result = options.parse(argc, argv);
 
-      script_path = std::filesystem::path(result["project"].as<std::string>());
-      is_fullscreen = result["fullscreen"].as<bool>();
+      scriptPath = std::filesystem::path(result["project"].as<std::string>());
+      isFullscreen = result["fullscreen"].as<bool>();
     }
     catch (cxxopts::OptionParseException& ex)
     {

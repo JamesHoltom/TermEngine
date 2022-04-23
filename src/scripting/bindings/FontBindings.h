@@ -3,7 +3,7 @@
 #ifndef FONT_BINDINGS_H
 #define FONT_BINDINGS_H
 
-#include "../../fonts/FontAtlas.h"
+#include "../../resources/FontAtlas.h"
 #include "../../utility/SolUtils.h"
 
 namespace term_engine::scripting::bindings {
@@ -15,10 +15,11 @@ namespace term_engine::scripting::bindings {
   {
     state.create_named_table("font",
       "set", &fonts::SetFont,
-      "fontName", [&]() -> std::string { return fonts::font_path; },
-      "fontSize", [&]() -> int { return fonts::font_size; },
-      "defaultFontName", [&]() -> std::string { return std::string(fonts::DEFAULT_FONT); },
-      "defaultFontSize", [&]() -> int { return fonts::DEFAULT_FONT_SIZE; });
+      "path", &fonts::GetFontPath,
+      "size", &fonts::GetFontSize,
+      "textureSize", &fonts::GetTextureSize,
+      "defaultPath", &fonts::GetDefaultFontPath,
+      "defaultSize", &fonts::GetDefaultFontSize);
   }
 }
 

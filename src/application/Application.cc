@@ -2,12 +2,12 @@
 
 #include "Application.h"
 #include "../logging/Logger.h"
-#include "../background/Background.h"
 #include "../data/Uniform.h"
 #include "../events/EventManager.h"
 #include "../events/InputManager.h"
-#include "../fonts/FontAtlas.h"
 #include "../objects/ObjectManager.h"
+#include "../resources/Background.h"
+#include "../resources/FontAtlas.h"
 #include "../scripting/ScriptingInterface.h"
 #include "../shaders/Shader.h"
 #include "../system/ImageFunctions.h"
@@ -46,7 +46,9 @@ namespace term_engine::application {
     data::Init();
     data::SetProjection(system::GetWindowSize());
 
-    if (fonts::Init() > 0 || background::Init() > 0) {
+    background::Init();
+
+    if (!fonts::Init()) {
       logging::logger->error("Failed to initialise application!");
 
       exit(3);

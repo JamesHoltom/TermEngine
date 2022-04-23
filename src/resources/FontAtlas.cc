@@ -16,7 +16,7 @@ namespace term_engine::fonts {
   glm::vec2 texture_size;
   GLint texture_max_layers;
 
-  int Init()
+  bool Init()
   {
     /*
      * Depending on the version of OpenGL, there is a limit of how many layers can be added to an array texture.
@@ -108,14 +108,14 @@ namespace term_engine::fonts {
     }
   }
 
-  int SetFont(const std::string& filename, const FT_UInt& size)
+  bool SetFont(const std::string& filename, const FT_UInt& size)
   {
     const std::filesystem::path fullFontPath = system::SearchForFontPath(filename);
 
     if (!std::filesystem::exists(fullFontPath)) {
       logging::logger->warn("Attempting to set font to one that doesn't exist: {}", fullFontPath);
 
-      return 1;
+      return false;
     }
 
     if (fullFontPath != font_path) {
@@ -123,26 +123,25 @@ namespace term_engine::fonts {
         if (FT::Log(FT_Done_Face(font_face)) != FT_Err_Ok) {
           logging::logger->error("Failed to remove font face.");
 
-          return 1;
+          return false;
         }
-
-        glDeleteTextures(1, &texture_id);
       }
 
       if (FT::Log(FT_New_Face(FT::font_library, fullFontPath.c_str(), 0, &font_face)) != FT_Err_Ok) {
         logging::logger->error("Failed to create font face.");
 
-        return 1;
+        return false;
       }
-
-      glGenTextures(1, &texture_id);
     }
 
     if (FT::Log(FT_Set_Pixel_Sizes(font_face, 0, size)) != FT_Err_Ok) {
       logging::logger->error("Failed to set font size.");
 
-      return 1;
+      return false;
     }
+
+    glDeleteTextures(1, &texture_id);
+    glGenTextures(1, &texture_id);
 
     font_path = fullFontPath;
     font_size = size;
@@ -170,12 +169,27 @@ namespace term_engine::fonts {
 
     logging::logger->debug("Texture #{} created with dimensions of {}, {} and {} layers.", texture_id, texture_size.x, texture_size.y, texture_max_layers);
 
-    return 0;
+    return true;
+  }
+
+  std::string GetFontPath()
+  {
+    return font_path;
+  }
+
+  std::string GetDefaultFontPath()
+  {
+    return std::string(DEFAULT_FONT);
   }
 
   int GetFontSize()
   {
     return font_size;
+  }
+
+  int GetDefaultFontSize()
+  {
+    return DEFAULT_FONT_SIZE;
   }
 
   glm::vec2 GetTextureSize()

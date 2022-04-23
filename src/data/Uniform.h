@@ -3,7 +3,6 @@
 #ifndef UNIFORM_H
 #define UNIFORM_H
 
-#include "../fonts/FontAtlas.h"
 #include "../utility/GLUtils.h"
 
 namespace term_engine::data {

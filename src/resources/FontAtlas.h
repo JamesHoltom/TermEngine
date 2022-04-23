@@ -44,7 +44,7 @@ namespace term_engine::fonts {
   /**
    * @returns If the font atlas was successfully set up.
    */
-  int Init();
+  bool Init();
 
   /// Destroys the font atlas.
   void CleanUp();
@@ -80,13 +80,25 @@ namespace term_engine::fonts {
    * @param[in] size     The size, in pixels (px), to render the characters at.
    * @returns If the font was successfully loaded.
    */
-  int SetFont(const std::string& filename, const FT_UInt& size);
+  bool SetFont(const std::string& filename, const FT_UInt& size);
+
+
+  std::string GetFontPath();
+
+
+  std::string GetDefaultFontPath();
 
   /// Gets the font size, in pixels (px).
   /**
    * @returns The font size.
    */
   int GetFontSize();
+
+  /// Gets the default font size, in pixels (px).
+  /**
+   * @returns The font size.
+   */
+  int GetDefaultFontSize();
 
   /// Get the size of the font texture, in pixels (px).
   /**

@@ -121,12 +121,15 @@ namespace term_engine::system {
 #elif defined(_WIN32) || defined (WIN32)
       "C:/Windows/Fonts/",
 #endif
-      rootPath
+      rootPath,
+      scriptPath
     };
 
     for (const std::filesystem::path& location : locations)
     {
       const std::filesystem::path fullPath = location / filename;
+
+      logging::logger->info("Testing location {}...", fullPath);
 
       if (std::filesystem::exists(fullPath))
       {
