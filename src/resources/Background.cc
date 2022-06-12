@@ -95,8 +95,6 @@ namespace term_engine::background {
     debug::LogVAOData();
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(BackgroundData), &data, GL_DYNAMIC_DRAW);
-
     glBindVertexArray(0);
   }
 
@@ -128,6 +126,8 @@ namespace term_engine::background {
       glUseProgram(program_id);
       glBindVertexArray(vao_id);
       glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
+
+      glActiveTexture(GL_TEXTURE0);
       glBindTexture(GL_TEXTURE_2D, current_background.texture_id_);
 
       glDrawArrays(GL_TRIANGLES, 0, 6);

@@ -21,13 +21,13 @@ namespace term_engine::fonts {
   {
     glGenTextures(1, &texture_id);
 
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture_id);
     glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGB8, TEXTURE_SIZE, TEXTURE_SIZE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glBindTexture(GL_TEXTURE_2D, 0);
 
     return SetFont(DEFAULT_FONT, DEFAULT_FONT_SIZE);
   }
@@ -72,12 +72,12 @@ namespace term_engine::fonts {
         return std::make_pair(false, EMPTY_GLYPH);
       }
 
+      glActiveTexture(GL_TEXTURE0);
       glBindTexture(GL_TEXTURE_2D, texture_id);
       glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
       glPixelStorei(GL_UNPACK_ROW_LENGTH, glyph_width);
       glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, glyph_height);
       glTexSubImage2D(GL_TEXTURE_2D, 0, next_pos_.x, next_pos_.y, glyph_width, glyph_height, GL_RED, GL_UNSIGNED_BYTE, font_face->glyph->bitmap.buffer);
-      glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 
       GlyphBB bbox = { next_pos_, glm::ivec2(glyph_width, glyph_height), glyph_baseline };
 
@@ -181,6 +181,7 @@ namespace term_engine::fonts {
   {
     GLubyte clearColor[4] = { 0, 0, 0, 0 };
 
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture_id);
     glClearTexImage(texture_id, 0, GL_RED, GL_UNSIGNED_BYTE, &clearColor);
 

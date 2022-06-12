@@ -68,6 +68,8 @@ namespace term_engine::views {
     glBindVertexArray(vao_id);
     glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
     glBufferData(GL_ARRAY_BUFFER, sizeof(BufferData) * data.capacity(), data.data(), GL_DYNAMIC_DRAW);
+
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, fonts::texture_id);
 
     glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(data.capacity()));
