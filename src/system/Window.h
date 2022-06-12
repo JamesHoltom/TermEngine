@@ -55,13 +55,13 @@ namespace term_engine::system {
   /**
    * @returns The clear color of the window.
    */
-  glm::uvec3 GetWindowClearColor();
+  glm::vec3 GetWindowClearColor();
 
   /// Sets the clear color of the window.
   /**
    * @param[in] color The clear color to use.
    */
-  void SetWindowClearColor(const glm::uvec3& color);
+  void SetWindowClearColor(const glm::vec3& color);
 
   /// Clears the window, ready for the next frame.
   void ClearWindow();

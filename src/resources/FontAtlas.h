@@ -11,8 +11,17 @@
 #include "../utility/GLUtils.h"
 
 namespace term_engine::fonts {
+  struct GlyphBB;
+
   /// Used to store characters and the texture layers of the glyph they represent.
-  typedef std::unordered_map<FT_UInt32, GLuint> GlyphList;
+  typedef std::unordered_map<FT_UInt32, GlyphBB> GlyphList;
+
+  /// Defines the bounding position, size and baseline of a glyph within the font atlas.
+  struct GlyphBB {
+    glm::ivec2 position_;
+    glm::ivec2 size_;
+    int baseline_;
+  };
 
   /// The default font path to use when running the engine.
 #ifdef linux
@@ -22,11 +31,15 @@ namespace term_engine::fonts {
 #endif
   /// The default font size to use when running the engine.
   constexpr int DEFAULT_FONT_SIZE = 32;
+  /// The size of the texture to store font characters in.
+  constexpr GLsizei TEXTURE_SIZE = 1024;
+  /// Defines an empty glyph that is returned when one fails to load, or a zero-character (i.e. '\0') is loaded.
+  constexpr GlyphBB EMPTY_GLYPH = { glm::ivec2(), glm::ivec2() };
   
   /// The relative filepath of the font being used.
   extern std::string font_path;
   /// The font size, in pixels (px).
-  extern FT_UInt font_size;
+  extern FT_Int font_size;
   /// A handler for the loaded font face. This also refers to the currently loaded glyph.
   extern FT_Face font_face;
   /// The list containing all glyphs loaded from the font.
@@ -35,10 +48,10 @@ namespace term_engine::fonts {
   extern GLuint texture_id;
   /// The amount of glyphs currently stored in the font atlas.
   extern GLuint glyph_count;
-  /// The size of the atlas texture. This includes the maximum ascender and descender.
-  extern glm::vec2 texture_size;
-  /// The maximum amount of layers in the atlas texture array.
-  extern GLint texture_max_layers;
+  /// The position to store the next loaded glyph at.
+  extern glm::uvec2 next_pos_;
+  /// The tallest height value of a glyph in the current row. This is used to cleanly move to the next row, after filling the current one.
+  extern GLuint max_height_;
 
   /// Initialises the font atlas and prepares it for use.
   /**
@@ -56,22 +69,21 @@ namespace term_engine::fonts {
     * @param[in] character The character to look up.
     * @returns The texture layer that holds the character.
     */
-  GLint GetCharacter(const FT_ULong& character);
+  GlyphBB GetCharacter(const FT_ULong& character);
 
-  /// Loads a glyph from the font, and stores it in the atlas texture.
+  /// Creates the texture of a character, and stores it in the atlas texture.
   /**
-    * @param[in] character The character to load.
-    * @returns The texture layer where the loaded glyph has been stored.
-    */
-  GLint _LoadChar(const FT_ULong& character);
-
-  /// Creates the texture of a character, and stores it in the font texture.
-  /**
-   * @param[in] character     The character to render.
-   * @param[in] texture_layer The texture layer to render the character to.
-   * @returns If the character was successfully rendered.
+   * @param[in] character The character to render.
+   * @returns The bounding box of the loaded glyph.
    */
-  bool _CreateCharTexture(const FT_ULong& character, const GLint texture_layer);
+  std::pair<bool, GlyphBB> _CreateCharTexture(const FT_ULong& character);
+
+  /// Loads a glyph from the font.
+  /**
+   * @param[in] character The character to load.
+   * @returns The bounding box of the loaded glyph.
+   */
+  GlyphBB _LoadChar(const FT_ULong& character);
 
   /// Sets the font being used to render characters.
   /**
@@ -80,12 +92,21 @@ namespace term_engine::fonts {
    * @param[in] size     The size, in pixels (px), to render the characters at.
    * @returns If the font was successfully loaded.
    */
-  bool SetFont(const std::string& filename, const FT_UInt& size);
+  bool SetFont(const std::string& filename, const FT_Int& size);
 
+  /// Unloads the font currently in use. This is used before loading a new one.
+  void _RemoveFont();
 
+  /// Gets the path to the font currently in use.
+  /**
+   * @returns The path to the font.
+   */
   std::string GetFontPath();
 
-
+  /// Gets the path to the default font.
+  /**
+   * @returns The path to the font.
+   */
   std::string GetDefaultFontPath();
 
   /// Gets the font size, in pixels (px).
@@ -99,12 +120,6 @@ namespace term_engine::fonts {
    * @returns The font size.
    */
   int GetDefaultFontSize();
-
-  /// Get the size of the font texture, in pixels (px).
-  /**
-   * @returns The font texture size.
-   */
-  glm::vec2 GetTextureSize();
 }
 
 #endif // ! FONT_ATLAS_H

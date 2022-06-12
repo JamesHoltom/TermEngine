@@ -3,6 +3,8 @@ local outline, noProgramText
 function Init()
 	print("Init -> Init()")
 	
+	window.setClearColor(vec3(0))
+	
 	outline = BoxObject(vec2(0), ivec2(32, 16))
 	outline.setOutline(Glyph("#", Colours.WHITE, Colours.BLACK))
 
