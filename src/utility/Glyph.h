@@ -74,7 +74,7 @@ namespace term_engine {
       position_(position),
       texture_position_(texture_position),
       has_texture_(has_texture ? 1.0f : 0.0f),
-      color_(color) {}
+      color_(color / 255.0f) {}
 
     /// Allows _std::stringstream_ to correctly parse a _BufferData_ object.
     /**
