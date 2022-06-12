@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "../logging/Logger.h"
+#include "../resources/FontAtlas.h"
 #include "../utility/GLUtils.h"
 
 namespace term_engine {
@@ -60,37 +61,20 @@ namespace term_engine {
   /// Represents the structure of the buffer used to render glyphs.
   struct BufferData {
     /// Constructs the buffer data.
-    BufferData() :
-      texture_layer_(0.0f),
-      position_(glm::vec2(0.0f)),
-      foreground_color_(glm::vec4(0.0f)),
-      background_color_(glm::vec4(0.0f)) {}
+    BufferData() {}
 
     /// Constructs the buffer data with the given parameters.
     /**
-     * @param[in] texture_layer    The texture layer to render.
-     * @param[in] position         The position of the glyph, from its default position in the glyph set.
-     * @param[in] foreground_color The foreground color, used for the glyph.
-     * @param[in] background_color The background color.
+     * @param[in] position          The position of the vertex.
+     * @param[in] texture_position  The position of the texture.
+     * @param[in] has_texture       Does the current vertex have a texture?
+     * @param[in] color             The color to render the vertex/texture with.
      */
-    BufferData(const GLfloat& texture_layer, const glm::vec2& position, const glm::vec3& foreground_color, const glm::vec3& background_color) :
-      texture_layer_(texture_layer),
+    BufferData(const glm::vec2& position, const glm::vec2& texture_position, const bool& has_texture, const glm::vec3& color) :
       position_(position),
-      foreground_color_(foreground_color),
-      background_color_(background_color) {}
-
-    /// Sets the parameters for the glyph.
-    /**
-     * @param[in] params     The parameters to apply to the glyph.
-     * @param[in] normalised If the foreground and background colors are normalised (i.e. from 0~1, rather than 0~255).
-     */
-    void Set(const GlyphParams& params, const bool& normalised = false);
-
-    /// Sets the position of the glyph, relative to the window.
-    /**
-     * @param[in] position The position to move the glyph to.
-     */
-    void SetPosition(const glm::vec2& position);
+      texture_position_(texture_position),
+      has_texture_(has_texture ? 1.0f : 0.0f),
+      color_(color) {}
 
     /// Allows _std::stringstream_ to correctly parse a _BufferData_ object.
     /**
@@ -100,20 +84,19 @@ namespace term_engine {
      */
     friend std::ostream& operator<<(std::ostream& os, const BufferData& data) {
       return os << std::endl
-        << "Texture layer: " << data.texture_layer_ << std::endl
-        << "Position: " << data.position_.x << ", " << data.position_.y << std::endl
-        << "Foreground colour: " << data.foreground_color_.r << ", " << data.foreground_color_.g << ", " << data.foreground_color_.b << std::endl
-        << "Background colour: " << data.background_color_.r << ", " << data.background_color_.g << ", " << data.background_color_.b << std::endl;
+        << "Vertex position: " << data.position_.x << ", " << data.position_.y << std::endl
+        << "Texture position: " << data.texture_position_.x << ", " << data.texture_position_.y << std::endl
+        << "Colour: " << data.color_.r << ", " << data.color_.g << ", " << data.color_.b << std::endl;
     }
 
-    /// The texture layer to render.
-    GLfloat texture_layer_;
-    /// The position of the glyph, relative to the window.
+    /// The position of the vertex.
     glm::vec2 position_;
-    /// The foreground color, used for the glyph.
-    glm::vec3 foreground_color_;
-    /// The background color.
-    glm::vec3 background_color_;
+    /// Does the current vertex have a texture?
+    GLfloat has_texture_;
+    /// The position of the texture.
+    glm::vec2 texture_position_;
+    /// The color to render the vertex/texture with.
+    glm::vec3 color_;
   };
 }
 

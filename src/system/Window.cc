@@ -66,15 +66,15 @@ namespace term_engine::system {
 
   void ResizeWindowToView()
   {
-    SetWindowSize(glm::ivec2(fonts::texture_size) * views::view_size);
+    SetWindowSize(glm::ivec2(fonts::font_size) * views::view_size);
   }
 
-  glm::uvec3 GetWindowClearColor()
+  glm::vec3 GetWindowClearColor()
   {
-    return glm::uvec3(window_color_r * 255, window_color_g * 255, window_color_b * 255);
+    return glm::vec3(window_color_r * 255, window_color_g * 255, window_color_b * 255);
   }
 
-  void SetWindowClearColor(const glm::uvec3& color)
+  void SetWindowClearColor(const glm::vec3& color)
   {
     window_color_r = color.r / 255.0f;
     window_color_g = color.g / 255.0f;

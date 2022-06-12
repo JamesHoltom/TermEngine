@@ -50,6 +50,14 @@ namespace term_engine::views {
    */
   void SetSize(const glm::ivec2& size);
 
+  /// Pushes vertex/texture data for the glyph at the given index to the buffer.
+  /**
+   * @param[in] index The index of the glyph to push.
+   * @param[in] position The position to render the glyph to.
+   * @param[in] params The glyph parameters.
+   */
+  void PushGlyphToBuffer(const size_t& index, const glm::ivec2& position, const GlyphParams& params);
+
   /// Sets up the OpenGL buffers.
   void CreateBuffers();
 

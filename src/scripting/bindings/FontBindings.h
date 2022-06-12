@@ -17,7 +17,6 @@ namespace term_engine::scripting::bindings {
       "set", &fonts::SetFont,
       "path", &fonts::GetFontPath,
       "size", &fonts::GetFontSize,
-      "textureSize", &fonts::GetTextureSize,
       "defaultPath", &fonts::GetDefaultFontPath,
       "defaultSize", &fonts::GetDefaultFontSize);
   }
