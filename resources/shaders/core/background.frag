@@ -12,5 +12,5 @@ in FS_DATA
 
 void main()
 {
-	fragment_color = texture(bg_texture, fs_data.texture_position);
+	fragment_color = texture(bg_texture, fs_data.texture_position) * vec4(fs_data.color, 1.0);
 }

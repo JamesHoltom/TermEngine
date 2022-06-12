@@ -2,7 +2,6 @@ local currentPath, currentSize
 local fontText
 
 function Init()
-  usingDefault = true
   currentPath = font.defaultPath()
   currentSize = 0
 

@@ -15,7 +15,7 @@ namespace term_engine::system {
   /// The default height of the window.
   constexpr int DEFAULT_HEIGHT = 512;
   /// The default clear color to use when refreshing the window.
-  constexpr glm::uvec3 DEFAULT_WINDOW_CLEAR_COLOR = glm::uvec3(32, 128, 255);
+  constexpr glm::uvec3 DEFAULT_WINDOW_CLEAR_COLOR = glm::uvec3(0);
 
   /// The OpenGL context to bind to the window and render to.
   extern SDL_GLContext context;

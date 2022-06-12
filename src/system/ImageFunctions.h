@@ -4,7 +4,7 @@
 #define IMAGE_FUNCTIONS_H
 
 #include <string>
-
+#include "../vendor/stb_image.h"
 #include "../utility/GLUtils.h"
 #include "../utility/SDLUtils.h"
 

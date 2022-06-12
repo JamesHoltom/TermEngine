@@ -27,23 +27,25 @@ namespace term_engine::background {
   /// The pixel data of the background image, if set.
   extern system::ImageData current_background;
   /// The buffer of background data to render to the window.
-  extern BackgroundData data;
+  extern BackgroundData data[6];
 
   /// Represents the structure of the buffer used for rendering the background.
   struct BackgroundData {
-    /// The position of the background, relative to the window.
-    glm::vec2 position_;
-    /// The size of the background, in pixels.
-    glm::vec2 size_;
-    /// The color of the background. This will blend with the texture.
+    /// The position of the vertex, relative to the window.
+    glm::vec2 vertex_position_;
+    /// The position of the texture, relative to the window.
+    glm::vec2 texture_position_;
+    /// The color of the vertex. This will blend with the texture.
     glm::vec3 color_;
   };
 
   /// Sets the background image.
   /**
-   * @param[in] filename The path to the image to use.
+   * @param[in] filename  The path to the image to use.
+   * @param[in] offset    Offset to move the background in the window, in pixels (px).
+   * @param[in] color     Color of the background.
    */
-  void SetBackground(const std::string& filename);
+  void SetBackground(const std::string& filename, const glm::vec2& offset, const glm::vec3& color);
 
   /// Removes the background image, if set.
   void RemoveBackground();

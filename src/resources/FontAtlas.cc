@@ -4,6 +4,7 @@
 #include "FontAtlas.h"
 #include "../data/Uniform.h"
 #include "../logging/Logger.h"
+#include "../objects/Object.h"
 #include "../system/FileFunctions.h"
 
 namespace term_engine::fonts {
@@ -18,12 +19,24 @@ namespace term_engine::fonts {
 
   bool Init()
   {
+    glGenTextures(1, &texture_id);
+
+    glBindTexture(GL_TEXTURE_2D, texture_id);
+    glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGB8, TEXTURE_SIZE, TEXTURE_SIZE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
     return SetFont(DEFAULT_FONT, DEFAULT_FONT_SIZE);
   }
 
   void CleanUp()
   {
     _RemoveFont();
+
+    glDeleteTextures(1, &texture_id);
   }
 
   GlyphBB GetCharacter(const FT_ULong& character)
@@ -122,7 +135,8 @@ namespace term_engine::fonts {
       return false;
     }
 
-    if (fullFontPath != font_path) {
+    if (fullFontPath != font_path) 
+    {
       if (font_path != "") {
         _RemoveFont();
       }
@@ -134,6 +148,8 @@ namespace term_engine::fonts {
       }
     }
 
+    _ClearCache();
+
     if (FT::Log(FT_Set_Pixel_Sizes(font_face, 0, size)) != FT_Err_Ok) {
       logging::logger->error("Failed to set font size.");
 
@@ -143,33 +159,32 @@ namespace term_engine::fonts {
     font_path = fullFontPath;
     font_size = size;
 
-    glGenTextures(1, &texture_id);
-
-    glBindTexture(GL_TEXTURE_2D, texture_id);
-    glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGB8, TEXTURE_SIZE, TEXTURE_SIZE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
     for (auto& glyph : font_atlas) {
       _CreateCharTexture(glyph.first);
     }
 
     data::SetFontSize(glm::vec2(size));
+    objects::Object::SetDirty();
 
     return true;
   }
 
   void _RemoveFont()
   {
-    glDeleteTextures(1, &texture_id);
-    
     if (FT::Log(FT_Done_Face(font_face)) != FT_Err_Ok)
     {
       logging::logger->error("Failed to remove font face.");
     }
+  }
+
+  void _ClearCache()
+  {
+    GLubyte clearColor[4] = { 0, 0, 0, 0 };
+
+    glBindTexture(GL_TEXTURE_2D, texture_id);
+    glClearTexImage(texture_id, 0, GL_RED, GL_UNSIGNED_BYTE, &clearColor);
+
+    next_pos_ = glm::uvec2(0);
   }
 
   std::string GetFontPath()

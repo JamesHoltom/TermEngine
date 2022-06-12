@@ -122,14 +122,14 @@ namespace term_engine::system {
       "C:/Windows/Fonts/",
 #endif
       rootPath,
-      scriptPath
+      rootPath / "projects" / scriptPath
     };
 
     for (const std::filesystem::path& location : locations)
     {
       const std::filesystem::path fullPath = location / filename;
 
-      logging::logger->info("Testing location {}...", fullPath);
+      logging::logger->debug("Testing location {}...", fullPath);
 
       if (std::filesystem::exists(fullPath))
       {
@@ -138,6 +138,33 @@ namespace term_engine::system {
     }
 
     logging::logger->warn("Could not find font \"{}\"!", filename);
+
+    return "";
+  }
+
+  std::filesystem::path SearchForBackgroundPath(const std::string& filename)
+  {
+    const std::filesystem::path rootPath = GetRootPath();
+    const std::filesystem::path locations[] = {
+      rootPath,
+      rootPath / "resources/backgrounds",
+      rootPath / "projects" / scriptPath,
+      rootPath / "projects" / scriptPath / "resources/backgrounds"
+    };
+
+    for (const std::filesystem::path& location : locations)
+    {
+      const std::filesystem::path fullPath = location / filename;
+
+      logging::logger->debug("Testing location {}...", fullPath);
+
+      if (std::filesystem::exists(fullPath))
+      {
+        return fullPath;
+      }
+    }
+
+    logging::logger->warn("Could not find background \"{}\"!", filename);
 
     return "";
   }

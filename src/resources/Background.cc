@@ -4,6 +4,7 @@
 
 #include "../logging/Logger.h"
 #include "../shaders/Shader.h"
+#include "../system/FileFunctions.h"
 #include "../system/ImageFunctions.h"
 #include "../utility/DebugFunctions.h"
 
@@ -12,12 +13,14 @@ namespace term_engine::background {
   GLuint vao_id;
   GLuint vbo_id;
   system::ImageData current_background;
-  BackgroundData data;
+  BackgroundData data[6];
 
-  void SetBackground(const std::string& file)
+  void SetBackground(const std::string& file, const glm::vec2& offset, const glm::vec3& color)
   {
-    if (!std::filesystem::exists(file)) {
-      logging::logger->warn("Attempting to set background to one that doesn't exist: {}", file);
+    const std::filesystem::path fullFontPath = system::SearchForBackgroundPath(file);
+
+    if (!std::filesystem::exists(fullFontPath)) {
+      logging::logger->warn("Attempting to set background to one that doesn't exist: {}", fullFontPath);
 
       return;
     }
@@ -26,20 +29,19 @@ namespace term_engine::background {
       RemoveBackground();
     }
 
-    system::ImageData background = system::CreateImage(file);
-    if (background.texture_id_ > 0) {
-      current_background = background;
-
-      data.position_ = glm::ivec2(0);
-      data.size_ = current_background.size_;
-      data.color_ = glm::vec3(255.0f);
-
-      glBindTexture(GL_TEXTURE_2D, current_background.texture_id_);
+    current_background = system::CreateImage(fullFontPath);
+    if (current_background.texture_id_ > 0) {
+      data[0] = { offset + glm::vec2(0.0f), glm::vec2(0.0f), color / 255.0f };
+      data[1] = { offset + glm::vec2(current_background.size_), glm::vec2(1.0f), color / 255.0f };
+      data[2] = { offset + glm::vec2(0.0f, current_background.size_.y), glm::vec2(0.0f, 1.0f), color / 255.0f };
+      data[3] = { offset + glm::vec2(0.0f), glm::vec2(0.0f), color / 255.0f };
+      data[4] = { offset + glm::vec2(current_background.size_.x, 0.0f), glm::vec2(1.0f, 0.0f), color / 255.0f };
+      data[5] = { offset + glm::vec2(current_background.size_), glm::vec2(1.0f), color / 255.0f };
 
       glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
-      glBufferData(GL_ARRAY_BUFFER, sizeof(BackgroundData), &data, GL_DYNAMIC_DRAW);
+      glBufferData(GL_ARRAY_BUFFER, sizeof(BackgroundData) * 6, &data, GL_DYNAMIC_DRAW);
       
-      glBindTexture(GL_TEXTURE_2D, 0);
+      logging::logger->debug("Loaded background image \'{}\' with size {},{} and ID {}", current_background.filename_.c_str(), current_background.size_.x, current_background.size_.y, current_background.texture_id_);
     }
     else {
       logging::logger->error("Failed to set background image.");
@@ -75,14 +77,14 @@ namespace term_engine::background {
     glGenBuffers(1, &vbo_id);
     glBindVertexBuffer(0, vbo_id, 0, sizeof(BackgroundData));
 
-    // Configure the position attribute.
+    // Configure the vertex position attribute.
     glEnableVertexAttribArray(0);
-    glVertexAttribFormat(0, 2, GL_FLOAT, GL_FALSE, offsetof(BackgroundData, position_));
+    glVertexAttribFormat(0, 2, GL_FLOAT, GL_FALSE, offsetof(BackgroundData, vertex_position_));
     glVertexAttribBinding(0, 0);
 
-    // Configure the size attribute.
+    // Configure the texture position attribute.
     glEnableVertexAttribArray(1);
-    glVertexAttribFormat(1, 2, GL_FLOAT, GL_FALSE, offsetof(BackgroundData, size_));
+    glVertexAttribFormat(1, 2, GL_FLOAT, GL_FALSE, offsetof(BackgroundData, texture_position_));
     glVertexAttribBinding(1, 0);
 
     // Configure the color attribute.
@@ -103,7 +105,6 @@ namespace term_engine::background {
     program_id = shaders::CreateProgram();
 
     shaders::AddShaderFile(program_id, shaders::ShaderInitialisationPair(GL_VERTEX_SHADER, std::string(BG_VERTEX_FILE)));
-    shaders::AddShaderFile(program_id, shaders::ShaderInitialisationPair(GL_GEOMETRY_SHADER, std::string(BG_GEOMETRY_FILE)));
     shaders::AddShaderFile(program_id, shaders::ShaderInitialisationPair(GL_FRAGMENT_SHADER, std::string(BG_FRAGMENT_FILE)));
     shaders::LinkProgram(program_id);
 
@@ -122,14 +123,15 @@ namespace term_engine::background {
 
   void Render()
   {
-    if (current_background.texture_id_ >= 0) {
+    if (current_background.texture_id_ > 0)
+    {
       glUseProgram(program_id);
       glBindVertexArray(vao_id);
+      glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
       glBindTexture(GL_TEXTURE_2D, current_background.texture_id_);
 
-      glDrawArrays(GL_POINTS, 0, 1);
+      glDrawArrays(GL_TRIANGLES, 0, 6);
 
-      glBindTexture(GL_TEXTURE_2D, 0);
       glBindVertexArray(0);
       glUseProgram(0);
     }

@@ -13,13 +13,7 @@ namespace SDL {
 
     for (int i = 0; i < SDL_GetNumAudioDrivers(); ++i) {
       const char* driver_name = SDL_GetAudioDriver(i);
-      term_engine::logging::logger->info("Audio driver #{}: {}", i, driver_name);
-    }
-
-    if (IMG_Init(IMG_INIT_FLAGS) != IMG_INIT_FLAGS) {
-      term_engine::logging::logger->error("Failed to fully initialise SDL_image!\nError: {}", IMG_GetError());
-
-      return 1;
+      term_engine::logging::logger->debug("Audio driver #{}: {}", i, driver_name);
     }
 
     srand(SDL_GetTicks());
@@ -31,7 +25,6 @@ namespace SDL {
 
   void CleanUpSDL()
   {
-    IMG_Quit();
     SDL_Quit();
 
     term_engine::logging::logger->debug("Shut down SDL.");

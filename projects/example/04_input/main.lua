@@ -1,27 +1,25 @@
-local inputText, downBox
+local inputText, inputBox
 
 function Init()
-  inputText = TextObject(Values.VEC2_ONE, ivec2(10, 1))
-  inputText.setText("Press W!  ")
+  inputText = TextObject(Values.VEC2_ONE, ivec2(12, 1))
+  inputText.setText("Press W & S!")
 
-  downBox = BoxObject(Values.VEC2_ZERO, ivec2(12, 3))
-  downBox.setOutline(Glyph("#", Colours.WHITE, Colours.BLACK))
+  inputBox = BoxObject(Values.VEC2_ZERO, ivec2(14, 3))
+  inputBox.setOutline(Glyph("#", Colours.WHITE, Colours.BLACK))
 
   return true
 end
 
 function Loop(timestep)
   if keyboard.isPressed("w") then
-    inputText.setColours(nil, Colours.RED)
+    print("Pressed W!")
   elseif keyboard.isReleased("w") then
-    inputText.setColours(nil, Colours.ORANGE)
-  else
-    inputText.setColours(nil, Colours.BLACK)
+    print("Released W!")
   end
 
   if keyboard.isDown("s") then
-    downBox.setOutline(Glyph("!", Colours.WHITE, Colours.RED))
+    inputBox.setOutline(Glyph("!", Colours.WHITE, Colours.RED))
   else
-    downBox.setOutline(Glyph("#", Colours.WHITE, Colours.BLACK))
+    inputBox.setOutline(Glyph("#", Colours.WHITE, Colours.BLACK))
   end
 end

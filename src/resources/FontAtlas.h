@@ -97,6 +97,9 @@ namespace term_engine::fonts {
   /// Unloads the font currently in use. This is used before loading a new one.
   void _RemoveFont();
 
+  /// Clears the font atlas texture.
+  void _ClearCache();
+
   /// Gets the path to the font currently in use.
   /**
    * @returns The path to the font.
