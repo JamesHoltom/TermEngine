@@ -14,9 +14,9 @@ namespace term_engine::scripting::bindings {
   void BindViewToState(sol::state& state)
   {
     state.create_named_table("view",
-      "getPosition", [&]() -> glm::vec2 { return views::view_position; },
+      "getPosition", &views::GetPosition,
       "setPosition", &views::SetPosition,
-      "getSize", [&]() -> glm::ivec2 { return views::view_size; },
+      "getSize", &views::GetSize,
       "setSize", &views::SetSize);
   }
 }

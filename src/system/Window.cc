@@ -66,7 +66,7 @@ namespace term_engine::system {
 
   void ResizeWindowToView()
   {
-    SetWindowSize(glm::ivec2(fonts::font_size) * views::view_size);
+    SetWindowSize(fonts::glyph_size * views::view_size);
   }
 
   glm::vec3 GetWindowClearColor()

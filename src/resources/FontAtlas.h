@@ -9,6 +9,7 @@
 
 #include "../utility/FTUtils.h"
 #include "../utility/GLUtils.h"
+#include "../utility/glmUtils.h"
 
 namespace term_engine::fonts {
   struct GlyphBB;
@@ -26,11 +27,14 @@ namespace term_engine::fonts {
   /// The default font path to use when running the engine.
 #ifdef linux
   constexpr char DEFAULT_FONT[] = "truetype/ubuntu/UbuntuMono-R.ttf";
+  //constexpr char DEFAULT_FONT[] = "/home/jholtom/Programming/TermEngine/build/projects/example/07c_fonts/resources/fonts/SpaceMono-Regular.ttf";
 #elif defined(_WIN32) || defined (WIN32)
   constexpr char DEFAULT_FONT[] = "arial.ttf";
 #endif
   /// The default font size to use when running the engine.
   constexpr int DEFAULT_FONT_SIZE = 32;
+  /// Should the default font be square (i.e. the width/height are equal)?
+  constexpr bool IS_FONT_SQUARE = true;
   /// The size of the texture to store font characters in.
   constexpr GLsizei TEXTURE_SIZE = 1024;
   /// Defines an empty glyph that is returned when one fails to load, or a zero-character (i.e. '\0') is loaded.
@@ -39,7 +43,9 @@ namespace term_engine::fonts {
   /// The relative filepath of the font being used.
   extern std::string font_path;
   /// The font size, in pixels (px).
-  extern FT_Int font_size;
+  extern int font_size;
+  /// The glyph size, in pixels (px);
+  extern glm::ivec2 glyph_size;
   /// A handler for the loaded font face. This also refers to the currently loaded glyph.
   extern FT_Face font_face;
   /// The list containing all glyphs loaded from the font.
@@ -90,15 +96,22 @@ namespace term_engine::fonts {
    * All existing characters in the font atlas are re-rendered when this is called.
    * @param[in] filename The path to the font file to load.
    * @param[in] size     The size, in pixels (px), to render the characters at.
+   * @param[in] isSquare Should the glyph size be square (i.e. the width and height are equal)?
    * @returns If the font was successfully loaded.
    */
-  bool SetFont(const std::string& filename, const FT_Int& size);
+  bool SetFont(const std::string& filename, const FT_Int& size, const bool& isSquare);
 
   /// Unloads the font currently in use. This is used before loading a new one.
   void _RemoveFont();
 
   /// Clears the font atlas texture.
   void _ClearCache();
+
+  /// Resets the glyph size, according to the current font.
+  /**
+   * @param[in] isSquare Should the glyph size be square (i.e. the width and height are equal)?
+   */
+  void ResetGlyphSize(const bool& isSquare);
 
   /// Gets the path to the font currently in use.
   /**

@@ -57,7 +57,7 @@ namespace term_engine::views {
             continue;
           }
 
-          PushGlyphToBuffer(view_index, world_pos * fonts::font_size, obj_data.at(object_index));
+          PushGlyphToBuffer(view_index, world_pos * fonts::glyph_size, obj_data.at(object_index));
         }
       }
 
@@ -78,10 +78,20 @@ namespace term_engine::views {
     glUseProgram(0);
   }
 
+  glm::vec2 GetPosition()
+  {
+    return view_position;
+  }
+
   void SetPosition(const glm::vec2& position)
   {
     view_position = position;
     data::SetPosition(position);
+  }
+
+  glm::ivec2 GetSize()
+  {
+    return view_size;
   }
 
   void SetSize(const glm::ivec2& size)
@@ -100,26 +110,26 @@ namespace term_engine::views {
     fonts::GlyphBB bbox = fonts::GetCharacter(params.character_);
     glm::vec2 texPos = glm::vec2(bbox.position_) / (GLfloat)fonts::TEXTURE_SIZE;
     glm::vec2 texSize = glm::vec2(bbox.size_) / (GLfloat)fonts::TEXTURE_SIZE;
-    glm::vec2 texAlign = glm::vec2((fonts::font_size - bbox.size_.x) / 2, bbox.baseline_);
+    glm::vec2 texAlign = glm::vec2((fonts::glyph_size.x - bbox.size_.x) / 2, bbox.baseline_);
     bool has_texture = params.character_ != NO_CHARACTER;
 
     // Draw the background.
 
     data.at(index) = BufferData(glm::vec2(position), glm::vec2(), false, params.background_color_);
-    data.at(index + 1) = BufferData(glm::vec2(position + glm::ivec2(fonts::font_size)), glm::vec2(), false, params.background_color_);
-    data.at(index + 2) = BufferData(glm::vec2(position.x, position.y + fonts::font_size), glm::vec2(), false, params.background_color_);
+    data.at(index + 1) = BufferData(glm::vec2(position + fonts::glyph_size), glm::vec2(), false, params.background_color_);
+    data.at(index + 2) = BufferData(glm::vec2(position.x, position.y + fonts::glyph_size.y), glm::vec2(), false, params.background_color_);
     data.at(index + 3) = BufferData(glm::vec2(position), glm::vec2(), false, params.background_color_);
-    data.at(index + 4) = BufferData(glm::vec2(position.x + fonts::font_size, position.y), glm::vec2(), false, params.background_color_);
-    data.at(index + 5) = BufferData(glm::vec2(position + glm::ivec2(fonts::font_size)), glm::vec2(), false, params.background_color_);
+    data.at(index + 4) = BufferData(glm::vec2(position.x + fonts::glyph_size.x, position.y), glm::vec2(), false, params.background_color_);
+    data.at(index + 5) = BufferData(glm::vec2(position + fonts::glyph_size), glm::vec2(), false, params.background_color_);
 
     // Draw the foreground.
 
     data.at(index + 6) = BufferData(glm::vec2(position) + texAlign, texPos, has_texture, params.foreground_color_);
-    data.at(index + 7) = BufferData(glm::vec2(position + glm::ivec2(bbox.size_)) + texAlign, texPos + texSize, has_texture, params.foreground_color_);
+    data.at(index + 7) = BufferData(glm::vec2(position + bbox.size_) + texAlign, texPos + texSize, has_texture, params.foreground_color_);
     data.at(index + 8) = BufferData(glm::vec2(position.x, position.y + bbox.size_.y) + texAlign, glm::vec2(texPos.x, texPos.y + texSize.y), has_texture, params.foreground_color_);
     data.at(index + 9) = BufferData(glm::vec2(position) + texAlign, texPos, has_texture, params.foreground_color_);
     data.at(index + 10) = BufferData(glm::vec2(position.x + bbox.size_.x, position.y) + texAlign, glm::vec2(texPos.x + texSize.x, texPos.y), has_texture, params.foreground_color_);
-    data.at(index + 11) = BufferData(glm::vec2(position + glm::ivec2(bbox.size_)) + texAlign, texPos + texSize, has_texture, params.foreground_color_);
+    data.at(index + 11) = BufferData(glm::vec2(position + bbox.size_) + texAlign, texPos + texSize, has_texture, params.foreground_color_);
   }
 
   void CreateBuffers()

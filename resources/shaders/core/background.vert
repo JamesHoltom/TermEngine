@@ -6,10 +6,7 @@ layout (location = 2) in vec3 color;
 
 layout (std140, binding = 0) uniform CommonData {
 	mat4 projection_;
-	vec2 font_size_;
 	vec2 set_position_;
-	vec2 set_padding_;
-	vec2 set_spacing_;
 };
 
 out FS_DATA

@@ -15,6 +15,7 @@ namespace term_engine::scripting::bindings {
   {
     state.create_named_table("font",
       "set", &fonts::SetFont,
+      "isSquare", &fonts::ResetGlyphSize,
       "path", &fonts::GetFontPath,
       "size", &fonts::GetFontSize,
       "defaultPath", &fonts::GetDefaultFontPath,

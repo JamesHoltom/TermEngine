@@ -38,11 +38,23 @@ namespace term_engine::views {
   /// Renders the list of views to the window.
   void Render();
 
+  /// Gets the position of the view on the window.
+  /**
+   * @returns The position of the view.
+   */
+  glm::vec2 GetPosition();
+
   /// Sets the position of the view on the window.
   /**
    * @param[in] position The position to move the view to.
    */
   void SetPosition(const glm::vec2& position);
+
+  /// Gets the size of the view.
+  /**
+   * @returns The size of the view.
+   */
+  glm::ivec2 GetSize();
 
   /// Sets the size of the view, in rows/columns.
   /**

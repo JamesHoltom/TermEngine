@@ -9,7 +9,8 @@
 
 namespace term_engine::fonts {
   std::string font_path;
-  FT_Int font_size;
+  int font_size;
+  glm::ivec2 glyph_size;
   FT_Face font_face;
   GlyphList font_atlas;
   GLuint texture_id;
@@ -29,7 +30,7 @@ namespace term_engine::fonts {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    return SetFont(DEFAULT_FONT, DEFAULT_FONT_SIZE);
+    return SetFont(DEFAULT_FONT, DEFAULT_FONT_SIZE, IS_FONT_SQUARE);
   }
 
   void CleanUp()
@@ -98,6 +99,10 @@ namespace term_engine::fonts {
       {
         next_pos_.x += glyph_width;
       }
+      
+      auto new_glyph = font_atlas.insert_or_assign(character, bbox);
+
+      glyph_count++;
 
       return std::make_pair(true, bbox);
     }
@@ -111,21 +116,10 @@ namespace term_engine::fonts {
 
   GlyphBB _LoadChar(const FT_ULong& character)
   {
-    std::pair<bool, GlyphBB> result = _CreateCharTexture(character);
-
-    if (result.first) {
-      auto new_glyph = font_atlas.emplace(std::make_pair(character, result.second));
-
-      glyph_count++;
-
-      return result.second;
-    }
-    else {
-      return EMPTY_GLYPH;
-    }
+    return _CreateCharTexture(character).second;
   }
 
-  bool SetFont(const std::string& filename, const FT_Int& size)
+  bool SetFont(const std::string& filename, const FT_Int& size, const bool& isSquare)
   {
     const std::filesystem::path fullFontPath = system::SearchForFontPath(filename);
 
@@ -159,12 +153,11 @@ namespace term_engine::fonts {
     font_path = fullFontPath;
     font_size = size;
 
+    ResetGlyphSize(isSquare);
+
     for (auto& glyph : font_atlas) {
       _CreateCharTexture(glyph.first);
     }
-
-    data::SetFontSize(glm::vec2(size));
-    objects::Object::SetDirty();
 
     return true;
   }
@@ -186,6 +179,20 @@ namespace term_engine::fonts {
     glClearTexImage(texture_id, 0, GL_RED, GL_UNSIGNED_BYTE, &clearColor);
 
     next_pos_ = glm::uvec2(0);
+  }
+
+  void ResetGlyphSize(const bool& isSquare)
+  {
+    if (isSquare)
+    {
+      glyph_size = glm::ivec2(font_face->size->metrics.max_advance >> 6, ((font_face->size->metrics.ascender - font_face->size->metrics.descender) >> 6));
+    }
+    else
+    {
+      glyph_size = glm::ivec2(((font_face->size->metrics.ascender - font_face->size->metrics.descender) >> 6));
+    }
+
+    objects::Object::SetDirty();
   }
 
   std::string GetFontPath()
