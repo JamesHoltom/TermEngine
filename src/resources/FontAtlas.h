@@ -136,6 +136,12 @@ namespace term_engine::fonts {
    * @returns The font size.
    */
   int GetDefaultFontSize();
+
+  /// Gets the size of a glyph, in pixels (px).
+  /**
+   * @returns The glyph size.
+   */
+  glm::ivec2 GetGlyphSize();
 }
 
 #endif // ! FONT_ATLAS_H

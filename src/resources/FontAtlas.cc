@@ -214,4 +214,9 @@ namespace term_engine::fonts {
   {
     return DEFAULT_FONT_SIZE;
   }
+
+  glm::ivec2 GetGlyphSize()
+  {
+    return glyph_size;
+  }
 }
