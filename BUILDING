@@ -3,9 +3,6 @@
 TermEngine requires the following libraries to build:
 
 * SDL2
-* SDL2_image, which is dependent on:
-	* libpng
-	* zlib
 * OpenGL 4.4
 * OpenGL Extension Wrangler (GLEW)
 * OpenGL Mathematics (GLM)
@@ -26,8 +23,12 @@ Open `termengine.sln` in Visual Studio and build the project.
 
 ## VSCode
 
+This project requires that the _CMake_ and _CMake Tools_ extensions for VSCode are installed.
 
+Open the folder in VSCode, then configure and build the project.
 
-## Makefile
+## CMake
 
-Makefile support is being developed.
+Run the following command in a terminal, relative to the _CMakeLists.txt_ file:
+
+`cmake --build build/`
