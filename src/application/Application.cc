@@ -1,21 +1,18 @@
 #include <string>
-
 #include "Application.h"
 #include "../logging/Logger.h"
+#include "../utility/SDLUtils.h"
+#include "../utility/GLUtils.h"
+#include "../utility/FTUtils.h"
 #include "../data/Uniform.h"
 #include "../events/EventManager.h"
 #include "../events/InputManager.h"
 #include "../objects/ObjectManager.h"
 #include "../resources/Background.h"
 #include "../resources/FontAtlas.h"
+#include "../resources/Window.h"
 #include "../scripting/ScriptingInterface.h"
-#include "../shaders/Shader.h"
-#include "../system/ImageFunctions.h"
-#include "../system/Window.h"
 #include "../timing/FPSManager.h"
-#include "../utility/SDLUtils.h"
-#include "../utility/GLUtils.h"
-#include "../utility/FTUtils.h"
 #include "../view/View.h"
 
 namespace term_engine::application {

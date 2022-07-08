@@ -14,8 +14,11 @@ namespace term_engine::scripting::bindings {
   void BindFileToState(sol::state& state)
   {
     state.create_named_table("fs",
-      "getFileList", [&](const std::string& directory) { return system::GetFileList(File::Relative(std::filesystem::path(directory))); },
-      "getFolderList", [&](const std::string& directory) { return system::GetFolderList(File::Relative(std::filesystem::path(directory))); });
+      "read", &system::ReadFile,
+      "write", &system::WriteFile,
+      "exists", &system::FileExists,
+      "getFiles", &system::GetFileList,
+      "getFolders", &system::GetFolderList);
   }
 }
 

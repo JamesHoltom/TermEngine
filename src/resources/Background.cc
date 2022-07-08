@@ -1,12 +1,11 @@
 #include <filesystem>
-
 #include "Background.h"
-
 #include "../logging/Logger.h"
 #include "../shaders/Shader.h"
+#include "../shaders/background.h"
+#include "../system/DebugFunctions.h"
 #include "../system/FileFunctions.h"
 #include "../system/ImageFunctions.h"
-#include "../utility/DebugFunctions.h"
 
 namespace term_engine::background {
   GLuint program_id;
@@ -15,9 +14,9 @@ namespace term_engine::background {
   system::ImageData current_background;
   BackgroundData data[6];
 
-  void SetBackground(const std::string& file, const glm::vec2& offset, const glm::vec3& color)
+  void SetBackground(const std::string& file, const glm::vec2& offset, const glm::vec3& colour)
   {
-    const std::filesystem::path fullFontPath = system::SearchForBackgroundPath(file);
+    const std::filesystem::path fullFontPath = system::SearchForResourcePath(file);
 
     if (!std::filesystem::exists(fullFontPath)) {
       logging::logger->warn("Attempting to set background to one that doesn't exist: {}", fullFontPath);
@@ -31,12 +30,12 @@ namespace term_engine::background {
 
     current_background = system::CreateImage(fullFontPath);
     if (current_background.texture_id_ > 0) {
-      data[0] = { offset + glm::vec2(0.0f), glm::vec2(0.0f), color / 255.0f };
-      data[1] = { offset + glm::vec2(current_background.size_), glm::vec2(1.0f), color / 255.0f };
-      data[2] = { offset + glm::vec2(0.0f, current_background.size_.y), glm::vec2(0.0f, 1.0f), color / 255.0f };
-      data[3] = { offset + glm::vec2(0.0f), glm::vec2(0.0f), color / 255.0f };
-      data[4] = { offset + glm::vec2(current_background.size_.x, 0.0f), glm::vec2(1.0f, 0.0f), color / 255.0f };
-      data[5] = { offset + glm::vec2(current_background.size_), glm::vec2(1.0f), color / 255.0f };
+      data[0] = { offset + glm::vec2(0.0f), glm::vec2(0.0f), colour / 255.0f };
+      data[1] = { offset + glm::vec2(current_background.size_), glm::vec2(1.0f), colour / 255.0f };
+      data[2] = { offset + glm::vec2(0.0f, current_background.size_.y), glm::vec2(0.0f, 1.0f), colour / 255.0f };
+      data[3] = { offset + glm::vec2(0.0f), glm::vec2(0.0f), colour / 255.0f };
+      data[4] = { offset + glm::vec2(current_background.size_.x, 0.0f), glm::vec2(1.0f, 0.0f), colour / 255.0f };
+      data[5] = { offset + glm::vec2(current_background.size_), glm::vec2(1.0f), colour / 255.0f };
 
       glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
       glBufferData(GL_ARRAY_BUFFER, sizeof(BackgroundData) * 6, &data, GL_DYNAMIC_DRAW);
@@ -87,9 +86,9 @@ namespace term_engine::background {
     glVertexAttribFormat(1, 2, GL_FLOAT, GL_FALSE, offsetof(BackgroundData, texture_position_));
     glVertexAttribBinding(1, 0);
 
-    // Configure the color attribute.
+    // Configure the colour attribute.
     glEnableVertexAttribArray(2);
-    glVertexAttribFormat(2, 3, GL_FLOAT, GL_FALSE, offsetof(BackgroundData, color_));
+    glVertexAttribFormat(2, 3, GL_FLOAT, GL_FALSE, offsetof(BackgroundData, colour_));
     glVertexAttribBinding(2, 0);
 
     debug::LogVAOData();
@@ -102,8 +101,8 @@ namespace term_engine::background {
   {
     program_id = shaders::CreateProgram();
 
-    shaders::AddShaderFile(program_id, shaders::ShaderInitialisationPair(GL_VERTEX_SHADER, std::string(BG_VERTEX_FILE)));
-    shaders::AddShaderFile(program_id, shaders::ShaderInitialisationPair(GL_FRAGMENT_SHADER, std::string(BG_FRAGMENT_FILE)));
+    shaders::AddShaderString(program_id, GL_VERTEX_SHADER, BACKGROUND_VERT_GLSL);
+    shaders::AddShaderString(program_id, GL_FRAGMENT_SHADER, BACKGROUND_FRAG_GLSL);
     shaders::LinkProgram(program_id);
 
     glUseProgram(0);

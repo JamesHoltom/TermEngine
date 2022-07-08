@@ -3,16 +3,10 @@
 #ifndef VIEW_H
 #define VIEW_H
 
-#include "../utility/Glyph.h"
+#include "../resources/Glyph.h"
 #include "../utility/GLUtils.h"
 
 namespace term_engine::views {
-  /// The location of the vertex GLSL file for the glyph shader.
-  constexpr char GLYPH_VERTEX_FILE[] = "resources/shaders/core/glyph.vert";
-  /// The location of the geometry GLSL file for the glyph shader.
-  constexpr char GLYPH_GEOMETRY_FILE[] = "resources/shaders/core/glyph.geom";
-  /// The location of the fragment GLSL file for the glyph shader.
-  constexpr char GLYPH_FRAGMENT_FILE[] = "resources/shaders/core/glyph.frag";
   /// The default number of rows/columns in the view.
   constexpr glm::uvec2 DEFAULT_DIMENSIONS = glm::uvec2(32, 16);
 
@@ -27,7 +21,7 @@ namespace term_engine::views {
   /// The size of the view, in rows/columns.
   extern glm::ivec2 view_size;
   /// The buffer of view data to render to the window.
-  extern BufferList data;
+  extern resources::BufferList data;
 
   /// Creates the default view.
   void Init();
@@ -68,7 +62,7 @@ namespace term_engine::views {
    * @param[in] position The position to render the glyph to.
    * @param[in] params The glyph parameters.
    */
-  void PushGlyphToBuffer(const size_t& index, const glm::ivec2& position, const GlyphParams& params);
+  void PushGlyphToBuffer(const size_t& index, const glm::ivec2& position, const resources::GlyphParams& params);
 
   /// Sets up the OpenGL buffers.
   void CreateBuffers();

@@ -14,7 +14,7 @@ function Init()
 		BoxObjects 
 	]]--
 	outline = BoxObject(vec2(0, 0), ivec2(32, 16))
-	outline.setOutline(Glyph("+", glyphs.DEFAULT_FG, glyphs.DEFAULT_BG))
+	outline.setOutline(Glyph("+", glyphs.DEFAULT_FOREGROUND_COLOUR, glyphs.DEFAULT_BACKGROUND_COLOUR))
 	
 	text = TextObject(vec2(1, 14), ivec2(30, 1))
 	text.setText("Welcome to TermEngine!")

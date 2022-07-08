@@ -1,4 +1,7 @@
 function Init()
+  view.setSize(ivec2(17, 14))
+  window.fitToView()
+
   local i = 0
 
   for k, v in pairs(Colours) do

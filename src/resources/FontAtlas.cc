@@ -15,8 +15,9 @@ namespace term_engine::fonts {
   GlyphList font_atlas;
   GLuint texture_id;
   GLuint glyph_count;
-  glm::uvec2 next_pos_;
-  GLuint max_height_;
+  glm::uvec2 next_pos;
+  GLuint max_height;
+  unsigned int tab_size = DEFAULT_TAB_SIZE;
 
   bool Init()
   {
@@ -44,7 +45,7 @@ namespace term_engine::fonts {
   {
     auto found_char = font_atlas.find(character);
 
-    if (character == '\0')
+    if (character == '\0' || character == '\n' || character == '\r' || character == '\t')
     {
       return EMPTY_GLYPH;
     }
@@ -66,7 +67,7 @@ namespace term_engine::fonts {
       GLint glyph_baseline = (font_face->size->metrics.ascender - font_face->glyph->metrics.horiBearingY) >> 6;
 
       // If the next glyph will spill out of the bottom-right corner of the texture, stop and return an error.
-      if (next_pos_.y + glyph_height > TEXTURE_SIZE && next_pos_.x + glyph_width > TEXTURE_SIZE)
+      if (next_pos.y + glyph_height > TEXTURE_SIZE && next_pos.x + glyph_width > TEXTURE_SIZE)
       {
         logging::logger->warn("The texture for this font is full!");
 
@@ -78,26 +79,26 @@ namespace term_engine::fonts {
       glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
       glPixelStorei(GL_UNPACK_ROW_LENGTH, glyph_width);
       glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, glyph_height);
-      glTexSubImage2D(GL_TEXTURE_2D, 0, next_pos_.x, next_pos_.y, glyph_width, glyph_height, GL_RED, GL_UNSIGNED_BYTE, font_face->glyph->bitmap.buffer);
+      glTexSubImage2D(GL_TEXTURE_2D, 0, next_pos.x, next_pos.y, glyph_width, glyph_height, GL_RED, GL_UNSIGNED_BYTE, font_face->glyph->bitmap.buffer);
 
-      GlyphBB bbox = { next_pos_, glm::ivec2(glyph_width, glyph_height), glyph_baseline };
+      GlyphBB bbox = { next_pos, glm::ivec2(glyph_width, glyph_height), glyph_baseline };
 
-      logging::logger->debug("Created character, \'{}\' with dimensions {},{} at pos {},{} and added to cache.", (char)character, glyph_width, glyph_height, next_pos_.x, next_pos_.y);
+      logging::logger->debug("Created character, \'{}\' with dimensions {},{} at pos {},{} and added to cache.", (char)character, glyph_width, glyph_height, next_pos.x, next_pos.y);
 
-      if (glyph_height > max_height_)
+      if (glyph_height > max_height)
       {
-        max_height_ = glyph_height;
+        max_height = glyph_height;
       }
 
-      if (next_pos_.x + glyph_width > TEXTURE_SIZE)
+      if (next_pos.x + glyph_width > TEXTURE_SIZE)
       {
-        next_pos_.x = 0;
-        next_pos_.y += max_height_;
-        max_height_ = 0;
+        next_pos.x = 0;
+        next_pos.y += max_height;
+        max_height = 0;
       }
       else
       {
-        next_pos_.x += glyph_width;
+        next_pos.x += glyph_width;
       }
       
       auto new_glyph = font_atlas.insert_or_assign(character, bbox);
@@ -121,7 +122,7 @@ namespace term_engine::fonts {
 
   bool SetFont(const std::string& filename, const FT_Int& size, const bool& isSquare)
   {
-    const std::filesystem::path fullFontPath = system::SearchForFontPath(filename);
+    const std::filesystem::path fullFontPath = system::SearchForResourcePath(filename);
 
     if (!std::filesystem::exists(fullFontPath)) {
       logging::logger->warn("Attempting to set font to one that doesn't exist: {}", fullFontPath);
@@ -172,13 +173,13 @@ namespace term_engine::fonts {
 
   void _ClearCache()
   {
-    GLubyte clearColor[4] = { 0, 0, 0, 0 };
+    GLubyte clearColour[4] = { 0, 0, 0, 0 };
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture_id);
-    glClearTexImage(texture_id, 0, GL_RED, GL_UNSIGNED_BYTE, &clearColor);
+    glClearTexImage(texture_id, 0, GL_RED, GL_UNSIGNED_BYTE, &clearColour);
 
-    next_pos_ = glm::uvec2(0);
+    next_pos = glm::uvec2(0);
   }
 
   void ResetGlyphSize(const bool& isSquare)

@@ -11,6 +11,7 @@ namespace term_engine::objects {
     size_t data_size = (size_t)size.x * (size_t)size.y;
     data_.reserve(data_size);
     data_.resize(data_size);
+    data_.shrink_to_fit();
 
     logging::logger->debug("Created {}x{} object with {} elements.", size.x, size.y, data_size);
   }

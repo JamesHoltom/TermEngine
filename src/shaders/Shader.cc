@@ -11,15 +11,13 @@ namespace term_engine::shaders {
     return glCreateProgram();
   }
 
-  GLint AddShaderFile(const GLuint& program_id, const ShaderInitialisationPair& shader)
+  GLint AddShaderString(const GLuint& program_id, const GLenum& type, const std::string& shader)
   {
-    logging::logger->debug("Compiling shader stage \'{}\'...", shader.second);
+    logging::logger->debug("Compiling shader stage...");
 
     GLint shader_compiled = GL_FALSE;
-    GLuint shader_id = glCreateShader(shader.first);
-
-    const std::string source_string = system::ReadFromFile(shader.second);
-    const GLchar* source_c_string = { source_string.c_str() };
+    GLuint shader_id = glCreateShader(type);
+    const GLchar* source_c_string = { shader.c_str() };
 
     glShaderSource(shader_id, 1, &source_c_string, nullptr);
     glCompileShader(shader_id);
@@ -39,6 +37,13 @@ namespace term_engine::shaders {
 
       return GL_FALSE;
     }
+  }
+
+  GLint AddShaderFile(const GLuint& program_id, const GLenum& type, const std::string& file)
+  {
+    const std::string source_string = system::ReadFile(file);
+
+    return AddShaderString(program_id, type, source_string);
   }
 
   GLint LinkProgram(const GLuint& program_id)

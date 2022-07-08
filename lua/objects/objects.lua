@@ -1,4 +1,5 @@
-empty_glyph = Glyph(glyphs.NO_CHARACTER, glyphs.DEFAULT_FG, glyphs.DEFAULT_BG)
+empty_glyph = Glyph(glyphs.NO_CHARACTER, glyphs.DEFAULT_FOREGROUND_COLOUR, glyphs.DEFAULT_BACKGROUND_COLOUR)
+space_glyph = Glyph(' ', glyphs.DEFAULT_FOREGROUND_COLOUR, glyphs.DEFAULT_BACKGROUND_COLOUR)
 
 function BoxObject(_position, _size)
 	local self = {
@@ -11,11 +12,11 @@ function BoxObject(_position, _size)
 	local _setData = function()
 		local w = self.obj.size.x
 		
-		for k = 1, #self.obj.data do
-			if self.has_outline and (k <= w or k > (#self.obj.data - w) or (k % w) <= 1) then
-				self.obj.data[k] = self.outline
+		for data_pos = 1, #self.obj.data do
+			if self.has_outline and (data_pos <= w or data_pos > (#self.obj.data - w) or (data_pos % w) <= 1) then
+				self.obj.data[data_pos] = self.outline
 			else
-				self.obj.data[k] = self.fill
+				self.obj.data[data_pos] = self.fill
 			end
 		end
 		
@@ -95,19 +96,45 @@ function TextObject(_position, _size)
 	local self = {
 		obj = Object(_position, _size),
 		text = "",
-		fg_colour = glyphs.DEFAULT_FG,
-		bg_colour = glyphs.DEFAULT_BG
+		fg_colour = glyphs.DEFAULT_FOREGROUND_COLOUR,
+		bg_colour = glyphs.DEFAULT_BACKGROUND_COLOUR,
+		fit_text = false
 	}
 	
-	function _setData()
+	local _setData = function()
 		local str_table = { string.byte(self.text, 1, #self.text) }
 		
-		for k = 1, #self.obj.data do
-			if k <= #str_table then
-				self.obj.data[k] = Glyph(string.char(str_table[k]), self.fg_colour, self.bg_colour)
-			else
-				self.obj.data[k] = empty_glyph
+		local data_count = self.obj.size.x * self.obj.size.y
+		local data_pos = 1
+		local text_pos = 1
+		local newline = false
+
+		while data_pos <= data_count do
+			if newline and math.fmod(data_pos - 1, self.obj.size.x) == 0 then
+				newline = false
 			end
+			
+			if text_pos <= #str_table and not newline then
+				local chr = string.char(str_table[text_pos])
+
+				if chr == '\n' then
+					newline = true
+				elseif chr == '\t' then
+					data_pos = data_pos + font.tabSize - 1
+				else
+					self.obj.data[data_pos] = Glyph(chr, self.fg_colour, self.bg_colour)
+				end
+
+				text_pos = text_pos + 1
+			else
+				if self.fit_text then
+					self.obj.data[data_pos] = empty_glyph
+				else
+					self.obj.data[data_pos] = space_glyph
+				end
+			end
+
+			data_pos = data_pos + 1
 		end
 		
 		objects.dirty()
@@ -141,6 +168,12 @@ function TextObject(_position, _size)
 		_setData()
 	end
 	
+	local fitText = function(_fit_text)
+		self.fit_text = _fit_text
+
+		_setData()
+	end
+	
 	local getColours = function()
 		return self.fg_colour, self.bg_colour
 	end
@@ -151,7 +184,7 @@ function TextObject(_position, _size)
 
 		_setData()
 	end
-	
+
 	return {
 		getPosition = getPosition,
 		setPosition = setPosition,
@@ -159,6 +192,7 @@ function TextObject(_position, _size)
 		setSize = setSize,
 		getText = getText,
 		setText = setText,
+		fitText = fitText,
 		getColours = getColours,
 		setColours = setColours
 	}

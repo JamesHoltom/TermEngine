@@ -1,6 +1,6 @@
 #include <glm/glm.hpp>
 #include "EventManager.h"
-#include "../utility/DebugFunctions.h"
+#include "../system/DebugFunctions.h"
 
 namespace term_engine::events {
   void DoEvents(sol::state& state)

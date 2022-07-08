@@ -39,6 +39,8 @@ namespace term_engine::fonts {
   constexpr GLsizei TEXTURE_SIZE = 1024;
   /// Defines an empty glyph that is returned when one fails to load, or a zero-character (i.e. '\0') is loaded.
   constexpr GlyphBB EMPTY_GLYPH = { glm::ivec2(), glm::ivec2() };
+  /// The default number of spaces that make up a tab character (i.e. '\t').
+  constexpr unsigned int DEFAULT_TAB_SIZE = 2;
   
   /// The relative filepath of the font being used.
   extern std::string font_path;
@@ -55,9 +57,11 @@ namespace term_engine::fonts {
   /// The amount of glyphs currently stored in the font atlas.
   extern GLuint glyph_count;
   /// The position to store the next loaded glyph at.
-  extern glm::uvec2 next_pos_;
+  extern glm::uvec2 next_pos;
   /// The tallest height value of a glyph in the current row. This is used to cleanly move to the next row, after filling the current one.
-  extern GLuint max_height_;
+  extern GLuint max_height;
+  /// The amount of spaces to render when rendering a tab character (i.e. '\t').
+  extern unsigned int tab_size;
 
   /// Initialises the font atlas and prepares it for use.
   /**

@@ -3,10 +3,10 @@ function MenuOption(_title, _callback)
 		title = _title,
 		callback = _callback,
 		hovering = false,
-		default_fg = vec3(255.0),
-		default_bg = vec3(),
-		default_hover_fg = vec3(),
-		default_hover_bg = vec3(255.0)
+		default_fg = Colours.WHITE,
+		default_bg = Colours.BLACK,
+		default_hover_fg = Colours.BLACK,
+		default_hover_bg = Colours.WHITE
 	}
 	
 	local _getTitle = function()
@@ -29,7 +29,7 @@ function MenuOption(_title, _callback)
 		self.hovering = _value
 	end
 	
-	local _getColors = function()
+	local _getColours = function()
 		if self.hovering then
 			return self.default_hover_fg, self.default_hover_bg
 		else
@@ -43,7 +43,7 @@ function MenuOption(_title, _callback)
 		fire        = _fire,
 		isHovering  = _isHovering,
 		setHovering = _setHovering,
-		getColors   = _getColors
+		getColours  = _getColours
 	}
 end
 
@@ -62,7 +62,7 @@ function MenuObject()
 			option.setHovering(self.active_option == index)
 			
 			local title = option.getTitle()
-			local fg, bg = option.getColors()
+			local fg, bg = option.getColours()
 			local str_table = { string.byte(title, 1, #title) }
 			
 			for k = 1, self.option_size.x * self.option_size.y do

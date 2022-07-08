@@ -21,7 +21,8 @@ namespace term_engine::scripting::bindings {
       "position", sol::property(&objects::Object::GetPosition, &objects::Object::SetPosition),
       "size", sol::property(&objects::Object::GetSize, &objects::Object::SetSize),
       "data", sol::property(&objects::Object::GetData),
-      "active", sol::property(&objects::Object::IsActive, &objects::Object::SetActive));
+      "active", sol::property(&objects::Object::IsActive, &objects::Object::SetActive),
+      "release", &objects::Remove);
 
     state.create_named_table("objects",
       "count", &objects::Count,

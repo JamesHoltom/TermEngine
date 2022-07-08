@@ -1,6 +1,9 @@
 local timingText, timingValue
 
 function Init()
+  view.setSize(ivec2(22, 5))
+  window.fitToView()
+
   timingText = TextObject(Values.VEC2_ONE, ivec2(20, 2))
   timingText.setText("This text changes as time progresses!")
 

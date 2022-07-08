@@ -7,12 +7,11 @@
 #include <string>
 #include <vector>
 #include <glm/glm.hpp>
-
-#include "../utility/Glyph.h"
+#include "../resources/Glyph.h"
 
 namespace term_engine::objects {
   /// Used to store a collection of glyph parameters, which represents an object.
-  typedef std::vector<GlyphParams> GlyphData;
+  typedef std::vector<resources::GlyphParams> GlyphData;
 
   /// Used to represent a game object, that is rendered to the screen.
   /**

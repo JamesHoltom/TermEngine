@@ -1,5 +1,5 @@
 #include "DebugFunctions.h"
-#include "GLUtils.h"
+#include "../utility/GLUtils.h"
 #include "../logging/Logger.h"
 
 namespace term_engine::debug {

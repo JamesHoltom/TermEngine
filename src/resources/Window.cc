@@ -7,7 +7,7 @@
 namespace term_engine::system {
   SDL_GLContext context;
   SDL::Window window;
-  GLfloat window_color_r, window_color_g, window_color_b;
+  GLfloat window_colour_r, window_colour_g, window_colour_b;
   GLuint window_render_mode;
 
   int InitWindow()
@@ -31,9 +31,9 @@ namespace term_engine::system {
 
     SDL_GL_MakeCurrent(window.get(), context);
 
-    window_color_r = DEFAULT_WINDOW_CLEAR_COLOR.r / 255.0f;
-    window_color_g = DEFAULT_WINDOW_CLEAR_COLOR.g / 255.0f;
-    window_color_b = DEFAULT_WINDOW_CLEAR_COLOR.b / 255.0f;
+    window_colour_r = DEFAULT_WINDOW_CLEAR_COLOUR.r / 255.0f;
+    window_colour_g = DEFAULT_WINDOW_CLEAR_COLOUR.g / 255.0f;
+    window_colour_b = DEFAULT_WINDOW_CLEAR_COLOUR.b / 255.0f;
 
     window_render_mode = GL_FILL;
 
@@ -69,23 +69,23 @@ namespace term_engine::system {
     SetWindowSize(fonts::glyph_size * views::view_size);
   }
 
-  glm::vec3 GetWindowClearColor()
+  glm::vec3 GetWindowClearColour()
   {
-    return glm::vec3(window_color_r * 255, window_color_g * 255, window_color_b * 255);
+    return glm::vec3(window_colour_r * 255, window_colour_g * 255, window_colour_b * 255);
   }
 
-  void SetWindowClearColor(const glm::vec3& color)
+  void SetWindowClearColour(const glm::vec3& colour)
   {
-    window_color_r = color.r / 255.0f;
-    window_color_g = color.g / 255.0f;
-    window_color_b = color.b / 255.0f;
+    window_colour_r = colour.r / 255.0f;
+    window_colour_g = colour.g / 255.0f;
+    window_colour_b = colour.b / 255.0f;
   }
 
   void ClearWindow()
   {
     glPolygonMode(GL_FRONT_AND_BACK, window_render_mode);
     glClear(GL_COLOR_BUFFER_BIT);
-    glClearColor(window_color_r, window_color_g, window_color_b, 1.0f);
+    glClearColor(window_colour_r, window_colour_g, window_colour_b, 1.0f);
   }
 
   void RefreshWindow()

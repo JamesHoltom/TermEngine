@@ -1,1 +1,1 @@
-rm -rf ./build/{logs,lua,projects,resources}
+rm -rf ./build/{logs,lua,projects}

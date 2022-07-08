@@ -17,14 +17,17 @@ namespace term_engine::shaders {
    */
   GLuint CreateProgram();
 
+  GLint AddShaderString(const GLuint& program_id, const GLenum& type, const std::string& shader);
+
   /// Compiles a GLSL file into a shader, ready to link to a program.
   /**
    * @param[in] program_id The ID of the program to build the shader stage for.
-   * @param[in] shader The shader stage enum & filename to compile.
+   * @param[in] type The shader stage enum to compile for.
+   * @param[in] file The shader file to compile.
    * @see [OpenGL shader stages](https://www.khronos.org/opengl/wiki/Shader#Stages)
    * @returns The ID of the compiled shader, or 0 if it failed to compile.
    */
-  GLint AddShaderFile(const GLuint& program_id, const ShaderInitialisationPair& shader);
+  GLint AddShaderFile(const GLuint& program_id, const GLenum& type, const std::string& file);
 
   /// Builds & links the compiled shader stages of a program.
   /**

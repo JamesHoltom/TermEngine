@@ -9,20 +9,6 @@
 namespace SDL {
   constexpr int SDL_INIT_FLAGS = SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER;
 
-  namespace color_mask {
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-    constexpr Uint32 rMask = 0xff000000;
-    constexpr Uint32 gMask = 0x00ff0000;
-    constexpr Uint32 bMask = 0x0000ff00;
-    constexpr Uint32 aMask = 0x000000ff;
-#else
-    constexpr Uint32 rMask = 0x000000ff;
-    constexpr Uint32 gMask = 0x0000ff00;
-    constexpr Uint32 bMask = 0x00ff0000;
-    constexpr Uint32 aMask = 0xff000000;
-#endif
-  }
-
   struct WindowDestroyer;
   struct RendererDestroyer;
   struct SurfaceDestroyer;

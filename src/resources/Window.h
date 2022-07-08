@@ -14,15 +14,15 @@ namespace term_engine::system {
   constexpr int DEFAULT_WIDTH = 640;
   /// The default height of the window.
   constexpr int DEFAULT_HEIGHT = 512;
-  /// The default clear color to use when refreshing the window.
-  constexpr glm::uvec3 DEFAULT_WINDOW_CLEAR_COLOR = glm::uvec3(0);
+  /// The default clear colour to use when refreshing the window.
+  constexpr glm::uvec3 DEFAULT_WINDOW_CLEAR_COLOUR = glm::uvec3(0);
 
   /// The OpenGL context to bind to the window and render to.
   extern SDL_GLContext context;
   /// The window to display.
   extern SDL::Window window;
-  /// The RGB components to use for setting the clear color, i.e. what OpenGL uses to refresh the screen after every frame.
-  extern GLfloat window_color_r, window_color_g, window_color_b;
+  /// The RGB components to use for setting the clear colour, i.e. what OpenGL uses to refresh the screen after every frame.
+  extern GLfloat window_colour_r, window_colour_g, window_colour_b;
   /// Whether to use wireframe rendering or not.
   extern GLuint window_render_mode;
 
@@ -51,17 +51,17 @@ namespace term_engine::system {
   /// Sets the size of the window to fit the view.
   void ResizeWindowToView();
 
-  /// Returns the clear color of the window.
+  /// Returns the clear colour of the window.
   /**
-   * @returns The clear color of the window.
+   * @returns The clear colour of the window.
    */
-  glm::vec3 GetWindowClearColor();
+  glm::vec3 GetWindowClearColour();
 
-  /// Sets the clear color of the window.
+  /// Sets the clear colour of the window.
   /**
-   * @param[in] color The clear color to use.
+   * @param[in] colour The clear colour to use.
    */
-  void SetWindowClearColor(const glm::vec3& color);
+  void SetWindowClearColour(const glm::vec3& colour);
 
   /// Clears the window, ready for the next frame.
   void ClearWindow();

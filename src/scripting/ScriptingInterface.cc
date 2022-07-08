@@ -2,16 +2,13 @@
 
 #include "ScriptingInterface.h"
 #include "bindings/glmBindings.h"
-#include "bindings/BackgroundBindings.h"
 #include "bindings/EventBindings.h"
 #include "bindings/FileBindings.h"
-#include "bindings/FontBindings.h"
-#include "bindings/GlyphBindings.h"
 #include "bindings/ObjectBindings.h"
 #include "bindings/ProjectBindings.h"
+#include "bindings/ResourceBindings.h"
 #include "bindings/UtilityBindings.h"
 #include "bindings/ViewBindings.h"
-#include "bindings/WindowBindings.h"
 #include "../logging/Logger.h"
 #include "../system/CLArguments.h"
 #include "../system/FileFunctions.h"
@@ -26,36 +23,53 @@ namespace term_engine::scripting {
 
     // Create bindings for C++ functions.
     bindings::BindGlmToState(lua_state);
-    bindings::BindBackgroundToState(lua_state);
     bindings::BindEventToState(lua_state);
     bindings::BindFileToState(lua_state);
-    bindings::BindFontToState(lua_state);
-    bindings::BindGlyphToState(lua_state);
     bindings::BindObjectToState(lua_state);
     bindings::BindProjectToState(lua_state);
+    bindings::BindResourcesToState(lua_state);
     bindings::BindUtilitiesToState(lua_state);
     bindings::BindViewToState(lua_state);
-    bindings::BindWindowToState(lua_state);
   }
 
   void InitScript() {
-    Load(std::string(LOADER_SCRIPT_PATH));
+    // Add the root & vendor to the Lua path, so that projects can "require()" files relative to these folders.
+    std::string packagePath = lua_state["package"]["path"];
+    const std::string rootDirectory = system::GetRootPath() / "lua";
+
+    packagePath += ";" +
+                   rootDirectory + "/vendor/?.lua;" + 
+                   rootDirectory + "/vendor/?/init.lua;" + 
+                   rootDirectory + "/vendor/lunajson/?.lua;" + 
+                   rootDirectory + "/vendor/lunajson/?/init.lua;" + 
+                   rootDirectory + "/?.lua;" +
+                   rootDirectory + "/?/init.lua";
 
     std::filesystem::path project_file = system::SearchForProjectPath(system::scriptPath / std::string(PROJECT_ENTRYPOINT));
 
     if (project_file != "") {
       // Add the project to the Lua path, so that projects can "require()" files relative to the project folder.
-      const std::string packagePath = lua_state["package"]["path"];
       const std::string projectDirectory = project_file.parent_path();
-      const std::string rootDirectory = system::GetRootPath() / "lua";
-      lua_state["package"]["path"] = packagePath + ";" + projectDirectory + "/?.lua;" + projectDirectory + "/?/init.lua;" + rootDirectory + "/?.lua;" + rootDirectory + "/?/init.lua";
 
-      logging::logger->info("Loading project...");
-      Load(project_file.string());
+      packagePath += ";" +
+                     projectDirectory + "/?.lua;" +
+                     projectDirectory + "/?/init.lua";
     }
     else {
       logging::logger->info("No project to load!");
       Load(std::string(DEFAULT_SCRIPT_PATH));
+    }
+
+    lua_state["package"]["path"] = packagePath;
+
+    logging::logger->debug("Lua path: {}", std::string(lua_state["package"]["path"]));
+
+    Load(std::string(LOADER_SCRIPT_PATH));
+
+    if (project_file != "")
+    {
+      logging::logger->info("Loading project...");
+      Load(project_file.string());
     }
   }
 

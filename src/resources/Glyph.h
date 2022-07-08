@@ -9,35 +9,32 @@
 #include "../resources/FontAtlas.h"
 #include "../utility/GLUtils.h"
 
-namespace term_engine {
+namespace term_engine::resources {
   struct GlyphParams;
   struct BufferData;
 
   /// Used to indicate no character is set.
   constexpr char NO_CHARACTER = '\0';
-  /// The default foreground color for glyphs.
-  constexpr glm::vec3 DEFAULT_FOREGROUND_COLOR = glm::vec3(255.0f);
-  /// The default background color for glyphs.
-  constexpr glm::vec3 DEFAULT_BACKGROUND_COLOR = glm::vec3(0.0f);
+  /// The default foreground colour for glyphs.
+  constexpr glm::vec3 DEFAULT_FOREGROUND_COLOUR = glm::vec3(255.0f);
+  /// The default background colour for glyphs.
+  constexpr glm::vec3 DEFAULT_BACKGROUND_COLOUR = glm::vec3(0.0f);
 
   /// Used to store data in a VBO.
   typedef std::vector<BufferData> BufferList;
-
-  /// Default glyph data to copy.
-  extern GlyphParams default_glyph;
 
   /// Used to construct _BufferData_ objects, and to pass data between scripts and the program.
   struct GlyphParams {
     /// Constructs the glyph parameters.
     /**
      * @param[in] character        The character that the glyph represents.
-     * @param[in] foreground_color The foreground color, used for the text.
-     * @param[in] background_color The background color.
+     * @param[in] foreground_colour The foreground colour, used for the text.
+     * @param[in] background_colour The background colour.
      */
-    GlyphParams(const char& character = NO_CHARACTER, const glm::vec3& foreground_color = DEFAULT_FOREGROUND_COLOR, const glm::vec3& background_color = DEFAULT_BACKGROUND_COLOR) :
+    GlyphParams(const char& character = NO_CHARACTER, const glm::vec3& foreground_colour = DEFAULT_FOREGROUND_COLOUR, const glm::vec3& background_colour = DEFAULT_BACKGROUND_COLOUR) :
       character_(character),
-      foreground_color_(foreground_color),
-      background_color_(background_color) {}
+      foreground_colour_(foreground_colour),
+      background_colour_(background_colour) {}
 
     /// Allows for comparing 2 sets of _GlyphParams_ objects.
     /**
@@ -47,15 +44,15 @@ namespace term_engine {
      */
     friend bool operator== (const GlyphParams& lhs, const GlyphParams& rhs)
     {
-      return (lhs.character_ == rhs.character_) && (lhs.foreground_color_ == rhs.foreground_color_) && (lhs.background_color_ == rhs.background_color_);
+      return (lhs.character_ == rhs.character_) && (lhs.foreground_colour_ == rhs.foreground_colour_) && (lhs.background_colour_ == rhs.background_colour_);
     }
 
     /// The character that the glyph represents.
     char character_;
-    /// The foreground color, used for the text.
-    glm::vec3 foreground_color_;
-    /// The background color.
-    glm::vec3 background_color_;
+    /// The foreground colour, used for the text.
+    glm::vec3 foreground_colour_;
+    /// The background colour.
+    glm::vec3 background_colour_;
   };
 
   /// Represents the structure of the buffer used to render glyphs.
@@ -68,13 +65,13 @@ namespace term_engine {
      * @param[in] position          The position of the vertex.
      * @param[in] texture_position  The position of the texture.
      * @param[in] has_texture       Does the current vertex have a texture?
-     * @param[in] color             The color to render the vertex/texture with.
+     * @param[in] colour             The colour to render the vertex/texture with.
      */
-    BufferData(const glm::vec2& position, const glm::vec2& texture_position, const bool& has_texture, const glm::vec3& color) :
+    BufferData(const glm::vec2& position, const glm::vec2& texture_position, const bool& has_texture, const glm::vec3& colour) :
       position_(position),
       texture_position_(texture_position),
       has_texture_(has_texture ? 1.0f : 0.0f),
-      color_(color / 255.0f) {}
+      colour_(colour / 255.0f) {}
 
     /// Allows _std::stringstream_ to correctly parse a _BufferData_ object.
     /**
@@ -86,7 +83,7 @@ namespace term_engine {
       return os << std::endl
         << "Vertex position: " << data.position_.x << ", " << data.position_.y << std::endl
         << "Texture position: " << data.texture_position_.x << ", " << data.texture_position_.y << std::endl
-        << "Colour: " << data.color_.r << ", " << data.color_.g << ", " << data.color_.b << std::endl;
+        << "Colour: " << data.colour_.r << ", " << data.colour_.g << ", " << data.colour_.b << std::endl;
     }
 
     /// The position of the vertex.
@@ -95,8 +92,8 @@ namespace term_engine {
     GLfloat has_texture_;
     /// The position of the texture.
     glm::vec2 texture_position_;
-    /// The color to render the vertex/texture with.
-    glm::vec3 color_;
+    /// The colour to render the vertex/texture with.
+    glm::vec3 colour_;
   };
 }
 

@@ -1,5 +1,5 @@
 #include "Uniform.h"
-#include "../system/Window.h"
+#include "../resources/Window.h"
 
 namespace term_engine::data {
   GLuint ubo_id;

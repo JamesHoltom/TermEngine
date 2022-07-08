@@ -1,1 +1,1 @@
-cp -r ./{lua,projects,resources} ./build/
+cp -r ./{lua,projects} ./build/

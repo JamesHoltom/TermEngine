@@ -19,9 +19,9 @@ function Loop(timestep)
     if showBg == 0 then
       background.remove()
     elseif showBg == 1 then
-      background.set("example.png", vec2(64.0, 0.0), Colours.WHITE)
+      background.set("backgrounds/example.png", vec2(64.0, 0.0), Colours.WHITE)
     else
-      background.set("danger.png", vec2(64.0, 0.0), Colours.WHITE)
+      background.set("backgrounds/danger.png", vec2(64.0, 0.0), Colours.WHITE)
     end
   end
 end

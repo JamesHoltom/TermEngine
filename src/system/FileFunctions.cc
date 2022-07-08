@@ -14,55 +14,6 @@
 #include "../logging/Logger.h"
 
 namespace term_engine::system {
-  std::string ReadFromFile(const std::filesystem::path& directory)
-  {
-    std::ifstream file_stream;
-    std::stringstream output_stream;
-
-    file_stream.exceptions(std::ifstream::badbit | std::ifstream::failbit);
-
-    try {
-      file_stream.open(directory);
-
-      output_stream << file_stream.rdbuf();
-
-      file_stream.close();
-
-      return output_stream.str();
-    }
-    catch (std::ifstream::failure exception) {
-      logging::logger->error("Failed to read from file \'{}\'.\nError: {}", directory, exception.what());
-
-      return "";
-    }
-  }
-
-  FileList GetFileList(const std::filesystem::path& directory)
-  {
-    FileList file_list;
-
-    for (std::filesystem::directory_entry file : std::filesystem::directory_iterator(directory)) {
-      if (!file.is_directory()) {
-        file_list.push_back(file.path().stem().string());
-      }
-    }
-
-    return file_list;
-  }
-
-  FileList GetFolderList(const std::filesystem::path& directory)
-  {
-    FileList folder_list;
-
-    for (std::filesystem::directory_entry file : std::filesystem::directory_iterator(directory)) {
-      if (file.is_directory()) {
-        folder_list.push_back(std::string(file.path().stem().string() + "/"));
-      }
-    }
-
-    return folder_list;
-  }
-
   std::filesystem::path GetRootPath()
   {
 #ifdef linux
@@ -102,6 +53,8 @@ namespace term_engine::system {
 
       if (std::filesystem::exists(fullPath))
       {
+        logging::logger->debug("Found project path at {}.", fullPath);
+
         return fullPath;
       }
     }
@@ -111,7 +64,7 @@ namespace term_engine::system {
     return "";
   }
 
-  std::filesystem::path SearchForFontPath(const std::string& filename)
+  std::filesystem::path SearchForResourcePath(const std::string& filename)
   {
     const std::filesystem::path rootPath = GetRootPath();
     const std::filesystem::path locations[] = {
@@ -122,88 +75,115 @@ namespace term_engine::system {
       "C:/Windows/Fonts/",
 #endif
       rootPath,
-      rootPath / "projects" / scriptPath
-    };
-
-    for (const std::filesystem::path& location : locations)
-    {
-      const std::filesystem::path fullPath = location / filename;
-
-      logging::logger->debug("Testing location {}...", fullPath);
-
-      if (std::filesystem::exists(fullPath))
-      {
-        return fullPath;
-      }
-    }
-
-    logging::logger->warn("Could not find font \"{}\"!", filename);
-
-    return "";
-  }
-
-  std::filesystem::path SearchForBackgroundPath(const std::string& filename)
-  {
-    const std::filesystem::path rootPath = GetRootPath();
-    const std::filesystem::path locations[] = {
-      rootPath,
-      rootPath / "resources/backgrounds",
+      rootPath / "resources",
       rootPath / "projects" / scriptPath,
-      rootPath / "projects" / scriptPath / "resources/backgrounds"
+      rootPath / "projects" / scriptPath / "resources"
     };
 
     for (const std::filesystem::path& location : locations)
     {
       const std::filesystem::path fullPath = location / filename;
 
-      logging::logger->debug("Testing location {}...", fullPath);
-
       if (std::filesystem::exists(fullPath))
       {
+        logging::logger->debug("Found resource path at {}.", fullPath);
+
         return fullPath;
       }
     }
 
-    logging::logger->warn("Could not find background \"{}\"!", filename);
+    logging::logger->warn("Could not find resource \"{}\"!", filename);
 
     return "";
   }
-}
 
-namespace File {
-  std::filesystem::path Absolute(const std::filesystem::path& directory)
+  std::string ReadFile(const std::string& filename)
   {
-    std::error_code err;
-    std::filesystem::path absolute = std::filesystem::absolute(directory, err);
+    std::filesystem::path filepath = system::SearchForResourcePath(filename);
 
-    if (err) {
-      term_engine::logging::logger->error(err.message());
+    if (filepath == "")
+    {
+      logging::logger->warn("Could not find file to read data from!");
+      
+      return "";
     }
 
-    return absolute;
+    std::ifstream file_stream;
+    std::stringstream output_stream;
+
+    file_stream.open(filepath);
+
+    if (file_stream.is_open())
+    {
+      output_stream << file_stream.rdbuf();
+      file_stream.close();
+
+      return output_stream.str();
+    }
+    else
+    {
+      logging::logger->error("Failed to read from file {}.", filepath);
+
+      return "";
+    }
   }
 
-  std::filesystem::path Relative(const std::filesystem::path& directory)
+  void WriteFile(const std::string& filename, const std::string& data, const bool& append)
   {
-    std::error_code err;
-    std::filesystem::path relative = std::filesystem::relative(directory, err);
-
-    if (err) {
-      term_engine::logging::logger->error(err.message());
+    if (filename == "")
+    {
+      logging::logger->warn("No file has been selected to write/append data to!");
+      
+      return;
     }
 
-    return relative;
+    std::filesystem::path filepath = GetRootPath() / "projects" / scriptPath / filename;
+    std::ofstream file_stream;
+    std::ios_base::openmode mode = append ? std::ios::app : std::ios::trunc;
+
+    file_stream.open(filepath, mode);
+
+    if (file_stream.is_open())
+    {
+      file_stream << data;
+      file_stream.close();
+    }
+    else
+    {
+      logging::logger->error("Failed to write to file {}.", filepath);
+    }
   }
 
-  bool Exists(const std::filesystem::path& directory)
+  bool FileExists(const std::string& filename)
   {
-    std::error_code err;
-    bool result = std::filesystem::exists(directory, err);
+    return system::SearchForResourcePath(filename) != "";
+  }
 
-    if (err) {
-      term_engine::logging::logger->error(err.message());
+  FileList GetFileList(const std::string& directory)
+  {
+    FileList file_list;
+    std::filesystem::path dirpath = system::scriptPath / directory;
+
+    for (std::filesystem::directory_entry file : std::filesystem::directory_iterator(dirpath)) {
+      if (!file.is_directory()) {
+        file_list.push_back(file.path().stem().string());
+      }
     }
 
-    return result;
+    return file_list;
+  }
+
+  FileList GetFolderList(const std::string& directory)
+  {
+    FileList folder_list;
+    std::filesystem::path dirpath = system::scriptPath / directory;
+
+    for (std::filesystem::directory_entry file : std::filesystem::directory_iterator(dirpath)) {
+      if (file.is_directory()) {
+        folder_list.push_back(std::string(file.path().stem().string() + "/"));
+      }
+    }
+
+    return folder_list;
   }
 }
