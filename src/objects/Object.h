@@ -7,11 +7,15 @@
 #include <string>
 #include <vector>
 #include <glm/glm.hpp>
-#include "../resources/Glyph.h"
+#include "Glyph.h"
 
 namespace term_engine::objects {
-  /// Used to store a collection of glyph parameters, which represents an object.
-  typedef std::vector<resources::GlyphParams> GlyphData;
+  class Object;
+
+  /// Smart pointer to an object.
+  typedef std::shared_ptr<Object> ObjectPtr;
+  /// Used to store a list of objects.
+  typedef std::vector<ObjectPtr> ObjectList;
 
   /// Used to represent a game object, that is rendered to the screen.
   /**
@@ -78,17 +82,46 @@ namespace term_engine::objects {
       return object_id_ == rhs.object_id_;
     }
 
+    /// Adds an object to the list.
+    /**
+     * @param[in] position The position of the object.
+     * @param[in] size     The size of the object, in rows & columns.
+     * @returns A smart pointer to the object if it was added to the list, or a null pointer if it failed.
+     */
+    static ObjectPtr& Add(const glm::vec2& position, const glm::ivec2& size);
+
+    /// Removes an object from the list.
+    /**
+     * @param[in] obj A smart pointer to the object.
+     */
+    static void Remove(const ObjectPtr& obj);
+
+    /// Retrieves the list of objects.
+    /**
+     * @returns The list of objects.
+     */
+    static ObjectList& GetList();
+
+    /// Returns the number of objects.
+    /**
+     * @returns The number of objects.
+     */
+    static int Count();
+    
+    /// Destroys all objects in the list.
+    static void CleanUp();
+
     /// Returns if the 'Is Dirty' flag is set, and there are objects that need to be re-rendered.
     /**
      * @returns If the 'Is Dirty' flag is set.
      */
     static bool IsDirty();
 
-    /// Sets the 'Is Dirty' flag to true.
-    static void SetDirty();
-
-    /// Sets the 'Is Dirty' flag to false;
-    static void Clean();
+    /// Sets the 'Is Dirty' flag.
+    /**
+     * @param[in] flag The value to set the 'Is Dirty' flag to.
+     */
+    static void SetDirty(const bool& flag);
 
   protected:
     /// The top-left position of the object.
@@ -106,6 +139,8 @@ namespace term_engine::objects {
     static int object_next_id_;
     /// A flag to check if any objects have been modified, and will need to be re-rendered.
     static bool is_dirty_;
+    /// The list of objects.
+    static ObjectList object_list_;
   };
 }
 

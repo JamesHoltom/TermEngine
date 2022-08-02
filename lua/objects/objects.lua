@@ -20,7 +20,7 @@ function BoxObject(_position, _size)
 			end
 		end
 		
-		objects.dirty()
+		objects.dirty(true)
 	end
 	
 	local getPosition = function()
@@ -137,7 +137,7 @@ function TextObject(_position, _size)
 			data_pos = data_pos + 1
 		end
 		
-		objects.dirty()
+		objects.dirty(true)
 	end
 	
 	local getPosition = function()

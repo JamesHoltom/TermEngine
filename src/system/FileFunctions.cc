@@ -51,6 +51,8 @@ namespace term_engine::system {
     {
       const std::filesystem::path fullPath = location / filename;
 
+      logging::logger->debug("Testing location {}...", fullPath);
+
       if (std::filesystem::exists(fullPath))
       {
         logging::logger->debug("Found project path at {}.", fullPath);

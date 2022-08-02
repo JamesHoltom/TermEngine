@@ -3,7 +3,7 @@
 #ifndef VIEW_H
 #define VIEW_H
 
-#include "../resources/Glyph.h"
+#include "../objects/Glyph.h"
 #include "../utility/GLUtils.h"
 
 namespace term_engine::views {
@@ -21,7 +21,7 @@ namespace term_engine::views {
   /// The size of the view, in rows/columns.
   extern glm::ivec2 view_size;
   /// The buffer of view data to render to the window.
-  extern resources::BufferList data;
+  extern objects::BufferList data;
 
   /// Creates the default view.
   void Init();
@@ -62,7 +62,7 @@ namespace term_engine::views {
    * @param[in] position The position to render the glyph to.
    * @param[in] params The glyph parameters.
    */
-  void PushGlyphToBuffer(const size_t& index, const glm::ivec2& position, const resources::GlyphParams& params);
+  void PushGlyphToBuffer(const size_t& index, const glm::ivec2& position, const objects::GlyphParams& params);
 
   /// Sets up the OpenGL buffers.
   void CreateBuffers();

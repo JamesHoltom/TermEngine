@@ -4,14 +4,15 @@
 #define GLYPH_H
 
 #include <vector>
-
 #include "../logging/Logger.h"
-#include "../resources/FontAtlas.h"
 #include "../utility/GLUtils.h"
 
-namespace term_engine::resources {
+namespace term_engine::objects {
   struct GlyphParams;
   struct BufferData;
+
+  /// Used to store a collection of glyph parameters, which represents an object.
+  typedef std::vector<GlyphParams> GlyphData;
 
   /// Used to indicate no character is set.
   constexpr char NO_CHARACTER = '\0';

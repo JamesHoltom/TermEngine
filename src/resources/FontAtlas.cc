@@ -193,7 +193,7 @@ namespace term_engine::fonts {
       glyph_size = glm::ivec2(((font_face->size->metrics.ascender - font_face->size->metrics.descender) >> 6));
     }
 
-    objects::Object::SetDirty();
+    objects::Object::SetDirty(true);
   }
 
   std::string GetFontPath()

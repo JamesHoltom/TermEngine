@@ -1,3 +1,11 @@
+--[[
+    This project uses fonts from Google Fonts, and are distributed under the Open Font License.
+
+    - Space Mono, by Colophon: https://fonts.google.com/specimen/Space+Mono
+
+    Open Font License: https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL
+  ]]
+
 local currentPath, currentSize, isSquare
 local line1Text, line2Text, line3Text, box
 
@@ -13,10 +21,12 @@ function Init()
   box.setOutline(Glyph("^", Colours.WHITE, Colours.RED))
 
   line1Text = TextObject(Values.VEC2_ONE, ivec2(37, 1))
-  line1Text.setText("Press 'f' to change the font      ")
+  line1Text.setText("Press 'f' to change the font")
+  line1Text.fitText(false)
 
   line2Text = TextObject(vec2(1, 2), ivec2(37, 1))
-  line2Text.setText("Press 's' to change the font size ")
+  line2Text.setText("Press 's' to change the font size")
+  line2Text.fitText(false)
   line2Text.setColours(Colours.WHITE, Colours.DARK_GREY)
 
   line3Text = TextObject(vec2(1, 3), ivec2(37, 1))

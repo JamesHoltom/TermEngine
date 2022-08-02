@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "Object.h"
 #include "../logging/Logger.h"
 
@@ -63,21 +64,46 @@ namespace term_engine::objects {
     is_active_ = flag;
   }
 
+  ObjectPtr& Object::Add(const glm::vec2& position, const glm::ivec2& size)
+  {
+    return object_list_.emplace_back(std::make_shared<Object>(position, size));
+  }
+
+  void Object::Remove(const ObjectPtr& obj)
+  {
+    ObjectList::iterator position = std::find(object_list_.begin(), object_list_.end(), obj);
+
+    if (position != object_list_.end()) {
+      object_list_.erase(position);
+    }
+  }
+
+  ObjectList& Object::GetList()
+  {
+    return object_list_;
+  }
+
+  int Object::Count()
+  {
+    return object_list_.size();
+  }
+
+  void Object::CleanUp()
+  {
+    object_list_.clear();
+  }
+
   bool Object::IsDirty()
   {
     return Object::is_dirty_;
   }
 
-  void Object::SetDirty()
+  void Object::SetDirty(const bool& flag)
   {
-    Object::is_dirty_ = true;
-  }
-
-  void Object::Clean()
-  {
-    Object::is_dirty_ = false;
+    Object::is_dirty_ = flag;
   }
 
   int Object::object_next_id_ = 0;
   bool Object::is_dirty_ = true;
+  ObjectList Object::object_list_;
 }

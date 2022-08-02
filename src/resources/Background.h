@@ -4,7 +4,6 @@
 #define BACKGROUND_H
 
 #include <string>
-
 #include "../system/ImageFunctions.h"
 #include "../utility/GLUtils.h"
 

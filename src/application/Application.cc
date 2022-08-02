@@ -1,13 +1,15 @@
 #include <string>
 #include "Application.h"
 #include "../logging/Logger.h"
+#include "../utility/AudioUtils.h"
 #include "../utility/SDLUtils.h"
 #include "../utility/GLUtils.h"
 #include "../utility/FTUtils.h"
 #include "../data/Uniform.h"
 #include "../events/EventManager.h"
 #include "../events/InputManager.h"
-#include "../objects/ObjectManager.h"
+#include "../objects/Object.h"
+#include "../resources/Audio.h"
 #include "../resources/Background.h"
 #include "../resources/FontAtlas.h"
 #include "../resources/Window.h"
@@ -38,6 +40,8 @@ namespace term_engine::application {
       exit(2);
     }
 
+    audio::Init();
+
     events::Init();
 
     data::Init();
@@ -63,11 +67,13 @@ namespace term_engine::application {
 
   void CleanUp()
   {
-    objects::CleanUp();
+    objects::Object::CleanUp();
+    resources::Audio::CleanUp();
     fonts::CleanUp();
     views::CleanUp();
     data::CleanUp();
     events::CleanUp();
+    audio::CleanUp();
     system::CleanUpWindow();
     background::RemoveBackground();
 

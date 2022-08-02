@@ -3,9 +3,9 @@
 #ifndef RESOURCE_BINDINGS_H
 #define RESOURCE_BINDINGS_H
 
+#include "../../resources/Audio.h"
 #include "../../resources/Background.h"
 #include "../../resources/FontAtlas.h"
-#include "../../resources/Glyph.h"
 #include "../../resources/Window.h"
 #include "../../utility/GLUtils.h"
 #include "../../utility/SolUtils.h"
@@ -17,6 +17,32 @@ namespace term_engine::scripting::bindings {
    */
   void BindResourcesToState(sol::state& state)
   {
+    state.new_usertype<resources::Audio>(
+      "Audio",
+      sol::meta_function::construct, sol::factories(&resources::Audio::Add),
+      sol::call_constructor, sol::factories(&resources::Audio::Add),
+      sol::meta_function::garbage_collect, sol::destructor(&resources::Audio::Remove),
+      "play", &resources::Audio::Play,
+      "stop", &resources::Audio::Stop,
+      "pause", &resources::Audio::Pause,
+      "resume", &resources::Audio::Resume,
+      "looping", sol::property(&resources::Audio::IsLooping, &resources::Audio::SetLooping),
+      "pan", sol::property(&resources::Audio::GetPan, &resources::Audio::SetPan),
+      "pitch", sol::property(&resources::Audio::GetPitch, &resources::Audio::SetPitch),
+      "position", sol::property(&resources::Audio::GetPosition, &resources::Audio::SetPosition),
+      "paused", sol::property(&resources::Audio::IsPaused),
+      "playing", sol::property(&resources::Audio::IsPlaying),
+      "filepath", sol::property(&resources::Audio::GetFilePath),
+      "length", sol::property(&resources::Audio::GetLengthSeconds),
+      "release", &resources::Audio::Remove);
+
+    state.create_named_table(
+      "audio",
+      "trigger", &resources::Audio::PlaySound,
+      "count", &resources::Audio::Count,
+      "exists", &resources::Audio::Exists
+    );
+
     state.create_named_table(
       "background",
       "set", &background::SetBackground,
@@ -31,22 +57,6 @@ namespace term_engine::scripting::bindings {
       "defaultPath", &fonts::GetDefaultFontPath,
       "defaultSize", &fonts::GetDefaultFontSize,
       "tabSize", fonts::tab_size);
-
-    state.new_usertype<resources::GlyphParams>(
-        "Glyph",
-        sol::meta_function::construct, sol::constructors<void(const char&, const glm::vec3&, const glm::vec3&)>(),
-        sol::call_constructor, sol::constructors<void(const char&, const glm::vec3&, const glm::vec3&)>(),
-        sol::meta_function::equal_to, sol::overload([](const resources::GlyphParams& lhs, const resources::GlyphParams& rhs) { return lhs == rhs; }),
-        "character", &resources::GlyphParams::character_,
-        "foreground_colour", &resources::GlyphParams::foreground_colour_,
-        "background_colour", &resources::GlyphParams::background_colour_);
-
-    state.create_named_table(
-      "glyphs",
-      "size", &fonts::GetGlyphSize,
-      "NO_CHARACTER", resources::NO_CHARACTER,
-      "DEFAULT_FOREGROUND_COLOUR", resources::DEFAULT_FOREGROUND_COLOUR,
-      "DEFAULT_BACKGROUND_COLOUR", resources::DEFAULT_BACKGROUND_COLOUR);
 
     state.create_named_table(
       "window",
