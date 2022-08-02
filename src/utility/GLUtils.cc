@@ -1,10 +1,8 @@
 #include <string>
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/ostr.h>
-
 #include "GLUtils.h"
 #include "SDLUtils.h"
-
 #include "../logging/Logger.h"
 
 namespace GL {

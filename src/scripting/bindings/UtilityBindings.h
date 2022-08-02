@@ -5,7 +5,6 @@
 
 #include <random>
 #include <string>
-
 #include "../../resources/Window.h"
 #include "../../timing/FPSManager.h"
 #include "../../utility/SolUtils.h"

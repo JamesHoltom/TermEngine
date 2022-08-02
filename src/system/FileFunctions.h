@@ -20,7 +20,7 @@ namespace term_engine::system {
   /// Finds the "main.lua" file at the given project directory in the system's default location, or in the projects folder.
   /**
    * If the file isn't found anywhere, a blank string is returned.
-   * @param[in] filename The path of the project file.
+   * @param[in] directory The directory to the project file.
    * @returns The absolute path to the project file, or a blank string if not found.
    */
   std::filesystem::path SearchForProjectPath(const std::filesystem::path& directory);

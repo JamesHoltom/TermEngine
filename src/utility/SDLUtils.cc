@@ -1,5 +1,4 @@
 #include "SDLUtils.h"
-
 #include "../logging/Logger.h"
 
 namespace SDL {

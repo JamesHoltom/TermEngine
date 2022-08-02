@@ -28,7 +28,7 @@ namespace term_engine::objects {
   struct GlyphParams {
     /// Constructs the glyph parameters.
     /**
-     * @param[in] character        The character that the glyph represents.
+     * @param[in] character         The character that the glyph represents.
      * @param[in] foreground_colour The foreground colour, used for the text.
      * @param[in] background_colour The background colour.
      */
@@ -66,7 +66,7 @@ namespace term_engine::objects {
      * @param[in] position          The position of the vertex.
      * @param[in] texture_position  The position of the texture.
      * @param[in] has_texture       Does the current vertex have a texture?
-     * @param[in] colour             The colour to render the vertex/texture with.
+     * @param[in] colour            The colour to render the vertex/texture with.
      */
     BufferData(const glm::vec2& position, const glm::vec2& texture_position, const bool& has_texture, const glm::vec3& colour) :
       position_(position),

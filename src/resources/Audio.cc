@@ -45,9 +45,9 @@ namespace term_engine::resources {
     is_paused_ = false;
   }
 
-  void Audio::SetLooping(const ma_bool32& flag)
+  void Audio::SetLooping(const bool& flag)
   {
-    ma_sound_set_looping(&sound_, flag);
+    ma_sound_set_looping(&sound_, flag ? MA_TRUE : MA_FALSE);
   }
 
   void Audio::SetPan(const double& pan)
@@ -107,7 +107,7 @@ namespace term_engine::resources {
     return ma_sound_get_volume(&sound_);
   }
 
-  float Audio::GetLengthSeconds() const
+  double Audio::GetLengthSeconds() const
   {
     float length = 0;
 

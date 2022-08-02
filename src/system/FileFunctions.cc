@@ -1,14 +1,12 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
-
 #ifdef linux
 #include <unistd.h>
 #include <linux/limits.h>
 #elif defined(_WIN32) || defined (WIN32)
 #include <windows.h>
 #endif
-
 #include "FileFunctions.h"
 #include "CLArguments.h"
 #include "../logging/Logger.h"

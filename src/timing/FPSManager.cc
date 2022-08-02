@@ -1,6 +1,5 @@
 #include <chrono>
 #include <thread>
-
 #include "FPSManager.h"
 #include "../logging/Logger.h"
 

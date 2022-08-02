@@ -4,7 +4,6 @@
 #define SCRIPTING_INTERFACE_H
 
 #include <string>
-
 #include "../utility/SolUtils.h"
 
 namespace term_engine::scripting {

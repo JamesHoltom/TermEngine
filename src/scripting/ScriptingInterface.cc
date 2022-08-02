@@ -1,5 +1,4 @@
 #include <filesystem>
-
 #include "ScriptingInterface.h"
 #include "bindings/glmBindings.h"
 #include "bindings/EventBindings.h"

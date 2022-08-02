@@ -1,6 +1,5 @@
 #include <array>
 #include <filesystem>
-
 #include "FontAtlas.h"
 #include "../data/Uniform.h"
 #include "../logging/Logger.h"

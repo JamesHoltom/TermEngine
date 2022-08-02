@@ -17,7 +17,6 @@ function Init()
   audioText.setText("Press 's' to play sound\nPress 'm' to play music\nPress 'p' to pause music")
 
   audioMusic = Audio("resources/audio/Map.wav", "stream")
-  pitch = 1.0
 
   return true
 end
@@ -41,25 +40,5 @@ function Loop(timestep)
       print("Pause")
       audioMusic:pause()
     end
-  elseif keyboard.isPressed("Up") then
-    if pitch < 2.0 then
-      pitch = pitch + 0.1
-    else
-      pitch = 2.0
-    end
-
-    audioMusic.pitch = pitch
-
-    print("Pitch: " .. audioMusic.pitch)
-  elseif keyboard.isPressed("Down") then
-    if pitch > 0.0 then
-      pitch = pitch - 0.1
-    else
-      pitch = 0.0
-    end
-
-    audioMusic.pitch = pitch
-
-    print("Pitch: " .. audioMusic.pitch)
   end
 end

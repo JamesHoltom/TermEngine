@@ -4,7 +4,6 @@
 #define GLM_BINDINGS_H
 
 #include <string>
-
 #include "../../utility/GLUtils.h"
 #include "../../utility/SolUtils.h"
 

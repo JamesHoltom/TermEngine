@@ -42,7 +42,7 @@ namespace term_engine::background {
   /**
    * @param[in] filename  The path to the image to use.
    * @param[in] offset    Offset to move the background in the window, in pixels (px).
-   * @param[in] colour     Colour of the background.
+   * @param[in] colour    Colour of the background.
    */
   void SetBackground(const std::string& filename, const glm::vec2& offset, const glm::vec3& colour);
 
