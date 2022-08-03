@@ -144,7 +144,7 @@ namespace term_engine::resources {
     /**
      * @param[in] audio A smart pointer to the resource.
      */
-    static void Remove(const AudioPtr& audio);
+    static void Remove(AudioPtr& audio);
 
     /// Returns if an audio resource exists with the given filepath.
     /**

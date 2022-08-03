@@ -147,16 +147,15 @@ namespace term_engine::resources {
     }
 
     const std::filesystem::path id = GenerateId(filepath);
-
-    audio_list_.emplace(std::make_pair(id, std::make_shared<Audio>(id, flag)));
-
-    return audio_list_.at(id);
+    
+    return audio_list_.emplace(std::make_pair(id, std::make_shared<Audio>(id, flag))).first->second;
   }
 
 
-  void Audio::Remove(const AudioPtr& resource)
+  void Audio::Remove(AudioPtr& resource)
   {
     audio_list_.erase(resource->filepath_);
+    resource.reset();
   }
 
   bool Audio::Exists(const std::string& filepath)

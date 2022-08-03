@@ -3,6 +3,7 @@
 #ifndef SCRIPTING_INTERFACE_H
 #define SCRIPTING_INTERFACE_H
 
+#include <memory.h>
 #include <string>
 #include "../utility/SolUtils.h"
 
@@ -15,7 +16,7 @@ namespace term_engine::scripting {
   constexpr char PROJECT_ENTRYPOINT[] = "main.lua";
 
   /// The Lua state that stores all of the loaded script functions, variables, etc.
-  extern sol::state lua_state;
+  extern std::unique_ptr<sol::state> lua_state;
   /// The filepath of the currently loaded project.
   extern std::string lua_file;
 
@@ -24,6 +25,9 @@ namespace term_engine::scripting {
 
   /// Selects the project script to execute, or the "No Program" script if one is not set.
   void InitScript();
+
+  /// Does garbage collection and closes the scripting interface.
+  void CleanUp();
 
   /// Loads the contents of a Lua file into the state, allowing subsequent scripts to use the contents.
   /**

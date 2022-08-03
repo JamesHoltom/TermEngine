@@ -67,6 +67,7 @@ namespace term_engine::application {
 
   void CleanUp()
   {
+    scripting::CleanUp();
     objects::Object::CleanUp();
     resources::Audio::CleanUp();
     fonts::CleanUp();
@@ -104,7 +105,7 @@ namespace term_engine::application {
       }
 
       events::UpdateEvents();
-      events::DoEvents(scripting::lua_state);
+      events::DoEvents(*scripting::lua_state);
 
       scripting::OnLoop(timestep.GetIntervalElapsed());
 

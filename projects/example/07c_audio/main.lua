@@ -7,7 +7,7 @@
     CC0 license: https://creativecommons.org/publicdomain/zero/1.0/
   ]]
 
-local audioText, audioMusic, pitch
+local audioText, audioMusic
 
 function Init()
   view.setSize(ivec2(26, 3))

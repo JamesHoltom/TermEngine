@@ -14,26 +14,29 @@
 
 
 namespace term_engine::scripting {
-  sol::state lua_state;
+  std::unique_ptr<sol::state> lua_state;
   std::string lua_file;
 
-  void InitInterface() {
-    lua_state.open_libraries(sol::lib::base, sol::lib::package, sol::lib::math, sol::lib::string, sol::lib::table);
+  void InitInterface()
+  {
+    lua_state = std::make_unique<sol::state>();
+    lua_state->open_libraries(sol::lib::base, sol::lib::package, sol::lib::math, sol::lib::string, sol::lib::table);
 
     // Create bindings for C++ functions.
-    bindings::BindGlmToState(lua_state);
-    bindings::BindEventToState(lua_state);
-    bindings::BindFileToState(lua_state);
-    bindings::BindObjectToState(lua_state);
-    bindings::BindProjectToState(lua_state);
-    bindings::BindResourcesToState(lua_state);
-    bindings::BindUtilitiesToState(lua_state);
-    bindings::BindViewToState(lua_state);
+    bindings::BindGlmToState(*lua_state);
+    bindings::BindEventToState(*lua_state);
+    bindings::BindFileToState(*lua_state);
+    bindings::BindObjectToState(*lua_state);
+    bindings::BindProjectToState(*lua_state);
+    bindings::BindResourcesToState(*lua_state);
+    bindings::BindUtilitiesToState(*lua_state);
+    bindings::BindViewToState(*lua_state);
   }
 
-  void InitScript() {
+  void InitScript()
+  {
     // Add the root & vendor to the Lua path, so that projects can "require()" files relative to these folders.
-    std::string packagePath = lua_state["package"]["path"];
+    std::string packagePath = (*lua_state)["package"]["path"];
     const std::string rootDirectory = system::GetRootPath() / "lua";
 
     packagePath += ";" +
@@ -55,8 +58,8 @@ namespace term_engine::scripting {
                      projectDirectory + "/?/init.lua";
     }
 
-    lua_state["package"]["path"] = packagePath;
-    logging::logger->debug("Lua path: {}", std::string(lua_state["package"]["path"]));
+    (*lua_state)["package"]["path"] = packagePath;
+    logging::logger->debug("Lua path: {}", std::string((*lua_state)["package"]["path"]));
 
     Load(rootDirectory + "/" + LOADER_SCRIPT_PATH);
 
@@ -71,9 +74,18 @@ namespace term_engine::scripting {
     }
   }
 
-  void Load(const std::string& filename) {
+  void CleanUp()
+  {
+    lua_state->collect_gc();
+    lua_state->collect_gc();
+
+    lua_state.reset();
+  }
+
+  void Load(const std::string& filename)
+  {
     try {
-      sol::protected_function_result result = lua_state.script_file(filename);
+      sol::protected_function_result result = lua_state->script_file(filename);
 
       if (result.valid()) {
         lua_file = filename;
@@ -89,11 +101,12 @@ namespace term_engine::scripting {
     }
   }
 
-  bool OnInit() {
+  bool OnInit()
+  {
     bool return_value = true;
 
     try {
-      sol::protected_function_result result = lua_state["Init"]();
+      sol::protected_function_result result = (*lua_state)["Init"]();
 
       if (result.valid()) {
         return_value = (bool)result;
@@ -110,9 +123,10 @@ namespace term_engine::scripting {
     return return_value;
   }
 
-  void OnLoop(const float& timestep) {
+  void OnLoop(const float& timestep)
+  {
     try {
-      sol::protected_function_result result = lua_state["Loop"](timestep);
+      sol::protected_function_result result = (*lua_state)["Loop"](timestep);
 
       if (!result.valid()) {
         sol::error err = result;
@@ -124,11 +138,12 @@ namespace term_engine::scripting {
     }
   }
 
-  bool OnQuit() {
+  bool OnQuit()
+  {
     bool return_value = true;
 
     try {
-      sol::protected_function_result result = lua_state["Quit"]();
+      sol::protected_function_result result = (*lua_state)["Quit"]();
 
       if (result.valid()) {
         return_value = (bool)result;

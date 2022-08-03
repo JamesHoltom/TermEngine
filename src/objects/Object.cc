@@ -69,13 +69,20 @@ namespace term_engine::objects {
     return object_list_.emplace_back(std::make_shared<Object>(position, size));
   }
 
-  void Object::Remove(const ObjectPtr& obj)
+  void Object::Remove(ObjectPtr& obj)
   {
     ObjectList::iterator position = std::find(object_list_.begin(), object_list_.end(), obj);
 
-    if (position != object_list_.end()) {
+    if (position != object_list_.end())
+    {
       object_list_.erase(position);
     }
+    else
+    {
+      logging::logger->warn("Couldn't find object in list!");
+    }
+
+    obj.reset();
   }
 
   ObjectList& Object::GetList()

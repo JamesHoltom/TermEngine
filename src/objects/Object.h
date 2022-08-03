@@ -94,7 +94,7 @@ namespace term_engine::objects {
     /**
      * @param[in] obj A smart pointer to the object.
      */
-    static void Remove(const ObjectPtr& obj);
+    static void Remove(ObjectPtr& obj);
 
     /// Retrieves the list of objects.
     /**
