@@ -30,9 +30,11 @@ namespace term_engine::scripting::bindings {
       "pan", sol::property(&resources::Audio::GetPan, &resources::Audio::SetPan),
       "pitch", sol::property(&resources::Audio::GetPitch, &resources::Audio::SetPitch),
       "position", sol::property(&resources::Audio::GetPosition, &resources::Audio::SetPosition),
+      "volume", sol::property(&resources::Audio::GetVolume, &resources::Audio::SetVolume),
       "paused", sol::property(&resources::Audio::IsPaused),
       "playing", sol::property(&resources::Audio::IsPlaying),
       "filepath", sol::property(&resources::Audio::GetFilePath),
+      "cursor", sol::property(&resources::Audio::GetCursorSeconds),
       "length", sol::property(&resources::Audio::GetLengthSeconds),
       "release", &resources::Audio::Remove);
 

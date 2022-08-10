@@ -67,7 +67,7 @@ namespace term_engine::resources {
 
     /// Sets the audio volume.
     /**
-     * @param[in] volume The new volume. Accepts a value in between 0.0 and 1.0, and defaults to 1.0.
+     * @param[in] volume The new volume. Accepts any value above 0.0 and 1.0, with higher values amplifying the volume.
      */
     void SetVolume(const double& volume);
 
@@ -113,9 +113,15 @@ namespace term_engine::resources {
      */
     double GetVolume() const;
 
+    /// Returns the cursor (i.e. the current position) of the audio resource.
+    /**
+     * @returns The audio cursor, in seconds.
+     */
+    double GetCursorSeconds() const;
+
     /// Returns the length of the audio resource.
     /**
-     * @returns The audio length.
+     * @returns The audio length, in seconds.
      */
     double GetLengthSeconds() const;
 
@@ -184,6 +190,14 @@ namespace term_engine::resources {
     ma_sound sound_;
     /// Is the audio resource currently paused?
     bool is_paused_;
+
+    double pan_;
+
+    double pitch_;
+
+    glm::vec2 position_;
+
+    double volume_;
 
     /// The list of audio resources.
     static AudioMap audio_list_;

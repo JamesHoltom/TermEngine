@@ -6,7 +6,11 @@
 namespace term_engine::resources {
   Audio::Audio(const std::string& filepath, const unsigned int& flag) :
     filepath_(filepath),
-    is_paused_(false)
+    is_paused_(false),
+    pan_(0.0f),
+    pitch_(1.0f),
+    position_(glm::vec2(0.0f)),
+    volume_(1.0f)
   {
     if (ma_sound_init_from_file(&audio::engine, filepath.c_str(), flag, nullptr, nullptr, &sound_) != MA_SUCCESS)
     {
@@ -52,21 +56,29 @@ namespace term_engine::resources {
 
   void Audio::SetPan(const double& pan)
   {
+    pan_ = pan;
+
     ma_sound_set_pan(&sound_, (float)pan);
   }
 
   void Audio::SetPitch(const double& pitch)
   {
+    pitch_ = pitch;
+
     ma_sound_set_pitch(&sound_, (float)pitch);
   }
 
   void Audio::SetPosition(const glm::vec2& position)
   {
+    position_ = position;
+
     ma_sound_set_position(&sound_, position.x, 0.0f, position.y);
   }
   
   void Audio::SetVolume(const double& volume)
   {
+    volume_ = volume;
+    
     ma_sound_set_volume(&sound_, (float)volume);
   }
 
@@ -87,38 +99,46 @@ namespace term_engine::resources {
 
   double Audio::GetPan() const
   {
-    return ma_sound_get_pan(&sound_);
+    return pan_;
   }
 
   double Audio::GetPitch() const
   {
-    return ma_sound_get_pitch(&sound_);
+    return pitch_;
   }
 
   glm::vec2 Audio::GetPosition() const
   {
-    const ma_vec3f position = ma_sound_get_position(&sound_);
-
-    return glm::vec2(position.x, position.z);
+    return position_;
   }
 
   double Audio::GetVolume() const
   {
-    return ma_sound_get_volume(&sound_);
+    return volume_;
+  }
+
+  double Audio::GetCursorSeconds() const
+  {
+    float cursor = 0.0f;
+
+    if (ma_data_source_get_cursor_in_seconds(sound_.pDataSource, &cursor) != MA_SUCCESS)
+    {
+      logging::logger->warn("Failed to get cursor of audio resource \'{}\'.", filepath_);
+    }
+
+    return (double)cursor;
   }
 
   double Audio::GetLengthSeconds() const
   {
-    float length = 0;
+    float length = 0.0f;
 
-    /** @todo
-    if (ma_sound_get_length_in_seconds(&sound_, &length) != MA_SUCCESS)
+    if (ma_data_source_get_length_in_seconds(sound_.pDataSource, &length) != MA_SUCCESS)
     {
       logging::logger->warn("Failed to get length of audio resource \'{}\'.", filepath_);
     }
-    */
 
-    return length;
+    return (double)length;
   }
 
   std::string Audio::GetFilePath() const
