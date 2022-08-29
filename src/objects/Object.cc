@@ -71,11 +71,11 @@ namespace term_engine::objects {
 
   void Object::Remove(ObjectPtr& obj)
   {
-    ObjectList::iterator position = std::find(object_list_.begin(), object_list_.end(), obj);
+    ObjectList::iterator it = std::find(object_list_.begin(), object_list_.end(), obj);
 
-    if (position != object_list_.end())
+    if (it != object_list_.end())
     {
-      object_list_.erase(position);
+      object_list_.erase(it);
     }
     else
     {

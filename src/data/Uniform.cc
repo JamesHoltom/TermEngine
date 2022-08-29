@@ -19,15 +19,15 @@ namespace term_engine::data {
     glDeleteBuffers(1, &ubo_id);
   }
 
-  void SetProjection(const glm::ivec2& window_size)
+  void SetProjection(const glm::ivec2& size)
   {
-    const glm::mat4 projection = glm::ortho(0.0f, (GLfloat)window_size.x, (GLfloat)window_size.y, 0.0f);
+    const glm::mat4 projection = glm::ortho(0.0f, (GLfloat)size.x, (GLfloat)size.y, 0.0f);
 
     glBindBuffer(GL_UNIFORM_BUFFER, ubo_id);
     glBufferSubData(GL_UNIFORM_BUFFER, offsetof(UniformData, projection_), sizeof(glm::mat4), glm::value_ptr(projection));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-    glViewport(0, 0, (GLsizei)window_size.x, (GLsizei)window_size.y);
+    glViewport(0, 0, (GLsizei)size.x, (GLsizei)size.y);
   }
 
   glm::vec2 GetPosition()

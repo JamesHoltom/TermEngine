@@ -1,8 +1,9 @@
 #include "application/Application.h"
 #include "system/CLArguments.h"
 
-/// The entrypoint of the program.
 /**
+ * @brief The entrypoint of the program.
+ * 
  * @param[in] argc The amount of arguments passed to the program on startup.
  * @param[in] argv An array pointer to a list of string pointers. The first element is always the program name.
  * @returns A status code indicating how the program ended.

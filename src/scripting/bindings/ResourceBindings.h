@@ -11,8 +11,9 @@
 #include "../../utility/SolUtils.h"
 
 namespace term_engine::scripting::bindings {
-  /// Binds the resource-related script functions to the Lua state.
   /**
+   * @brief Binds the resource-related script functions to the Lua state.
+   * 
    * @param[in] state The lua state to bind to.
    */
   void BindResourcesToState(sol::state& state)
@@ -62,11 +63,25 @@ namespace term_engine::scripting::bindings {
 
     state.create_named_table(
       "window",
+      "getPosition", &system::GetWindowPosition,
+      "setPosition", &system::SetWindowPosition,
+      "centerPosition", &system::CenterWindowPosition,
       "getSize", &system::GetWindowSize,
       "setSize", &system::SetWindowSize,
       "fitToView", &system::ResizeWindowToView,
+      "isResizable", &system::IsWindowResizable,
+      "setResizable", &system::SetWindowResizable,
+      "isMinimised", &system::IsWindowMinimised,
+      "isMaximised", &system::IsWindowMaximised,
+      "minimise", &system::MinimiseWindow,
+      "maximise", &system::MaximiseWindow,
+      "restore", &system::RestoreWindow,
+      "isGrabbed", &system::IsMouseGrabbed,
+      "setGrabbed", &system::SetMouseGrab,
       "getClearColour", &system::GetWindowClearColour,
-      "setClearColour", &system::SetWindowClearColour);
+      "setClearColour", &system::SetWindowClearColour,
+      "isVsync", &system::IsVsyncEnabled,
+      "setVsync", &system::SetVsync);
   }
 }
 

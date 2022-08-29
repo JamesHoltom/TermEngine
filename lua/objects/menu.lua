@@ -50,11 +50,12 @@ end
 function MenuObject()
 	local self = {
 		obj = Object(vec2(), ivec2(1)),
+		events = {},
 		options = {},
 		option_size = ivec2(0, 1),
 		active_option = 1
 	}
-	
+
 	local _refreshOptions = function()
 		self.obj.size = ivec2(self.option_size.x, self.option_size.y * #self.options)
 		
@@ -74,12 +75,17 @@ function MenuObject()
 			end
 		end
 		
-		objects.dirty()
+		objects.dirty(true)
 	end
 	
 	local _addOption = function(_index, _object)
 		if _index >= 1 and _index <= #self.options + 1 then
-			table.insert(self.options, _index, _object)
+			table.insert(self.options, _index, MenuOption(_object.title, _object.callback))
+
+			self.option_size.x = math.max(#_object.title, self.option_size.x)
+
+			print(self.options[_index].getTitle())
+			print(self.option_size)
 			
 			_refreshOptions()
 		else
@@ -118,13 +124,21 @@ function MenuObject()
 	local _doKeyInput = function(key)
 		if self.obj.active then
 			if key == "Up" then
-				self.active_option = ((self.active_option - 2) % #self.options) + 1
+				if self.active_option == 1 then
+					self.active_option = #self.options
+				else
+					self.active_option = self.active_option - 1
+				end
 				
 				_refreshOptions()
 			end
 			
 			if key == "Down" then
-				self.active_option = (self.active_option % #self.options) + 1
+				if self.active_option == #self.options then
+					self.active_option = 1
+				else
+					self.active_option = self.active_option + 1
+				end
 				
 				_refreshOptions()
 			end
@@ -134,14 +148,24 @@ function MenuObject()
 			end
 		end
 	end
+
+	local _release = function()
+		for k, v in pairs(self.events) do
+			v:release()
+		end
+	end
 	
+	self.events.keydown = EventListener("key_down", function(this, event)
+		_doKeyInput(event.key)
+	end)
+
 	return {
-		doKeyInput = _doKeyInput,
 		addOption = _addOption,
 		removeOption = _removeOption,
 		getActiveOption = _getActiveOption,
 		getOptionSize = _getOptionSize,
 		setOptionSize = _setOptionSize,
-		setActive = _setActive
+		setActive = _setActive,
+		release = _release
 	}
 end

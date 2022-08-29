@@ -229,8 +229,6 @@
     <ClInclude Include="src\timing\FPSManager.h" />
     <ClInclude Include="src\timing\Timer.h" />
     <ClInclude Include="src\utility\FTUtils.h" />
-    <ClInclude Include="src\utility\GenericUtils.h" />
-    <ClInclude Include="src\utility\glmUtils.h" />
     <ClInclude Include="src\utility\GLUtils.h" />
     <ClInclude Include="src\utility\SDLUtils.h" />
     <ClInclude Include="src\utility\SolUtils.h" />

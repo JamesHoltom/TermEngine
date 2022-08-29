@@ -18,18 +18,21 @@ namespace term_engine::background {
   {
     const std::filesystem::path fullFontPath = system::SearchForResourcePath(file);
 
-    if (!std::filesystem::exists(fullFontPath)) {
+    if (!std::filesystem::exists(fullFontPath))
+    {
       logging::logger->warn("Attempting to set background to one that doesn't exist: {}", fullFontPath);
 
       return;
     }
 
-    if (current_background.texture_id_ > 0) {
+    if (current_background.texture_id_ > 0)
+    {
       RemoveBackground();
     }
 
     current_background = system::CreateImage(fullFontPath);
-    if (current_background.texture_id_ > 0) {
+    if (current_background.texture_id_ > 0)
+    {
       data[0] = { offset + glm::vec2(0.0f), glm::vec2(0.0f), colour / 255.0f };
       data[1] = { offset + glm::vec2(current_background.size_), glm::vec2(1.0f), colour / 255.0f };
       data[2] = { offset + glm::vec2(0.0f, current_background.size_.y), glm::vec2(0.0f, 1.0f), colour / 255.0f };
@@ -42,7 +45,8 @@ namespace term_engine::background {
       
       logging::logger->debug("Loaded background image \'{}\' with size {},{} and ID {}", current_background.filename_.c_str(), current_background.size_.x, current_background.size_.y, current_background.texture_id_);
     }
-    else {
+    else
+    {
       logging::logger->error("Failed to set background image.");
     }
   }

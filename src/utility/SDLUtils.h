@@ -7,6 +7,7 @@
 #include <SDL2/SDL.h>
 
 namespace SDL {
+  /// @brief The flags to initialise SDL with.
   constexpr int SDL_INIT_FLAGS = SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER;
 
   struct WindowDestroyer;
@@ -14,18 +15,22 @@ namespace SDL {
   struct SurfaceDestroyer;
   struct TextureDestroyer;
 
-  /// Wraps _SDL_Window_ with a smart pointer to allow automatic cleanup.
+  /// @brief Wraps _SDL_Window_ with a smart pointer to allow automatic cleanup.
   typedef std::unique_ptr<SDL_Window, WindowDestroyer> Window;
-  /// Wraps _SDL_Renderer_ with a smart pointer to allow automatic cleanup.
+  /// @brief Wraps _SDL_Renderer_ with a smart pointer to allow automatic cleanup.
   typedef std::unique_ptr<SDL_Renderer, RendererDestroyer> Renderer;
-  /// Wraps _SDL_Surface_ with a smart pointer to allow automatic cleanup.
+  /// @brief Wraps _SDL_Surface_ with a smart pointer to allow automatic cleanup.
   typedef std::unique_ptr<SDL_Surface, SurfaceDestroyer> Surface;
-  /// Wraps _SDL_Texture_ with a smart pointer to allow automatic cleanup.
+  /// @brief Wraps _SDL_Texture_ with a smart pointer to allow automatic cleanup.
   typedef std::unique_ptr<SDL_Texture, TextureDestroyer> Texture;
 
-  /// Smart pointer destructor used to destroy a _SDL_Window_.
+  /// @brief Smart pointer destructor used to destroy a _SDL_Window_.
   struct WindowDestroyer {
-    /// @param[in,out] window The window to destroy.
+    /**
+     * @brief Operator for calling the destructor like a function.
+     * 
+     * @param[in,out] window The window to destroy.
+     */
     void operator()(SDL_Window* window) const noexcept
     {
       SDL_DestroyWindow(window);
@@ -33,9 +38,13 @@ namespace SDL {
     }
   };
 
-  /// Smart pointer destructor used to destroy a _SDL_Renderer_.
+  /// @brief Smart pointer destructor used to destroy a _SDL_Renderer_.
   struct RendererDestroyer {
-    /// @param[in,out] renderer The renderer to destroy.
+    /**
+     * @brief Operator for calling the destructor like a function.
+     * 
+     * @param[in,out] renderer The renderer to destroy.
+     */
     void operator()(SDL_Renderer* renderer) const noexcept
     {
       SDL_DestroyRenderer(renderer);
@@ -43,9 +52,13 @@ namespace SDL {
     }
   };
 
-  /// Smart pointer destructor used to destroy a _SDL_Surface_.
+  /// @brief Smart pointer destructor used to destroy a _SDL_Surface_.
   struct SurfaceDestroyer {
-    /// @param[in,out] surface The surface to destroy.
+    /**
+     * @brief Operator for calling the destructor like a function.
+     * 
+     * @param[in,out] surface The surface to destroy.
+     */
     void operator()(SDL_Surface* surface) const noexcept
     {
       SDL_FreeSurface(surface);
@@ -53,9 +66,13 @@ namespace SDL {
     }
   };
 
-  /// Smart pointer destructor used to destroy a _SDL_Texture_.
+  /// @brief Smart pointer destructor used to destroy a _SDL_Texture_.
   struct TextureDestroyer {
-    /// @param[in,out] texture The texture to destroy.
+    /**
+     * @brief Operator for calling the destructor like a function.
+     * 
+     * @param[in,out] texture The texture to destroy.
+     */
     void operator()(SDL_Texture* texture) const noexcept
     {
       SDL_DestroyTexture(texture);
@@ -63,13 +80,14 @@ namespace SDL {
     }
   };
 
-  /// Initialises SDL.
   /**
+   * @brief Initialises SDL.
+   * 
    * @returns Was SDL successfully initialised?
    */
   int InitSDL();
 
-  /// Shuts down SDL.
+  /// @brief Shuts down SDL.
   void CleanUpSDL();
 }
 

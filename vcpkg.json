@@ -1,0 +1,24 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg/master/scripts/vcpkg.schema.json",
+  "name": "termengine",
+  "description": "",
+  "version": "0.6.0",
+  "builtin-baseline": "e85b5bb95a14ff7e014601e88a8dc2fea6798e33",
+  "dependencies": [
+    "cxxopts",
+    {
+      "name": "fmt",
+      "version>=": "8.0.1"
+    },
+    "freetype",
+    "glew",
+    "glm",
+    "lua",
+    "sdl2",
+    "sol2",
+    "spdlog"
+  ],
+  "overrides": [
+    { "name": "fmt", "version": "8.1.1", "port-version": 2 }
+  ]
+}

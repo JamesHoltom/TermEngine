@@ -7,22 +7,24 @@
 #include <SDL2/SDL.h>
 
 namespace term_engine::debug {
-  /// Logs any keyboard-related events in an _SDL_Event_ object.
   /**
+   * @brief Logs any keyboard-related events in an _SDL_Event_ object.
+   * 
    * @param[in] event The _SDL_Event_ object to check for keyboard-related events.
    */
-  void LogKeyboardEvents(SDL_Event& event);
+  void LogKeyboardEvents(const SDL_Event& event);
 
-  /// Logs any window-related events in an _SDL_Event_ object.
   /**
+   * @brief Logs any window-related events in an _SDL_Event_ object.
+   * 
    * @param[in] event The _SDL_Event_ object to check for window-related events.
    */
-  void LogWindowEvents(SDL_Event& event);
+  void LogWindowEvents(const SDL_Event& event);
 
-  /// Logs information about the currently bound VAO, such as what vertex attributes are bound, etc.
+  /// @brief Logs information about the currently bound VAO, such as what vertex attributes are bound, etc.
   void LogVAOData();
 
-  /// Logs information about the currently bound VBO.
+  /// @brief Logs information about the currently bound VBO.
   void LogVBOData();
 }
 

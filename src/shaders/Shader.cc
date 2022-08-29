@@ -25,14 +25,16 @@ namespace term_engine::shaders {
 
     PrintStageLog(shader_id);
 
-    if (shader_compiled == GL_TRUE) {
+    if (shader_compiled == GL_TRUE)
+    {
       glAttachShader(program_id, shader_id);
 
       logging::logger->debug("Generated GLSL shader for ID {}.", shader_id);
 
       return shader_id;
     }
-    else {
+    else
+    {
       logging::logger->error("Failed to compile GLSL shader for ID {}.", shader_id);
 
       return GL_FALSE;
@@ -55,12 +57,14 @@ namespace term_engine::shaders {
 
     PrintProgramLog(program_id);
 
-    if (program_linked == GL_TRUE) {
+    if (program_linked == GL_TRUE)
+    {
       logging::logger->debug("Generated GLSL shader program {}.", program_id);
 
       return GL_TRUE;
     }
-    else {
+    else
+    {
       logging::logger->error("Failed to link GLSL shader program {}.", program_id);
 
       return GL_FALSE;
@@ -69,7 +73,8 @@ namespace term_engine::shaders {
 
   void PrintProgramLog(const GLuint& program_id)
   {
-    if (glIsProgram(program_id)) {
+    if (glIsProgram(program_id))
+    {
       int log_length;
       int max_log_length;
 
@@ -79,23 +84,27 @@ namespace term_engine::shaders {
 
       glGetProgramInfoLog(program_id, max_log_length, &log_length, info_log);
 
-      if (log_length > 0) {
+      if (log_length > 0)
+      {
         logging::logger->debug("Program build results:\nID: {}\nMessage: {}", program_id, info_log);
       }
-      else {
+      else
+      {
         logging::logger->debug("Program build results:\nID: {}\nNo message to display.", program_id);
       }
 
       delete[] info_log;
     }
-    else {
+    else
+    {
       logging::logger->warn("Program with an ID of {} has not been built.", program_id);
     }
   }
 
   void PrintStageLog(const GLuint& shader_id)
   {
-    if (glIsShader(shader_id)) {
+    if (glIsShader(shader_id))
+    {
       int log_length;
       int max_log_length;
 
@@ -105,16 +114,19 @@ namespace term_engine::shaders {
 
       glGetShaderInfoLog(shader_id, max_log_length, &log_length, info_log);
 
-      if (log_length > 0) {
+      if (log_length > 0)
+      {
         logging::logger->debug("Shader build results:\nID: {}\nMessage: {}", shader_id, info_log);
       }
-      else {
+      else
+      {
         logging::logger->debug("Shader build results:\nID: {}\nNo message to display.", shader_id);
       }
 
       delete[] info_log;
     }
-    else {
+    else
+    {
       logging::logger->warn("Shader with an ID of {} has not been built.", shader_id);
     }
   }

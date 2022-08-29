@@ -4,12 +4,14 @@
 #define EVENT_BINDINGS_H
 
 #include "../../events/InputManager.h"
+#include "../../events/Listener.h"
 #include "../../logging/Logger.h"
 #include "../../utility/SolUtils.h"
 
 namespace term_engine::scripting::bindings {
-  /// Binds the input and event-related script functions to the Lua state.
   /**
+   * @brief Binds the input and event-related script functions to the Lua state.
+   * 
    * @param[in] state The lua state to bind to.
    */
   void BindEventToState(sol::state& state)
@@ -29,6 +31,21 @@ namespace term_engine::scripting::bindings {
       "isPressed", &events::KeyIsPressed,
       "isReleased", &events::KeyIsReleased);
 
+    state.new_usertype<events::EventListener>(
+      "EventListener",
+      sol::meta_function::construct, sol::factories(&events::EventListener::AddEventListener),
+      sol::call_constructor, sol::factories(&events::EventListener::AddEventListener),
+      sol::meta_function::garbage_collect, sol::destructor(&events::EventListener::RemoveEventListener),
+      "active", sol::property(&events::EventListener::IsActive, &events::EventListener::SetActive),
+      "type", sol::property(&events::EventListener::GetType),
+      "trigger", &events::EventListener::Trigger,
+      "release", &events::EventListener::RemoveEventListener);
+
+    state.create_named_table("event",
+      "countListeners", &events::EventListener::CountListeners,
+      "clearListeners", &events::EventListener::ClearEventListeners,
+      "getListenerTypes", &events::EventListener::GetListenerTypes);
+
     // Create bindings for the main game functions.
     state["Init"] = [&]() -> bool {
       logging::logger->info("TermEngine has initialised!");
@@ -41,15 +58,6 @@ namespace term_engine::scripting::bindings {
 
       return true;
     };
-
-    state["OnMouseMove"] = [&](const glm::ivec2& delta) -> void {};
-    state["OnMouseDown"] = [&](const int& button) -> void {};
-    state["OnMousePress"] = [&](const int& button) -> void {};
-    state["OnMouseRelease"] = [&](const int& button) -> void {};
-
-    state["OnKeyDown"] = [&](const std::string& key) -> void {};
-    state["OnKeyPress"] = [&](const std::string& key) -> void {};
-    state["OnKeyRelease"] = [&](const std::string& key) -> void {};
   }
 }
 

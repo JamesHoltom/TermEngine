@@ -1,7 +1,4 @@
 function Init()
-  view.setSize(ivec2(14, 8))
-  window.fitToView()
-
   local aText = TextObject(Values.VEC2_ONE, ivec2(12, 1))
 	aText.setText("Hello World!")
 

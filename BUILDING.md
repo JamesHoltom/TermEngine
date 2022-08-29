@@ -1,21 +1,21 @@
 ## Prerequisites
 
-TermEngine requires the following libraries to build:
+TermEngine requires at least the following libraries to build:
 
-* SDL2
+* SDL2 2.0.22
 * OpenGL 4.4
-* OpenGL Extension Wrangler (GLEW)
-* OpenGL Mathematics (GLM)
-* FreeType, which is dependent on:
+* OpenGL Extension Wrangler (GLEW) 2.2.0
+* OpenGL Mathematics (GLM) 0.9.9
+* FreeType 2.12.1, which is dependent on:
 	* Brotli
 	* bzip2
 	* libpng
 	* zlib
-* sol2
-	* Lua 5.3
-* spdlog, which is dependent on:
+* sol2 3.3.0
+* Lua 5.3
+* spdlog 1.10, which is dependent on:
 	* fmt
-* cxxopts
+* cxxopts 3.0.0
 
 The instructions below assume you have installed these libraries through vcpkg.
 

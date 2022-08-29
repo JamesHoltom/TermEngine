@@ -17,8 +17,9 @@
 #endif
 
 namespace GL {
-  /// Allows OpenGL to log any errors that occur.
   /**
+   * @brief Allows OpenGL to log any errors that occur.
+   * 
    * @param[in] source     In which part of OpenGL did the error occur.
    * @param[in] type       The type of error that has occured.
    * @param[in] id         The ID of the error.
@@ -29,15 +30,16 @@ namespace GL {
    */
   void GLAPIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const char* message, const void* user_param);
 
-  /// Prepares OpenGL for use. Do not call this function! Use `Init()` instead.
   /**
+   * @brief Prepares OpenGL for use. Do not call this function! Use `Init()` instead.
+   * 
    * @returns Was OpenGL successfully initialised?
    */
   int InitGL();
 
-  /// Initialises GLEW. Do not call this function! Use `Init()` instead.
   /**
-   * GLEW needs to be called *after* the window has been initialised.
+   * @brief Initialises GLEW. Do not call this function! Use `Init()` instead.
+   * @details GLEW needs to be called *after* the window has been initialised.
    *
    * @returns Was GLEW successfully initialised?
    */

@@ -48,10 +48,12 @@ namespace term_engine::fonts {
     {
       return EMPTY_GLYPH;
     }
-    else if (found_char == font_atlas.end()) {
+    else if (found_char == font_atlas.end())
+    {
       return _LoadChar(character);
     }
-    else {
+    else
+    {
       return found_char->second;
     }
   }
@@ -123,7 +125,8 @@ namespace term_engine::fonts {
   {
     const std::filesystem::path fullFontPath = system::SearchForResourcePath(filename);
 
-    if (!std::filesystem::exists(fullFontPath)) {
+    if (!std::filesystem::exists(fullFontPath))
+    {
       logging::logger->warn("Attempting to set font to one that doesn't exist: {}", fullFontPath);
 
       return false;
@@ -131,11 +134,13 @@ namespace term_engine::fonts {
 
     if (fullFontPath != font_path) 
     {
-      if (font_path != "") {
+      if (font_path != "")
+      {
         _RemoveFont();
       }
 
-      if (FT::Log(FT_New_Face(FT::font_library, fullFontPath.c_str(), 0, &font_face)) != FT_Err_Ok) {
+      if (FT::Log(FT_New_Face(FT::font_library, fullFontPath.c_str(), 0, &font_face)) != FT_Err_Ok)
+      {
         logging::logger->error("Failed to create font face.");
 
         return false;
@@ -144,7 +149,8 @@ namespace term_engine::fonts {
 
     _ClearCache();
 
-    if (FT::Log(FT_Set_Pixel_Sizes(font_face, 0, size)) != FT_Err_Ok) {
+    if (FT::Log(FT_Set_Pixel_Sizes(font_face, 0, size)) != FT_Err_Ok)
+    {
       logging::logger->error("Failed to set font size.");
 
       return false;
@@ -155,7 +161,8 @@ namespace term_engine::fonts {
 
     ResetGlyphSize(isSquare);
 
-    for (auto& glyph : font_atlas) {
+    for (auto& glyph : font_atlas)
+    {
       _CreateCharTexture(glyph.first);
     }
 

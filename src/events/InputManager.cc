@@ -77,10 +77,12 @@ namespace term_engine::events {
 
   bool ScancodeIsDown(const SDL_Scancode& code)
   {
-    if (code != SDL_SCANCODE_UNKNOWN) {
+    if (code != SDL_SCANCODE_UNKNOWN)
+    {
       return current_key_state[code];
     }
-    else {
+    else
+    {
       logging::logger->warn("Unknown scancode '{}' passed to ScancodeIsDown.", code);
 
       return false;
@@ -96,10 +98,12 @@ namespace term_engine::events {
 
   bool ScancodeIsPressed(const SDL_Scancode& code)
   {
-    if (code != SDL_SCANCODE_UNKNOWN) {
+    if (code != SDL_SCANCODE_UNKNOWN)
+    {
       return current_key_state[code] && !previous_key_state[code];
     }
-    else {
+    else
+    {
       logging::logger->warn("Unknown scancode '{}' passed to ScancodeIsPressed.", code);
 
       return false;
@@ -115,10 +119,12 @@ namespace term_engine::events {
 
   bool ScancodeIsReleased(const SDL_Scancode& code)
   {
-    if (code != SDL_SCANCODE_UNKNOWN) {
+    if (code != SDL_SCANCODE_UNKNOWN)
+    {
       return !current_key_state[code] && previous_key_state[code];
     }
-    else {
+    else
+    {
       logging::logger->warn("Unknown scancode '{}' passed to ScancodeIsReleased.", code);
 
       return false;

@@ -49,7 +49,8 @@ namespace term_engine::scripting {
 
     std::filesystem::path project_file = system::SearchForProjectPath(system::scriptPath / PROJECT_ENTRYPOINT);
 
-    if (project_file != "") {
+    if (project_file != "")
+    {
       // Add the project to the Lua path, so that projects can "require()" files relative to the project folder.
       const std::string projectDirectory = project_file.parent_path();
 
@@ -68,7 +69,8 @@ namespace term_engine::scripting {
       logging::logger->info("Loading project...");
       Load(project_file.string());
     }
-    else {
+    else
+    {
       logging::logger->info("No project to load!");
       Load(rootDirectory + "/" + DEFAULT_SCRIPT_PATH);
     }
@@ -87,11 +89,13 @@ namespace term_engine::scripting {
     try {
       sol::protected_function_result result = lua_state->script_file(filename);
 
-      if (result.valid()) {
+      if (result.valid())
+      {
         lua_file = filename;
         logging::logger->debug("Loaded Lua script {}.", filename);
       }
-      else {
+      else
+      {
         sol::error err = result;
         logging::logger->error("Failed to load Lua script {}\nError: {}. ", filename, err.what());
       }
@@ -108,10 +112,12 @@ namespace term_engine::scripting {
     try {
       sol::protected_function_result result = (*lua_state)["Init"]();
 
-      if (result.valid()) {
+      if (result.valid())
+      {
         return_value = (bool)result;
       }
-      else {
+      else
+      {
         sol::error err = result;
         logging::logger->error("Received Lua error on init: {}", err.what());
       }
@@ -128,7 +134,8 @@ namespace term_engine::scripting {
     try {
       sol::protected_function_result result = (*lua_state)["Loop"](timestep);
 
-      if (!result.valid()) {
+      if (!result.valid())
+      {
         sol::error err = result;
         logging::logger->error("Received Lua error on loop: {}", err.what());
       }
@@ -145,10 +152,12 @@ namespace term_engine::scripting {
     try {
       sol::protected_function_result result = (*lua_state)["Quit"]();
 
-      if (result.valid()) {
+      if (result.valid())
+      {
         return_value = (bool)result;
       }
-      else {
+      else
+      {
         sol::error err = result;
         logging::logger->error("Received Lua error on quit: {}", err.what());
       }

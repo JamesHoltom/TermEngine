@@ -143,9 +143,6 @@
     <ClInclude Include="src\system\Window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\utility\GenericUtils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\objects\Object.h">
       <Filter>Header Files</Filter>
     </ClInclude>

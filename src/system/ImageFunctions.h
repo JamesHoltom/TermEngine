@@ -9,31 +9,39 @@
 #include "../utility/SDLUtils.h"
 
 namespace term_engine::system {
-  /// Represents an image that has been loaded and bound to a texture in OpenGL.
+  /// @brief Represents an image that has been loaded and bound to a texture in OpenGL.
   struct ImageData {
-    /// The OpenGL texture ID for the image.
+    /// @brief The OpenGL texture ID for the image.
     GLuint texture_id_;
-    /// The path to the image file.
+    /// @brief The path to the image file.
     std::string filename_;
-    /// The size of the image.
+    /// @brief The size of the image.
     glm::ivec2 size_;
 
-    /// Creates an empty set of image data.
+    /// @brief Creates an empty set of image data.
     ImageData() : texture_id_(0), filename_(""), size_(glm::ivec2(0)) {}
 
-    /// Creates the image data with the given parameters.
+    /**
+     * @brief Creates the image data with the given parameters.
+     * 
+     * @param[in] texture_id  The texture ID of the image.
+     * @param[in] filename    The filepath to the image.
+     * @param[in] size        The size of the image, in pixels (px).
+     */
     ImageData(const GLuint& texture_id, const std::string& filename, const glm::ivec2& size) : texture_id_(texture_id), filename_(filename), size_(size) {}
   };
 
-  /// Loads an image to be used as an OpenGL texture.
   /**
+   * @brief Loads an image to be used as an OpenGL texture.
+   * 
    * @param[in] filename The path to the image to load.
    * @returns The loaded image data.
    */
   ImageData CreateImage(const std::string& filename);
 
-  /// Deletes the image texture.
   /**
+   * @brief Deletes the image texture.
+   * 
    * @param[in] image The image data to remove.
    */
   void DeleteImage(const ImageData& image);

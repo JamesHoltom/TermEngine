@@ -7,16 +7,17 @@
 
 namespace term_engine::system {
   /**
-   * The command-line arguments are laid out as follows:
+   * @details The command-line arguments are laid out as follows:
    * 
    * TermEngine.exe [scriptPath]
    */
 
-  /// The path to the script to execute from the command line.
+  /// @brief The path to the script to execute from the command line.
   extern std::filesystem::path scriptPath;
 
-  /// Gets the command-line arguments passed to the program.
   /**
+   * @brief Gets the command-line arguments passed to the program.
+   * 
    * @param[in] argc The number of arguments passed.
    * @param[in] argv The text content of the arguments.
    */

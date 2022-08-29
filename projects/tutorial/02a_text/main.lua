@@ -1,6 +1,4 @@
 function Init()
-  view.setSize(ivec2(32, 8))
-  window.fitToView()
   font.tabSize = 4
 
   local text = TextObject(Values.VEC2_ONE, ivec2(30, 6))

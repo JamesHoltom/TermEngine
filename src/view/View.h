@@ -7,73 +7,78 @@
 #include "../utility/GLUtils.h"
 
 namespace term_engine::views {
-  /// The default number of rows/columns in the view.
+  /// @brief The default number of rows/columns in the view.
   constexpr glm::uvec2 DEFAULT_DIMENSIONS = glm::uvec2(32, 16);
 
-  /// The ID of the glyph shader program.
+  /// @brief The ID of the glyph shader program.
   extern GLuint program_id;
-  /// The ID of the VAO used to contain the VBO.
+  /// @brief The ID of the VAO used to contain the VBO.
   extern GLuint vao_id;
-  /// The ID of the VBO used to store the buffer-related data.
+  /// @brief The ID of the VBO used to store the buffer-related data.
   extern GLuint vbo_id;
-  /// The position of the view.
+  /// @brief The position of the view.
   extern glm::vec2 view_position;
-  /// The size of the view, in rows/columns.
+  /// @brief The size of the view, in rows/columns.
   extern glm::ivec2 view_size;
-  /// The buffer of view data to render to the window.
+  /// @brief The buffer of view data to render to the window.
   extern objects::BufferList data;
 
-  /// Creates the default view.
+  /// @brief Creates the default view.
   void Init();
 
-  /// Destroys all views in the list.
+  /// @brief Destroys all views in the list.
   void CleanUp();
 
-  /// Renders the list of views to the window.
+  /// @brief Renders the list of views to the window.
   void Render();
 
-  /// Gets the position of the view on the window.
   /**
+   * @brief Gets the position of the view on the window.
+   * 
    * @returns The position of the view.
    */
   glm::vec2 GetPosition();
 
-  /// Sets the position of the view on the window.
   /**
+   * @brief Sets the position of the view on the window.
+   * 
    * @param[in] position The position to move the view to.
    */
   void SetPosition(const glm::vec2& position);
 
-  /// Gets the size of the view.
   /**
+   * @brief Gets the size of the view.
+   * 
    * @returns The size of the view.
    */
   glm::ivec2 GetSize();
 
-  /// Sets the size of the view, in rows/columns.
   /**
+   * @brief Sets the size of the view, in rows/columns.
+   * 
    * @param[in] size The new size of the view.
    */
   void SetSize(const glm::ivec2& size);
 
-  /// Pushes vertex/texture data for the glyph at the given index to the buffer.
   /**
+   * @brief Pushes vertex/texture data for the glyph at the given index to the buffer.
+   * 
    * @param[in] index The index of the glyph to push.
    * @param[in] position The position to render the glyph to.
    * @param[in] params The glyph parameters.
    */
   void PushGlyphToBuffer(const size_t& index, const glm::ivec2& position, const objects::GlyphParams& params);
 
-  /// Sets up the OpenGL buffers.
+  /// @brief Sets up the OpenGL buffers.
   void CreateBuffers();
 
-  /// Sets up the glyph shader.
+  /// @brief Sets up the glyph shader.
   void CreateShader();
 
-  /// Destroys the OpenGL buffers.
+  /// @brief Destroys the OpenGL buffers.
   void CleanUpBuffers();
 
-  /// Destroys the glyph shader.
+  /// @brief Destroys the glyph shader.
   void CleanUpShader();
 }
 

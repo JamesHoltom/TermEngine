@@ -8,13 +8,13 @@
 #include <spdlog/fmt/ostr.h>
 
 namespace term_engine::logging {
-  /// Smart pointer to share a single instance of a `Logger`.
+  /// @brief Smart pointer to share a single instance of a `Logger`.
   typedef std::shared_ptr<spdlog::logger> LoggerPtr;
 
-  /// The instance of the logger.
+  /// @brief The instance of the logger.
   extern LoggerPtr logger;
 
-  /// Initialises the logger instance with file and console logging.
+  /// @brief Initialises the logger instance with file and console logging.
   void InitLogger();
 }
 
