@@ -1,3 +1,9 @@
+## Download
+
+You can clone TermEngine by running:
+
+`git clone https://github.com/JamesHoltom/TermEngine.git`
+
 ## Prerequisites
 
 TermEngine requires at least the following libraries to build:
@@ -6,15 +12,10 @@ TermEngine requires at least the following libraries to build:
 * OpenGL 4.4
 * OpenGL Extension Wrangler (GLEW) 2.2.0
 * OpenGL Mathematics (GLM) 0.9.9
-* FreeType 2.12.1, which is dependent on:
-	* Brotli
-	* bzip2
-	* libpng
-	* zlib
+* FreeType 2.12.1
 * sol2 3.3.0
 * Lua 5.3
-* spdlog 1.10, which is dependent on:
-	* fmt
+* spdlog 1.10
 * cxxopts 3.0.0
 
 The instructions below assume you have installed these libraries through vcpkg.

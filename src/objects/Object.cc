@@ -62,6 +62,18 @@ namespace term_engine::objects {
   void Object::SetActive(const bool& flag)
   {
     is_active_ = flag;
+
+    Object::is_dirty_ = true;
+  }
+
+  void Object::Set(const sol::function& func)
+  {
+    for (int index = 0; index < data_.size(); index++)
+    {
+      func(data_.at(index), index);
+    }
+
+    Object::is_dirty_ = true;
   }
 
   ObjectPtr& Object::Add(const glm::vec2& position, const glm::ivec2& size)

@@ -76,8 +76,8 @@ namespace term_engine::system {
 #endif
       rootPath,
       rootPath / "resources",
-      rootPath / "projects" / scriptPath,
-      rootPath / "projects" / scriptPath / "resources"
+      scriptPath,
+      scriptPath / "resources"
     };
 
     for (const std::filesystem::path& location : locations)

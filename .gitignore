@@ -339,10 +339,9 @@ ASALocalRun/
 healthchecksdb
 
 # Custom exclusions
-/docs/html
-/logs
-/resources/fonts/*
-/resources/images/*
+docs/html
+logs
 NOTICE
 build
-Makefile
+TermEngine
+zip_release.sh

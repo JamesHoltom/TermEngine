@@ -47,9 +47,9 @@ function MenuOption(_title, _callback)
 	}
 end
 
-function MenuObject()
+function MenuObject(_position)
 	local self = {
-		obj = Object(vec2(), ivec2(1)),
+		obj = Object(_position, ivec2(1)),
 		events = {},
 		options = {},
 		option_size = ivec2(0, 1),
@@ -78,18 +78,15 @@ function MenuObject()
 		objects.dirty(true)
 	end
 	
-	local _addOption = function(_index, _object)
+	local _addOption = function(_index, _params)
 		if _index >= 1 and _index <= #self.options + 1 then
-			table.insert(self.options, _index, MenuOption(_object.title, _object.callback))
+			table.insert(self.options, _index, MenuOption(_params.title, _params.callback))
 
-			self.option_size.x = math.max(#_object.title, self.option_size.x)
+			self.option_size.x = math.max(#_params.title, self.option_size.x)
 
-			print(self.options[_index].getTitle())
-			print(self.option_size)
-			
 			_refreshOptions()
 		else
-			print("Cannot add option '" .. _object.getTitle() .. "' to index '" .. _index .. "'.")
+			print("Cannot add option '" .. _params.title .. "' to index '" .. _index .. "'.")
 		end
 	end
 	
@@ -116,14 +113,9 @@ function MenuObject()
 		
 		_refreshOptions()
 	end
-	
-	local _setActive = function(_value)
-		self.obj.active = _value
-	end
-	
-	local _doKeyInput = function(key)
-		if self.obj.active then
-			if key == "Up" then
+
+	local _doKeyInput = function(_key)
+			if _key == "Up" then
 				if self.active_option == 1 then
 					self.active_option = #self.options
 				else
@@ -133,7 +125,7 @@ function MenuObject()
 				_refreshOptions()
 			end
 			
-			if key == "Down" then
+			if _key == "Down" then
 				if self.active_option == #self.options then
 					self.active_option = 1
 				else
@@ -143,13 +135,23 @@ function MenuObject()
 				_refreshOptions()
 			end
 			
-			if key == "Space" then
+			if _key == "Space" then
 				self.options[self.active_option].fire()
 			end
-		end
 	end
 
-	local _release = function()
+	local _isActive = function()
+		return self.obj.active
+	end
+
+	local _setActive = function(_flag)
+		self.obj.active = _flag
+		self.events.keydown.active = _flag
+	end
+
+	local _release = function(_)
+		self.obj:release()
+
 		for k, v in pairs(self.events) do
 			v:release()
 		end
@@ -165,6 +167,7 @@ function MenuObject()
 		getActiveOption = _getActiveOption,
 		getOptionSize = _getOptionSize,
 		setOptionSize = _setOptionSize,
+		isActive = _isActive,
 		setActive = _setActive,
 		release = _release
 	}

@@ -9,6 +9,7 @@
 #include <vector>
 #include <glm/glm.hpp>
 #include "Glyph.h"
+#include "../utility/SolUtils.h"
 
 namespace term_engine::objects {
   class Object;
@@ -80,6 +81,13 @@ namespace term_engine::objects {
      * @param[in] flag The value to set.
      */
     void SetActive(const bool& flag);
+
+    /**
+     * @brief Applies the results of a user-defined function on the object data.
+     * 
+     * @param func The user-defined function to apply to the object data.
+     */
+    void Set(const sol::function& func);
 
     /**
      * @brief Returns if 2 objects share the same ID.

@@ -77,6 +77,18 @@ function BoxObject(_position, _size)
 		
 		_setData()
 	end
+
+	local _isActive = function()
+		return self.obj.active
+	end
+
+	local _setActive = function(_flag)
+		self.obj.active = _flag
+	end
+
+	local _release = function(_)
+		self.obj:release()
+	end
 	
 	return {
 		getPosition = getPosition,
@@ -88,7 +100,10 @@ function BoxObject(_position, _size)
 		hasOutline = hasOutline,
 		getOutline = getOutline,
 		setOutline = setOutline,
-		unsetOutline = unsetOutline
+		unsetOutline = unsetOutline,
+		isActive = _isActive,
+		setActive = _setActive,
+		release = _release
 	}
 end
 
@@ -185,6 +200,18 @@ function TextObject(_position, _size)
 		_setData()
 	end
 
+	local _isActive = function()
+		return self.obj.active
+	end
+
+	local _setActive = function(_flag)
+		self.obj.active = _flag
+	end
+
+	local _release = function(_)
+		self.obj:release()
+	end
+	
 	return {
 		getPosition = getPosition,
 		setPosition = setPosition,
@@ -194,6 +221,9 @@ function TextObject(_position, _size)
 		setText = setText,
 		fitText = fitText,
 		getColours = getColours,
-		setColours = setColours
+		setColours = setColours,
+		isActive = _isActive,
+		setActive = _setActive,
+		release = _release
 	}
 end

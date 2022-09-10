@@ -24,6 +24,7 @@ namespace term_engine::scripting::bindings {
       "position", sol::property(&objects::Object::GetPosition, &objects::Object::SetPosition),
       "size", sol::property(&objects::Object::GetSize, &objects::Object::SetSize),
       "data", sol::property(&objects::Object::GetData),
+      "set", &objects::Object::Set,
       "active", sol::property(&objects::Object::IsActive, &objects::Object::SetActive),
       "release", &objects::Object::Remove);
 

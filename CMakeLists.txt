@@ -5,6 +5,7 @@ project("TermEngine" VERSION 0.6.0 LANGUAGES CXX C)
 #include(CTest)
 #enable_testing()
 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "../")
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 set(CMAKE_EXE_LINKER_FLAGS, "-lpthread -lm -ldl")

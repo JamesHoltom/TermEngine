@@ -20,12 +20,6 @@ end
 
 Additional examples can be found in __projects/example__.
 
-## Download
-
-Clone a copy of the repository here:
-
-`git clone https://github.com/JamesHoltom/TermEngine.git`
-
 ## Building
 
 TermEngine can currently be been built on Windows and Linux.
