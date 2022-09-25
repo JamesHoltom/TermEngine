@@ -16,3 +16,9 @@ function Loop(timestep)
 
   timingText.setColours(Colours.WHITE, vec3((math.sin(timingValue) * 127) + 128, 0.0, 0.0))
 end
+
+function Quit()
+  timingText:release()
+  
+  return true
+end

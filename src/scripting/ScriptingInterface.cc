@@ -4,8 +4,8 @@
 #include "bindings/EventBindings.h"
 #include "bindings/FileBindings.h"
 #include "bindings/ObjectBindings.h"
-#include "bindings/ProjectBindings.h"
 #include "bindings/ResourceBindings.h"
+#include "bindings/TimingBindings.h"
 #include "bindings/UtilityBindings.h"
 #include "bindings/ViewBindings.h"
 #include "../logging/Logger.h"
@@ -27,8 +27,8 @@ namespace term_engine::scripting {
     bindings::BindEventToState(*lua_state);
     bindings::BindFileToState(*lua_state);
     bindings::BindObjectToState(*lua_state);
-    bindings::BindProjectToState(*lua_state);
     bindings::BindResourcesToState(*lua_state);
+    bindings::BindTimingToState(*lua_state);
     bindings::BindUtilitiesToState(*lua_state);
     bindings::BindViewToState(*lua_state);
   }
@@ -52,11 +52,11 @@ namespace term_engine::scripting {
     if (project_file != "")
     {
       // Add the project to the Lua path, so that projects can "require()" files relative to the project folder.
-      const std::string projectDirectory = project_file.parent_path();
+      system::project_path = project_file.parent_path();
 
-      packagePath += ";" +
-                     projectDirectory + "/?.lua;" +
-                     projectDirectory + "/?/init.lua";
+      packagePath += std::string(";") +
+                     system::project_path.string() + "/?.lua;" +
+                     system::project_path.string() + "/?/init.lua";
     }
 
     (*lua_state)["package"]["path"] = packagePath;

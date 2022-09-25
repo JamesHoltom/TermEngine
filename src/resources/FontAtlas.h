@@ -31,8 +31,6 @@ namespace term_engine::fonts {
 #endif
   /// @brief The default font size to use when running the engine.
   constexpr int DEFAULT_FONT_SIZE = 32;
-  /// @brief Should the default font be square (i.e. the width/height are equal)?
-  constexpr bool IS_FONT_SQUARE = true;
   /// @brief The size of the texture to store font characters in.
   constexpr GLsizei TEXTURE_SIZE = 1024;
   /// @brief Defines an empty glyph that is returned when one fails to load, or a zero-character (i.e. '\0') is loaded.
@@ -103,23 +101,15 @@ namespace term_engine::fonts {
    * 
    * @param[in] filename The path to the font file to load.
    * @param[in] size     The size, in pixels (px), to render the characters at.
-   * @param[in] isSquare Should the glyph size be square (i.e. the width and height are equal)?
    * @returns If the font was successfully loaded.
    */
-  bool SetFont(const std::string& filename, const FT_Int& size, const bool& isSquare);
+  bool SetFont(const std::string& filename, const FT_Int& size);
 
   /// @brief Unloads the font currently in use. This is used before loading a new one.
   void _RemoveFont();
 
   /// @brief Clears the font atlas texture.
   void _ClearCache();
-
-  /**
-   * @brief Resets the glyph size, according to the current font.
-   * 
-   * @param[in] isSquare Should the glyph size be square (i.e. the width and height are equal)?
-   */
-  void ResetGlyphSize(const bool& isSquare);
 
   /**
    * @brief Gets the path to the font currently in use.
@@ -155,6 +145,18 @@ namespace term_engine::fonts {
    * @returns The glyph size.
    */
   glm::ivec2 GetGlyphSize();
+
+  /**
+   * @brief Sets the size of a glyph, in pixels (px).
+   * 
+   * @param glyphSize 
+   */
+  void SetGlyphSize(const glm::ivec2& glyphSize);
+
+  /**
+   * @brief Resets the glyph size, according to the current font.
+   */
+  void ResetGlyphSize();
 }
 
 #endif // ! FONT_ATLAS_H

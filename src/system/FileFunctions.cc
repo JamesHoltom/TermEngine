@@ -8,10 +8,11 @@
 #include <windows.h>
 #endif
 #include "FileFunctions.h"
-#include "CLArguments.h"
 #include "../logging/Logger.h"
 
 namespace term_engine::system {
+  std::filesystem::path project_path;
+
   std::filesystem::path GetRootPath()
   {
 #ifdef linux
@@ -49,11 +50,11 @@ namespace term_engine::system {
     {
       const std::filesystem::path fullPath = location / filename;
 
-      logging::logger->debug("Testing location {}...", fullPath);
+      logging::logger->info("Testing location {}...", fullPath);
 
       if (std::filesystem::exists(fullPath))
       {
-        logging::logger->debug("Found project path at {}.", fullPath);
+        logging::logger->info("Found project path at {}.", fullPath);
 
         return fullPath;
       }
@@ -76,17 +77,20 @@ namespace term_engine::system {
 #endif
       rootPath,
       rootPath / "resources",
-      scriptPath,
-      scriptPath / "resources"
+      // TODO: Make the project path available here. Perhaps finish project-related code and make it available there?
+      project_path,
+      project_path / "resources"
     };
 
     for (const std::filesystem::path& location : locations)
     {
       const std::filesystem::path fullPath = location / filename;
 
+      logging::logger->info("Testing resource path at {}.", fullPath);
+
       if (std::filesystem::exists(fullPath))
       {
-        logging::logger->debug("Found resource path at {}.", fullPath);
+        logging::logger->info("Found resource path at {}.", fullPath);
 
         return fullPath;
       }
@@ -137,7 +141,7 @@ namespace term_engine::system {
       return;
     }
 
-    std::filesystem::path filepath = GetRootPath() / "projects" / scriptPath / filename;
+    std::filesystem::path filepath = project_path / filename;
     std::ofstream file_stream;
     std::ios_base::openmode mode = append ? std::ios::app : std::ios::trunc;
 
@@ -162,7 +166,7 @@ namespace term_engine::system {
   FileList GetFileList(const std::string& directory)
   {
     FileList file_list;
-    std::filesystem::path dirpath = system::scriptPath / directory;
+    std::filesystem::path dirpath = project_path / directory;
 
     for (std::filesystem::directory_entry file : std::filesystem::directory_iterator(dirpath)) {
       if (!file.is_directory()) {
@@ -176,7 +180,7 @@ namespace term_engine::system {
   FileList GetFolderList(const std::string& directory)
   {
     FileList folder_list;
-    std::filesystem::path dirpath = system::scriptPath / directory;
+    std::filesystem::path dirpath = project_path / directory;
 
     for (std::filesystem::directory_entry file : std::filesystem::directory_iterator(dirpath)) {
       if (file.is_directory()) {

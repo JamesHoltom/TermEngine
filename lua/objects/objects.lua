@@ -1,14 +1,24 @@
+--[[
+-- @author James Holtom
+--]]
+
 empty_glyph = Glyph(glyphs.NO_CHARACTER, glyphs.DEFAULT_FOREGROUND_COLOUR, glyphs.DEFAULT_BACKGROUND_COLOUR)
 space_glyph = Glyph(' ', glyphs.DEFAULT_FOREGROUND_COLOUR, glyphs.DEFAULT_BACKGROUND_COLOUR)
 
+--[[
+-- @brief Extends the Object usertype to make drawing boxes simpler.
+-- @param _position The position of the box.
+-- @param _size The size of the box.
+--]]
 function BoxObject(_position, _size)
 	local self = {
-		obj = Object(_position, _size),
-		fill = empty_glyph,
-		outline = empty_glyph,
-		has_outline = false
+		obj = Object(_position, _size),	-- @brief
+		fill = empty_glyph,							-- @brief
+		outline = empty_glyph,					-- @brief
+		has_outline = false							-- @brief
 	}
 	
+	-- @brief Refreshes the object data with the updated settings.
 	local _setData = function()
 		local w = self.obj.size.x
 		
@@ -20,102 +30,101 @@ function BoxObject(_position, _size)
 			end
 		end
 		
-		objects.dirty(true)
+		objects.dirty()
 	end
 	
-	local getPosition = function()
-		return self.obj.position
-	end
-	
-	local setPosition = function(_position)
-		self.obj.position = _position
-	end
-	
-	local getSize = function()
-		return self.obj.size
-	end
-	
-	local setSize = function(_size)
-		self.obj.size = _size
-		
-		_setData()
-	end
-	
-	local getFill = function()
-		return self.fill
-	end
-	
-	local setFill = function(_glyph)
-		self.fill = _glyph
-		
-		_setData()
-	end
-	
-	local hasOutline = function()
+	--[[
+	-- @brief Does the box have an outline?
+	-- @returns If the box have an outline.
+	--]]
+	local _hasOutline = function()
 		return self.has_outline
 	end
 	
-	local getOutline = function()
-		return self.outline
-	end
-	
-	local setOutline = function(_glyph)
-		self.outline = _glyph
-		
-		if _glyph.character == glyphs.NO_CHARACTER then
-			self.has_outline = false
-		else
-			self.has_outline = true
-		end
-		
-		_setData()
-	end
-	
-	local unsetOutline = function()
+	-- @brief Removes the outline from the box.
+	local _unsetOutline = function()
 		self.outline = empty_glyph
 		self.has_outline = false
 		
 		_setData()
 	end
 
-	local _isActive = function()
-		return self.obj.active
-	end
-
-	local _setActive = function(_flag)
-		self.obj.active = _flag
-	end
-
+	-- @brief Cleans up the object after use.
 	local _release = function(_)
 		self.obj:release()
 	end
+
+	--[[
+	-- @brief Configures the metatable for getting properties.
+	-- @param key The name of the property to retrieve.
+	-- @returns The value of the property.
+	--]]
+	local mtIndex = function(o, key)
+		if key == "position" or key == "size" or key == "active" then
+			return self.obj[key]
+		elseif key == "fill" or key == "outline" then
+			return self[key]
+		else
+			return nil
+		end
+	end
+
+	--[[
+	-- @brief Configures the metatable for setting properties.
+	-- @param key		The name of the property to set.
+	-- @param value The value to set the property to.
+	--]]
+	local mtNewIndex = function(o, key, value)
+		if key == "position" then
+			self.obj.position = vec2(value)
+		elseif key == "size" then
+			self.obj.size = ivec2(value)
+			_setData()
+		elseif key == "active" then
+			self.obj.active = value
+		elseif key == "fill" then
+			self[key] = Glyph(value)
+			
+			_setData()
+		elseif key == "outline" then
+			self[key] = Glyph(value)
+
+			if value.character == glyphs.NO_CHARACTER then
+				self.has_outline = false
+			else
+				self.has_outline = true
+			end
+			
+			_setData()
+		end
+	end
 	
-	return {
-		getPosition = getPosition,
-		setPosition = setPosition,
-		getSize = getSize,
-		setSize = setSize,
-		getFill = getFill,
-		setFill = setFill,
-		hasOutline = hasOutline,
-		getOutline = getOutline,
-		setOutline = setOutline,
-		unsetOutline = unsetOutline,
-		isActive = _isActive,
-		setActive = _setActive,
-		release = _release
-	}
+	return setmetatable({
+		hasOutline   = _hasOutline,
+		unsetOutline = _unsetOutline,
+		release      = _release
+	}, {
+		__index    = mtIndex,
+		__newindex = mtNewIndex
+	})
 end
 
-function TextObject(_position, _size)
+--[[
+-- @brief Extends the Object usertype to make writing text simpler.
+-- @param _position The position of the textbox.
+-- @param _size The size of the textbox.
+-- @param _text The text to write.
+--]]
+function TextObject(_position, _size, _text)
 	local self = {
 		obj = Object(_position, _size),
-		text = "",
+		text = tostring(_text or ""),
+		fit_text = false,
 		fg_colour = glyphs.DEFAULT_FOREGROUND_COLOUR,
-		bg_colour = glyphs.DEFAULT_BACKGROUND_COLOUR,
-		fit_text = false
+		bg_colour = glyphs.DEFAULT_BACKGROUND_COLOUR
 	}
-	
+
+	-- @brief Refreshes the object data with the updated settings.
 	local _setData = function()
 		local str_table = { string.byte(self.text, 1, #self.text) }
 		
@@ -152,78 +161,60 @@ function TextObject(_position, _size)
 			data_pos = data_pos + 1
 		end
 		
-		objects.dirty(true)
+		objects.dirty()
 	end
 	
-	local getPosition = function()
-		return self.obj.position
-	end
-	
-	local setPosition = function(_position)
-		self.obj.position = _position
-	end
-	
-	local getSize = function()
-		return self.obj.position
-	end
-	
-	local setSize = function(_size)
-		self.obj.size = _size
-		
-		_setData()
-	end
-	
-	local getText = function()
-		return self.text
-	end
-	
-	local setText = function(_text)
-		self.text = tostring(_text)
-		
-		_setData()
-	end
-	
-	local fitText = function(_fit_text)
-		self.fit_text = _fit_text
-
-		_setData()
-	end
-	
-	local getColours = function()
-		return self.fg_colour, self.bg_colour
-	end
-	
-	local setColours = function(_fg_colour, _bg_colour)
-		self.fg_colour = _fg_colour or self.fg_colour
-		self.bg_colour = _bg_colour or self.bg_colour
-
-		_setData()
-	end
-
-	local _isActive = function()
-		return self.obj.active
-	end
-
-	local _setActive = function(_flag)
-		self.obj.active = _flag
-	end
-
+	-- @brief Cleans up the object after use.
 	local _release = function(_)
 		self.obj:release()
 	end
+
+	--[[
+	-- @brief Configures the metatable for getting properties.
+	-- @param key The name of the property to retrieve.
+	-- @returns The value of the property.
+	--]]
+	local mtIndex = function(_, key)
+		if key == "position" or key == "size" or key == "active" then
+			return self.obj[key]
+		elseif key == "text" or key == "fit_text" or key == "fg_colour" or key == "bg_colour" then
+			return self[key]
+		else
+			return nil
+		end
+	end
+
+	--[[
+	-- @brief Configures the metatable for setting properties.
+	-- @param key		The name of the property to set.
+	-- @param value The value to set the property to.
+	--]]
+	local mtNewIndex = function(_, key, value)
+		if key == "position" then
+			self.obj.position = vec2(value)
+		elseif key == "size" then
+			self.obj.size = ivec2(value)
+			_setData()
+		elseif key == "active" then
+			self.obj.active = value
+		elseif key == "text" then
+			self.text = tostring(value)
+			_setData()
+		elseif key == "fit_text" then
+			self.fit_text = value
+			_setData()
+		elseif key == "fg_colour" or key == "bg_colour" then
+			self[key] = vec3(value)
+			_setData()
+		end
+	end
 	
-	return {
-		getPosition = getPosition,
-		setPosition = setPosition,
-		getSize = getSize,
-		setSize = setSize,
-		getText = getText,
-		setText = setText,
-		fitText = fitText,
-		getColours = getColours,
-		setColours = setColours,
-		isActive = _isActive,
-		setActive = _setActive,
+	_setData()
+
+	return setmetatable({
 		release = _release
-	}
+	}, {
+		__index    = mtIndex,
+		__newindex = mtNewIndex
+	})
 end

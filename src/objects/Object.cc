@@ -81,6 +81,11 @@ namespace term_engine::objects {
     return object_list_.emplace_back(std::make_shared<Object>(position, size));
   }
 
+  ObjectPtr& Object::AddSelf(sol::object self, const glm::vec2& position, const glm::ivec2& size)
+  {
+    return Add(position, size);
+  }
+
   void Object::Remove(ObjectPtr& obj)
   {
     ObjectList::iterator it = std::find(object_list_.begin(), object_list_.end(), obj);
@@ -117,9 +122,14 @@ namespace term_engine::objects {
     return Object::is_dirty_;
   }
 
-  void Object::SetDirty(const bool& flag)
+  void Object::Dirty()
   {
-    Object::is_dirty_ = flag;
+    Object::is_dirty_ = true;
+  }
+
+  void Object::Clean()
+  {
+    Object::is_dirty_ = false;
   }
 
   int Object::object_next_id_ = 0;

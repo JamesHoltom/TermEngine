@@ -341,7 +341,7 @@ local function newencoder()
 	end
 
 	local function f_userdata(ud)
-		if ud.__type.name == "term_engine::resources::GlyphParams" then
+		if ud.__type.name == "term_engine::objects::GlyphParams" then
 			f_glyph(ud)
 		elseif ud.__type.name == "term_engine::objects::Object" then
 			f_object(ud)

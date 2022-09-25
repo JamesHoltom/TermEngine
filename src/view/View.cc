@@ -61,7 +61,7 @@ namespace term_engine::views {
         }
       }
 
-      objects::Object::SetDirty(false);
+      objects::Object::Clean();
     }
 
     glUseProgram(program_id);
@@ -102,7 +102,7 @@ namespace term_engine::views {
 
     view_size = size;
 
-    objects::Object::SetDirty(true);
+    objects::Object::Dirty();
   }
 
   void PushGlyphToBuffer(const size_t& index, const glm::ivec2& position, const objects::GlyphParams& params)

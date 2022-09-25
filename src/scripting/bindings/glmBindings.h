@@ -4,6 +4,8 @@
 #define GLM_BINDINGS_H
 
 #include <string>
+#include <glm/glm.hpp>
+#include <glm/detail/compute_vector_relational.hpp>
 #include "../../utility/GLUtils.h"
 #include "../../utility/SolUtils.h"
 
@@ -23,17 +25,26 @@ namespace term_engine::scripting::bindings {
       sol::call_constructor, sol::constructors<void(),
                                                void(const int&), void(const int&, const int&),
                                                void(const glm::ivec2&), void(const glm::vec2&)>(),
-      sol::meta_function::equal_to, sol::overload([](const glm::ivec2& lhs, const glm::ivec2& rhs) -> bool { return lhs == rhs; }),
-      sol::meta_function::addition, sol::overload([](const glm::ivec2& lhs, const glm::ivec2& rhs) -> glm::ivec2 { return lhs + rhs; }),
-      sol::meta_function::subtraction, sol::overload([](const glm::ivec2& lhs, const glm::ivec2& rhs) -> glm::ivec2 { return lhs - rhs; }),
+      sol::meta_function::equal_to, [](const glm::ivec2& lhs, const glm::ivec2& rhs) -> bool { return lhs == rhs; },
+      sol::meta_function::addition, sol::overload(
+        [](const glm::ivec2& lhs, const glm::ivec2& rhs) -> glm::ivec2 { return lhs + rhs; },
+        [](const glm::ivec2& lhs, const int& rhs) -> glm::ivec2 { return lhs + rhs; }
+      ),
+      sol::meta_function::subtraction, sol::overload(
+        [](const glm::ivec2& lhs, const glm::ivec2& rhs) -> glm::ivec2 { return lhs - rhs; },
+        [](const glm::ivec2& lhs, const int& rhs) -> glm::ivec2 { return lhs - rhs; }
+      ),
       sol::meta_function::multiplication, sol::overload(
         [](const glm::ivec2& lhs, const glm::ivec2& rhs) -> glm::ivec2 { return lhs * rhs; },
-        [](const glm::ivec2& lhs, const int& rhs) -> glm::ivec2 { return lhs * rhs; },
-        [](const int& lhs, const glm::ivec2& rhs) -> glm::ivec2 { return lhs * rhs; }
+        [](const glm::ivec2& lhs, const int& rhs) -> glm::ivec2 { return lhs * rhs; }
       ),
       sol::meta_function::division, sol::overload(
         [](const glm::ivec2& lhs, const glm::ivec2& rhs) -> glm::ivec2 { return lhs / rhs; },
-        [](const glm::ivec2& lhs, const int& rhs) -> glm::ivec2 { return lhs / rhs; }),
+        [](const glm::ivec2& lhs, const int& rhs) -> glm::ivec2 { return lhs / rhs; }
+      ),
+      sol::meta_function::less_than, [](const glm::ivec2& lhs, const glm::ivec2& rhs) -> bool { return glm::all(glm::lessThan(lhs, rhs)); },
+      sol::meta_function::less_than_or_equal_to, [](const glm::ivec2& lhs, const glm::ivec2& rhs) -> bool { return glm::all(glm::lessThanEqual(lhs, rhs)); },
+      sol::meta_function::unary_minus, [](const glm::ivec2& self) -> glm::ivec2 { return -self; },
       sol::meta_function::to_string, [](const glm::ivec2& self) -> std::string { return std::to_string(self.x) + "," + std::to_string(self.y); },
       "x", &glm::ivec2::x,
       "y", &glm::ivec2::y);
@@ -46,18 +57,26 @@ namespace term_engine::scripting::bindings {
       sol::call_constructor, sol::constructors<void(),
                                                void(const float&), void(const float&, const float&),
                                                void(const glm::vec2&), void(const glm::ivec2&)>(),
-      sol::meta_function::equal_to, sol::overload([](const glm::vec2& lhs, const glm::vec2& rhs) -> bool { return lhs == rhs; }),
-      sol::meta_function::addition, sol::overload([](const glm::vec2& lhs, const glm::vec2& rhs) -> glm::vec2 { return lhs + rhs; }),
-      sol::meta_function::subtraction, sol::overload([](const glm::vec2& lhs, const glm::vec2& rhs) -> glm::vec2 { return lhs - rhs; }),
+      sol::meta_function::equal_to, [](const glm::vec2& lhs, const glm::vec2& rhs) -> bool { return lhs == rhs; },
+      sol::meta_function::addition, sol::overload(
+        [](const glm::vec2& lhs, const glm::vec2& rhs) -> glm::vec2 { return lhs + rhs; },
+        [](const glm::vec2& lhs, const float& rhs) -> glm::vec2 { return lhs + rhs; }
+      ),
+      sol::meta_function::subtraction, sol::overload(
+        [](const glm::vec2& lhs, const glm::vec2& rhs) -> glm::vec2 { return lhs - rhs; },
+        [](const glm::vec2& lhs, const float& rhs) -> glm::vec2 { return lhs - rhs; }
+      ),
       sol::meta_function::multiplication, sol::overload(
         [](const glm::vec2& lhs, const glm::vec2& rhs) -> glm::vec2 { return lhs * rhs; },
-        [](const glm::vec2& lhs, const float& rhs) -> glm::vec2 { return lhs * rhs; },
-        [](const float& lhs, const glm::vec2& rhs) -> glm::vec2 { return lhs * rhs; }
+        [](const glm::vec2& lhs, const float& rhs) -> glm::vec2 { return lhs * rhs; }
       ),
       sol::meta_function::division, sol::overload(
         [](const glm::vec2& lhs, const glm::vec2& rhs) -> glm::vec2 { return lhs / rhs; },
         [](const glm::vec2& lhs, const float& rhs) -> glm::vec2 { return lhs / rhs; }
       ),
+      sol::meta_function::less_than, [](const glm::vec2& lhs, const glm::vec2& rhs) -> bool { return glm::all(glm::lessThan(lhs, rhs)); },
+      sol::meta_function::less_than_or_equal_to, [](const glm::vec2& lhs, const glm::vec2& rhs) -> bool { return glm::all(glm::lessThanEqual(lhs, rhs)); },
+      sol::meta_function::unary_minus, [](const glm::vec2& self) -> glm::vec2 { return -self; },
       sol::meta_function::to_string, [](const glm::vec2& self) -> std::string { return std::to_string(self.x) + "," + std::to_string(self.y); },
       "x", &glm::vec2::x,
       "y", &glm::vec2::y,
@@ -75,17 +94,26 @@ namespace term_engine::scripting::bindings {
                                                void(const int&), void(const int&, const int&, const int&),
                                                void(const glm::ivec2&, const int&), void(const glm::vec2&, const float&),
                                                void(const glm::ivec3&), void(const glm::vec3&)>(),
-      sol::meta_function::equal_to, sol::overload([](const glm::ivec3& lhs, const glm::ivec3& rhs) -> bool { return lhs == rhs; }),
-      sol::meta_function::addition, sol::overload([](const glm::ivec3& lhs, const glm::ivec3& rhs) -> glm::ivec3 { return lhs + rhs; }),
-      sol::meta_function::subtraction, sol::overload([](const glm::ivec3& lhs, const glm::ivec3& rhs) -> glm::ivec3 { return lhs - rhs; }),
+      sol::meta_function::equal_to, [](const glm::ivec3& lhs, const glm::ivec3& rhs) -> bool { return lhs == rhs; },
+      sol::meta_function::addition, sol::overload(
+        [](const glm::ivec3& lhs, const glm::ivec3& rhs) -> glm::ivec3 { return lhs + rhs; },
+        [](const glm::ivec3& lhs, const int& rhs) -> glm::ivec3 { return lhs + rhs; }
+      ),
+      sol::meta_function::subtraction, sol::overload(
+        [](const glm::ivec3& lhs, const glm::ivec3& rhs) -> glm::ivec3 { return lhs - rhs; },
+        [](const glm::ivec3& lhs, const int& rhs) -> glm::ivec3 { return lhs - rhs; }
+      ),
       sol::meta_function::multiplication, sol::overload(
         [](const glm::ivec3& lhs, const glm::ivec3& rhs) -> glm::ivec3 { return lhs * rhs; },
-        [](const glm::ivec3& lhs, const int& rhs) -> glm::ivec3 { return lhs * rhs; },
-        [](const int& lhs, const glm::ivec3& rhs) -> glm::ivec3 { return lhs * rhs; }
+        [](const glm::ivec3& lhs, const int& rhs) -> glm::ivec3 { return lhs * rhs; }
       ),
       sol::meta_function::division, sol::overload(
         [](const glm::ivec3& lhs, const glm::ivec3& rhs) -> glm::ivec3 { return lhs / rhs; },
-        [](const glm::ivec3& lhs, const int& rhs) -> glm::ivec3 { return lhs / rhs; }),
+        [](const glm::ivec3& lhs, const int& rhs) -> glm::ivec3 { return lhs / rhs; }
+      ),
+      sol::meta_function::less_than, [](const glm::ivec2& lhs, const glm::ivec2& rhs) -> bool { return glm::all(glm::lessThan(lhs, rhs)); },
+      sol::meta_function::less_than_or_equal_to, [](const glm::ivec2& lhs, const glm::ivec2& rhs) -> bool { return glm::all(glm::lessThanEqual(lhs, rhs)); },
+      sol::meta_function::unary_minus, [](const glm::ivec2& self) -> glm::ivec2 { return -self; },
       sol::meta_function::to_string, [](const glm::ivec3& self) -> std::string { return std::to_string(self.x) + "," + std::to_string(self.y) + "," + std::to_string(self.z); },
       "x", &glm::ivec3::x,
       "y", &glm::ivec3::y,
@@ -104,17 +132,25 @@ namespace term_engine::scripting::bindings {
                                                void(const float&), void(const float&, const float&, const float&),
                                                void(const glm::vec2&, const float&), void(const glm::ivec2&, const int&),
                                                void(const glm::vec3&), void(const glm::ivec3&)>(),
-      sol::meta_function::equal_to, sol::overload([](const glm::vec3& lhs, const glm::vec3& rhs) -> bool { return lhs == rhs; }),
-      sol::meta_function::addition, sol::overload([](const glm::vec3& lhs, const glm::vec3& rhs) -> glm::vec3 { return lhs + rhs; }),
-      sol::meta_function::subtraction, sol::overload([](const glm::vec3& lhs, const glm::vec3& rhs) -> glm::vec3 { return lhs - rhs; }),
+      sol::meta_function::equal_to, [](const glm::vec3& lhs, const glm::vec3& rhs) -> bool { return lhs == rhs; },
+      sol::meta_function::addition, sol::overload(
+        [](const glm::vec3& lhs, const glm::vec3& rhs) -> glm::vec3 { return lhs + rhs; },
+        [](const glm::vec3& lhs, const float& rhs) -> glm::vec3 { return lhs + rhs; }
+      ),
+      sol::meta_function::subtraction, sol::overload(
+        [](const glm::vec3& lhs, const glm::vec3& rhs) -> glm::vec3 { return lhs - rhs; },
+        [](const glm::vec3& lhs, const float& rhs) -> glm::vec3 { return lhs - rhs; }
+      ),
       sol::meta_function::multiplication, sol::overload(
         [](const glm::vec3& lhs, const glm::vec3& rhs) -> glm::vec3 { return lhs * rhs; },
-        [](const glm::vec3& lhs, const float& rhs) -> glm::vec3 { return lhs * rhs; },
-        [](const float& lhs, const glm::vec3& rhs) -> glm::vec3 { return lhs * rhs; }
+        [](const glm::vec3& lhs, const float& rhs) -> glm::vec3 { return lhs * rhs; }
       ),
       sol::meta_function::division, sol::overload(
         [](const glm::vec3& lhs, const glm::vec3& rhs) -> glm::vec3 { return lhs / rhs; },
         [](const glm::vec3& lhs, const float& rhs) -> glm::vec3 { return lhs / rhs; }),
+      sol::meta_function::less_than, [](const glm::vec3& lhs, const glm::vec3& rhs) -> bool { return glm::all(glm::lessThan(lhs, rhs)); },
+      sol::meta_function::less_than_or_equal_to, [](const glm::vec3& lhs, const glm::vec3& rhs) -> bool { return glm::all(glm::lessThanEqual(lhs, rhs)); },
+      sol::meta_function::unary_minus, [](const glm::vec3& self) -> glm::vec3 { return -self; },
       sol::meta_function::to_string, [](const glm::vec3& self) -> std::string { return std::to_string(self.x) + "," + std::to_string(self.y) + "," + std::to_string(self.z); },
       "x", &glm::vec3::x,
       "y", &glm::vec3::y,
@@ -140,17 +176,26 @@ namespace term_engine::scripting::bindings {
                                                void(const glm::ivec2&, const glm::ivec2&), void(const glm::vec2&, const glm::vec2&),
                                                void(const glm::ivec3&, const int&), void(const glm::vec3&, const float&),
                                                void(const glm::ivec4&), void(const glm::vec4&)>(),
-      sol::meta_function::equal_to, sol::overload([](const glm::ivec4& lhs, const glm::ivec4& rhs) -> bool { return lhs == rhs; }),
-      sol::meta_function::addition, sol::overload([](const glm::ivec4& lhs, const glm::ivec4& rhs) -> glm::ivec4 { return lhs + rhs; }),
-      sol::meta_function::subtraction, sol::overload([](const glm::ivec4& lhs, const glm::ivec4& rhs) -> glm::ivec4 { return lhs - rhs; }),
+      sol::meta_function::equal_to, [](const glm::ivec4& lhs, const glm::ivec4& rhs) -> bool { return lhs == rhs; },
+      sol::meta_function::addition, sol::overload(
+        [](const glm::ivec4& lhs, const glm::ivec4& rhs) -> glm::ivec4 { return lhs + rhs; },
+        [](const glm::ivec4& lhs, const int& rhs) -> glm::ivec4 { return lhs + rhs; }
+      ),
+      sol::meta_function::subtraction, sol::overload(
+        [](const glm::ivec4& lhs, const glm::ivec4& rhs) -> glm::ivec4 { return lhs - rhs; },
+        [](const glm::ivec4& lhs, const int& rhs) -> glm::ivec4 { return lhs - rhs; }
+      ),
       sol::meta_function::multiplication, sol::overload(
         [](const glm::ivec4& lhs, const glm::ivec4& rhs) -> glm::ivec4 { return lhs * rhs; },
-        [](const glm::ivec4& lhs, const int& rhs) -> glm::ivec4 { return lhs * rhs; },
-        [](const int& lhs, const glm::ivec4& rhs) -> glm::ivec4 { return lhs * rhs; }
+        [](const glm::ivec4& lhs, const int& rhs) -> glm::ivec4 { return lhs * rhs; }
       ),
       sol::meta_function::division, sol::overload(
         [](const glm::ivec4& lhs, const glm::ivec4& rhs) -> glm::ivec4 { return lhs / rhs; },
-        [](const glm::ivec4& lhs, const int& rhs) -> glm::ivec4 { return lhs / rhs; }),
+        [](const glm::ivec4& lhs, const int& rhs) -> glm::ivec4 { return lhs / rhs; }
+      ),
+      sol::meta_function::less_than, [](const glm::ivec4& lhs, const glm::ivec4& rhs) -> bool { return glm::all(glm::lessThan(lhs, rhs)); },
+      sol::meta_function::less_than_or_equal_to, [](const glm::ivec4& lhs, const glm::ivec4& rhs) -> bool { return glm::all(glm::lessThanEqual(lhs, rhs)); },
+      sol::meta_function::unary_minus, [](const glm::ivec4& self) -> glm::ivec4 { return -self; },
       sol::meta_function::to_string, [](const glm::ivec4& self) -> std::string { return std::to_string(self.x) + "," + std::to_string(self.y) + "," + std::to_string(self.z) + "," + std::to_string(self.w); },
       "x", &glm::ivec4::x,
       "y", &glm::ivec4::y,
@@ -175,17 +220,26 @@ namespace term_engine::scripting::bindings {
                                                void(const glm::vec2&, const glm::vec2&), void(const glm::ivec2&, const glm::ivec2&),
                                                void(const glm::vec3&, const float&), void(const glm::ivec3&, const int&),
                                                void(const glm::vec4&), void(const glm::ivec4&)>(),
-      sol::meta_function::equal_to, sol::overload([](const glm::vec4& lhs, const glm::vec4& rhs) -> bool { return lhs == rhs; }),
-      sol::meta_function::addition, sol::overload([](const glm::vec4& lhs, const glm::vec4& rhs) -> glm::vec4 { return lhs + rhs; }),
-      sol::meta_function::subtraction, sol::overload([](const glm::vec4& lhs, const glm::vec4& rhs) -> glm::vec4 { return lhs - rhs; }),
+      sol::meta_function::equal_to, [](const glm::vec4& lhs, const glm::vec4& rhs) -> bool { return lhs == rhs; },
+      sol::meta_function::addition, sol::overload(
+        [](const glm::vec4& lhs, const glm::vec4& rhs) -> glm::vec4 { return lhs + rhs; },
+        [](const glm::vec4& lhs, const float& rhs) -> glm::vec4 { return lhs + rhs; }
+      ),
+      sol::meta_function::subtraction, sol::overload(
+        [](const glm::vec4& lhs, const glm::vec4& rhs) -> glm::vec4 { return lhs - rhs; },
+        [](const glm::vec4& lhs, const float& rhs) -> glm::vec4 { return lhs - rhs; }
+      ),
       sol::meta_function::multiplication, sol::overload(
         [](const glm::vec4& lhs, const glm::vec4& rhs) -> glm::vec4 { return lhs * rhs; },
-        [](const glm::vec4& lhs, const float& rhs) -> glm::vec4 { return lhs * rhs; },
-        [](const float& lhs, const glm::vec4& rhs) -> glm::vec4 { return lhs * rhs; }
+        [](const glm::vec4& lhs, const float& rhs) -> glm::vec4 { return lhs * rhs; }
       ),
       sol::meta_function::division, sol::overload(
         [](const glm::vec4& lhs, const glm::vec4& rhs) -> glm::vec4 { return lhs / rhs; },
-        [](const glm::vec4& lhs, const float& rhs) -> glm::vec4 { return lhs / rhs; }),
+        [](const glm::vec4& lhs, const float& rhs) -> glm::vec4 { return lhs / rhs; }
+      ),
+      sol::meta_function::less_than, [](const glm::vec4& lhs, const glm::vec4& rhs) -> bool { return glm::all(glm::lessThan(lhs, rhs)); },
+      sol::meta_function::less_than_or_equal_to, [](const glm::vec4& lhs, const glm::vec4& rhs) -> bool { return glm::all(glm::lessThanEqual(lhs, rhs)); },
+      sol::meta_function::unary_minus, [](const glm::vec4& self) -> glm::vec4 { return -self; },
       sol::meta_function::to_string, [](const glm::vec4& self) -> std::string { return std::to_string(self.x) + "," + std::to_string(self.y) + "," + std::to_string(self.z) + "," + std::to_string(self.w); },
       "x", &glm::vec4::x,
       "y", &glm::vec4::y,

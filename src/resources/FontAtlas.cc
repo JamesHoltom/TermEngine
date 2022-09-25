@@ -30,7 +30,7 @@ namespace term_engine::fonts {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    return SetFont(DEFAULT_FONT, DEFAULT_FONT_SIZE, IS_FONT_SQUARE);
+    return SetFont(DEFAULT_FONT, DEFAULT_FONT_SIZE);
   }
 
   void CleanUp()
@@ -121,7 +121,7 @@ namespace term_engine::fonts {
     return _CreateCharTexture(character).second;
   }
 
-  bool SetFont(const std::string& filename, const FT_Int& size, const bool& isSquare)
+  bool SetFont(const std::string& filename, const FT_Int& size)
   {
     const std::filesystem::path fullFontPath = system::SearchForResourcePath(filename);
 
@@ -159,7 +159,7 @@ namespace term_engine::fonts {
     font_path = fullFontPath;
     font_size = size;
 
-    ResetGlyphSize(isSquare);
+    ResetGlyphSize();
 
     for (auto& glyph : font_atlas)
     {
@@ -188,20 +188,6 @@ namespace term_engine::fonts {
     next_pos = glm::uvec2(0);
   }
 
-  void ResetGlyphSize(const bool& isSquare)
-  {
-    if (isSquare)
-    {
-      glyph_size = glm::ivec2(font_face->size->metrics.max_advance >> 6, ((font_face->size->metrics.ascender - font_face->size->metrics.descender) >> 6));
-    }
-    else
-    {
-      glyph_size = glm::ivec2(((font_face->size->metrics.ascender - font_face->size->metrics.descender) >> 6));
-    }
-
-    objects::Object::SetDirty(true);
-  }
-
   std::string GetFontPath()
   {
     return font_path;
@@ -225,5 +211,17 @@ namespace term_engine::fonts {
   glm::ivec2 GetGlyphSize()
   {
     return glyph_size;
+  }
+
+  void SetGlyphSize(const glm::ivec2& glyphSize)
+  {
+    glyph_size = glyphSize;
+  }
+
+  void ResetGlyphSize()
+  {
+    glyph_size = glm::ivec2(font_face->size->metrics.max_advance >> 6, ((font_face->size->metrics.ascender - font_face->size->metrics.descender) >> 6));
+
+    objects::Object::Dirty();
   }
 }

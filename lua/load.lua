@@ -1,7 +1,10 @@
+--[[
+-- @author James Holtom
+--]]
+
 require "lua/readonly"
 require "lua/objects/objects"
 require "lua/objects/menu"
-require "lua/objects/state"
 require "lua/constants/colours"
 require "lua/constants/values"
 require "lua/vendor/von"

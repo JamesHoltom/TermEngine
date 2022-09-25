@@ -165,14 +165,15 @@ namespace term_engine::events {
 //      case SDL_TEXTINPUT:                 Dispatch("text_input", {});             break;
       case SDL_WINDOWEVENT:
         switch (event.window.event) {
-          case SDL_WINDOWEVENT_ENTER:         Dispatch("window_mouse_focus", {});     break;
-          case SDL_WINDOWEVENT_LEAVE:         Dispatch("window_mouse_blur", {});      break;
           case SDL_WINDOWEVENT_FOCUS_GAINED:  Dispatch("window_keyboard_focus", {});  break;
           case SDL_WINDOWEVENT_FOCUS_LOST:    Dispatch("window_keyboard_blur", {});   break;
+          case SDL_WINDOWEVENT_ENTER:         Dispatch("window_mouse_focus", {});     break;
+          case SDL_WINDOWEVENT_LEAVE:         Dispatch("window_mouse_blur", {});      break;
           case SDL_WINDOWEVENT_HIDDEN:        Dispatch("window_hidden", {});          break;
           case SDL_WINDOWEVENT_SHOWN:         Dispatch("window_shown", {});           break;
-          case SDL_WINDOWEVENT_MAXIMIZED:     Dispatch("window_maximised", {});       break;
           case SDL_WINDOWEVENT_MINIMIZED:     Dispatch("window_minimised", {});       break;
+          case SDL_WINDOWEVENT_MAXIMIZED:     Dispatch("window_maximised", {});       break;
+          case SDL_WINDOWEVENT_RESTORED:      Dispatch("window_restored", {});        break;
           case SDL_WINDOWEVENT_MOVED:
             Dispatch("window_moved", scripting::lua_state->create_table_with(
               "position", glm::ivec2(event.window.data1, event.window.data2)
@@ -183,7 +184,6 @@ namespace term_engine::events {
               "size", glm::ivec2(event.window.data1, event.window.data2)
             ));
             break;
-          case SDL_WINDOWEVENT_RESTORED:      Dispatch("window_restored", {});        break;
       }
     }
   }

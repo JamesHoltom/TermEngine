@@ -54,12 +54,14 @@ namespace term_engine::scripting::bindings {
     state.create_named_table(
       "font",
       "set", &fonts::SetFont,
-      "isSquare", &fonts::ResetGlyphSize,
-      "path", &fonts::GetFontPath,
-      "size", &fonts::GetFontSize,
-      "defaultPath", &fonts::GetDefaultFontPath,
-      "defaultSize", &fonts::GetDefaultFontSize,
-      "tabSize", fonts::tab_size);
+      "getPath", &fonts::GetFontPath,
+      "getSize", &fonts::GetFontSize,
+      "getGlyphSize", &fonts::GetGlyphSize,
+      "setGlyphSize", &fonts::SetGlyphSize,
+      "resetGlyphSize", &fonts::ResetGlyphSize,
+      "getDefaultPath", &fonts::GetDefaultFontPath,
+      "getDefaultSize", &fonts::GetDefaultFontSize,
+      "getTabSize", fonts::tab_size);
 
     state.create_named_table(
       "window",
@@ -76,8 +78,10 @@ namespace term_engine::scripting::bindings {
       "minimise", &system::MinimiseWindow,
       "maximise", &system::MaximiseWindow,
       "restore", &system::RestoreWindow,
-      "isGrabbed", &system::IsMouseGrabbed,
-      "setGrabbed", &system::SetMouseGrab,
+      "show", &system::ShowWindow,
+      "hide", &system::HideWindow,
+      "isCaptured", &system::IsMouseGrabbed,
+      "setCapture", &system::SetMouseGrab,
       "getClearColour", &system::GetWindowClearColour,
       "setClearColour", &system::SetWindowClearColour,
       "isVsync", &system::IsVsyncEnabled,

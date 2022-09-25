@@ -121,6 +121,16 @@ namespace term_engine::system {
     SDL_RestoreWindow(window.get());
   }
 
+  void ShowWindow()
+  {
+    SDL_ShowWindow(window.get());
+  }
+
+  void HideWindow()
+  {
+    SDL_HideWindow(window.get());
+  }
+
   bool IsMouseGrabbed()
   {
     return SDL_GetWindowMouseGrab(window.get());

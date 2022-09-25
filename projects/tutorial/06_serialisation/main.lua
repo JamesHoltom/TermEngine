@@ -1,3 +1,5 @@
+local vTbl, jTbl
+
 function printTable(table, depth)
   depth = depth or 1
 
@@ -27,27 +29,45 @@ function printTable(table, depth)
 end
 
 function Init()
-  local glyph = Glyph("a", Colours.RED, Colours.WHITE)
-  local obj = Object(Values.VEC2_ONE, Values.IVEC2_ONE)
-  obj.active = false
-  obj.data[1] = glyph
-  local tbl = {
+  -- Set up the data for the vON (de)serialisation.
+  local vGlyph = Glyph("v", Colours.RED, Colours.WHITE)
+  local vObj = Object(Values.VEC2_ONE, Values.IVEC2_ONE)
+  vObj.data[1] = vGlyph
+  local vData = {
     a_number = 1234,
     a_string = "Test string",
     a_table = {
       a_nested_string = "Nested string"
     },
-    a_glyph = glyph,
-    an_object = obj
+    a_glyph = vGlyph,
+    an_object = vObj
   }
 
-  -- (De)serialise the table using vON.
-  local vStr = von.serialize(tbl)
-  local vTbl = von.deserialize(vStr)
+  -- Set up the data for the JSON (de)serialisation.
+  local jGlyph = Glyph("j", Colours.BLUE, Colours.WHITE)
+  local jObj = Object(vec2(1, 3), Values.IVEC2_ONE)
+  jObj.data[1] = jGlyph
+  local jData = {
+    a_number = 5678,
+    a_string = "Example string",
+    a_table = {
+      a_nested_string = "A deeper string"
+    },
+    a_glyph = jGlyph,
+    an_object = jObj
+  }
 
-  -- (De)serialise the table using JSON.
-  local jStr = json.encode(tbl)
-  local jTbl = json.decode(jStr)
+  -- Serialise the data to vON and JSON.
+  local vStr = von.serialize(vData)
+  local jStr = json.encode(jData)
+
+  -- Destroy the old objects. When the data is deserialised, new objects will be created.
+  vObj:release()
+  jObj:release()
+
+  -- Deserialise the data from vON and JSON.
+  vTbl = von.deserialize(vStr)
+  jTbl = json.decode(jStr)
 
   print("Serialised vON: " .. vStr)
   print("-----------------")
@@ -60,6 +80,13 @@ function Init()
   print("Deserialised JSON: {")
   printTable(jTbl)
   print("}")
+
+  return true
+end
+
+function Quit()
+  vTbl.an_object:release()
+  jTbl.an_object:release()
 
   return true
 end

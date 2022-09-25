@@ -1,3 +1,5 @@
+local colourText
+
 function Init()
   local i = 0
 
@@ -5,16 +7,23 @@ function Init()
     i = i + 1
 
     -- Change the text colour if the background is too bright.
-    local isBright = (v == Colours.YELLOW or v == Colours.WHITE)
-    local colourText = TextObject(vec2(1, i), ivec2(15, 1))
-    colourText.setText("Colourful text!")
+    local isBright = (v == Colours.YELLOW or v == Colours.WHITE or v == Colours.LIGHT_GREY or v == Colours.CYAN)
+    colourText = TextObject(vec2(1, i), ivec2(15, 1))
+    colourText.text = "Colourful text!"
+    colourText.bg_colour = v
 
     if isBright then
-      colourText.setColours(Colours.BLACK, v)
+      colourText.fg_colour = Colours.BLACK
     else
-      colourText.setColours(Colours.WHITE, v)
+      colourText.fg_colour = Colours.WHITE
     end
   end
+
+  return true
+end
+
+function Quit()
+  colourText:release()
 
   return true
 end

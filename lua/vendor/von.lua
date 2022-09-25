@@ -49,7 +49,7 @@
 		-	nil
 
 	The TermEngine-specific types that are supported are:
-		- Glyph (referred to as term_engine::resources::GlyphParams)
+		- Glyph (referred to as term_engine::objects::GlyphParams)
 		- Object (referred to as term_engine::objects::Object)
 		+ Vectors
 			- ivec2
@@ -144,7 +144,7 @@ function d_findVariable(s, i, len, lastType, jobstate)
 
 	  -- "g" precedes a Glyph.
     elseif c == "g" then
-			lastType = "term_engine::resources::GlyphParams"
+			lastType = "term_engine::objects::GlyphParams"
 			typeRead = true
 
 	  -- "O" precedes a Object.
@@ -590,7 +590,7 @@ _serialize = {
 
 local extra_deserialize = {
 	-- A Glyph, consisting of the character, foreground and background colours.
-	["term_engine::resources::GlyphParams"] = function(s, i, len, unnecessaryEnd, jobstate)
+	["term_engine::objects::GlyphParams"] = function(s, i, len, unnecessaryEnd, jobstate)
 		local i, a = i or 1
 		local c, fg, bg = "", vec3(), vec3()
 		
@@ -907,7 +907,7 @@ local extra_deserialize = {
 }
 
 local extra_serialize = {
-	["term_engine::resources::GlyphParams"] = function(data, mustInitiate, isNumeric, isKey, isLast, first, jobstate)
+	["term_engine::objects::GlyphParams"] = function(data, mustInitiate, isNumeric, isKey, isLast, first, jobstate)
 		local tmp = data.character .. "," .. tostring(data.foreground_colour) .. "," .. tostring(data.background_colour)
 
 		if mustInitiate then
@@ -927,7 +927,7 @@ local extra_serialize = {
 		local len = #data.data
 
 		for i = 1, len do
-			tmp = tmp .. _serialize["term_engine::resources::GlyphParams"](data.data[i], false, nil, nil, i == len, nil, {false})
+			tmp = tmp .. _serialize["term_engine::objects::GlyphParams"](data.data[i], false, nil, nil, i == len, nil, {false})
 		end
 		
 		tmp = tmp .. "}"

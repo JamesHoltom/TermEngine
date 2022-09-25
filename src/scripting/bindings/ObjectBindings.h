@@ -18,7 +18,7 @@ namespace term_engine::scripting::bindings {
   {
     state.new_usertype<objects::Object>(
       "Object",
-      sol::meta_function::construct, sol::factories(&objects::Object::Add),
+      sol::meta_function::construct, sol::factories(&objects::Object::Add, &objects::Object::AddSelf),
       sol::call_constructor, sol::factories(&objects::Object::Add),
       sol::meta_function::garbage_collect, sol::destructor(&objects::Object::Remove),
       "position", sol::property(&objects::Object::GetPosition, &objects::Object::SetPosition),
@@ -29,14 +29,18 @@ namespace term_engine::scripting::bindings {
       "release", &objects::Object::Remove);
 
     state.create_named_table("objects",
-      "count", &objects::Object::Count,
-      "is_dirty", &objects::Object::IsDirty,
-      "dirty", &objects::Object::SetDirty);
+      "getCount", &objects::Object::Count,
+      "isDirty", &objects::Object::IsDirty,
+      "dirty", &objects::Object::Dirty);
     
     state.new_usertype<objects::GlyphParams>(
         "Glyph",
-        sol::meta_function::construct, sol::constructors<void(const char&, const glm::vec3&, const glm::vec3&)>(),
-        sol::call_constructor, sol::constructors<void(const char&, const glm::vec3&, const glm::vec3&)>(),
+        sol::meta_function::construct, sol::constructors<void(),
+                                                         void(const objects::GlyphParams&),
+                                                         void(const char&, const glm::vec3&, const glm::vec3&)>(),
+        sol::call_constructor, sol::constructors<void(),
+                                                 void(const objects::GlyphParams&),
+                                                 void(const char&, const glm::vec3&, const glm::vec3&)>(),
         sol::meta_function::equal_to, sol::overload([](const objects::GlyphParams& lhs, const objects::GlyphParams& rhs) { return lhs == rhs; }),
         "character", &objects::GlyphParams::character_,
         "foreground_colour", &objects::GlyphParams::foreground_colour_,
@@ -47,7 +51,6 @@ namespace term_engine::scripting::bindings {
       "NO_CHARACTER", objects::NO_CHARACTER,
       "DEFAULT_FOREGROUND_COLOUR", objects::DEFAULT_FOREGROUND_COLOUR,
       "DEFAULT_BACKGROUND_COLOUR", objects::DEFAULT_BACKGROUND_COLOUR);
-
   }
 }
 

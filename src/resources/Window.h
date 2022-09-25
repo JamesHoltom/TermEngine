@@ -109,6 +109,12 @@ namespace term_engine::system {
   /// @brief Restores the window to its original size.
   void RestoreWindow();
 
+  /// @brief Shows the window.
+  void ShowWindow();
+
+  /// @brief Hides the window.
+  void HideWindow();
+
   /**
    * @brief Returns if the window is grabbing the mouse, preventing it from moving outside the window.
    * 

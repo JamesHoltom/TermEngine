@@ -110,6 +110,16 @@ namespace term_engine::objects {
     static ObjectPtr& Add(const glm::vec2& position, const glm::ivec2& size);
 
     /**
+     * @brief Adds an object to the list, using Lua's colon syntax (i.e. Object:new(...)).
+     * 
+     * @param[in] self     Reference to the object. Unused.
+     * @param[in] position The position of the object.
+     * @param[in] size     The size of the object, in rows & columns.
+     * @returns A smart pointer to the object if it was added to the list, or a null pointer if it failed.
+     */
+    static ObjectPtr& AddSelf(sol::object self, const glm::vec2& position, const glm::ivec2& size);
+
+    /**
      * @brief Removes an object from the list.
      * 
      * @param[in] obj A smart pointer to the object.
@@ -140,12 +150,11 @@ namespace term_engine::objects {
      */
     static bool IsDirty();
 
-    /**
-     * @brief Sets the 'Is Dirty' flag.
-     * 
-     * @param[in] flag The value to set the 'Is Dirty' flag to.
-     */
-    static void SetDirty(const bool& flag);
+    /// @brief Sets the 'Is Dirty' flag.
+    static void Dirty();
+
+    /// @brief Unsets the 'Is Dirty' flag.
+    static void Clean();
 
   protected:
     /// @brief The top-left position of the object.

@@ -23,8 +23,8 @@ namespace term_engine::scripting::bindings {
       "isDown", &events::MouseIsDown,
       "isPressed", &events::MouseIsPressed,
       "isReleased", &events::MouseIsReleased,
-      "position", &events::GetMousePosition,
-      "movement", &events::GetMouseMovement);
+      "getPosition", &events::GetMousePosition,
+      "getMovement", &events::GetMouseMovement);
 
     state.create_named_table("keyboard",
       "isDown", &events::KeyIsDown,

@@ -1,3 +1,7 @@
+--[[
+-- @author James Holtom
+--]]
+
 Values = readOnly({
   IVEC2_ZERO = ivec2(0),
   IVEC2_ONE = ivec2(1),

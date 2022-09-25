@@ -383,7 +383,7 @@ local function newdecoder()
 
 	local function check_for_userdata(obj)
 		if obj.__type and obj.__data then
-			if obj.__type == "term_engine::resources::GlyphParams" then
+			if obj.__type == "term_engine::objects::GlyphParams" then
 				return _Glyph(
 					obj.__data.character,
 					_vec3(tonumber(obj.__data.foreground_colour.x), tonumber(obj.__data.foreground_colour.y), tonumber(obj.__data.foreground_colour.z)),

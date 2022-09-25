@@ -38,6 +38,16 @@ namespace term_engine::objects {
       background_colour_(background_colour) {}
 
     /**
+     * @brief Copy-constructs the glyph parameters.
+     * 
+     * @param[in] glyph The glyph to copy from.
+     */
+    GlyphParams(const GlyphParams& glyph) :
+      character_(glyph.character_),
+      foreground_colour_(glyph.foreground_colour_),
+      background_colour_(glyph.background_colour_) {}
+
+    /**
      * @brief Allows for comparing 2 sets of _GlyphParams_ objects.
      * 
      * @param[in] lhs The left-hand side object.

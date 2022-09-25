@@ -11,6 +11,9 @@ namespace term_engine::system {
   /// @brief Used to store a list of file/folder locations.
   typedef std::vector<std::string> FileList;
 
+  /// @brief Stores the filepath to the current project.
+  extern std::filesystem::path project_path;
+
   /**
    * @brief Gets the directory that the TermEngine executable is located in.
    * 

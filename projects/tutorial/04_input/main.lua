@@ -2,10 +2,10 @@ local inputText, inputBox
 
 function Init()
   inputText = TextObject(Values.VEC2_ONE, ivec2(12, 1))
-  inputText.setText("Press W & S!")
+  inputText.text = "Press W & S!"
 
   inputBox = BoxObject(Values.VEC2_ZERO, ivec2(14, 3))
-  inputBox.setOutline(Glyph("#", Colours.WHITE, Colours.BLACK))
+  inputBox.outline = Glyph("#", Colours.WHITE, Colours.BLACK)
 
   return true
 end
@@ -18,8 +18,15 @@ function Loop(timestep)
   end
 
   if keyboard.isDown("s") then
-    inputBox.setOutline(Glyph("!", Colours.WHITE, Colours.RED))
+    inputBox.outline = Glyph("!", Colours.WHITE, Colours.RED)
   else
-    inputBox.setOutline(Glyph("#", Colours.WHITE, Colours.BLACK))
+    inputBox.outline = Glyph("#", Colours.WHITE, Colours.BLACK)
   end
+end
+
+function Quit()
+  inputText:release()
+  inputBox:release()
+  
+  return true
 end
