@@ -33,18 +33,18 @@ namespace term_engine::scripting::bindings {
 
     state.new_usertype<events::EventListener>(
       "EventListener",
-      sol::meta_function::construct, sol::factories(&events::EventListener::AddEventListener),
-      sol::call_constructor, sol::factories(&events::EventListener::AddEventListener),
-      sol::meta_function::garbage_collect, sol::destructor(&events::EventListener::RemoveEventListener),
+      sol::meta_function::construct, sol::factories(&events::EventListener::Add),
+      sol::call_constructor, sol::factories(&events::EventListener::Add),
+      sol::meta_function::garbage_collect, sol::destructor(&events::EventListener::Remove),
       "active", sol::property(&events::EventListener::IsActive, &events::EventListener::SetActive),
       "type", sol::property(&events::EventListener::GetType),
       "trigger", &events::EventListener::Trigger,
-      "release", &events::EventListener::RemoveEventListener);
+      "release", &events::EventListener::Remove);
 
     state.create_named_table("event",
-      "countListeners", &events::EventListener::CountListeners,
-      "clearListeners", &events::EventListener::ClearEventListeners,
-      "getListenerTypes", &events::EventListener::GetListenerTypes);
+      "countListeners", &events::EventListener::Count,
+      "clearListeners", &events::EventListener::Clear,
+      "getListenerTypes", &events::EventListener::GetTypes);
 
     // Create bindings for the main game functions.
     state["Init"] = [&]() -> bool {

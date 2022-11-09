@@ -81,21 +81,22 @@ function MenuObject(_position)
 			option.hovering = self.active_index == index
 			
 			local title = option.title
-			local str_table = { string.byte(title, 1, #title) }
 			local fg = option.fg_colour
 			local bg = option.bg_colour
+			local c_index = 1
 
 			if option.hovering then
 				fg = option.fg_colour_hover
 				bg = option.bg_colour_hover
 			end
 			
-			for k = 1, self.option_width * columns do
-				if k <= #str_table then
-					self.obj.data[(self.obj.size.x * columns * (index - 1)) + k] = Glyph(string.char(str_table[k]), fg, bg)
-				else
-					self.obj.data[(self.obj.size.x * columns * (index - 1)) + k] = empty_glyph
-				end
+			for c in title:gmatch(".") do
+				self.obj.data[(self.option_width * (index - 1)) + c_index] = Character(c, fg, bg)
+				c_index = c_index + 1
+			end
+
+			for i = c_index, self.option_width do
+				self.obj.data[(self.option_width * (index - 1)) + i] = Character(" ", fg, bg)
 			end
 		end
 		
@@ -197,7 +198,7 @@ function MenuObject(_position)
 	--]]
 	local mtNewIndex = function(_, key, value)
 		if key == "position" then
-			self.obj.position = vec2(value)
+			self.obj.position = ivec2(value)
 		elseif key == "active" then
 			self.obj.active = value
 			self.events.keydown.active = _flag

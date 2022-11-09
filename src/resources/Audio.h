@@ -7,7 +7,7 @@
 #include <filesystem>
 #include <memory>
 #include <string>
-#include <unordered_map>
+#include <vector>
 #include "../vendor/miniaudio.h"
 
 namespace term_engine::resources {
@@ -16,7 +16,7 @@ namespace term_engine::resources {
   /// @brief Smart pointer to an audio resource.
   typedef std::shared_ptr<Audio> AudioPtr;
   /// @brief Used to store a list of audio resources.
-  typedef std::unordered_map<std::string, AudioPtr> AudioMap;
+  typedef std::vector<AudioPtr> AudioList;
 
   /// @brief Represents an audio resource, used to play music/sounds.
   class Audio {
@@ -187,7 +187,7 @@ namespace term_engine::resources {
      * 
      * @returns The list of audio resources.
      */
-    static AudioMap& GetList();
+    static AudioList& GetList();
 
     /**
      * @brief Returns the number of audio resources.
@@ -224,7 +224,7 @@ namespace term_engine::resources {
     /// @brief The audio volume.
     double volume_;
     /// @brief The list of audio resources.
-    static AudioMap audio_list_;
+    static AudioList audio_list_;
   };
 }
 

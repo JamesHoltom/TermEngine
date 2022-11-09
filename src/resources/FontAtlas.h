@@ -11,13 +11,13 @@
 #include "../utility/GLUtils.h"
 
 namespace term_engine::fonts {
-  struct GlyphBB;
+  struct CharacterBB;
 
-  /// @brief Used to store characters and the texture layers of the glyph they represent.
-  typedef std::unordered_map<FT_UInt32, GlyphBB> GlyphList;
+  /// @brief Used to store characters and the texture layers of the character they represent.
+  typedef std::unordered_map<FT_UInt32, CharacterBB> CharacterList;
 
-  /// @brief Defines the bounding position, size and baseline of a glyph within the font atlas.
-  struct GlyphBB {
+  /// @brief Defines the bounding position, size and baseline of a character within the font atlas.
+  struct CharacterBB {
     glm::ivec2 position_;
     glm::ivec2 size_;
     int baseline_;
@@ -33,8 +33,8 @@ namespace term_engine::fonts {
   constexpr int DEFAULT_FONT_SIZE = 32;
   /// @brief The size of the texture to store font characters in.
   constexpr GLsizei TEXTURE_SIZE = 1024;
-  /// @brief Defines an empty glyph that is returned when one fails to load, or a zero-character (i.e. '\0') is loaded.
-  constexpr GlyphBB EMPTY_GLYPH = { glm::ivec2(), glm::ivec2() };
+  /// @brief Defines an empty character that is returned when one fails to load, or a zero-character (i.e. '\0') is loaded.
+  constexpr CharacterBB EMPTY_CHARACTER = { glm::ivec2(), glm::ivec2() };
   /// @brief The default number of spaces that make up a tab character (i.e. '\\t').
   constexpr unsigned int DEFAULT_TAB_SIZE = 2;
   
@@ -42,19 +42,19 @@ namespace term_engine::fonts {
   extern std::string font_path;
   /// @brief The font size, in pixels (px).
   extern int font_size;
-  /// @brief The glyph size, in pixels (px);
-  extern glm::ivec2 glyph_size;
-  /// @brief A handler for the loaded font face. This also refers to the currently loaded glyph.
+  /// @brief The character size, in pixels (px);
+  extern glm::ivec2 character_size;
+  /// @brief A handler for the loaded font face. This also refers to the currently loaded character.
   extern FT_Face font_face;
-  /// @brief The list containing all glyphs loaded from the font.
-  extern GlyphList font_atlas;
+  /// @brief The list containing all characters loaded from the font.
+  extern CharacterList font_atlas;
   /// @brief The texture ID for OpenGL to use when rendering.
   extern GLuint texture_id;
-  /// @brief The amount of glyphs currently stored in the font atlas.
-  extern GLuint glyph_count;
-  /// @brief The position to store the next loaded glyph at.
+  /// @brief The amount of characters currently stored in the font atlas.
+  extern GLuint character_count;
+  /// @brief The position to store the next loaded character at.
   extern glm::uvec2 next_pos;
-  /// @brief The tallest height value of a glyph in the current row. This is used to cleanly move to the next row, after filling the current one.
+  /// @brief The tallest height value of a character in the current row. This is used to cleanly move to the next row, after filling the current one.
   extern GLuint max_height;
   /// @brief The amount of spaces to render when rendering a tab character (i.e. '\\t').
   extern unsigned int tab_size;
@@ -70,30 +70,30 @@ namespace term_engine::fonts {
   void CleanUp();
 
   /**
-    * @brief Finds a glyph in the atlas and returns the texture layer the glyph is on.
-    * @details If no glyph is found, it is loaded from the font and stored in the atlas.
+    * @brief Finds a character in the atlas and returns the texture layer the character is on.
+    * @details If no character is found, it is loaded from the font and stored in the atlas.
     * 
     *
     * @param[in] character The character to look up.
     * @returns The texture layer that holds the character.
     */
-  GlyphBB GetCharacter(const FT_ULong& character);
+  CharacterBB GetCharacter(const FT_ULong& character);
 
   /**
    * @brief Creates the texture of a character, and stores it in the atlas texture.
    * 
    * @param[in] character The character to render.
-   * @returns The bounding box of the loaded glyph.
+   * @returns The bounding box of the loaded character.
    */
-  std::pair<bool, GlyphBB> _CreateCharTexture(const FT_ULong& character);
+  std::pair<bool, CharacterBB> _CreateCharTexture(const FT_ULong& character);
 
   /**
-   * @brief Loads a glyph from the font.
+   * @brief Loads a character from the font.
    * 
    * @param[in] character The character to load.
-   * @returns The bounding box of the loaded glyph.
+   * @returns The bounding box of the loaded character.
    */
-  GlyphBB _LoadChar(const FT_ULong& character);
+  CharacterBB _LoadChar(const FT_ULong& character);
 
   /**
    * @brief Sets the font being used to render characters.
@@ -140,23 +140,23 @@ namespace term_engine::fonts {
   int GetDefaultFontSize();
 
   /**
-   * @brief Gets the size of a glyph, in pixels (px).
+   * @brief Gets the size of a character, in pixels (px).
    * 
-   * @returns The glyph size.
+   * @returns The character size.
    */
-  glm::ivec2 GetGlyphSize();
+  glm::ivec2 GetCharacterSize();
 
   /**
-   * @brief Sets the size of a glyph, in pixels (px).
+   * @brief Sets the size of a character, in pixels (px).
    * 
-   * @param glyphSize 
+   * @param characterSize 
    */
-  void SetGlyphSize(const glm::ivec2& glyphSize);
+  void SetCharacterSize(const glm::ivec2& characterSize);
 
   /**
-   * @brief Resets the glyph size, according to the current font.
+   * @brief Resets the character size, according to the current font.
    */
-  void ResetGlyphSize();
+  void ResetCharacterSize();
 }
 
 #endif // ! FONT_ATLAS_H

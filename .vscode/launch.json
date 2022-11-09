@@ -8,13 +8,13 @@
       "name": "Launch",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceRoot}/build/TermEngine",
+      "program": "${workspaceRoot}/TermEngine",
       "args": [  ],
       "environment": [{
         "name": "config",
         "value": "Debug"
       }],
-      "cwd": "${workspaceRoot}/build"
+      "cwd": "${workspaceRoot}"
     }
   ]
 }

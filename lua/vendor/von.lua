@@ -49,7 +49,7 @@
 		-	nil
 
 	The TermEngine-specific types that are supported are:
-		- Glyph (referred to as term_engine::objects::GlyphParams)
+		- Character (referred to as term_engine::objects::CharacterParams)
 		- Object (referred to as term_engine::objects::Object)
 		+ Vectors
 			- ivec2
@@ -142,9 +142,9 @@ function d_findVariable(s, i, len, lastType, jobstate)
 
 --[[ @JamesHoltom - TermEngine types start here ]]
 
-	  -- "g" precedes a Glyph.
+	  -- "g" precedes a Character.
     elseif c == "g" then
-			lastType = "term_engine::objects::GlyphParams"
+			lastType = "term_engine::objects::CharacterParams"
 			typeRead = true
 
 	  -- "O" precedes a Object.
@@ -589,8 +589,8 @@ _serialize = {
 --[[ @JamesHoltom - This section handles additions neccessary for TermEngine. ]]
 
 local extra_deserialize = {
-	-- A Glyph, consisting of the character, foreground and background colours.
-	["term_engine::objects::GlyphParams"] = function(s, i, len, unnecessaryEnd, jobstate)
+	-- A Character, consisting of the character, foreground and background colours.
+	["term_engine::objects::CharacterParams"] = function(s, i, len, unnecessaryEnd, jobstate)
 		local i, a = i or 1
 		local c, fg, bg = "", vec3(), vec3()
 		
@@ -643,7 +643,7 @@ local extra_deserialize = {
 		end
 
 		if c and fg and bg then
-			return Glyph(c, fg, bg), a - 1
+			return Character(c, fg, bg), a - 1
 		end
 
 		error("vON: ivec2 definition started... Found no end.")
@@ -711,7 +711,7 @@ local extra_deserialize = {
 					gBackground.g = tonumber(sub(s, i, a - 1))
 				elseif gState == 6 then
 					gBackground.b = tonumber(sub(s, i, a - 1))
-					obj.data[gIndex] = Glyph(gChr, gForeground, gBackground)
+					obj.data[gIndex] = Character(gChr, gForeground, gBackground)
 					gIndex = gIndex + 1
 				end
 
@@ -907,7 +907,7 @@ local extra_deserialize = {
 }
 
 local extra_serialize = {
-	["term_engine::objects::GlyphParams"] = function(data, mustInitiate, isNumeric, isKey, isLast, first, jobstate)
+	["term_engine::objects::CharacterParams"] = function(data, mustInitiate, isNumeric, isKey, isLast, first, jobstate)
 		local tmp = data.character .. "," .. tostring(data.foreground_colour) .. "," .. tostring(data.background_colour)
 
 		if mustInitiate then
@@ -927,7 +927,7 @@ local extra_serialize = {
 		local len = #data.data
 
 		for i = 1, len do
-			tmp = tmp .. _serialize["term_engine::objects::GlyphParams"](data.data[i], false, nil, nil, i == len, nil, {false})
+			tmp = tmp .. _serialize["term_engine::objects::CharacterParams"](data.data[i], false, nil, nil, i == len, nil, {false})
 		end
 		
 		tmp = tmp .. "}"

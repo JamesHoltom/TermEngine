@@ -17,7 +17,7 @@ namespace term_engine::data {
   struct UniformData {
     /// @brief The projection matrix, that maps the window's coordinates (i.e. 0 to _window width_) to OpenGL's coordinates (i.e. -1 to 1).
     glm::mat4 projection_;
-    /// @brief The position of the glyph set in the window.
+    /// @brief The position of the character set in the window.
     glm::vec2 set_position_;
   };
 
@@ -35,14 +35,14 @@ namespace term_engine::data {
   void SetProjection(const glm::ivec2& size);
 
   /**
-   * @brief Returns the position of the glyph set on the screen.
+   * @brief Returns the position of the character set on the screen.
    * 
-   * @returns The position of the glyph set.
+   * @returns The position of the character set.
    */
   glm::vec2 GetPosition();
 
   /**
-   * @brief Sets the position of the glyph set on the screen.
+   * @brief Sets the position of the character set on the screen.
    * 
    * @param[in] position The position to move the set to.
    */

@@ -29,7 +29,7 @@ namespace term_engine::events {
      * @param[in] func The user-defined callback function to trigger when an event is received.
      */
     EventListener(const std::string& type, const sol::function func);
-
+    
     /**
      * @brief Returns the type of event this listener will trigger for.
      * 
@@ -65,21 +65,31 @@ namespace term_engine::events {
      * @param[in] func The user-defined callback function to execute when triggered.
      * @returns A smart pointer to the event listener if it was added to the list, or a null pointer if it failed.
      */
-    static ListenerPtr& AddEventListener(const std::string& type, const sol::function func);
+    static ListenerPtr& Add(const std::string& type, const sol::function func);
+
+    /**
+     * @brief Adds a listener for a given event type to the list, using Lua's colon syntax (i.e. EventListener:new(...)).
+     * 
+     * @param[in] self Reference to the object. Unused.
+     * @param[in] type The type of event to listen for.
+     * @param[in] func The user-defined callback function to execute when triggered.
+     * @returns A smart pointer to the event listener if it was added to the list, or a null pointer if it failed.
+     */
+    static ListenerPtr& AddSelf(sol::object self, const std::string& type, const sol::function func);
 
     /**
      * @brief Removes a listener from the list.
      * 
      * @param[in] event A smart pointer to the event listener.
      */
-    static void RemoveEventListener(ListenerPtr& event);
+    static void Remove(ListenerPtr& event);
 
     /**
      * @brief Removes all listeners for the given event type from the list.
      * 
      * @param[in] type The type of event to clear listeners from.
      */
-    static void ClearEventListeners(const std::string& type);
+    static void Clear(const std::string& type);
 
     /**
      * @brief Returns the number of listeners for the given type.
@@ -87,14 +97,14 @@ namespace term_engine::events {
      * @param[in] type The type of event to count listeners for.
      * @returns The amount of listeners.
      */
-    static int CountListeners(const std::string& type);
+    static int Count(const std::string& type);
 
     /**
      * @brief Returns the list of event types with listeners attached.
      * 
      * @returns The list of event types.
      */
-    static std::vector<std::string> GetListenerTypes();
+    static std::vector<std::string> GetTypes();
 
     /**
      * @brief Executes all listeners for the given event type.

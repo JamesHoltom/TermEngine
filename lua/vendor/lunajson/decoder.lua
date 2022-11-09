@@ -29,7 +29,7 @@ end
 
 --[[ @JamesHoltom - TermEngine-specific constructors to be carried into the context start here. ]]
 
-local _Glyph = Glyph
+local _Character = Character
 local _Object = Object
 local _vec2 = vec2
 local _ivec2 = ivec2
@@ -383,8 +383,8 @@ local function newdecoder()
 
 	local function check_for_userdata(obj)
 		if obj.__type and obj.__data then
-			if obj.__type == "term_engine::objects::GlyphParams" then
-				return _Glyph(
+			if obj.__type == "term_engine::objects::CharacterParams" then
+				return _Character(
 					obj.__data.character,
 					_vec3(tonumber(obj.__data.foreground_colour.x), tonumber(obj.__data.foreground_colour.y), tonumber(obj.__data.foreground_colour.z)),
 					_vec3(tonumber(obj.__data.background_colour.x), tonumber(obj.__data.background_colour.y), tonumber(obj.__data.background_colour.z)))
@@ -396,7 +396,7 @@ local function newdecoder()
 				tmp.active = obj.__data.active
 
 				for k,v in ipairs(obj.__data.data) do
-					tmp.data[k] = _Glyph(
+					tmp.data[k] = _Character(
 						v.character,
 						_vec3(tonumber(v.foreground_colour.x), tonumber(v.foreground_colour.y), tonumber(v.foreground_colour.z)),
 						_vec3(tonumber(v.background_colour.x), tonumber(v.background_colour.y), tonumber(v.background_colour.z)))

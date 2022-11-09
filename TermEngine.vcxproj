@@ -207,7 +207,7 @@
     <ClInclude Include="src\events\InputManager.h" />
     <ClInclude Include="src\events\Listener.h" />
     <ClInclude Include="src\logging\Logger.h" />
-    <ClInclude Include="src\objects\Glyph.h" />
+    <ClInclude Include="src\objects\Character.h" />
     <ClInclude Include="src\objects\Object.h" />
     <ClInclude Include="src\objects\ObjectManager.h" />
     <ClInclude Include="src\resources\Audio.h" />
@@ -225,7 +225,7 @@
     <ClInclude Include="src\scripting\bindings\ViewBindings.h" />
     <ClInclude Include="src\shaders\Shader.h" />
     <ClInclude Include="src\shaders\background.h" />
-    <ClInclude Include="src\shaders\glyph.h" />
+    <ClInclude Include="src\shaders\character.h" />
     <ClInclude Include="src\system\CLArguments.h" />
     <ClInclude Include="src\system\DebugFunctions.h" />
     <ClInclude Include="src\system\FileFunctions.h" />

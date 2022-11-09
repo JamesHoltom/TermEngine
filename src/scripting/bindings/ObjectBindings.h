@@ -4,7 +4,7 @@
 #define OBJECT_BINDINGS_H
 
 #include <glm/glm.hpp>
-#include "../../objects/Glyph.h"
+#include "../../objects/Character.h"
 #include "../../objects/Object.h"
 #include "../../utility/SolUtils.h"
 
@@ -33,21 +33,21 @@ namespace term_engine::scripting::bindings {
       "isDirty", &objects::Object::IsDirty,
       "dirty", &objects::Object::Dirty);
     
-    state.new_usertype<objects::GlyphParams>(
-        "Glyph",
+    state.new_usertype<objects::CharacterParams>(
+        "Character",
         sol::meta_function::construct, sol::constructors<void(),
-                                                         void(const objects::GlyphParams&),
+                                                         void(const objects::CharacterParams&),
                                                          void(const char&, const glm::vec3&, const glm::vec3&)>(),
         sol::call_constructor, sol::constructors<void(),
-                                                 void(const objects::GlyphParams&),
+                                                 void(const objects::CharacterParams&),
                                                  void(const char&, const glm::vec3&, const glm::vec3&)>(),
-        sol::meta_function::equal_to, sol::overload([](const objects::GlyphParams& lhs, const objects::GlyphParams& rhs) { return lhs == rhs; }),
-        "character", &objects::GlyphParams::character_,
-        "foreground_colour", &objects::GlyphParams::foreground_colour_,
-        "background_colour", &objects::GlyphParams::background_colour_);
+        sol::meta_function::equal_to, sol::overload([](const objects::CharacterParams& lhs, const objects::CharacterParams& rhs) { return lhs == rhs; }),
+        "character", &objects::CharacterParams::character_,
+        "foreground_colour", &objects::CharacterParams::foreground_colour_,
+        "background_colour", &objects::CharacterParams::background_colour_);
 
     state.create_named_table(
-      "glyphs",
+      "characters",
       "NO_CHARACTER", objects::NO_CHARACTER,
       "DEFAULT_FOREGROUND_COLOUR", objects::DEFAULT_FOREGROUND_COLOUR,
       "DEFAULT_BACKGROUND_COLOUR", objects::DEFAULT_BACKGROUND_COLOUR);

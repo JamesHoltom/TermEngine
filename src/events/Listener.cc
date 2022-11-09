@@ -12,7 +12,7 @@ namespace term_engine::events {
   {
     logging::logger->debug("Created event listener of type {}.", type);
   }
-  
+
   std::string EventListener::GetType() const
   {
     return type_;
@@ -33,7 +33,7 @@ namespace term_engine::events {
     func_(data);
   }
 
-  ListenerPtr& EventListener::AddEventListener(const std::string& type, const sol::function func)
+  ListenerPtr& EventListener::Add(const std::string& type, const sol::function func)
   {
     if (listeners_.find(type) == listeners_.end())
     {
@@ -41,40 +41,53 @@ namespace term_engine::events {
       listeners_.insert_or_assign(type, list);
     }
 
-    listeners_[type].push_back(std::make_shared<EventListener>(type, func));
+    logging::logger->debug("Added event listener of type {}.", type);
 
-    return listeners_[type].back();
+    return listeners_[type].emplace_back(std::make_shared<EventListener>(type, func));
   }
 
-  void EventListener::RemoveEventListener(ListenerPtr& event)
+  ListenerPtr& EventListener::AddSelf(sol::object self, const std::string& type, const sol::function func)
   {
-    bool found = false;
+    return Add(type, func);
+  }
 
-    if (listeners_.find(event->type_) != listeners_.end())
+  void EventListener::Remove(ListenerPtr& event)
+  {
+    const std::string type = event->type_;
+
+    if (listeners_.find(type) != listeners_.end())
     {
-      ListenerList::iterator it = std::find(listeners_.at(event->type_).begin(), listeners_.at(event->type_).end(), event);
+      ListenerList::iterator it = std::find(listeners_[type].begin(), listeners_[type].end(), event);
 
       if (it != listeners_[event->type_].end())
       {
-        listeners_[event->type_].erase(it);
-        found = true;
-      }
-    }
+        listeners_[type].erase(it);
 
-    if (!found)
-    {
-      logging::logger->warn("Could not find function in list of event listeners for {}.", event->type_);
+        logging::logger->debug("Removed event listener of type {}. {} refs found.", type, event.use_count());
+      }
+      else
+      {
+        logging::logger->warn("Could not find function in list of event listeners for {}.", type);
+      }
     }
 
     event.reset();
   }
 
-  void EventListener::ClearEventListeners(const std::string& type)
+  void EventListener::Clear(const std::string& type)
   {
-    listeners_.erase(type);
+    if (listeners_.find(type) != listeners_.end())
+    {
+      for (ListenerPtr& listener : listeners_[type])
+      {
+        Remove(listener);
+      }
+
+      listeners_.erase(type);
+    }
   }
 
-  int EventListener::CountListeners(const std::string& type)
+  int EventListener::Count(const std::string& type)
   {
     if (listeners_.find(type) != listeners_.end())
     {
@@ -86,7 +99,7 @@ namespace term_engine::events {
     }
   }
 
-  std::vector<std::string> EventListener::GetListenerTypes()
+  std::vector<std::string> EventListener::GetTypes()
   {
     std::vector<std::string> types(listeners_.size());
 
@@ -190,12 +203,13 @@ namespace term_engine::events {
 
   void EventListener::CleanUp()
   {
-    for (auto& listener : listeners_)
+    for (auto& type : listeners_)
     {
-      listener.second.clear();
+      for (ListenerPtr& listener : listeners_[type.first])
+      {
+        Remove(listener);
+      }
     }
-
-    listeners_.clear();
   }
 
   ListenerMap EventListener::listeners_;

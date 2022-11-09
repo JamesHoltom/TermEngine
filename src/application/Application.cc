@@ -68,10 +68,10 @@ namespace term_engine::application {
 
   void CleanUp()
   {
-    scripting::CleanUp();
-    objects::Object::CleanUp();
     events::EventListener::CleanUp();
+    objects::Object::CleanUp();
     resources::Audio::CleanUp();
+    scripting::CleanUp();
     fonts::CleanUp();
     views::CleanUp();
     data::CleanUp();

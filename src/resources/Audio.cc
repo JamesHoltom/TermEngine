@@ -167,25 +167,49 @@ namespace term_engine::resources {
     }
 
     const std::filesystem::path id = GenerateId(filepath);
-    
-    return audio_list_.emplace(std::make_pair(id, std::make_shared<Audio>(id, flag))).first->second;
+
+    logging::logger->debug("Added audio file {}.", id.string());
+
+    return audio_list_.emplace_back(std::make_shared<Audio>(id, flag));
   }
 
 
   void Audio::Remove(AudioPtr& resource)
   {
-    audio_list_.erase(resource->filepath_);
+    AudioList::iterator it = std::find(audio_list_.begin(), audio_list_.end(), resource);
+
+    if (it != audio_list_.end())
+    {
+      audio_list_.erase(it);
+
+      logging::logger->debug("Removed audio file {}.", resource->filepath_.string());
+    }
+    else
+    {
+      logging::logger->warn("Couldn't find audio resource in list!");
+    }
+
     resource.reset();
   }
 
   bool Audio::Exists(const std::string& filepath)
   {
     const std::filesystem::path id = GenerateId(filepath);
+    bool isFound = false;
 
-    return audio_list_.find(id) != audio_list_.end();
+    for (AudioPtr& audio : audio_list_)
+    {
+      if (audio->filepath_ == id)
+      {
+        isFound = true;
+        break;
+      }
+    }
+
+    return isFound;
   }
 
-  AudioMap& Audio::GetList()
+  AudioList& Audio::GetList()
   {
     return audio_list_;
   }
@@ -197,7 +221,10 @@ namespace term_engine::resources {
 
   void Audio::CleanUp()
   {
-    audio_list_.clear();
+    for (AudioPtr& audio : audio_list_)
+    {
+      Remove(audio);
+    }
   }
 
   std::string Audio::GenerateId(const std::string& filepath)
@@ -205,5 +232,5 @@ namespace term_engine::resources {
     return system::SearchForResourcePath(filepath);
   }
 
-  AudioMap Audio::audio_list_;
+  AudioList Audio::audio_list_;
 }

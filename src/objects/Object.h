@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 #include <glm/glm.hpp>
-#include "Glyph.h"
+#include "Character.h"
 #include "../utility/SolUtils.h"
 
 namespace term_engine::objects {
@@ -21,7 +21,7 @@ namespace term_engine::objects {
 
   /**
    * @brief Used to represent a game object, that is rendered to the screen.
-   * @details Other attributes can be added at the script level; this structure only cares about rendering glyphs to the screen.
+   * @details Other attributes can be added at the script level; this structure only cares about rendering characters to the screen.
    */
   class Object {
   public:
@@ -31,14 +31,14 @@ namespace term_engine::objects {
      * @param[in] position The position of the object in the window.
      * @param[in] size     The size of the object, i.e. how many rows & columns.
      */
-    Object(const glm::vec2& position, const glm::ivec2& size);
+    Object(const glm::ivec2& position, const glm::ivec2& size);
 
     /**
      * @brief Returns the position of the object.
      * 
      * @returns The position of the object.
      */
-    glm::vec2 GetPosition() const;
+    glm::ivec2 GetPosition() const;
 
     /**
      * @brief Returns the size of the object.
@@ -52,7 +52,7 @@ namespace term_engine::objects {
      * 
      * @returns The data within the object.
      */
-    GlyphData& GetData();
+    CharacterData& GetData();
 
     /**
      * @brief Returns if the object is active.
@@ -66,7 +66,7 @@ namespace term_engine::objects {
      * 
      * @param[in] position The position to move the object to.
      */
-    void SetPosition(const glm::vec2& position);
+    void SetPosition(const glm::ivec2& position);
 
     /**
      * @brief Sets the size of the object.
@@ -107,7 +107,7 @@ namespace term_engine::objects {
      * @param[in] size     The size of the object, in rows & columns.
      * @returns A smart pointer to the object if it was added to the list, or a null pointer if it failed.
      */
-    static ObjectPtr& Add(const glm::vec2& position, const glm::ivec2& size);
+    static ObjectPtr& Add(const glm::ivec2& position, const glm::ivec2& size);
 
     /**
      * @brief Adds an object to the list, using Lua's colon syntax (i.e. Object:new(...)).
@@ -117,7 +117,7 @@ namespace term_engine::objects {
      * @param[in] size     The size of the object, in rows & columns.
      * @returns A smart pointer to the object if it was added to the list, or a null pointer if it failed.
      */
-    static ObjectPtr& AddSelf(sol::object self, const glm::vec2& position, const glm::ivec2& size);
+    static ObjectPtr& AddSelf(sol::object self, const glm::ivec2& position, const glm::ivec2& size);
 
     /**
      * @brief Removes an object from the list.
@@ -158,11 +158,11 @@ namespace term_engine::objects {
 
   protected:
     /// @brief The top-left position of the object.
-    glm::vec2 position_;
+    glm::ivec2 position_;
     /// @brief The size of the object, in rows & columns.
     glm::ivec2 size_;
-    /// @brief The glyph parameters that will copied to the buffer when rendered.
-    GlyphData data_;
+    /// @brief The character parameters that will copied to the buffer when rendered.
+    CharacterData data_;
     /// @brief The ID of the object.
     int object_id_;
     /// @brief Is the object active? (i.e. Is the object being rendered and acted on?)

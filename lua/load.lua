@@ -3,7 +3,8 @@
 --]]
 
 require "lua/readonly"
-require "lua/objects/objects"
+require "lua/objects/box"
+require "lua/objects/text"
 require "lua/objects/menu"
 require "lua/constants/colours"
 require "lua/constants/values"

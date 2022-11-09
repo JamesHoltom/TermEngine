@@ -3,14 +3,14 @@
 #ifndef VIEW_H
 #define VIEW_H
 
-#include "../objects/Glyph.h"
+#include "../objects/Character.h"
 #include "../utility/GLUtils.h"
 
 namespace term_engine::views {
   /// @brief The default number of rows/columns in the view.
   constexpr glm::uvec2 DEFAULT_DIMENSIONS = glm::uvec2(32, 16);
 
-  /// @brief The ID of the glyph shader program.
+  /// @brief The ID of the character shader program.
   extern GLuint program_id;
   /// @brief The ID of the VAO used to contain the VBO.
   extern GLuint vao_id;
@@ -61,24 +61,24 @@ namespace term_engine::views {
   void SetSize(const glm::ivec2& size);
 
   /**
-   * @brief Pushes vertex/texture data for the glyph at the given index to the buffer.
+   * @brief Pushes vertex/texture data for the character at the given index to the buffer.
    * 
-   * @param[in] index The index of the glyph to push.
-   * @param[in] position The position to render the glyph to.
-   * @param[in] params The glyph parameters.
+   * @param[in] index The index of the character to push.
+   * @param[in] position The position to render the character to.
+   * @param[in] params The character parameters.
    */
-  void PushGlyphToBuffer(const size_t& index, const glm::ivec2& position, const objects::GlyphParams& params);
+  void PushCharacterToBuffer(const size_t& index, const glm::ivec2& position, const objects::CharacterParams& params);
 
   /// @brief Sets up the OpenGL buffers.
   void CreateBuffers();
 
-  /// @brief Sets up the glyph shader.
+  /// @brief Sets up the character shader.
   void CreateShader();
 
   /// @brief Destroys the OpenGL buffers.
   void CleanUpBuffers();
 
-  /// @brief Destroys the glyph shader.
+  /// @brief Destroys the character shader.
   void CleanUpShader();
 }
 

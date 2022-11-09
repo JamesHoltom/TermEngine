@@ -113,7 +113,7 @@
     <ClInclude Include="src\events\Listener.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\objects\Glyph.h">
+    <ClInclude Include="src\objects\Character.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\objects\Object.h">
@@ -170,7 +170,7 @@
     <ClInclude Include="src\shaders\background.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\shaders\glyph.h">
+    <ClInclude Include="src\shaders\character.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\system\CLArguments.h">

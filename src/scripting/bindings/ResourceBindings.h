@@ -56,12 +56,12 @@ namespace term_engine::scripting::bindings {
       "set", &fonts::SetFont,
       "getPath", &fonts::GetFontPath,
       "getSize", &fonts::GetFontSize,
-      "getGlyphSize", &fonts::GetGlyphSize,
-      "setGlyphSize", &fonts::SetGlyphSize,
-      "resetGlyphSize", &fonts::ResetGlyphSize,
+      "getCharacterSize", &fonts::GetCharacterSize,
+      "setCharacterSize", &fonts::SetCharacterSize,
+      "resetCharacterSize", &fonts::ResetCharacterSize,
       "getDefaultPath", &fonts::GetDefaultFontPath,
       "getDefaultSize", &fonts::GetDefaultFontSize,
-      "getTabSize", fonts::tab_size);
+      "tabSize", fonts::tab_size);
 
     state.create_named_table(
       "window",

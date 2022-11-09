@@ -3,7 +3,7 @@
 #include "../objects/Object.h"
 #include "../resources/FontAtlas.h"
 #include "../shaders/Shader.h"
-#include "../shaders/glyph.h"
+#include "../shaders/character.h"
 #include "../system/DebugFunctions.h"
 
 namespace term_engine::views {
@@ -30,8 +30,8 @@ namespace term_engine::views {
   void Render()
   {
     if (objects::Object::IsDirty()) {
-      for (auto& glyph : data) {
-        glyph = objects::BufferData();
+      for (auto& character : data) {
+        character = objects::BufferData();
       }
 
       for (objects::ObjectPtr& object : objects::Object::GetList()) {
@@ -39,25 +39,25 @@ namespace term_engine::views {
           continue;
         }
 
-        const objects::GlyphData& obj_data = object->GetData();
+        const objects::CharacterData& obj_data = object->GetData();
         const glm::ivec2 obj_size = object->GetSize();
 
         for (size_t object_index = 0; object_index < (size_t)obj_size.x * (size_t)obj_size.y; ++object_index) {
-          glm::ivec2 world_pos = glm::ivec2(object->GetPosition()) + glm::ivec2(object_index % obj_size.x, object_index / obj_size.x);
+          glm::ivec2 world_pos = object->GetPosition() + glm::ivec2(object_index % obj_size.x, object_index / obj_size.x);
           size_t view_index = (((size_t)view_size.x * (size_t)world_pos.y) + (size_t)world_pos.x) * 12;
 
-          // Do not render the glyph if it is obscured from view.
+          // Do not render the character if it is obscured from view.
           // i.e. If the top-left corner of the object is beyond the right/bottom edges of the view, or if the bottom-right corner of the object is beyond the top/left edges of the view.
           if (glm::any(glm::lessThan(world_pos, glm::ivec2(0))) || glm::any(glm::greaterThanEqual(world_pos, view_size))) {
             continue;
           }
 
-          // Do not render the glyph if it is invisible.
+          // Do not render the character if it is invisible.
           if (obj_data.at(object_index).character_ == objects::NO_CHARACTER) {
             continue;
           }
 
-          PushGlyphToBuffer(view_index, world_pos * fonts::glyph_size, obj_data.at(object_index));
+          PushCharacterToBuffer(view_index, world_pos * fonts::character_size, obj_data.at(object_index));
         }
       }
 
@@ -105,21 +105,21 @@ namespace term_engine::views {
     objects::Object::Dirty();
   }
 
-  void PushGlyphToBuffer(const size_t& index, const glm::ivec2& position, const objects::GlyphParams& params)
+  void PushCharacterToBuffer(const size_t& index, const glm::ivec2& position, const objects::CharacterParams& params)
   {
-    fonts::GlyphBB bbox = fonts::GetCharacter(params.character_);
+    fonts::CharacterBB bbox = fonts::GetCharacter(params.character_);
     glm::vec2 texPos = glm::vec2(bbox.position_) / (GLfloat)fonts::TEXTURE_SIZE;
     glm::vec2 texSize = glm::vec2(bbox.size_) / (GLfloat)fonts::TEXTURE_SIZE;
-    glm::vec2 texAlign = glm::vec2((fonts::glyph_size.x - bbox.size_.x) / 2, bbox.baseline_);
+    glm::vec2 texAlign = glm::vec2((fonts::character_size.x - bbox.size_.x) / 2, bbox.baseline_);
     bool has_texture = params.character_ != objects::NO_CHARACTER;
 
     // Draw the background.
     data.at(index) = objects::BufferData(glm::vec2(position), glm::vec2(), false, params.background_colour_);
-    data.at(index + 1) = objects::BufferData(glm::vec2(position + fonts::glyph_size), glm::vec2(), false, params.background_colour_);
-    data.at(index + 2) = objects::BufferData(glm::vec2(position.x, position.y + fonts::glyph_size.y), glm::vec2(), false, params.background_colour_);
+    data.at(index + 1) = objects::BufferData(glm::vec2(position + fonts::character_size), glm::vec2(), false, params.background_colour_);
+    data.at(index + 2) = objects::BufferData(glm::vec2(position.x, position.y + fonts::character_size.y), glm::vec2(), false, params.background_colour_);
     data.at(index + 3) = objects::BufferData(glm::vec2(position), glm::vec2(), false, params.background_colour_);
-    data.at(index + 4) = objects::BufferData(glm::vec2(position.x + fonts::glyph_size.x, position.y), glm::vec2(), false, params.background_colour_);
-    data.at(index + 5) = objects::BufferData(glm::vec2(position + fonts::glyph_size), glm::vec2(), false, params.background_colour_);
+    data.at(index + 4) = objects::BufferData(glm::vec2(position.x + fonts::character_size.x, position.y), glm::vec2(), false, params.background_colour_);
+    data.at(index + 5) = objects::BufferData(glm::vec2(position + fonts::character_size), glm::vec2(), false, params.background_colour_);
 
     // Draw the foreground.
     data.at(index + 6) = objects::BufferData(glm::vec2(position) + texAlign, texPos, has_texture, params.foreground_colour_);
@@ -170,8 +170,8 @@ namespace term_engine::views {
   {
     program_id = shaders::CreateProgram();
 
-    shaders::AddShaderString(program_id, GL_VERTEX_SHADER, GLYPH_VERT_GLSL);
-    shaders::AddShaderString(program_id, GL_FRAGMENT_SHADER, GLYPH_FRAG_GLSL);
+    shaders::AddShaderString(program_id, GL_VERTEX_SHADER, CHARACTER_VERT_GLSL);
+    shaders::AddShaderString(program_id, GL_FRAGMENT_SHADER, CHARACTER_FRAG_GLSL);
     shaders::LinkProgram(program_id);
 
     glUseProgram(0);

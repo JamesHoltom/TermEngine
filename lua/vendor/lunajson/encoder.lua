@@ -226,7 +226,7 @@ local function newencoder()
 		i = i + 1
 	end
 
-	local function f_glyph(g)
+	local function f_character(g)
 		-- Start the object.
 		builder[i] = '{'
 		i = i + 1
@@ -330,7 +330,7 @@ local function newencoder()
 				i = i + 1
 			end
 
-			f_glyph(obj.data[j])
+			f_character(obj.data[j])
 		end
 
 		-- End the object.
@@ -341,8 +341,8 @@ local function newencoder()
 	end
 
 	local function f_userdata(ud)
-		if ud.__type.name == "term_engine::objects::GlyphParams" then
-			f_glyph(ud)
+		if ud.__type.name == "term_engine::objects::CharacterParams" then
+			f_character(ud)
 		elseif ud.__type.name == "term_engine::objects::Object" then
 			f_object(ud)
 		elseif ud.__type.name == "glm::vec<2, int, glm::packed_highp>" or ud.__type.name == "glm::vec<2, float, glm::packed_highp>" then

@@ -3,7 +3,7 @@
 #include "../logging/Logger.h"
 
 namespace term_engine::objects {
-  Object::Object(const glm::vec2& position, const glm::ivec2& size) :
+  Object::Object(const glm::ivec2& position, const glm::ivec2& size) :
     object_id_(Object::object_next_id_++),
     position_(position),
     size_(size),
@@ -17,7 +17,7 @@ namespace term_engine::objects {
     logging::logger->debug("Created {}x{} object with {} elements.", size.x, size.y, data_size);
   }
 
-  glm::vec2 Object::GetPosition() const
+  glm::ivec2 Object::GetPosition() const
   {
     return position_;
   }
@@ -27,7 +27,7 @@ namespace term_engine::objects {
     return size_;
   }
 
-  GlyphData& Object::GetData()
+  CharacterData& Object::GetData()
   {
     return data_;
   }
@@ -37,7 +37,7 @@ namespace term_engine::objects {
     return is_active_;
   }
 
-  void Object::SetPosition(const glm::vec2& position)
+  void Object::SetPosition(const glm::ivec2& position)
   {
     position_ = position;
     Object::is_dirty_ = true;
@@ -70,18 +70,20 @@ namespace term_engine::objects {
   {
     for (int index = 0; index < data_.size(); index++)
     {
-      func(data_.at(index), index);
+      func(data_, index + 1, data_.at(index));
     }
 
     Object::is_dirty_ = true;
   }
 
-  ObjectPtr& Object::Add(const glm::vec2& position, const glm::ivec2& size)
+  ObjectPtr& Object::Add(const glm::ivec2& position, const glm::ivec2& size)
   {
+    logging::logger->debug("Added object with position {},{} and size {},{}", position.x, position.y, size.x, size.y);
+
     return object_list_.emplace_back(std::make_shared<Object>(position, size));
   }
 
-  ObjectPtr& Object::AddSelf(sol::object self, const glm::vec2& position, const glm::ivec2& size)
+  ObjectPtr& Object::AddSelf(sol::object self, const glm::ivec2& position, const glm::ivec2& size)
   {
     return Add(position, size);
   }
@@ -93,6 +95,8 @@ namespace term_engine::objects {
     if (it != object_list_.end())
     {
       object_list_.erase(it);
+
+      logging::logger->debug("Removed object. {} refs found.", obj.use_count());
     }
     else
     {
@@ -114,7 +118,10 @@ namespace term_engine::objects {
 
   void Object::CleanUp()
   {
-    object_list_.clear();
+    for (ObjectPtr& obj : object_list_)
+    {
+      Remove(obj);
+    }
   }
 
   bool Object::IsDirty()

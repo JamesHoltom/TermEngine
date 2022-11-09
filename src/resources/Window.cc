@@ -83,7 +83,7 @@ namespace term_engine::system {
 
   void ResizeWindowToView()
   {
-    SetWindowSize(fonts::glyph_size * views::view_size);
+    SetWindowSize(fonts::character_size * views::view_size);
   }
 
   bool IsWindowResizable()

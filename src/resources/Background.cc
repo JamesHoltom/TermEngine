@@ -43,7 +43,7 @@ namespace term_engine::background {
       glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
       glBufferData(GL_ARRAY_BUFFER, sizeof(BackgroundData) * 6, &data, GL_DYNAMIC_DRAW);
       
-      logging::logger->debug("Loaded background image \'{}\' with size {},{} and ID {}", current_background.filename_.c_str(), current_background.size_.x, current_background.size_.y, current_background.texture_id_);
+      logging::logger->debug("Loaded background image \'{}\' with size {},{} and ID {}.", current_background.filename_.c_str(), current_background.size_.x, current_background.size_.y, current_background.texture_id_);
     }
     else
     {
@@ -57,6 +57,8 @@ namespace term_engine::background {
       system::DeleteImage(current_background);
 
       current_background = system::ImageData();
+
+      logging::logger->debug("Removed background image.");
     }
   }
 
@@ -68,6 +70,7 @@ namespace term_engine::background {
 
   void CleanUp()
   {
+    RemoveBackground();
     CleanUpBuffers();
     CleanUpShader();
   }
