@@ -5,22 +5,22 @@ function Player(_pos)
 		speed = 9
 	}
 	
-	self.box.fill = Character("o", vec3(255, 0, 0), vec3(0))
+	self.box.fill = Character("o", Colours.RED, Colours.BLACK)
 	
 	local doInput = function(_timestep)
 		if mouse.isPressed(mouse.LEFT) then
 			if self.box.fill.character == "o" then
-				self.box.fill = Character("x", vec3(0, 0, 255), vec3(0))
+				self.box.fill = Character("x", Colours.BLUE, Colours.BLACK)
 			else
-				self.box.fill = Character("o", vec3(255, 0, 0), vec3(0))
+				self.box.fill = Character("o", Colours.RED, Colours.BLACK)
 			end
 		end
 		
 		if mouse.isPressed(mouse.RIGHT) then
 			if self.box.hasOutline() then
-				self.box.outline = empty_character
+				self.box.outline = Character("", Colours.BLACK, Colours.WHITE)
 			else
-				self.box.outline = Character("*", vec3(0, 255, 0), vec3(255))
+				self.box.outline = Character("*", Colours.GREEN, Colours.WHITE)
 			end
 		end
 		

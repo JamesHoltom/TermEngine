@@ -84,7 +84,7 @@ function BoxObject(_position, _size)
 			
 			_setData()
 		elseif key == "outline" then
-			self[key] = Character(value)
+			self[key] = value
 
 			if value.character == characters.NO_CHARACTER then
 				self.has_outline = false
