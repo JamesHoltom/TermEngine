@@ -1,6 +1,6 @@
 # TermEngine
 
-TermEngine is an engine that focuses on creating text-based games, with additional options for graphical features.
+TermEngine is a game engine that focuses on creating text-based games, with additional options for graphical features.
 
 This project is currently a work-in-progress, with intermittent updates.
 
@@ -10,8 +10,8 @@ This project is currently a work-in-progress, with intermittent updates.
 local hello_world
 
 function Init()
-  hello_world = TextObject(Values.VEC2_ONE, ivec2(12, 1))
-	hello_world.setText("Hello World!")
+  hello_world = TextObject(Values.IVEC2_ONE, ivec2(12, 1))
+  hello_world.text = "Hello World!"
   
   return true
 end
