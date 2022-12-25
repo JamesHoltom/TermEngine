@@ -5,7 +5,7 @@
 
 #include "Timer.h"
 
-namespace term_engine::timing {
+namespace timing {
   /// @brief Denotes how many frames to wait before updating the average frame rate.
   constexpr int FPS_FRAME_MULTIPLE = 5;
   /// @brief Represents the default FPS when starting the program.

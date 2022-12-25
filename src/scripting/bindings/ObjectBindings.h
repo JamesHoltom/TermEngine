@@ -6,6 +6,7 @@
 #include <glm/glm.hpp>
 #include "../../objects/Character.h"
 #include "../../objects/Object.h"
+#include "../../objects/ShaderProgram.h"
 #include "../../utility/SolUtils.h"
 
 namespace term_engine::scripting::bindings {
@@ -37,10 +38,10 @@ namespace term_engine::scripting::bindings {
         "Character",
         sol::meta_function::construct, sol::constructors<void(),
                                                          void(const objects::CharacterParams&),
-                                                         void(const char&, const glm::vec3&, const glm::vec3&)>(),
+                                                         void(const char&, const glm::vec4&, const glm::vec4&)>(),
         sol::call_constructor, sol::constructors<void(),
                                                  void(const objects::CharacterParams&),
-                                                 void(const char&, const glm::vec3&, const glm::vec3&)>(),
+                                                 void(const char&, const glm::vec4&, const glm::vec4&)>(),
         sol::meta_function::equal_to, sol::overload([](const objects::CharacterParams& lhs, const objects::CharacterParams& rhs) { return lhs == rhs; }),
         "character", &objects::CharacterParams::character_,
         "foreground_colour", &objects::CharacterParams::foreground_colour_,
@@ -51,6 +52,20 @@ namespace term_engine::scripting::bindings {
       "NO_CHARACTER", objects::NO_CHARACTER,
       "DEFAULT_FOREGROUND_COLOUR", objects::DEFAULT_FOREGROUND_COLOUR,
       "DEFAULT_BACKGROUND_COLOUR", objects::DEFAULT_BACKGROUND_COLOUR);
+
+    state.new_usertype<objects::ShaderProgram>(
+      "Shader",
+      sol::meta_function::construct, sol::factories(&objects::ShaderProgram::Add, &objects::ShaderProgram::AddSelf),
+      sol::call_constructor, sol::factories(&objects::ShaderProgram::Add),
+      sol::meta_function::garbage_collect, sol::destructor(&objects::ShaderProgram::Remove),
+      "attach", &objects::ShaderProgram::AttachFile,
+      "link", &objects::ShaderProgram::Link,
+      "linked", sol::readonly_property(&objects::ShaderProgram::GetProgramId),
+      "use", &objects::ShaderProgram::Use
+    );
+
+    state.create_named_table("shaders",
+      "getCount", &objects::Object::Count);
   }
 }
 

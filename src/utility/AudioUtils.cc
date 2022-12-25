@@ -1,5 +1,5 @@
 #include "AudioUtils.h"
-#include "../logging/Logger.h"
+#include "SpdlogUtils.h"
 #include "../system/FileFunctions.h"
 
 namespace audio {
@@ -16,7 +16,7 @@ namespace audio {
 
     if (result != MA_SUCCESS)
     {
-      term_engine::logging::logger->error("Failed to initialise audio engine.");
+      logging::logger->error("Failed to initialise audio engine.");
 
       return 1;
     }
@@ -35,12 +35,14 @@ namespace audio {
 
     if (device_id == 0)
     {
-      term_engine::logging::logger->error("Failed to open audio device. {}", SDL_GetError());
+      logging::logger->error("Failed to open audio device. {}", SDL_GetError());
 
       return 1;
     }
 
     SDL_PauseAudioDevice(device_id, SDL_FALSE);
+
+    logging::logger->debug("Initialised miniaudio.");
 
     return 0;
   }
@@ -49,6 +51,8 @@ namespace audio {
   {
     SDL_CloseAudioDevice(device_id);
     ma_engine_uninit(&engine);
+
+    logging::logger->debug("Shut down miniaudio.");
   }
 
   void data_callback(void* userdata, ma_uint8* buffer, int bufferSizeInBytes)

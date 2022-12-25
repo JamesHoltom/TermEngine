@@ -1,6 +1,6 @@
 #include "Timer.h"
 
-namespace term_engine::timing {
+namespace timing {
   Timer::Timer() :
     start_point_(TimePoint()),
     stop_point_(TimePoint()),

@@ -5,7 +5,7 @@
 
 #include <chrono>
 
-namespace term_engine::timing {
+namespace timing {
   /// @brief Used to measure time.
   using Clock = std::chrono::steady_clock;
   /// @brief Represents a span of time, in seconds.

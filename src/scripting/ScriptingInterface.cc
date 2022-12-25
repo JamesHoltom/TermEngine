@@ -8,12 +8,12 @@
 #include "bindings/TimingBindings.h"
 #include "bindings/UtilityBindings.h"
 #include "bindings/ViewBindings.h"
-#include "../logging/Logger.h"
 #include "../system/CLArguments.h"
 #include "../system/FileFunctions.h"
+#include "../utility/SpdlogUtils.h"
 
 
-namespace term_engine::scripting {
+namespace scripting {
   std::unique_ptr<sol::state> lua_state;
   std::string lua_file;
 

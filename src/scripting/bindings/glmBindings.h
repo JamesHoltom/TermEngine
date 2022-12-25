@@ -47,7 +47,8 @@ namespace term_engine::scripting::bindings {
       sol::meta_function::unary_minus, [](const glm::ivec2& self) -> glm::ivec2 { return -self; },
       sol::meta_function::to_string, [](const glm::ivec2& self) -> std::string { return std::to_string(self.x) + "," + std::to_string(self.y); },
       "x", &glm::ivec2::x,
-      "y", &glm::ivec2::y);
+      "y", &glm::ivec2::y,
+      "abs", [](const glm::ivec2& self) -> glm::ivec2 { return glm::abs(self); });
 
     state.new_usertype<glm::vec2>(
       "vec2",
@@ -82,7 +83,8 @@ namespace term_engine::scripting::bindings {
       "y", &glm::vec2::y,
       "floor", [](const glm::vec2& self) -> glm::vec2 { return glm::floor(self); },
       "ceil", [](const glm::vec2& self) -> glm::vec2 { return glm::ceil(self); },
-      "round", [](const glm::vec2& self) -> glm::vec2 { return glm::round(self); });
+      "round", [](const glm::vec2& self) -> glm::vec2 { return glm::round(self); },
+      "abs", [](const glm::vec2& self) -> glm::vec2 { return glm::abs(self); });
 
     state.new_usertype<glm::ivec3>(
       "ivec3",
@@ -120,7 +122,8 @@ namespace term_engine::scripting::bindings {
       "z", &glm::ivec3::z,
       "r", &glm::ivec3::r,
       "g", &glm::ivec3::g,
-      "b", &glm::ivec3::b);
+      "b", &glm::ivec3::b,
+      "abs", [](const glm::ivec3& self) -> glm::ivec3 { return glm::abs(self); });
 
     state.new_usertype<glm::vec3>(
       "vec3",
@@ -160,7 +163,8 @@ namespace term_engine::scripting::bindings {
       "b", &glm::vec3::b,
       "floor", [](const glm::vec3& self) -> glm::vec3 { return glm::floor(self); },
       "ceil", [](const glm::vec3& self) -> glm::vec3 { return glm::ceil(self); },
-      "round", [](const glm::vec3& self) -> glm::vec3 { return glm::round(self); });
+      "round", [](const glm::vec3& self) -> glm::vec3 { return glm::round(self); },
+      "abs", [](const glm::vec3& self) -> glm::vec3 { return glm::abs(self); });
 
     state.new_usertype<glm::ivec4>(
       "ivec4",
@@ -204,7 +208,8 @@ namespace term_engine::scripting::bindings {
       "r", &glm::ivec4::r,
       "g", &glm::ivec4::g,
       "b", &glm::ivec4::b,
-      "a", &glm::ivec4::a);
+      "a", &glm::ivec4::a,
+      "abs", [](const glm::ivec4& self) -> glm::ivec4 { return glm::abs(self); });
 
     state.new_usertype<glm::vec4>(
       "vec4",
@@ -251,7 +256,8 @@ namespace term_engine::scripting::bindings {
       "a", &glm::vec4::a,
       "floor", [](const glm::vec4& self) -> glm::vec4 { return glm::floor(self); },
       "ceil", [](const glm::vec4& self) -> glm::vec4 { return glm::ceil(self); },
-      "round", [](const glm::vec4& self) -> glm::vec4 { return glm::round(self); });
+      "round", [](const glm::vec4& self) -> glm::vec4 { return glm::round(self); },
+      "abs", [](const glm::vec4& self) -> glm::vec4 { return glm::abs(self); });
   }
 }
 

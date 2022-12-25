@@ -6,7 +6,6 @@
 #include <array>
 #include <string>
 #include <glm/glm.hpp>
-
 #include "../utility/SDLUtils.h"
 
 namespace term_engine::events {

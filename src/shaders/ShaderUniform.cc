@@ -1,7 +1,6 @@
-#include "Uniform.h"
-#include "../resources/Window.h"
+#include "ShaderUniform.h"
 
-namespace term_engine::data {
+namespace shaders {
   GLuint ubo_id;
   UniformData ubo_data;
 

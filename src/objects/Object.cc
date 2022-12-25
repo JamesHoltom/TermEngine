@@ -1,8 +1,8 @@
 #include <algorithm>
 #include "Object.h"
-#include "../logging/Logger.h"
+#include "../utility/SpdlogUtils.h"
 
-namespace term_engine::objects {
+namespace objects {
   Object::Object(const glm::ivec2& position, const glm::ivec2& size) :
     object_id_(Object::object_next_id_++),
     position_(position),
@@ -14,7 +14,7 @@ namespace term_engine::objects {
     data_.resize(data_size);
     data_.shrink_to_fit();
 
-    logging::logger->debug("Created {}x{} object with {} elements.", size.x, size.y, data_size);
+    logging::logger->debug("Created {}x{} object at {},{}.", size.x, size.y, position.x, position.y);
   }
 
   glm::ivec2 Object::GetPosition() const
@@ -27,7 +27,7 @@ namespace term_engine::objects {
     return size_;
   }
 
-  CharacterData& Object::GetData()
+  rendering::CharacterData& Object::GetData()
   {
     return data_;
   }
@@ -68,9 +68,11 @@ namespace term_engine::objects {
 
   void Object::Set(const sol::function& func)
   {
-    for (int index = 0; index < data_.size(); index++)
+    int index = 1;
+
+    for (rendering::CharacterParams& character : data_)
     {
-      func(data_, index + 1, data_.at(index));
+      character = rendering::CharacterParams(func(data_, index++));
     }
 
     Object::is_dirty_ = true;

@@ -1,18 +1,13 @@
-#include "View.h"
-#include "../data/Uniform.h"
+#include "CharacterMap.h"
 #include "../objects/Object.h"
+#include "../objects/ShaderProgram.h"
 #include "../resources/FontAtlas.h"
-#include "../shaders/Shader.h"
-#include "../shaders/character.h"
+#include "../shaders/default.h"
 #include "../system/DebugFunctions.h"
 
 namespace term_engine::views {
-  GLuint program_id;
-  GLuint vao_id;
-  GLuint vbo_id;
   glm::vec2 view_position;
   glm::ivec2 view_size;
-  objects::BufferList data;
 
   void Init()
   {
@@ -64,7 +59,7 @@ namespace term_engine::views {
       objects::Object::Clean();
     }
 
-    glUseProgram(program_id);
+    glUseProgram(objects::ShaderProgram::GetProgramInUse());
     glBindVertexArray(vao_id);
     glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
     glBufferData(GL_ARRAY_BUFFER, sizeof(objects::BufferData) * data.capacity(), data.data(), GL_DYNAMIC_DRAW);
@@ -130,61 +125,13 @@ namespace term_engine::views {
     data.at(index + 11) = objects::BufferData(glm::vec2(position + bbox.size_) + texAlign, texPos + texSize, has_texture, params.foreground_colour_);
   }
 
-  void CreateBuffers()
-  {
-    glGenVertexArrays(1, &vao_id);
-    glBindVertexArray(vao_id);
-
-    glGenBuffers(1, &vbo_id);
-    glBindVertexBuffer(0, vbo_id, 0, sizeof(objects::BufferData));
-
-    // Configure the vertex position attribute.
-    glEnableVertexAttribArray(0);
-    glVertexAttribFormat(0, 3, GL_FLOAT, GL_FALSE, offsetof(objects::BufferData, position_));
-    glVertexAttribBinding(0, 0);
-
-    // Configure the "Has texture?" attribute.
-    glEnableVertexAttribArray(1);
-    glVertexAttribFormat(1, 1, GL_FLOAT, GL_FALSE, offsetof(objects::BufferData, has_texture_));
-    glVertexAttribBinding(1, 0);
-
-    // Configure the texture position attribute.
-    glEnableVertexAttribArray(2);
-    glVertexAttribFormat(2, 2, GL_FLOAT, GL_FALSE, offsetof(objects::BufferData, texture_position_));
-    glVertexAttribBinding(2, 0);
-
-    // Configure the colour attribute.
-    glEnableVertexAttribArray(3);
-    glVertexAttribFormat(3, 3, GL_FLOAT, GL_FALSE, offsetof(objects::BufferData, colour_));
-    glVertexAttribBinding(3, 0);
-
-    debug::LogVAOData();
-
-    glBindBuffer(GL_ARRAY_BUFFER, vbo_id);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(objects::BufferData) * data.capacity(), data.data(), GL_DYNAMIC_DRAW);
-
-    glBindVertexArray(0);
-  }
-
   void CreateShader()
   {
-    program_id = shaders::CreateProgram();
-
-    shaders::AddShaderString(program_id, GL_VERTEX_SHADER, CHARACTER_VERT_GLSL);
-    shaders::AddShaderString(program_id, GL_FRAGMENT_SHADER, CHARACTER_FRAG_GLSL);
-    shaders::LinkProgram(program_id);
+    objects::ShaderProgramPtr default_shader = objects::ShaderProgram::Add();
+    default_shader->AttachString(DEFAULT_VERT_GLSL, GL_VERTEX_SHADER);
+    default_shader->AttachString(DEFAULT_FRAG_GLSL, GL_FRAGMENT_SHADER);
+    default_shader->Link();
 
     glUseProgram(0);
-  }
-
-  void CleanUpBuffers()
-  {
-    glDeleteVertexArrays(1, &vao_id);
-    glDeleteBuffers(1, &vbo_id);
-  }
-
-  void CleanUpShader()
-  {
-    glDeleteProgram(program_id);
   }
 }

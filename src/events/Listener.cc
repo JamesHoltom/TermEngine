@@ -1,14 +1,15 @@
 #include <algorithm>
 #include <glm/glm.hpp>
 #include "Listener.h"
-#include "../data/Uniform.h"
-#include "../logging/Logger.h"
 #include "../scripting/ScriptingInterface.h"
+#include "../utility/SpdlogUtils.h"
 
 namespace term_engine::events {
   EventListener::EventListener(const std::string& type, const sol::function func) :
+    listener_id_(EventListener::listener_next_id_++),
+    active_(true),
     type_(type),
-    func_(sol::make_reference<sol::function>((*scripting::lua_state), func))
+    callback_(sol::make_reference<sol::function>((*scripting::lua_state), func))
   {
     logging::logger->debug("Created event listener of type {}.", type);
   }
@@ -30,7 +31,7 @@ namespace term_engine::events {
 
   void EventListener::Trigger(const sol::table& data)
   {
-    func_(data);
+    callback_(data);
   }
 
   ListenerPtr& EventListener::Add(const std::string& type, const sol::function func)
@@ -116,7 +117,7 @@ namespace term_engine::events {
       {
         if (it->active_)
         {
-          it->func_(it, data);
+          it->callback_(it, data);
         }
       }
     }
@@ -212,5 +213,6 @@ namespace term_engine::events {
     }
   }
 
+  int EventListener::listener_next_id_ = 0;
   ListenerMap EventListener::listeners_;
 }

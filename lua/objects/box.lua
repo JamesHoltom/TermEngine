@@ -21,11 +21,11 @@ function BoxObject(_position, _size)
 	local _setData = function()
 		local w = self.obj.size.x
 		
-		self.obj:set(function(data, index, _)
+		self.obj:set(function(data, index)
 			if self.has_outline and (index < w or index > (#self.obj.data - w) or math.fmod(index, w) <= 1) then
-				data[index] = self.outline
+				return self.outline
 			else
-				data[index] = self.fill
+				return self.fill
 			end
 		end)
 	end

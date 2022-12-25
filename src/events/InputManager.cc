@@ -1,5 +1,5 @@
 #include "InputManager.h"
-#include "../logging/Logger.h"
+#include "../utility/SpdlogUtils.h"
 
 namespace term_engine::events {
   const Uint8* current_key_state = nullptr;

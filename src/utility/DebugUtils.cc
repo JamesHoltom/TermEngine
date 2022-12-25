@@ -1,8 +1,8 @@
-#include "DebugFunctions.h"
-#include "../utility/GLUtils.h"
-#include "../logging/Logger.h"
+#include "DebugUtils.h"
+#include "GLUtils.h"
+#include "SpdlogUtils.h"
 
-namespace term_engine::debug {
+namespace debug {
   void LogKeyboardEvents(const SDL_Event& event)
   {
     std::string keyboard_type;

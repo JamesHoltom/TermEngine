@@ -1,4 +1,4 @@
-local bgText, showBg
+local bgText, showBg, bg, alpha
 
 function Init()
   view.setSize(ivec2(19, 2))
@@ -8,20 +8,46 @@ function Init()
   bgText.text = "Press 'b' to changethe background"
 
   showBg = 0
+  bg = ""
+  alpha = 255
 
   return true
 end
 
 function Loop(timestep)
+  local bgChanged = false
+
   if keyboard.isPressed("b") then
     showBg = (showBg + 1) % 3
 
     if showBg == 0 then
-      background.remove()
+      bg = ""
     elseif showBg == 1 then
-      background.set("backgrounds/example.png", vec2(64.0, 0.0), Colours.WHITE)
+      bg = "backgrounds/example.png"
     else
-      background.set("backgrounds/danger.png", vec2(64.0, 0.0), Colours.WHITE)
+      bg = "backgrounds/danger.png"
+    end
+
+    bgChanged = true
+  elseif keyboard.isPressed("a") then
+    if alpha == 255 then
+      alpha = 192
+    elseif alpha == 192 then
+      alpha = 128
+    elseif alpha == 128 then
+      alpha = 64
+    else
+      alpha = 255
+    end
+
+    bgChanged = true
+  end
+
+  if bgChanged then
+    if bg == "" then
+      background.remove()
+    else
+      background.set(bg, vec2(64.0, 0.0), vec4(255.0, 255.0, 255.0, alpha))
     end
   end
 end

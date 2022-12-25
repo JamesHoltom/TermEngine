@@ -48,7 +48,8 @@ namespace term_engine::scripting::bindings {
 
     state.create_named_table(
       "background",
-      "set", &background::SetBackground,
+      "set", sol::overload(sol::resolve<void(const std::string&, const glm::vec2&, const glm::vec3&)>(&background::SetBackground),
+                           sol::resolve<void(const std::string&, const glm::vec2&, const glm::vec4&)>(&background::SetBackground)),
       "remove", &background::RemoveBackground);
     
     state.create_named_table(
@@ -83,7 +84,8 @@ namespace term_engine::scripting::bindings {
       "isCaptured", &system::IsMouseGrabbed,
       "setCapture", &system::SetMouseGrab,
       "getClearColour", &system::GetWindowClearColour,
-      "setClearColour", &system::SetWindowClearColour,
+      "setClearColour", sol::overload(sol::resolve<void(const glm::vec3&)>(&system::SetWindowClearColour),
+                                      sol::resolve<void(const glm::vec4&)>(&system::SetWindowClearColour)),
       "isVsync", &system::IsVsyncEnabled,
       "setVsync", &system::SetVsync);
   }

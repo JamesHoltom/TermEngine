@@ -1,9 +1,9 @@
 #include <chrono>
 #include <thread>
 #include "FPSManager.h"
-#include "../logging/Logger.h"
+#include "../utility/SpdlogUtils.h"
 
-namespace term_engine::timing {
+namespace timing {
   Timer delay_timer_;
   Timer average_timer_;
   float average_fps_;
@@ -81,6 +81,7 @@ namespace term_engine::timing {
     if (target_fps_ > 0) {
       logging::logger->info("Target FPS: {}", target_fps_);
     }
+    
     logging::logger->info("Average FPS: {}", GetAverageFPS());
     logging::logger->info("Frame count: {}", frame_count_);
   }

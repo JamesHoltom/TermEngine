@@ -7,7 +7,7 @@
 #include <string>
 #include "../utility/SolUtils.h"
 
-namespace term_engine::scripting {
+namespace scripting {
   /// @brief The location of the "No Program" script to run, only if a project was not loaded.
   constexpr char DEFAULT_SCRIPT_PATH[] = "noprogram.lua";
   /// @brief The location of Lua file loader that's used to load core scripts to be used.

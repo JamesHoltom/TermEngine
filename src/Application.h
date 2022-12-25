@@ -3,7 +3,7 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
-namespace term_engine::application {
+namespace term_engine {
   /// @brief Performs setup of the application and all its sub-systems.
   void Init();
 

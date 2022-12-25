@@ -1,24 +1,24 @@
 #include <string>
 #include "Application.h"
-#include "../logging/Logger.h"
-#include "../utility/AudioUtils.h"
-#include "../utility/SDLUtils.h"
-#include "../utility/GLUtils.h"
-#include "../utility/FTUtils.h"
-#include "../data/Uniform.h"
-#include "../events/InputManager.h"
-#include "../events/Listener.h"
-#include "../objects/Object.h"
-#include "../resources/Audio.h"
-#include "../resources/Background.h"
-#include "../resources/FontAtlas.h"
-#include "../resources/Window.h"
-#include "../scripting/ScriptingInterface.h"
-#include "../system/DebugFunctions.h"
-#include "../timing/FPSManager.h"
-#include "../view/View.h"
+#include "utility/AudioUtils.h"
+#include "utility/DebugUtils.h"
+#include "utility/FTUtils.h"
+#include "utility/GLUtils.h"
+#include "utility/SDLUtils.h"
+#include "utility/SpdlogUtils.h"
+#include "events/InputManager.h"
+#include "events/Listener.h"
+#include "objects/Object.h"
+#include "objects/Audio.h"
+#include "objects/Background.h"
+#include "objects/FontAtlas.h"
+#include "objects/Window.h"
+#include "scripting/ScriptingInterface.h"
+#include "shaders/ShaderUniform.h"
+#include "timing/FPSManager.h"
+#include "timing/TimedFunction.h"
 
-namespace term_engine::application {
+namespace term_engine {
   void Init()
   {
     logging::InitLogger();
@@ -69,6 +69,7 @@ namespace term_engine::application {
   void CleanUp()
   {
     events::EventListener::CleanUp();
+    timing::TimedFunction::CleanUp();
     objects::Object::CleanUp();
     resources::Audio::CleanUp();
     scripting::CleanUp();
@@ -126,6 +127,8 @@ namespace term_engine::application {
 
         events::EventListener::DoSDLEvents(event);
       }
+
+      timing::TimedFunction::Update();
 
       scripting::OnLoop(timestep.GetIntervalElapsed());
 

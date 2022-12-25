@@ -592,7 +592,7 @@ local extra_deserialize = {
 	-- A Character, consisting of the character, foreground and background colours.
 	["term_engine::objects::CharacterParams"] = function(s, i, len, unnecessaryEnd, jobstate)
 		local i, a = i or 1
-		local c, fg, bg = "", vec3(), vec3()
+		local c, fg, bg = "", vec4(), vec4()
 		
 		a = find(s, ",", i)
 
@@ -625,6 +625,13 @@ local extra_deserialize = {
 		a = find(s, ",", i)
 
 		if a then
+			fg.a = tonumber(sub(s, i, a - 1))
+			i = a + 1
+		end
+
+		a = find(s, ",", i)
+
+		if a then
 			bg.r = tonumber(sub(s, i, a - 1))
 			i = a + 1
 		end
@@ -636,22 +643,29 @@ local extra_deserialize = {
 			i = a + 1
 		end
 
-		a = find(s, "[;:}~]", i)
+		a = find(s, ",", i)
 
 		if a then
 			bg.b = tonumber(sub(s, i, a - 1))
+			i = a + 1
+		end
+
+		a = find(s, "[;:}~]", i)
+
+		if a then
+			bg.a = tonumber(sub(s, i, a - 1))
 		end
 
 		if c and fg and bg then
 			return Character(c, fg, bg), a - 1
 		end
 
-		error("vON: ivec2 definition started... Found no end.")
+		error("vON: CharacterParams definition started... Found no end.")
 	end,
 	-- An Object, consisting of the data, position and size.
 	["term_engine::objects::Object"] = function(s, i, len, unnecessaryEnd, jobstate)
 		local i, a = i or 1
-		local pos, size, active, data = vec2(), ivec2(), true, {}
+		local pos, size, active, data = ivec2(), ivec2(), true, {}
 
 		a = find(s, ",", i)
 
@@ -692,7 +706,7 @@ local extra_deserialize = {
 		obj.active = active
 
 		local endOfArray = find(s, "}", i)
-		local gIndex, gLastIndex, gState, gChr, gForeground, gBackground = 1, obj.size.x * obj.size.y, 0, "", vec3(), vec3()
+		local gIndex, gLastIndex, gState, gChr, gForeground, gBackground = 1, obj.size.x * obj.size.y, 0, "", vec4(), vec4()
 		a = find(s, "[,}]", i)
 
 		repeat
@@ -706,16 +720,20 @@ local extra_deserialize = {
 				elseif gState == 3 then
 					gForeground.b = tonumber(sub(s, i, a - 1))
 				elseif gState == 4 then
-					gBackground.r = tonumber(sub(s, i, a - 1))
+					gForeground.a = tonumber(sub(s, i, a - 1))
 				elseif gState == 5 then
-					gBackground.g = tonumber(sub(s, i, a - 1))
+					gBackground.r = tonumber(sub(s, i, a - 1))
 				elseif gState == 6 then
+					gBackground.g = tonumber(sub(s, i, a - 1))
+				elseif gState == 7 then
 					gBackground.b = tonumber(sub(s, i, a - 1))
+				elseif gState == 8 then
+					gBackground.a = tonumber(sub(s, i, a - 1))
 					obj.data[gIndex] = Character(gChr, gForeground, gBackground)
 					gIndex = gIndex + 1
 				end
 
-				gState = math.fmod(gState + 1, 7)
+				gState = math.fmod(gState + 1, 9)
 				i = a + 1
 			end
 

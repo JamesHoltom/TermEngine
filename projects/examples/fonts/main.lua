@@ -21,14 +21,14 @@ function Init()
   box = BoxObject(Values.IVEC2_ZERO, view.getSize())
   box.outline = Character("^", Colours.WHITE, Colours.RED)
 
-  line1Text = TextObject(Values.IVEC2_ONE, ivec2(37, 1))
+  line1Text = TextObject(Values.IVEC2_ONE, ivec2(38, 1))
   line1Text.text = "Press 'f' to change the font"
 
-  line2Text = TextObject(ivec2(1, 2), ivec2(37, 1))
+  line2Text = TextObject(ivec2(1, 2), ivec2(38, 1))
   line2Text.text = "Press 's' to change the font size"
   line2Text.bg_colour = Colours.DARK_GREY
 
-  line3Text = TextObject(ivec2(1, 3), ivec2(37, 1))
+  line3Text = TextObject(ivec2(1, 3), ivec2(38, 1))
   line3Text.text = "Press 'q' to change the character size"
   line3Text.bg_colour = Colours.LIGHT_GREY
 

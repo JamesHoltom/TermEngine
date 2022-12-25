@@ -59,6 +59,17 @@ namespace term_engine::events {
     void Trigger(const sol::table& data);
 
     /**
+     * @brief Returns if 2 listeners share the same ID.
+     * 
+     * @param[in] rhs The listener to compare this listener to.
+     * @returns If the 2 listeners are the same.
+     */
+    bool operator==(const EventListener& rhs) const
+    {
+      return listener_id_ == rhs.listener_id_;
+    }
+
+    /**
      * @brief Adds a listener for a given event type to the list.
      * 
      * @param[in] type The type of event to listen for.
@@ -70,7 +81,7 @@ namespace term_engine::events {
     /**
      * @brief Adds a listener for a given event type to the list, using Lua's colon syntax (i.e. EventListener:new(...)).
      * 
-     * @param[in] self Reference to the object. Unused.
+     * @param[in] self Reference to the listener. Unused.
      * @param[in] type The type of event to listen for.
      * @param[in] func The user-defined callback function to execute when triggered.
      * @returns A smart pointer to the event listener if it was added to the list, or a null pointer if it failed.
@@ -125,8 +136,12 @@ namespace term_engine::events {
     std::string type_;
     /// @brief Is the event listener active?
     bool active_;
+    /// @brief The ID of the listener.
+    int listener_id_;
     /// @brief The callback function to call when the event is fired.
-    sol::function func_;
+    sol::function callback_;
+    /// @brief Represents the ID to use for the next listener.
+    static int listener_next_id_;
     /// @brief The list of event types, and their listeners.
     static ListenerMap listeners_;
   };

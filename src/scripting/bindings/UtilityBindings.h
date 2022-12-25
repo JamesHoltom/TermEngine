@@ -3,7 +3,9 @@
 #ifndef UTILITY_BINDINGS_H
 #define UTILITY_BINDINGS_H
 
+#include <cmath>
 #include "../../resources/Window.h"
+#include "../../utility/IndexUtils.h"
 #include "../../utility/SolUtils.h"
 
 namespace term_engine::scripting::bindings {
@@ -17,6 +19,15 @@ namespace term_engine::scripting::bindings {
     state.create_named_table("wireframe",
       "enable", &system::EnableWireframe,
       "disable", &system::DisableWireframe);
+
+    state.set_function("round", lroundf);
+    
+    state.set_function("getIndexFromPosition", GetIndexFromPosition);
+    state.set_function("getRowColFromPosition", GetRowColFromPosition);
+    state.set_function("getPositionFromIndex", GetPositionFromIndex);
+    state.set_function("getRowColFromIndex", GetRowColFromIndex);
+    state.set_function("getIndexFromRowCol", GetIndexFromRowCol);
+    state.set_function("getPositionFromRowCol", GetPositionFromRowCol);
   }
 }
 

@@ -3,25 +3,17 @@
 #ifndef VIEW_H
 #define VIEW_H
 
-#include "../objects/Character.h"
+#include "Character.h"
 #include "../utility/GLUtils.h"
 
-namespace term_engine::views {
+namespace rendering {
   /// @brief The default number of rows/columns in the view.
   constexpr glm::uvec2 DEFAULT_DIMENSIONS = glm::uvec2(32, 16);
 
-  /// @brief The ID of the character shader program.
-  extern GLuint program_id;
-  /// @brief The ID of the VAO used to contain the VBO.
-  extern GLuint vao_id;
-  /// @brief The ID of the VBO used to store the buffer-related data.
-  extern GLuint vbo_id;
   /// @brief The position of the view.
   extern glm::vec2 view_position;
   /// @brief The size of the view, in rows/columns.
   extern glm::ivec2 view_size;
-  /// @brief The buffer of view data to render to the window.
-  extern objects::BufferList data;
 
   /// @brief Creates the default view.
   void Init();
@@ -69,14 +61,8 @@ namespace term_engine::views {
    */
   void PushCharacterToBuffer(const size_t& index, const glm::ivec2& position, const objects::CharacterParams& params);
 
-  /// @brief Sets up the OpenGL buffers.
-  void CreateBuffers();
-
   /// @brief Sets up the character shader.
   void CreateShader();
-
-  /// @brief Destroys the OpenGL buffers.
-  void CleanUpBuffers();
 
   /// @brief Destroys the character shader.
   void CleanUpShader();

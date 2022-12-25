@@ -1,9 +1,9 @@
 #include <string>
 #include <cxxopts.hpp>
 #include "CLArguments.h"
-#include "../logging/Logger.h"
+#include "../utility/SpdlogUtils.h"
 
-namespace term_engine::system {
+namespace system {
   std::filesystem::path scriptPath;
 
   void GetCLArguments(int& argc, char**& argv)

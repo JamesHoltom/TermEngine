@@ -1,7 +1,7 @@
 #include "Audio.h"
-#include "../logging/Logger.h"
 #include "../system/FileFunctions.h"
 #include "../utility/AudioUtils.h"
+#include "../utility/SpdlogUtils.h"
 
 namespace term_engine::resources {
   Audio::Audio(const std::string& filepath, const unsigned int& flag) :
@@ -166,13 +166,12 @@ namespace term_engine::resources {
       logging::logger->warn("Unknown audio flag \'{}\' given. Defaulting to \'static\'.", type);
     }
 
-    const std::filesystem::path id = GenerateId(filepath);
+    const std::filesystem::path id = system::SearchForResourcePath(filepath);
 
     logging::logger->debug("Added audio file {}.", id.string());
 
     return audio_list_.emplace_back(std::make_shared<Audio>(id, flag));
   }
-
 
   void Audio::Remove(AudioPtr& resource)
   {
@@ -194,7 +193,7 @@ namespace term_engine::resources {
 
   bool Audio::Exists(const std::string& filepath)
   {
-    const std::filesystem::path id = GenerateId(filepath);
+    const std::filesystem::path id = system::SearchForResourcePath(filepath);
     bool isFound = false;
 
     for (AudioPtr& audio : audio_list_)
@@ -225,11 +224,6 @@ namespace term_engine::resources {
     {
       Remove(audio);
     }
-  }
-
-  std::string Audio::GenerateId(const std::string& filepath)
-  {
-    return system::SearchForResourcePath(filepath);
   }
 
   AudioList Audio::audio_list_;

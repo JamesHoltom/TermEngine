@@ -3,48 +3,53 @@
 #ifndef IMAGE_FUNCTIONS_H
 #define IMAGE_FUNCTIONS_H
 
-#include <string>
+#include <filesystem>
 #include "../vendor/stb_image.h"
 #include "../utility/GLUtils.h"
-#include "../utility/SDLUtils.h"
 
-namespace term_engine::system {
-  /// @brief Represents an image that has been loaded and bound to a texture in OpenGL.
-  struct ImageData {
+namespace system {
+  /// @brief Represents a texture that has been created in OpenGL.
+  struct TextureData {
     /// @brief The OpenGL texture ID for the image.
     GLuint texture_id_;
-    /// @brief The path to the image file.
-    std::string filename_;
-    /// @brief The size of the image.
+    /// @brief The size of the texture.
     glm::ivec2 size_;
 
-    /// @brief Creates an empty set of image data.
-    ImageData() : texture_id_(0), filename_(""), size_(glm::ivec2(0)) {}
+    /// @brief Creates an empty set of texture data.
+    TextureData() : texture_id_(0), size_(glm::ivec2(0)) {}
 
     /**
-     * @brief Creates the image data with the given parameters.
+     * @brief Creates the texture data with the given parameters.
      * 
-     * @param[in] texture_id  The texture ID of the image.
-     * @param[in] filename    The filepath to the image.
-     * @param[in] size        The size of the image, in pixels (px).
+     * @param[in] texture_id  The texture ID of the texture.
+     * @param[in] size        The size of the texture, in pixels (px).
      */
-    ImageData(const GLuint& texture_id, const std::string& filename, const glm::ivec2& size) : texture_id_(texture_id), filename_(filename), size_(size) {}
+    TextureData(const GLuint& texture_id, const glm::ivec2& size) : texture_id_(texture_id), size_(size) {}
   };
 
   /**
    * @brief Loads an image to be used as an OpenGL texture.
    * 
    * @param[in] filename The path to the image to load.
-   * @returns The loaded image data.
+   * @returns The loaded texture data.
    */
-  ImageData CreateImage(const std::string& filename);
+  TextureData CreateTextureFromImage(const std::filesystem::path& filepath);
 
   /**
-   * @brief Deletes the image texture.
+   * @brief Allocates an OpenGL texture with a given size.
    * 
-   * @param[in] image The image data to remove.
+   * @param[in] size    The size of the texture to create.
+   * @param[in] format  The format of the texture to create.
+   * @returns The allocated texture data.
    */
-  void DeleteImage(const ImageData& image);
+  TextureData AllocateTexture(const glm::ivec2& size, const GLenum& format);
+
+  /**
+   * @brief Deletes the texture.
+   * 
+   * @param[in] texture The texture data to remove.
+   */
+  void DeleteImage(const TextureData& texture);
 }
 
 #endif // ! IMAGE_FUNCTIONS_H

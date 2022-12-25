@@ -7,7 +7,10 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/ostr.h>
 
-namespace term_engine::logging {
+namespace logging {
+  /// @brief The default location to store log files at.
+  constexpr char DEFAULT_LOG_LOCATION[] = "logs/term_engine.log";
+
   /// @brief Smart pointer to share a single instance of a `Logger`.
   typedef std::shared_ptr<spdlog::logger> LoggerPtr;
 

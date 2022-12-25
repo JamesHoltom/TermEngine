@@ -8,10 +8,10 @@
 #include <string>
 #include <vector>
 #include <glm/glm.hpp>
-#include "Character.h"
+#include "../rendering/Character.h"
 #include "../utility/SolUtils.h"
 
-namespace term_engine::objects {
+namespace objects {
   class Object;
 
   /// @brief Smart pointer to an object.
@@ -52,7 +52,7 @@ namespace term_engine::objects {
      * 
      * @returns The data within the object.
      */
-    CharacterData& GetData();
+    rendering::CharacterData& GetData();
 
     /**
      * @brief Returns if the object is active.
@@ -156,13 +156,13 @@ namespace term_engine::objects {
     /// @brief Unsets the 'Is Dirty' flag.
     static void Clean();
 
-  protected:
+  private:
     /// @brief The top-left position of the object.
     glm::ivec2 position_;
     /// @brief The size of the object, in rows & columns.
     glm::ivec2 size_;
     /// @brief The character parameters that will copied to the buffer when rendered.
-    CharacterData data_;
+    rendering::CharacterData data_;
     /// @brief The ID of the object.
     int object_id_;
     /// @brief Is the object active? (i.e. Is the object being rendered and acted on?)

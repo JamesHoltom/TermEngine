@@ -199,16 +199,7 @@ namespace term_engine::resources {
     /// @brief Destroys all audio resources in the list.
     static void CleanUp();
 
-  protected:
-    /**
-     * @brief Generates an ID from the given filepath, to use as the list key.
-     * @details This is used to prevent any given resource from being loaded multiple times.
-     * 
-     * @param[in] filepath The filepath to the audio resource.
-     * @returns The ID of the audio resource.
-     */
-    static std::string GenerateId(const std::string& filepath);
-
+  private:
     /// @brief The filepath to the audio resource.
     std::filesystem::path filepath_;
     /// @brief Handle to the audio data.

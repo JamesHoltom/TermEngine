@@ -5,7 +5,7 @@
 
 #include "../utility/GLUtils.h"
 
-namespace term_engine::data {
+namespace shaders {
   struct UniformData;
 
   /// @brief The ID of the Uniform Buffer Object (UBO), that stores the uniforms used in the shaders.

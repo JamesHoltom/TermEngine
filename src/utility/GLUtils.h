@@ -3,6 +3,7 @@
 #ifndef GL_UTILS_H
 #define GL_UTILS_H
 
+#include <string>
 #include <GL/glew.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
@@ -17,6 +18,16 @@
 #endif
 
 namespace GL {
+  struct ShaderProcessResult
+  {
+    GLuint id_;
+    GLboolean success_;
+
+    ShaderProcessResult(const GLuint& id, const GLboolean& success) :
+      id_(id),
+      success_(success)
+    {}
+  };
   /**
    * @brief Allows OpenGL to log any errors that occur.
    * 
@@ -44,6 +55,27 @@ namespace GL {
    * @returns Was GLEW successfully initialised?
    */
   int InitGLEW();
+
+  /**
+   * @brief Logs the build log of the GLSL program.
+   * 
+   * @param[in] program_id The ID of the program to log.
+   */
+  void PrintProgramLog(const GLuint& program_id);
+
+  /**
+   * @brief Logs the compilation/linking log of the given shader stage.
+   * 
+   * @param[in] stage_id The ID of the shader stage to log.
+   * @see [OpenGL shader stages](https://www.khronos.org/opengl/wiki/Shader#Stages)
+   */
+  void PrintStageLog(const GLuint& stage_id);
+
+  ShaderProcessResult LinkShaderProgram(const GLuint& program_id);
+
+  ShaderProcessResult CompileShaderStage(const std::string& glsl_code, const GLenum& type);
+
+  std::string GetShaderTypeName(const GLenum& type);
 }
 
 #endif // ! GL_UTILS_H

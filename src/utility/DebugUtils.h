@@ -6,7 +6,7 @@
 #include <string>
 #include <SDL2/SDL.h>
 
-namespace term_engine::debug {
+namespace debug {
   /**
    * @brief Logs any keyboard-related events in an _SDL_Event_ object.
    * 
