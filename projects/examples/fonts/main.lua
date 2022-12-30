@@ -28,7 +28,7 @@ function Init()
   line2Text.text = "Press 's' to change the font size"
   line2Text.bg_colour = Colours.DARK_GREY
 
-  line3Text = TextObject(ivec2(1, 3), ivec2(37, 1))
+  line3Text = TextObject(ivec2(1, 3), ivec2(38, 1))
   line3Text.text = "Press 'q' to change the character size"
   line3Text.bg_colour = Colours.LIGHT_GREY
 
@@ -52,14 +52,14 @@ function Loop(timestep)
     currentSize = (currentSize + 4) % 12
     hasChanged = true
   elseif keyboard.isPressed("q") then
-    isSquare = not isSquare
-    
     if isSquare then
       font.resetCharacterSize()
     else
       font.setCharacterSize(ivec2(characterHeight))
     end
 
+    isSquare = not isSquare
+    
     window.fitToView()
   end
 

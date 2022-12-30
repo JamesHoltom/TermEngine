@@ -3,13 +3,13 @@ local labelObject, valueObject
 
 function SetColour(colour)
   if colour == "green" then
-    { "Green", Colours.WHITE, Colours.GREEN }
+    return { "Green", Colours.WHITE, Colours.GREEN }
   elseif colour == "blue" then
-    { "Blue", Colours.WHITE, Colours.BLUE }
+    return { "Blue", Colours.WHITE, Colours.BLUE }
   elseif colour == "yellow" then
-    { "Yellow", Colours.BLACK, Colours.YELLOW }
+    return { "Yellow", Colours.BLACK, Colours.YELLOW }
   else
-    { "Red", Colours.WHITE, Colours.RED }
+    return { "Red", Colours.WHITE, Colours.RED }
   end
 end
 

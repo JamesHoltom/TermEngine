@@ -14,14 +14,14 @@ namespace term_engine::system {
   /// @brief The default height of the window.
   constexpr int DEFAULT_HEIGHT = 512;
   /// @brief The default clear colour to use when refreshing the window.
-  constexpr glm::vec3 DEFAULT_WINDOW_CLEAR_COLOUR = glm::vec3(0.0f);
+  constexpr glm::vec4 DEFAULT_WINDOW_CLEAR_COLOUR = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
   /// @brief The OpenGL context to bind to the window and render to.
   extern SDL_GLContext context;
   /// @brief The window to display.
   extern SDL::Window window;
-  /// @brief The RGB components to use for setting the clear colour, i.e. what OpenGL uses to refresh the screen after every frame.
-  extern glm::vec3 window_colour;
+  /// @brief The RGBA components to use for setting the clear colour, i.e. what OpenGL uses to refresh the screen after every frame.
+  extern glm::vec4 window_colour;
   /// @brief Whether to use wireframe rendering or not.
   extern GLuint window_render_mode;
   /// @brief Whether the window is currently minimised or not.
@@ -134,14 +134,14 @@ namespace term_engine::system {
    * 
    * @returns The clear colour of the window.
    */
-  glm::vec3 GetWindowClearColour();
+  glm::vec4 GetWindowClearColour();
 
   /**
    * @brief Sets the clear colour of the window.
    * 
    * @param[in] colour The clear colour to use.
    */
-  void SetWindowClearColour(const glm::vec3& colour);
+  void SetWindowClearColour(const glm::vec4& colour);
 
   /// @brief Clears the window, ready for the next frame.
   void ClearWindow();

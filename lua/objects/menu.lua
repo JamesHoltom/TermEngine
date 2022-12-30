@@ -52,7 +52,7 @@ function MenuObject(_position)
 			elseif key == "hovering" then
 				self.hovering = value
 			elseif key == "fg_colour" or key == "bg_colour" or key == "fg_colour_hover" or key == "bg_colour_hover" then
-				self[key] = vec3(value)
+				self[key] = vec4(value)
 			end
 		end
 	

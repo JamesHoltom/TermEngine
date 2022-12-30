@@ -8,9 +8,16 @@
 namespace term_engine::events {
   EventListener::EventListener(const std::string& type, const sol::function func) :
     type_(type),
+    active_(true),
     func_(sol::make_reference<sol::function>((*scripting::lua_state), func))
   {
     logging::logger->debug("Created event listener of type {}.", type);
+  }
+
+  EventListener::~EventListener()
+  {
+    func_ = sol::nil;
+    logging::logger->info("Removed event listener of type {}.", type_);
   }
 
   std::string EventListener::GetType() const
@@ -30,7 +37,17 @@ namespace term_engine::events {
 
   void EventListener::Trigger(const sol::table& data)
   {
-    func_(data);
+    try {
+      sol::protected_function_result result = func_(this, data);
+
+      if (!result.valid())
+      {
+        logging::logger->error("Error");
+      }
+    }
+    catch (const std::exception& err) {
+      logging::logger->error("A scripting error occurred!\nFile: {}\nError: {}", scripting::lua_file, err.what());
+    }
   }
 
   ListenerPtr& EventListener::Add(const std::string& type, const sol::function func)
@@ -116,7 +133,18 @@ namespace term_engine::events {
       {
         if (it->active_)
         {
-          it->func_(it, data);
+          try {
+            sol::protected_function_result result = it->func_(it, data);
+
+            if (!result.valid())
+            {
+              sol::error err = result;
+              logging::logger->error("An error was thrown!\nFile: {}\n Error: {}", scripting::lua_file, err.what());
+            }
+          }
+          catch (const std::exception& err) {
+            logging::logger->error("A scripting error occurred!\nFile: {}\nError: {}", scripting::lua_file, err.what());
+          }
         }
       }
     }
@@ -205,6 +233,7 @@ namespace term_engine::events {
   {
     for (auto& type : listeners_)
     {
+      logging::logger->info(type.first);
       for (ListenerPtr& listener : listeners_[type.first])
       {
         Remove(listener);

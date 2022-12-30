@@ -33,7 +33,7 @@ namespace term_engine::scripting {
     bindings::BindViewToState(*lua_state);
   }
 
-  void InitScript()
+  bool InitScript()
   {
     // Add the root & vendor to the Lua path, so that projects can "require()" files relative to these folders.
     std::string packagePath = (*lua_state)["package"]["path"];
@@ -62,18 +62,23 @@ namespace term_engine::scripting {
     (*lua_state)["package"]["path"] = packagePath;
     logging::logger->debug("Lua path: {}", std::string((*lua_state)["package"]["path"]));
 
-    Load(rootDirectory + "/" + LOADER_SCRIPT_PATH);
+    bool load_result = Load(rootDirectory + "/" + LOADER_SCRIPT_PATH);
 
-    if (project_file != "")
+    if (load_result)
     {
-      logging::logger->info("Loading project...");
-      Load(project_file.string());
+      if (project_file != "")
+      {
+        logging::logger->info("Loading project...");
+        load_result = Load(project_file.string());
+      }
+      else
+      {
+        logging::logger->info("No project to load!");
+        load_result = Load(rootDirectory + "/" + DEFAULT_SCRIPT_PATH);
+      }
     }
-    else
-    {
-      logging::logger->info("No project to load!");
-      Load(rootDirectory + "/" + DEFAULT_SCRIPT_PATH);
-    }
+
+    return load_result;
   }
 
   void CleanUp()
@@ -84,25 +89,30 @@ namespace term_engine::scripting {
     lua_state.reset();
   }
 
-  void Load(const std::string& filename)
+  bool Load(const std::string& filename)
   {
+    bool loaded = false;
+
     try {
       sol::protected_function_result result = lua_state->script_file(filename);
 
       if (result.valid())
       {
         lua_file = filename;
+        loaded = true;
         logging::logger->debug("Loaded Lua script {}.", filename);
       }
       else
       {
         sol::error err = result;
-        logging::logger->error("Failed to load Lua script {}\nError: {}. ", filename, err.what());
+        logging::logger->error("Failed to load Lua file {}\nError: {}. ", filename, err.what());
       }
     }
     catch (const std::exception& err) {
       logging::logger->error("A loading error occurred!\nFile: {}\nError: {}", lua_file, err.what());
     }
+
+    return loaded;
   }
 
   bool OnInit()

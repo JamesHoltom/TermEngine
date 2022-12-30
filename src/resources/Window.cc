@@ -6,7 +6,7 @@
 namespace term_engine::system {
   SDL_GLContext context;
   SDL::Window window;
-  glm::vec3 window_colour;
+  glm::vec4 window_colour;
   GLuint window_render_mode;
   bool window_is_minimised;
 
@@ -141,12 +141,12 @@ namespace term_engine::system {
     SDL_SetWindowMouseGrab(window.get(), flag ? SDL_TRUE : SDL_FALSE);
   }
 
-  glm::vec3 GetWindowClearColour()
+  glm::vec4 GetWindowClearColour()
   {
     return window_colour * 255.0f;
   }
 
-  void SetWindowClearColour(const glm::vec3& colour)
+  void SetWindowClearColour(const glm::vec4& colour)
   {
     window_colour = colour / 255.0f;
   }
@@ -155,7 +155,7 @@ namespace term_engine::system {
   {
     glPolygonMode(GL_FRONT_AND_BACK, window_render_mode);
     glClear(GL_COLOR_BUFFER_BIT);
-    glClearColor(window_colour.r, window_colour.g, window_colour.b, 1.0f);
+    glClearColor(window_colour.r, window_colour.g, window_colour.b, window_colour.a);
   }
 
   void RefreshWindow()

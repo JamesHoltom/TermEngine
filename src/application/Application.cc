@@ -16,6 +16,7 @@
 #include "../scripting/ScriptingInterface.h"
 #include "../system/DebugFunctions.h"
 #include "../timing/FPSManager.h"
+#include "../timing/TimedFunction.h"
 #include "../view/View.h"
 
 namespace term_engine::application {
@@ -61,7 +62,12 @@ namespace term_engine::application {
 
     timing::InitFPS();
     scripting::InitInterface();
-    scripting::InitScript();
+    
+    if (!scripting::InitScript())
+    {
+      logging::logger->error("Failed to load the Lua files!");
+      exit(4);
+    }
 
     logging::logger->debug("Finished init!");
   }
@@ -69,9 +75,9 @@ namespace term_engine::application {
   void CleanUp()
   {
     events::EventListener::CleanUp();
+    timing::TimedFunction::CleanUp();
     objects::Object::CleanUp();
     resources::Audio::CleanUp();
-    scripting::CleanUp();
     fonts::CleanUp();
     views::CleanUp();
     data::CleanUp();
@@ -79,6 +85,7 @@ namespace term_engine::application {
     audio::CleanUp();
     system::CleanUpWindow();
     background::RemoveBackground();
+    scripting::CleanUp();
 
     FT::CleanUpFreeType();
     SDL::CleanUpSDL();
@@ -126,6 +133,8 @@ namespace term_engine::application {
 
         events::EventListener::DoSDLEvents(event);
       }
+
+      timing::TimedFunction::Update();
 
       scripting::OnLoop(timestep.GetIntervalElapsed());
 

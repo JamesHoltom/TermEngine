@@ -2,7 +2,8 @@ local timingText, timingValue
 
 function Init()
   timingText = TextObject(Values.IVEC2_ONE, ivec2(20, 2))
-  timingText.setText("This text changes as time progresses!")
+  timingText.text = "This text changes as time progresses!"
+  timingText.fg_colour = Colours.WHITE
 
   timingValue = 0
 
@@ -14,5 +15,5 @@ function Loop(timestep)
 
   if timingValue >= 360 then timingValue = 0 end
 
-  timingText.setColours(Colours.WHITE, vec3((math.sin(timingValue) * 127) + 128, 0.0, 0.0))
+  timingText.bg_colour = vec4((math.sin(timingValue) * 127) + 128, 0.0, 0.0, 255.0)
 end

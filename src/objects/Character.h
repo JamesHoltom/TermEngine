@@ -19,9 +19,9 @@ namespace term_engine::objects {
   /// @brief Used to indicate no character is set.
   constexpr char NO_CHARACTER = '\0';
   /// @brief The default foreground colour for characters.
-  constexpr glm::vec3 DEFAULT_FOREGROUND_COLOUR = glm::vec3(255.0f);
+  constexpr glm::vec4 DEFAULT_FOREGROUND_COLOUR = glm::vec4(255.0f);
   /// @brief The default background colour for characters.
-  constexpr glm::vec3 DEFAULT_BACKGROUND_COLOUR = glm::vec3(0.0f);
+  constexpr glm::vec4 DEFAULT_BACKGROUND_COLOUR = glm::vec4(0.0f, 0.0f, 0.0f, 255.0f);
 
   /// @brief Used to construct _BufferData_ objects, and to pass data between scripts and the program.
   struct CharacterParams {
@@ -32,7 +32,7 @@ namespace term_engine::objects {
      * @param[in] foreground_colour The foreground colour, used for the text.
      * @param[in] background_colour The background colour.
      */
-    CharacterParams(const char& character = NO_CHARACTER, const glm::vec3& foreground_colour = DEFAULT_FOREGROUND_COLOUR, const glm::vec3& background_colour = DEFAULT_BACKGROUND_COLOUR) :
+    CharacterParams(const char& character = NO_CHARACTER, const glm::vec4& foreground_colour = DEFAULT_FOREGROUND_COLOUR, const glm::vec4& background_colour = DEFAULT_BACKGROUND_COLOUR) :
       character_(character),
       foreground_colour_(foreground_colour),
       background_colour_(background_colour) {}
@@ -62,9 +62,9 @@ namespace term_engine::objects {
     /// @brief The character that the character represents.
     char character_;
     /// @brief The foreground colour, used for the text.
-    glm::vec3 foreground_colour_;
+    glm::vec4 foreground_colour_;
     /// @brief The background colour.
-    glm::vec3 background_colour_;
+    glm::vec4 background_colour_;
   };
 
   /// @brief Represents the structure of the buffer used to render characters.
@@ -80,7 +80,7 @@ namespace term_engine::objects {
      * @param[in] has_texture       Does the current vertex have a texture?
      * @param[in] colour            The colour to render the vertex/texture with.
      */
-    BufferData(const glm::vec2& position, const glm::vec2& texture_position, const bool& has_texture, const glm::vec3& colour) :
+    BufferData(const glm::vec2& position, const glm::vec2& texture_position, const bool& has_texture, const glm::vec4& colour) :
       position_(position),
       texture_position_(texture_position),
       has_texture_(has_texture ? 1.0f : 0.0f),
@@ -97,7 +97,7 @@ namespace term_engine::objects {
       return os << std::endl
         << "Vertex position: " << data.position_.x << ", " << data.position_.y << std::endl
         << "Texture position: " << data.texture_position_.x << ", " << data.texture_position_.y << std::endl
-        << "Colour: " << data.colour_.r << ", " << data.colour_.g << ", " << data.colour_.b << std::endl;
+        << "Colour: " << data.colour_.r << ", " << data.colour_.g << ", " << data.colour_.b << ", " << data.colour_.a << std::endl;
     }
 
     /// @brief The position of the vertex.
@@ -107,7 +107,7 @@ namespace term_engine::objects {
     /// @brief The position of the texture.
     glm::vec2 texture_position_;
     /// @brief The colour to render the vertex/texture with.
-    glm::vec3 colour_;
+    glm::vec4 colour_;
   };
 }
 

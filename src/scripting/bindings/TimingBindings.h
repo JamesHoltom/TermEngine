@@ -5,6 +5,7 @@
 
 #include "../../timing/FPSManager.h"
 #include "../../timing/Timer.h"
+#include "../../timing/TimedFunction.h"
 #include "../../utility/SolUtils.h"
 
 namespace term_engine::scripting::bindings {
@@ -37,6 +38,17 @@ namespace term_engine::scripting::bindings {
       "paused", sol::readonly_property(&timing::Timer::IsPaused),
       "duration", sol::readonly_property(&timing::Timer::GetDuration),
       "paused_duration", sol::readonly_property(&timing::Timer::GetPauseDuration));
+
+    state.new_usertype<timing::TimedFunction>(
+      "TimedFunction",
+      sol::meta_function::construct, sol::factories(&timing::TimedFunction::Add, &timing::TimedFunction::AddSelf),
+      sol::call_constructor, sol::factories(&timing::TimedFunction::Add),
+      sol::meta_function::garbage_collect, sol::destructor(&timing::TimedFunction::Remove),
+      "active", sol::property(&timing::TimedFunction::IsActive, &timing::TimedFunction::SetActive),
+      "delay", sol::readonly_property(&timing::TimedFunction::GetDelay),
+      "repeat", sol::readonly_property(&timing::TimedFunction::IsRepeatable),
+      "timesRepeated", sol::readonly_property(&timing::TimedFunction::GetTimesRepeated),
+      "release", &timing::TimedFunction::Remove);
   }
 }
 

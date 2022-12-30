@@ -5,7 +5,7 @@ function Init()
   anObj = Object(Values.IVEC2_ZERO, ivec2(3, 2))
 
   -- All characters in an Object can be modified with the `.set` method.
-  anObj:set(function(data, index, _) data[index] = Character("?", Colours.WHITE, Colours.RED) end)
+  anObj:set(function(data, _) return Character("?", Colours.WHITE, Colours.RED) end)
 
   -- The position and size of the Object can be set by their properties.
   anObj.position = ivec2(2, 3)

@@ -218,6 +218,8 @@ namespace term_engine::fonts {
   void SetCharacterSize(const glm::ivec2& characterSize)
   {
     character_size = characterSize;
+
+    objects::Object::Dirty();
   }
 
   void ResetCharacterSize()

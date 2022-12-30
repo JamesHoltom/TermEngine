@@ -68,9 +68,11 @@ namespace term_engine::objects {
 
   void Object::Set(const sol::function& func)
   {
-    for (int index = 0; index < data_.size(); index++)
+    int index = 1;
+
+    for (CharacterParams& character : data_)
     {
-      func(data_, index + 1, data_.at(index));
+      character = CharacterParams(func(data_, index++));
     }
 
     Object::is_dirty_ = true;

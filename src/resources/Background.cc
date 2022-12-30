@@ -14,7 +14,7 @@ namespace term_engine::background {
   system::ImageData current_background;
   BackgroundData data[6];
 
-  void SetBackground(const std::string& file, const glm::vec2& offset, const glm::vec3& colour)
+  void SetBackground(const std::string& file, const glm::vec2& offset, const glm::vec4& colour)
   {
     const std::filesystem::path fullFontPath = system::SearchForResourcePath(file);
 
@@ -95,7 +95,7 @@ namespace term_engine::background {
 
     // Configure the colour attribute.
     glEnableVertexAttribArray(2);
-    glVertexAttribFormat(2, 3, GL_FLOAT, GL_FALSE, offsetof(BackgroundData, colour_));
+    glVertexAttribFormat(2, 4, GL_FLOAT, GL_FALSE, offsetof(BackgroundData, colour_));
     glVertexAttribBinding(2, 0);
 
     debug::LogVAOData();

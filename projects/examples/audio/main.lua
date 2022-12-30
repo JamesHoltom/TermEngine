@@ -16,8 +16,8 @@ function Init()
   audioText = TextObject(Values.IVEC2_ZERO, ivec2(26, 4))
   audioText.text = "Press 'n' to play sound\nPress 'm' to play music\nPress 'p' to pause music\nPress 'l' to loop music"
 
-  cursorText = TextObject(ivec2(0.0, 4.0), ivec2(42, 1))
-  settingsText = TextObject(ivec2(28.0, 0.0), ivec2(14, 4))
+  cursorText = TextObject(ivec2(0, 4), ivec2(42, 1))
+  settingsText = TextObject(ivec2(28, 0), ivec2(14, 4))
 
   audioMusic = Audio("resources/audio/Map.wav", "stream")
 

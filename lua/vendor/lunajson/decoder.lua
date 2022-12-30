@@ -386,11 +386,11 @@ local function newdecoder()
 			if obj.__type == "term_engine::objects::CharacterParams" then
 				return _Character(
 					obj.__data.character,
-					_vec3(tonumber(obj.__data.foreground_colour.x), tonumber(obj.__data.foreground_colour.y), tonumber(obj.__data.foreground_colour.z)),
-					_vec3(tonumber(obj.__data.background_colour.x), tonumber(obj.__data.background_colour.y), tonumber(obj.__data.background_colour.z)))
+					_vec4(tonumber(obj.__data.foreground_colour.x), tonumber(obj.__data.foreground_colour.y), tonumber(obj.__data.foreground_colour.z), tonumber(obj.__data.foreground_colour.w)),
+					_vec4(tonumber(obj.__data.background_colour.x), tonumber(obj.__data.background_colour.y), tonumber(obj.__data.background_colour.z), tonumber(obj.__data.background_colour.w)))
 			elseif obj.__type == "term_engine::objects::Object" then
 				local tmp = _Object(
-					_vec2(tonumber(obj.__data.position.x), tonumber(obj.__data.position.y)),
+					_ivec2(tonumber(obj.__data.position.x), tonumber(obj.__data.position.y)),
 					_ivec2(tonumber(obj.__data.size.x), tonumber(obj.__data.size.y)))
 				
 				tmp.active = obj.__data.active
@@ -398,8 +398,8 @@ local function newdecoder()
 				for k,v in ipairs(obj.__data.data) do
 					tmp.data[k] = _Character(
 						v.character,
-						_vec3(tonumber(v.foreground_colour.x), tonumber(v.foreground_colour.y), tonumber(v.foreground_colour.z)),
-						_vec3(tonumber(v.background_colour.x), tonumber(v.background_colour.y), tonumber(v.background_colour.z)))
+						_vec4(tonumber(v.foreground_colour.x), tonumber(v.foreground_colour.y), tonumber(v.foreground_colour.z), tonumber(v.foreground_colour.w)),
+						_vec4(tonumber(v.background_colour.x), tonumber(v.background_colour.y), tonumber(v.background_colour.z), tonumber(v.background_colour.w)))
 				end
 
 				return tmp

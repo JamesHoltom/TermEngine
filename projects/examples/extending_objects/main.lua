@@ -41,7 +41,7 @@ function ExampleObject(_pos, _text)
 
   -- Set the text in the base Object.
   self.obj.size = ivec2(#self.text, 1)
-  self.obj:set(function(data, index, _) data[index] = Character(self.text:sub(index, index), Colours.WHITE, Colours.BLACK) end)
+  self.obj:set(function(_, index) return Character(self.text:sub(index, index), Colours.WHITE, Colours.BLACK) end)
   
   -- Return the object with the methods and metatable set.
   return setmetatable({

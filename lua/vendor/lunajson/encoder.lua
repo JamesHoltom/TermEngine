@@ -258,7 +258,7 @@ local function newencoder()
 		f_string("foreground_colour")
 		builder[i] = ":"
 		i = i + 1
-		f_vec(g.foreground_colour, 3, false)
+		f_vec(g.foreground_colour, 4, false)
 		builder[i] = ","
 		i = i + 1
 
@@ -266,7 +266,7 @@ local function newencoder()
 		f_string("background_colour")
 		builder[i] = ":"
 		i = i + 1
-		f_vec(g.background_colour, 3, false)
+		f_vec(g.background_colour, 4, false)
 
 		-- End the object.
 		builder[i] = '}'

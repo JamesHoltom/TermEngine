@@ -35,7 +35,7 @@ namespace term_engine::background {
     /// @brief The position of the texture, relative to the window.
     glm::vec2 texture_position_;
     /// @brief The colour of the vertex. This will blend with the texture.
-    glm::vec3 colour_;
+    glm::vec4 colour_;
   };
 
   /**
@@ -45,7 +45,7 @@ namespace term_engine::background {
    * @param[in] offset    Offset to move the background in the window, in pixels (px).
    * @param[in] colour    Colour of the background.
    */
-  void SetBackground(const std::string& filename, const glm::vec2& offset, const glm::vec3& colour);
+  void SetBackground(const std::string& filename, const glm::vec2& offset, const glm::vec4& colour);
 
   /// @brief Removes the background image, if set.
   void RemoveBackground();

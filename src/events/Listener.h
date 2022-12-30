@@ -29,6 +29,8 @@ namespace term_engine::events {
      * @param[in] func The user-defined callback function to trigger when an event is received.
      */
     EventListener(const std::string& type, const sol::function func);
+
+    ~EventListener();
     
     /**
      * @brief Returns the type of event this listener will trigger for.

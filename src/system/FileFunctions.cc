@@ -50,11 +50,11 @@ namespace term_engine::system {
     {
       const std::filesystem::path fullPath = location / filename;
 
-      logging::logger->info("Testing location {}...", fullPath);
+      logging::logger->debug("Testing location {}...", fullPath);
 
       if (std::filesystem::exists(fullPath))
       {
-        logging::logger->info("Found project path at {}.", fullPath);
+        logging::logger->debug("Found project path at {}.", fullPath);
 
         return fullPath;
       }
@@ -86,11 +86,11 @@ namespace term_engine::system {
     {
       const std::filesystem::path fullPath = location / filename;
 
-      logging::logger->info("Testing resource path at {}.", fullPath);
+      logging::logger->debug("Testing resource path at {}.", fullPath);
 
       if (std::filesystem::exists(fullPath))
       {
-        logging::logger->info("Found resource path at {}.", fullPath);
+        logging::logger->debug("Found resource path at {}.", fullPath);
 
         return fullPath;
       }

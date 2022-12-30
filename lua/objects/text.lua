@@ -25,35 +25,38 @@ function TextObject(_position, _size, _text)
 		local tabs_left = 0
 		local newline = false
 
-		self.obj:set(function(data, index, _)
+		self.obj:set(function(data, index)
 			if newline and math.fmod(index, self.obj.size.x) == 1 then
 				newline = false
 			end
 			
 			if text_pos <= #self.text and not newline and tabs_left == 0 then
 				local chr = self.text:sub(text_pos, text_pos)
+				local ret = nil
 
 				if chr == '\n' then
 					newline = true
-					data[index] = Character(" ", self.fg_colour, self.bg_colour)
+					ret = Character(" ", self.fg_colour, self.bg_colour)
 				elseif chr == '\t' then
 					tabs_left = font.tabSize - 1
-					data[index] = Character(" ", self.fg_colour, self.bg_colour)
+					ret = Character(" ", self.fg_colour, self.bg_colour)
 				else
-					data[index] = Character(chr, self.fg_colour, self.bg_colour)
+					ret = Character(chr, self.fg_colour, self.bg_colour)
 				end
 
 				text_pos = text_pos + 1
+
+				return ret
 			else
 				if self.fit_text then
-					data[index] = empty_character
+					return empty_character
 				else
-					data[index] = Character(" ", self.fg_colour, self.bg_colour)
+					return Character(" ", self.fg_colour, self.bg_colour)
 				end
 
 				if tabs_left > 0 then
 					tabs_left = tabs_left - 1
-					data[index] = Character(" ", self.fg_colour, self.bg_colour)
+					return Character(" ", self.fg_colour, self.bg_colour)
 				end
 			end
 		end)
@@ -99,7 +102,7 @@ function TextObject(_position, _size, _text)
 			self.fit_text = value
 			_setData()
 		elseif key == "fg_colour" or key == "bg_colour" then
-			self[key] = vec3(value)
+			self[key] = vec4(value)
 			_setData()
 		end
 	end

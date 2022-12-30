@@ -155,7 +155,7 @@ namespace term_engine::views {
 
     // Configure the colour attribute.
     glEnableVertexAttribArray(3);
-    glVertexAttribFormat(3, 3, GL_FLOAT, GL_FALSE, offsetof(objects::BufferData, colour_));
+    glVertexAttribFormat(3, 4, GL_FLOAT, GL_FALSE, offsetof(objects::BufferData, colour_));
     glVertexAttribBinding(3, 0);
 
     debug::LogVAOData();
