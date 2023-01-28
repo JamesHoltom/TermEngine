@@ -1,7 +1,7 @@
 #include "Buffer.h"
 #include "../utility/DebugUtils.h"
 
-namespace rendering {
+namespace term_engine::rendering {
   Buffer::Buffer()
   {
     glGenVertexArrays(1, &vao_id_);
@@ -25,7 +25,7 @@ namespace rendering {
     glVertexAttribFormat(2, 4, GL_FLOAT, GL_FALSE, offsetof(BufferData, colour_));
     glVertexAttribBinding(2, 0);
 
-    debug::LogVAOData();
+    utility::LogVAOData();
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo_id_);
     glBufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_DYNAMIC_DRAW);
@@ -39,11 +39,16 @@ namespace rendering {
     glDeleteBuffers(1, &vbo_id_);
   }
 
-  void Buffer::Render() const
+  void Buffer::PushToGL() const
   {
     glBindVertexArray(vao_id_);
     glBindBuffer(GL_ARRAY_BUFFER, vbo_id_);
-    glBufferData(GL_ARRAY_BUFFER, data.size(), data.data(), GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(BufferData) * data.capacity(), data.data(), GL_DYNAMIC_DRAW);
+  }
+
+  void Buffer::Use() const
+  {
+    glBindVertexArray(vao_id_);
   }
 
   GLuint Buffer::GetVaoId() const

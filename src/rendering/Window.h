@@ -3,26 +3,22 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
-#include <memory>
 #include <string>
 #include "../utility/GLUtils.h"
 #include "../utility/SDLUtils.h"
 
-namespace objects {
-  /// @brief The default width of the window.
-  constexpr int DEFAULT_WIDTH = 640;
-  /// @brief The default height of the window.
-  constexpr int DEFAULT_HEIGHT = 512;
+namespace term_engine::rendering {
+  /// @brief The default position of the window.
+  constexpr glm::ivec2 DEFAULT_POSITION(SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+  /// @brief The default size of the window.
+  constexpr glm::ivec2 DEFAULT_SIZE(640, 512);
   /// @brief The default title for the window.
   constexpr char DEFAULT_TITLE[] = "TermEngine Game";
   /// @brief The default clear colour to use when refreshing the window.
-  constexpr glm::vec4 DEFAULT_WINDOW_CLEAR_COLOUR = glm::vec4(0.0f, 0.0f, 0.0f, 255.0f);
+  constexpr glm::vec4 DEFAULT_WINDOW_CLEAR_COLOUR(0.0f, 0.0f, 0.0f, 255.0f);
 
   class Window {
   public:
-    /// @brief Constructs the window with default parameters.
-    Window();
-
     /**
      * @brief Constructs the window with the given parameters.
      * 
@@ -30,7 +26,7 @@ namespace objects {
      * @param[in] size      The size of the window, in pixels (px).
      * @param[in] title     The title of the window.
      */
-    Window(const glm::ivec2& position, const glm::ivec2& size, const std::string& title);
+    Window(const glm::ivec2& position, const glm::ivec2& size, const std::string& title, const Uint32& flags);
 
     /// @brief Destroys the window.
     ~Window();
@@ -120,13 +116,6 @@ namespace objects {
      * 
      * @param[in] colour The clear colour to use.
      */
-    void SetClearColour(const glm::vec3& colour);
-
-    /**
-     * @brief Sets the clear colour of the window.
-     * 
-     * @param[in] colour The clear colour to use.
-     */
     void SetClearColour(const glm::vec4& colour);
 
     /**
@@ -167,6 +156,9 @@ namespace objects {
     
     /// @brief Disables wireframe rendering.
     void SetWireframe(const bool& flag);
+
+    /// @brief Flips the window buffers, rendering the current frame's buffer to the screen.
+    void Refresh() const;
     
     /**
      * @brief Returns if vsync is enabled.
@@ -174,7 +166,7 @@ namespace objects {
      * 
      * @returns If vsync is enabled or not.
      */
-    static GLint IsVsyncEnabled();
+    static bool IsVsyncEnabled();
 
     /**
      * @brief Enables/disables vsync.
@@ -184,28 +176,29 @@ namespace objects {
      */
     static void SetVsync(const GLint& flag);
 
+    static void CleanUpContext();
+
   private:
-    /// @brief The OpenGL context to bind to the window and render to.
-    SDL_GLContext context_;
     /// @brief The SDL handle to the window.
-    SDL::Window window_;
+    utility::SDLWindow window_;
 
     bool is_init_;
     /// @brief The colour to use for setting when clearing the window after every frame.
     glm::vec4 clear_colour_;
     /// @brief Whether to use wireframe rendering or not.
     GLuint render_mode_;
+
+    static bool is_context_created_;
+    /// @brief The OpenGL context to bind windows to.
+    static SDL_GLContext context_;
     /// @brief Whether Vsync is enabled/disabled.
     static GLint vsync_flag_;
 
     /// @brief Initialises the window.
-    void Initialise(const glm::ivec2& position, const glm::ivec2& size);
+    void SetUpWindow(const glm::ivec2& position, const glm::ivec2& size, const Uint32& flags);
 
     /// @brief Clears the window, ready for the next frame.
     void Clear() const;
-
-    /// @brief Flips the window buffers, rendering the current frame's buffer to the screen.
-    void Refresh() const;
   };
 }
 

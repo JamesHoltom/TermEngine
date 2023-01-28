@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16.0)
 
-project("TermEngine" VERSION 0.6.0 LANGUAGES CXX C)
+project("TermEngine" VERSION 0.7.0 LANGUAGES CXX C)
 
 #include(CTest)
 #enable_testing()
@@ -26,6 +26,7 @@ find_package(spdlog CONFIG REQUIRED)
 
 add_executable("${PROJECT_NAME}"
   "./src/main.cc"
+  "./src/Application.cc"
   ${SOURCES}
 )
 

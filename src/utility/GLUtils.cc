@@ -5,7 +5,7 @@
 #include "SDLUtils.h"
 #include "SpdlogUtils.h"
 
-namespace GL {
+namespace term_engine::utility {
   void GLAPIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const char* message, const void* userParam)
   {
     // Ignore non-significant error/warning codes
@@ -45,13 +45,16 @@ namespace GL {
     case GL_DEBUG_SEVERITY_NOTIFICATION: severity_string = "Notification"; break;
     }
 
-    logging::logger->error("GL debug message (#{}):\nDescription: {}\nSource: {}\nType: {}\nSeverity: {}", id, message, source_string, type_string, severity_string);
+    logger->error("GL debug message (#{}):\nDescription: {}\nSource: {}\nType: {}\nSeverity: {}", id, message, source_string, type_string, severity_string);
   }
 
-  int InitGL()
+  void InitGL()
   {
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 4);
+    logger->debug("Requesting OpenGL version {}.{}", MAJOR_VERSION, MINOR_VERSION);
+
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, MAJOR_VERSION);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, MINOR_VERSION);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
 
@@ -59,25 +62,18 @@ namespace GL {
     SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &major_ver);
     SDL_GL_GetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, &minor_ver);
 
-    logging::logger->debug("Running OpenGL version {}.{}", major_ver, minor_ver);
-    logging::logger->debug("Initialised OpenGL.");
-
-    return 0;
+    utility::logger->debug("Running OpenGL version {}.{}", major_ver, minor_ver);
+    utility::logger->debug("Initialised OpenGL.");
   }
 
-  int InitGLEW()
+  bool InitGLEW()
   {
     glewExperimental = GL_TRUE;
 
-    GLenum glew_status = glewInit();
+    if (glewInit() != GLEW_OK) {
+      utility::logger->error("Failed to initialise GLEW!");
 
-    if (glew_status == GLEW_OK) {
-      logging::logger->debug("Initialised GLEW.");
-    }
-    else {
-      logging::logger->error("Failed to initialise GLEW!");
-
-      return 1;
+      return false;
     }
 
     glEnable(GL_BLEND);
@@ -85,10 +81,12 @@ namespace GL {
 
     glEnable(GL_DEBUG_OUTPUT);
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-    glDebugMessageCallback(GL::glDebugOutput, 0);
+    glDebugMessageCallback(glDebugOutput, 0);
     glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
 
-    return 0;
+    utility::logger->debug("Initialised GLEW.");
+
+    return true;
   }
 
   void PrintProgramLog(const GLuint& program_id)
@@ -106,18 +104,18 @@ namespace GL {
 
       if (log_length > 0)
       {
-        logging::logger->debug("Program build results:\nID: {}\nMessage: {}", program_id, info_log);
+        logger->debug("Program build results:\nID: {}\nMessage: {}", program_id, info_log);
       }
       else
       {
-        logging::logger->debug("Program build results:\nID: {}\nNo message to display.", program_id);
+        logger->debug("Program build results:\nID: {}\nNo message to display.", program_id);
       }
 
       delete[] info_log;
     }
     else
     {
-      logging::logger->warn("Program with an ID of {} has not been built.", program_id);
+      logger->warn("Program with an ID of {} has not been built.", program_id);
     }
   }
 
@@ -138,18 +136,18 @@ namespace GL {
 
       if (log_length > 0)
       {
-        logging::logger->debug("Shader build results:\nID: {}, Type: {}\nMessage: {}", shader_id, GetShaderTypeName(shader_type), info_log);
+        logger->debug("Shader build results:\nID: {}, Type: {}\nMessage: {}", shader_id, GetShaderTypeName(shader_type), info_log);
       }
       else
       {
-        logging::logger->debug("Shader build results:\nID: {}, Type: {}\nNo message to display.", shader_id, GetShaderTypeName(shader_type));
+        logger->debug("Shader build results:\nID: {}, Type: {}\nNo message to display.", shader_id, GetShaderTypeName(shader_type));
       }
 
       delete[] info_log;
     }
     else
     {
-      logging::logger->warn("Shader with an ID of {} has not been built.", shader_id);
+      logger->warn("Shader with an ID of {} has not been built.", shader_id);
     }
   }
 
@@ -160,11 +158,11 @@ namespace GL {
     glLinkProgram(program_id);
     glGetProgramiv(program_id, GL_LINK_STATUS, &program_linked);
 
-    GL::PrintProgramLog(program_id);
+    PrintProgramLog(program_id);
 
     if (program_linked == GL_FALSE)
     {
-      logging::logger->error("Failed to link shader program for ID {}.", program_id);
+      logger->error("Failed to link shader program for ID {}.", program_id);
     }
 
     return ShaderProcessResult(program_id, program_linked);
@@ -180,11 +178,11 @@ namespace GL {
     glCompileShader(shader_id);
     glGetShaderiv(shader_id, GL_COMPILE_STATUS, &shader_compiled);
 
-    GL::PrintStageLog(shader_id);
+    PrintStageLog(shader_id);
 
     if (shader_compiled == GL_FALSE)
     {
-      logging::logger->error("Failed to compile GLSL shader for ID {}.", shader_id);
+      logger->error("Failed to compile GLSL shader for ID {}.", shader_id);
     }
 
     return ShaderProcessResult(shader_id, shader_compiled);
@@ -192,13 +190,15 @@ namespace GL {
 
   std::string GetShaderTypeName(const GLenum& type)
   {
+    std::string result = "unknown";
+
     switch (type)
     {
-      case GL_FRAGMENT_SHADER:  return "fragment";  break;
-      case GL_VERTEX_SHADER:    return "vertex";    break;
-      case GL_GEOMETRY_SHADER:  return "geometry";  break;
+      case GL_FRAGMENT_SHADER:  result = "fragment";  break;
+      case GL_VERTEX_SHADER:    result = "vertex";    break;
+      case GL_GEOMETRY_SHADER:  result = "geometry";  break;
     }
 
-    return "unknown";
+    return result;
   }
 }

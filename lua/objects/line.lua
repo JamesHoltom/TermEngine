@@ -6,16 +6,17 @@ local empty_character = Character(characters.NO_CHARACTER, characters.DEFAULT_FO
 
 --[[
 -- @brief Extends the Object usertype to make drawing lines of characters simpler.
--- @param _start The start position of the line.
--- @param _end The end position of the line.
--- @param _char The character to render the line with.
+-- @param _game_scene The game scene to add the object to.
+-- @param _start      The start position of the line.
+-- @param _end        The end position of the line.
+-- @param _char       The character to render the line with.
 --]]
-function LineObject(_start, _end, _char)
+function LineObject(_game_scene, _start, _end, _char)
   local self = {
-    obj = Object(Values.IVEC2_ZERO, Values.IVEC2_ONE),
-    startPosition = _start,
-    endPosition = _end,
-    character = _char
+    obj = GameObject(_game_scene, Values.IVEC2_ZERO, Values.IVEC2_ONE), -- @brief Handle to the Object.
+    startPosition = _start,                                             -- @brief The starting position of the line.
+    endPosition = _end,                                                 -- @brief The ending position of the line.
+    character = _char                                                   -- @brief The Character to use for the line.
   }
 
   -- @brief Refreshes the object data with the updated settings.
@@ -26,7 +27,7 @@ function LineObject(_start, _end, _char)
     if size == Values.IVEC2_ZERO then
       return
     elseif size == Values.IVEC2_ONE then
-      self.obj.data[1] = self.character
+      self.obj:data()[1] = self.character
       return
     end
 
@@ -65,7 +66,7 @@ function LineObject(_start, _end, _char)
       local iterDiff = vec2(i/iterLimit) * diff
       local index = getIndexFromRowCol(self.obj.size, startPos + ivec2(iterDiff:round()))
 
-      self.obj.data[index] = self.character
+      self.obj:data()[index] = self.character
     end
 
     objects.dirty()

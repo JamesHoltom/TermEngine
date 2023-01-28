@@ -7,7 +7,7 @@
 #include "../utility/GLUtils.h"
 #include "../utility/SpdlogUtils.h"
 
-namespace rendering {
+namespace term_engine::rendering {
   struct BufferData;
   struct Buffer;
 
@@ -57,17 +57,37 @@ namespace rendering {
 
   class Buffer {
   public:
+    /// @brief Constructs the buffer.
     Buffer();
 
+    /// @brief Destroys the buffer.
     ~Buffer();
 
-    /// @brief The buffer of view data to render to the window.
+    /**
+     * @brief The buffer of view data to render to the window.
+     * 
+     * @returns The buffer data.
+     */
     BufferList data;
 
-    void Render() const;
+    /// @brief Pushes the buffer data to the VBO.
+    void PushToGL() const;
 
+    /// @brief Binds the buffer.
+    void Use() const;
+
+    /**
+     * @brief Returns the VAO ID for the buffer.
+     * 
+     * @return The VAO ID.
+     */
     GLuint GetVaoId() const;
 
+    /**
+     * @brief Returns the VBO ID for the buffer.
+     * 
+     * @return The VBO ID.
+     */
     GLuint GetVboId() const;
 
   private:

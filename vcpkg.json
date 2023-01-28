@@ -2,7 +2,7 @@
   "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg/master/scripts/vcpkg.schema.json",
   "name": "termengine",
   "description": "",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "builtin-baseline": "e85b5bb95a14ff7e014601e88a8dc2fea6798e33",
   "dependencies": [
     "cxxopts",

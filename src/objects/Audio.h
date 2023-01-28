@@ -3,23 +3,22 @@
 #ifndef AUDIO_H
 #define AUDIO_H
 
-#include <glm/glm.hpp>
 #include <filesystem>
-#include <memory>
 #include <string>
-#include <vector>
+#include <glm/glm.hpp>
+#include "BaseObject.h"
 #include "../vendor/miniaudio.h"
 
-namespace term_engine::resources {
-  class Audio;
+/*
+ * TODO: 
+ *   - Add "Seek" function.
+ *   - Condense "GetCursor" and "GetLength" functions into single functions, that take the format of the cursor/length as a parameter.
+ *   - Consider implementing sound groups & effects.
+ */
 
-  /// @brief Smart pointer to an audio resource.
-  typedef std::shared_ptr<Audio> AudioPtr;
-  /// @brief Used to store a list of audio resources.
-  typedef std::vector<AudioPtr> AudioList;
-
+namespace term_engine::objects {
   /// @brief Represents an audio resource, used to play music/sounds.
-  class Audio {
+  class Audio : public BaseObject {
   public:
     /**
      * @brief Constructs the audio resource with the given parameters.
@@ -28,10 +27,20 @@ namespace term_engine::resources {
      * @param[in] flag     Used to set if the whole resource is loaded or streamed into memory.
      * @remarks The `flag` parameter uses _0_ to represent a "static" resource, and _ma_sound_flags::MA_SOUND_FLAG_STREAM_ to represent a "stream" resource.
      */
-    Audio(const std::string& filepath, const unsigned int& flag);
+    Audio(const std::filesystem::path& filepath, const unsigned int& flag);
 
     /// @brief Destroys the audio resource.
     ~Audio();
+
+    /// @brief Updates the audio resource.
+    void Update();
+
+    /**
+     * @brief Returns the type of the object.
+     * 
+     * @return The object type.
+     */
+    std::string GetObjectType() const;
 
     /// @brief Plays the audio resource at the start of the audio.
     void Play();
@@ -44,41 +53,6 @@ namespace term_engine::resources {
 
     /// @brief Re-starts the audio resource, playing from wherever it was paused.
     void Resume();
-
-    /**
-     * @brief Sets if the audio resource will loop playback when the audio ends.
-     * 
-     * @param[in] flag Flag to enable/disable audio looping.
-     */
-    void SetLooping(const bool& flag);
-
-    /**
-     * @brief Sets the panning between each audio channel.
-     * 
-     * @param[in] pan The amount to pan the audio by. Accepts a value in between -1.0 and 1.0, and defaults at 0.0.
-     */
-    void SetPan(const double& pan);
-
-    /**
-     * @brief Sets the pitch of the audio.
-     * 
-     * @param[in] pitch The amount of pitch. Accepts any value above 0.0, and defaults at 1.0.
-     */
-    void SetPitch(const double& pitch);
-
-    /**
-     * @brief Sets the position of the audio, as if it exists in a 2D space.
-     * 
-     * @param[in] position The new position of the audio source.
-     */
-    void SetPosition(const glm::vec2& position);
-
-    /**
-     * @brief Sets the audio volume.
-     * 
-     * @param[in] volume The new volume. Accepts any value above 0.0 and 1.0, with higher values amplifying the volume.
-     */
-    void SetVolume(const double& volume);
 
     /**
      * @brief Returns if the audio resource is currently playing.
@@ -151,11 +125,39 @@ namespace term_engine::resources {
     std::string GetFilePath() const;
 
     /**
-     * @brief Plays an audio file directly through the engine.
+     * @brief Sets if the audio resource will loop playback when the audio ends.
      * 
-     * @param[in] filepath The filepath to the audio file.
+     * @param[in] flag Flag to enable/disable audio looping.
      */
-    static void PlaySound(const std::string& filepath);
+    void SetLooping(const bool& flag);
+
+    /**
+     * @brief Sets the panning between each audio channel.
+     * 
+     * @param[in] pan The amount to pan the audio by. Accepts a value in between -1.0 and 1.0, and defaults at 0.0.
+     */
+    void SetPan(const double& pan);
+
+    /**
+     * @brief Sets the pitch of the audio.
+     * 
+     * @param[in] pitch The amount of pitch. Accepts any value above 0.0, and defaults at 1.0.
+     */
+    void SetPitch(const double& pitch);
+
+    /**
+     * @brief Sets the position of the audio, as if it exists in a 2D space.
+     * 
+     * @param[in] position The new position of the audio source.
+     */
+    void SetPosition(const glm::vec2& position);
+
+    /**
+     * @brief Sets the audio volume.
+     * 
+     * @param[in] volume The new volume. Accepts any value above 0.0 and 1.0, with higher values amplifying the volume.
+     */
+    void SetVolume(const double& volume);
 
     /**
      * @brief Adds an audio resource to the list.
@@ -165,39 +167,10 @@ namespace term_engine::resources {
      * @remarks Streaming audio with the "stream" type is recommended for large music files. Loading entire audio resources with the "static" type is recommended for small sound files.
      * @returns A smart pointer to the resource if it was added to the list, or a null pointer if it failed.
      */
-    static AudioPtr& Add(const std::string& filepath, const std::string& type);
+    static ObjectPtr& Add(const std::string& filepath, const std::string& type);
 
-    /**
-     * @brief Removes an audio resource from the list.
-     * 
-     * @param[in] audio A smart pointer to the resource.
-     */
-    static void Remove(AudioPtr& audio);
-
-    /**
-     * @brief Returns if an audio resource exists with the given filepath.
-     * 
-     * @param[in] filepath The filepath to check.
-     * @returns If an audio resource exists.
-     */
-    static bool Exists(const std::string& filepath);
-
-    /**
-     * @brief Retrieves the list of audio resources.
-     * 
-     * @returns The list of audio resources.
-     */
-    static AudioList& GetList();
-
-    /**
-     * @brief Returns the number of audio resources.
-     * 
-     * @returns The number of audio resources.
-     */
-    static int Count();
-    
-    /// @brief Destroys all audio resources in the list.
-    static void CleanUp();
+    /// @brief Clears all audio resources from the object list.
+    static void ClearAll();
 
   private:
     /// @brief The filepath to the audio resource.
@@ -214,8 +187,14 @@ namespace term_engine::resources {
     glm::vec2 position_;
     /// @brief The audio volume.
     double volume_;
-    /// @brief The list of audio resources.
-    static AudioList audio_list_;
+
+    /**
+     * @brief Returns the list priority for this object.
+     * @details This is used to sort the list of objects before updating.
+     * 
+     * @returns The priority for this object.
+     */
+    ObjectSortPriority GetListPriority() const;
   };
 }
 

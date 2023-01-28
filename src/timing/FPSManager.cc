@@ -3,7 +3,7 @@
 #include "FPSManager.h"
 #include "../utility/SpdlogUtils.h"
 
-namespace timing {
+namespace term_engine::timing {
   Timer delay_timer_;
   Timer average_timer_;
   float average_fps_;
@@ -16,7 +16,7 @@ namespace timing {
     delay_timer_.Start();
     average_timer_.Start();
 
-    logging::logger->debug("Started FPS.");
+    utility::logger->debug("Started FPS.");
   }
 
   void Delay()
@@ -79,10 +79,10 @@ namespace timing {
   void PrintFPS()
   {
     if (target_fps_ > 0) {
-      logging::logger->info("Target FPS: {}", target_fps_);
+      utility::logger->info("Target FPS: {}", target_fps_);
     }
     
-    logging::logger->info("Average FPS: {}", GetAverageFPS());
-    logging::logger->info("Frame count: {}", frame_count_);
+    utility::logger->info("Average FPS: {}", GetAverageFPS());
+    utility::logger->info("Frame count: {}", frame_count_);
   }
 }

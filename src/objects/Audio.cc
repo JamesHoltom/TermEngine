@@ -3,8 +3,9 @@
 #include "../utility/AudioUtils.h"
 #include "../utility/SpdlogUtils.h"
 
-namespace term_engine::resources {
-  Audio::Audio(const std::string& filepath, const unsigned int& flag) :
+namespace term_engine::objects {
+  Audio::Audio(const std::filesystem::path& filepath, const unsigned int& flag) :
+    BaseObject(),
     filepath_(filepath),
     is_paused_(false),
     pan_(0.0f),
@@ -12,15 +13,27 @@ namespace term_engine::resources {
     position_(glm::vec2(0.0f)),
     volume_(1.0f)
   {
-    if (ma_sound_init_from_file(&audio::engine, filepath.c_str(), flag, nullptr, nullptr, &sound_) != MA_SUCCESS)
+    utility::logger->debug("Created audio resource with ID {} at {}.", object_id_, filepath.string());
+
+    if (ma_sound_init_from_file(&utility::engine, filepath.c_str(), flag, nullptr, nullptr, &sound_) != MA_SUCCESS)
     {
-      logging::logger->error("Failed to load sound \'{}\'.", filepath);
+      utility::logger->error("Failed to load sound \'{}\'.", filepath);
     }
   }
 
   Audio::~Audio()
   {
     ma_sound_uninit(&sound_);
+
+    utility::logger->debug("Created audio resource with ID {}.", object_id_);
+  }
+
+  void Audio::Update()
+  {}
+
+  std::string Audio::GetObjectType() const
+  {
+    return "Audio";
   }
 
   void Audio::Play()
@@ -47,39 +60,6 @@ namespace term_engine::resources {
   {
     ma_sound_start(&sound_);
     is_paused_ = false;
-  }
-
-  void Audio::SetLooping(const bool& flag)
-  {
-    ma_sound_set_looping(&sound_, flag ? MA_TRUE : MA_FALSE);
-  }
-
-  void Audio::SetPan(const double& pan)
-  {
-    pan_ = pan;
-
-    ma_sound_set_pan(&sound_, (float)pan);
-  }
-
-  void Audio::SetPitch(const double& pitch)
-  {
-    pitch_ = pitch;
-
-    ma_sound_set_pitch(&sound_, (float)pitch);
-  }
-
-  void Audio::SetPosition(const glm::vec2& position)
-  {
-    position_ = position;
-
-    ma_sound_set_position(&sound_, position.x, 0.0f, position.y);
-  }
-  
-  void Audio::SetVolume(const double& volume)
-  {
-    volume_ = volume;
-    
-    ma_sound_set_volume(&sound_, (float)volume);
   }
 
   bool Audio::IsPlaying() const
@@ -123,7 +103,7 @@ namespace term_engine::resources {
 
     if (ma_data_source_get_cursor_in_seconds(sound_.pDataSource, &cursor) != MA_SUCCESS)
     {
-      logging::logger->warn("Failed to get cursor of audio resource \'{}\'.", filepath_);
+      utility::logger->warn("Failed to get cursor of audio resource \'{}\'.", filepath_);
     }
 
     return (double)cursor;
@@ -135,7 +115,7 @@ namespace term_engine::resources {
 
     if (ma_data_source_get_length_in_seconds(sound_.pDataSource, &length) != MA_SUCCESS)
     {
-      logging::logger->warn("Failed to get length of audio resource \'{}\'.", filepath_);
+      utility::logger->warn("Failed to get length of audio resource \'{}\'.", filepath_);
     }
 
     return (double)length;
@@ -146,14 +126,40 @@ namespace term_engine::resources {
     return filepath_;
   }
 
-  void Audio::PlaySound(const std::string& filepath)
+  void Audio::SetLooping(const bool& flag)
   {
-    const std::filesystem::path fullPath = system::SearchForResourcePath(filepath);
-
-    ma_engine_play_sound(&audio::engine, fullPath.c_str(), nullptr);
+    ma_sound_set_looping(&sound_, flag ? MA_TRUE : MA_FALSE);
   }
 
-  AudioPtr& Audio::Add(const std::string& filepath, const std::string& type)
+  void Audio::SetPan(const double& pan)
+  {
+    pan_ = pan;
+
+    ma_sound_set_pan(&sound_, (float)pan);
+  }
+
+  void Audio::SetPitch(const double& pitch)
+  {
+    pitch_ = pitch;
+
+    ma_sound_set_pitch(&sound_, (float)pitch);
+  }
+
+  void Audio::SetPosition(const glm::vec2& position)
+  {
+    position_ = position;
+
+    ma_sound_set_position(&sound_, position.x, 0.0f, position.y);
+  }
+  
+  void Audio::SetVolume(const double& volume)
+  {
+    volume_ = volume;
+    
+    ma_sound_set_volume(&sound_, (float)volume);
+  }
+
+  ObjectPtr& Audio::Add(const std::string& filepath, const std::string& type)
   {
     unsigned int flag = 0;
 
@@ -163,68 +169,25 @@ namespace term_engine::resources {
     }
     else if (type != "static")
     {
-      logging::logger->warn("Unknown audio flag \'{}\' given. Defaulting to \'static\'.", type);
+      utility::logger->warn("Unknown audio flag \'{}\' given. Defaulting to \'static\'.", type);
     }
 
     const std::filesystem::path id = system::SearchForResourcePath(filepath);
 
-    logging::logger->debug("Added audio file {}.", id.string());
+    is_list_dirty_ = true;
 
-    return audio_list_.emplace_back(std::make_shared<Audio>(id, flag));
+    return std::ref(object_list_.emplace_front(std::make_shared<Audio>(id, flag)));
   }
 
-  void Audio::Remove(AudioPtr& resource)
+  void Audio::ClearAll()
   {
-    AudioList::iterator it = std::find(audio_list_.begin(), audio_list_.end(), resource);
+    object_list_.remove_if([](const ObjectPtr& object) { return object->GetObjectType() == "Audio"; });
 
-    if (it != audio_list_.end())
-    {
-      audio_list_.erase(it);
-
-      logging::logger->debug("Removed audio file {}.", resource->filepath_.string());
-    }
-    else
-    {
-      logging::logger->warn("Couldn't find audio resource in list!");
-    }
-
-    resource.reset();
+    utility::logger->debug("Cleared all audio resources from the list.");
   }
 
-  bool Audio::Exists(const std::string& filepath)
+  ObjectSortPriority Audio::GetListPriority() const
   {
-    const std::filesystem::path id = system::SearchForResourcePath(filepath);
-    bool isFound = false;
-
-    for (AudioPtr& audio : audio_list_)
-    {
-      if (audio->filepath_ == id)
-      {
-        isFound = true;
-        break;
-      }
-    }
-
-    return isFound;
+    return ObjectSortPriority::AUDIO;
   }
-
-  AudioList& Audio::GetList()
-  {
-    return audio_list_;
-  }
-
-  int Audio::Count()
-  {
-    return audio_list_.size();
-  }
-
-  void Audio::CleanUp()
-  {
-    for (AudioPtr& audio : audio_list_)
-    {
-      Remove(audio);
-    }
-  }
-
-  AudioList Audio::audio_list_;
 }

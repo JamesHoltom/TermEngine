@@ -7,7 +7,7 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/ostr.h>
 
-namespace logging {
+namespace term_engine::utility {
   /// @brief The default location to store log files at.
   constexpr char DEFAULT_LOG_LOCATION[] = "logs/term_engine.log";
 

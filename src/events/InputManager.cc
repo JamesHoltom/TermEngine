@@ -83,7 +83,7 @@ namespace term_engine::events {
     }
     else
     {
-      logging::logger->warn("Unknown scancode '{}' passed to ScancodeIsDown.", code);
+      utility::logger->warn("Unknown scancode '{}' passed to ScancodeIsDown.", code);
 
       return false;
     }
@@ -104,7 +104,7 @@ namespace term_engine::events {
     }
     else
     {
-      logging::logger->warn("Unknown scancode '{}' passed to ScancodeIsPressed.", code);
+      utility::logger->warn("Unknown scancode '{}' passed to ScancodeIsPressed.", code);
 
       return false;
     }
@@ -125,7 +125,7 @@ namespace term_engine::events {
     }
     else
     {
-      logging::logger->warn("Unknown scancode '{}' passed to ScancodeIsReleased.", code);
+      utility::logger->warn("Unknown scancode '{}' passed to ScancodeIsReleased.", code);
 
       return false;
     }

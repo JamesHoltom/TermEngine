@@ -1,10 +1,10 @@
 #include "FTUtils.h"
 #include "SpdlogUtils.h"
 
-namespace FT {
+namespace term_engine::utility {
   FT_Library font_library;
 
-  FT_Error Log(FT_Error result)
+  FT_Error FTLog(FT_Error result)
   {
     if (result != FT_Err_Ok) {
       std::string error_message;
@@ -115,7 +115,7 @@ namespace FT {
       case FT_Err_Corrupted_Font_Glyphs:         error_message = "Font glyphs are corrupted or insufficient"; break;
       }
 
-      logging::logger->error("FreeType error #{}: {}", result, error_message);
+      utility::logger->error("FreeType error #{}: {}", result, error_message);
     }
 
     return result;
@@ -123,23 +123,23 @@ namespace FT {
 
   int InitFreeType()
   {
-    FT_Error err = Log(FT_Init_FreeType(&font_library));
+    FT_Error err = FTLog(FT_Init_FreeType(&font_library));
 
     if (err != FT_Err_Ok) {
-      logging::logger->error("Failed to initialise FreeType. Received error #{}", err);
+      utility::logger->error("Failed to initialise FreeType. Received error #{}", err);
 
       return 1;
     }
 
-    logging::logger->debug("Initialised FreeType.");
+    utility::logger->debug("Initialised FreeType.");
 
     return 0;
   }
 
   void CleanUpFreeType()
   {
-    Log(FT_Done_FreeType(font_library));
+    FTLog(FT_Done_FreeType(font_library));
 
-    logging::logger->debug("Shut down FreeType.");
+    utility::logger->debug("Shut down FreeType.");
   }
 }

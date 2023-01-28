@@ -17,7 +17,12 @@
 #define APIENTRY
 #endif
 
-namespace GL {
+namespace term_engine::utility {
+
+  constexpr int MAJOR_VERSION = 4;
+
+  constexpr int MINOR_VERSION = 6;
+
   struct ShaderProcessResult
   {
     GLuint id_;
@@ -46,15 +51,15 @@ namespace GL {
    * 
    * @returns Was OpenGL successfully initialised?
    */
-  int InitGL();
+  void InitGL();
 
   /**
-   * @brief Initialises GLEW. Do not call this function! Use `Init()` instead.
+   * @brief Initialises GLEW.
    * @details GLEW needs to be called *after* the window has been initialised.
    *
    * @returns Was GLEW successfully initialised?
    */
-  int InitGLEW();
+  bool InitGLEW();
 
   /**
    * @brief Logs the build log of the GLSL program.

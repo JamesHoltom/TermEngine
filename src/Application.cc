@@ -1,90 +1,56 @@
 #include <string>
 #include "Application.h"
+#include "events/InputManager.h"
+#include "events/Listener.h"
+#include "objects/BaseObject.h"
+#include "objects/GameScene.h"
+#include "scripting/ScriptingInterface.h"
+#include "timing/FPSManager.h"
 #include "utility/AudioUtils.h"
 #include "utility/DebugUtils.h"
 #include "utility/FTUtils.h"
 #include "utility/GLUtils.h"
 #include "utility/SDLUtils.h"
 #include "utility/SpdlogUtils.h"
-#include "events/InputManager.h"
-#include "events/Listener.h"
-#include "objects/Object.h"
-#include "objects/Audio.h"
-#include "objects/Background.h"
-#include "objects/FontAtlas.h"
-#include "objects/Window.h"
-#include "scripting/ScriptingInterface.h"
-#include "shaders/ShaderUniform.h"
-#include "timing/FPSManager.h"
-#include "timing/TimedFunction.h"
 
 namespace term_engine {
   void Init()
   {
-    logging::InitLogger();
+    utility::InitLogger();
 
-    if (SDL::InitSDL() > 0 || GL::InitGL() > 0 || FT::InitFreeType() > 0)
+    if (utility::InitSDL() > 0 || utility::InitFreeType() > 0)
     {
-      logging::logger->critical("Failed to initialise SDL/GL/FT!");
+      utility::logger->critical("Failed to initialise SDL/FT!");
       exit(2);
     }
 
-    if (system::InitWindow() > 0)
-    {
-      logging::logger->critical("Failed to initialise window!");
-      exit(2);
-    }
-
-    if (GL::InitGLEW() > 0)
-    {
-      logging::logger->critical("Failed to initialise GLEW!");
-      exit(2);
-    }
-
-    audio::Init();
-
+    utility::InitGL();
+    utility::InitAudio();
     events::Init();
-
-    data::Init();
-    data::SetProjection(system::GetWindowSize());
-
-    background::Init();
-
-    if (!fonts::Init())
-    {
-      logging::logger->error("Failed to initialise application!");
-      exit(3);
-    }
-
-    views::Init();
-    system::ResizeWindowToView();
-
+    events::InitQueue();
     timing::InitFPS();
+
+    objects::default_scene = std::dynamic_pointer_cast<objects::GameScene>(objects::GameScene::Add("default"));
+    
     scripting::InitInterface();
     scripting::InitScript();
 
-    logging::logger->debug("Finished init!");
+    utility::logger->debug("Finished init!");
   }
 
   void CleanUp()
   {
-    events::EventListener::CleanUp();
-    timing::TimedFunction::CleanUp();
-    objects::Object::CleanUp();
-    resources::Audio::CleanUp();
+    objects::BaseObject::CleanUp();
+    events::CleanUpQueue();
     scripting::CleanUp();
-    fonts::CleanUp();
-    views::CleanUp();
-    data::CleanUp();
     events::CleanUp();
-    audio::CleanUp();
-    system::CleanUpWindow();
-    background::RemoveBackground();
 
-    FT::CleanUpFreeType();
-    SDL::CleanUpSDL();
+    objects::default_scene.reset();
 
-    logging::logger->debug("Cleaned up!");
+    utility::CleanUpFreeType();
+    utility::CleanUpSDL();
+
+    utility::logger->debug("Cleaned up!");
   }
 
   void Run()
@@ -117,35 +83,18 @@ namespace term_engine {
       SDL_Event event;
 
       while (SDL_PollEvent(&event) != 0) {
-        debug::LogKeyboardEvents(event);
-        debug::LogWindowEvents(event);
-
-        if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
-        {
-          data::SetProjection(glm::ivec2(event.window.data1, event.window.data2));
-        }
-
-        events::EventListener::DoSDLEvents(event);
+        utility::LogKeyboardEvents(event);
+        utility::LogWindowEvents(event);
+        events::DoSDLEvents(event);
       }
-
-      timing::TimedFunction::Update();
 
       scripting::OnLoop(timestep.GetIntervalElapsed());
 
-      bool canRender = true;
-      if (system::IsWindowMinimised())
+      objects::BaseObject::Sort();
+
+      for (const objects::ObjectPtr& object : objects::BaseObject::object_list_)
       {
-        canRender = false;
-      }
-
-      if (canRender)
-      {
-        system::ClearWindow();
-
-        background::Render();
-        views::Render();
-
-        system::RefreshWindow();
+        object->Update();
       }
 
       timing::NextFrame();

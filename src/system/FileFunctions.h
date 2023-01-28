@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-namespace system {
+namespace term_engine::system {
   /// @brief Used to store a list of file/folder locations.
   typedef std::vector<std::string> FileList;
 

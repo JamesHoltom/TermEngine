@@ -1,12 +1,12 @@
 #include "SDLUtils.h"
 #include "SpdlogUtils.h"
 
-namespace SDL {
+namespace term_engine::utility {
   int InitSDL()
   {
     if (SDL_Init(SDL_INIT_FLAGS) != 0)
     {
-      logging::logger->error("Failed to fully initialise SDL!\nError: {}", SDL_GetError());
+      utility::logger->error("Failed to fully initialise SDL!\nError: {}", SDL_GetError());
 
       return 1;
     }
@@ -14,17 +14,17 @@ namespace SDL {
     for (int i = 0; i < SDL_GetNumAudioDrivers(); ++i)
     {
       const char* driver_name = SDL_GetAudioDriver(i);
-      logging::logger->debug("Audio driver #{}: {}", i, driver_name);
+      utility::logger->debug("Audio driver #{}: {}", i, driver_name);
     }
 
     if (SDL_InitSubSystem(SDL_INIT_AUDIO) != 0)
     {
-      logging::logger->error("Failed to initialise audio!\nError: {}", SDL_GetError());
+      utility::logger->error("Failed to initialise audio!\nError: {}", SDL_GetError());
     }
 
     srand(SDL_GetTicks());
 
-    logging::logger->debug("Initialised SDL.");
+    utility::logger->debug("Initialised SDL.");
 
     return 0;
   }
@@ -33,6 +33,6 @@ namespace SDL {
   {
     SDL_Quit();
 
-    logging::logger->debug("Shut down SDL.");
+    utility::logger->debug("Shut down SDL.");
   }
 }

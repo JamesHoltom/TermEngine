@@ -1,7 +1,7 @@
 local timingText, timingValue
 
 function Init()
-  timingText = TextObject(Values.IVEC2_ONE, ivec2(20, 2))
+  timingText = TextObject(defaultScene(), Values.IVEC2_ONE, ivec2(20, 2))
   timingText.text = "This text changes as time progresses!"
 
   timingValue = 0.0
@@ -17,5 +17,5 @@ function Loop(timestep)
   local bgValueB = (math.sin(timingValue) * 127.5) + 127.5
 
   timingText.fg_colour = vec4(vec3(255.0), fgValue)
-  timingText.bg_colour = vec4(bgValueR, bgValueG, bgValueB, 255.0)
+  timingText.bg_colour = vec4(bgValueR, bgValueG, bgValueB, 255.0) 
 end

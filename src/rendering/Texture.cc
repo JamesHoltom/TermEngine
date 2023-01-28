@@ -1,14 +1,15 @@
 #include <memory>
-#include "ImageFunctions.h"
+#include "Texture.h"
 #include "../utility/SpdlogUtils.h"
 
-namespace system {
-  TextureData CreateTextureFromImage(const std::filesystem::path& filepath)
+namespace term_engine::rendering {
+  TextureData CreateTextureFromImage(const std::filesystem::path& filepath, const GLuint& index)
   {
     GLuint texture_id = 0;
     int width, height, channels;
+
     glGenTextures(1, &texture_id);
-    glActiveTexture(GL_TEXTURE0);
+    glActiveTexture(GL_TEXTURE0 + index);
     glBindTexture(GL_TEXTURE_2D, texture_id);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -30,25 +31,25 @@ namespace system {
       glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, height);
       glTexImage2D(GL_TEXTURE_2D, 0, mode, width, height, 0, mode, GL_UNSIGNED_BYTE, data);
 
-      logging::logger->debug("Loaded image \'{}\' with size {},{} and {} channels.", filepath.string(), width, height, channels);
+      utility::logger->debug("Loaded image \'{}\' with size {},{} and {} channels.", filepath.string(), width, height, channels);
 
       stbi_image_free(data);
 
-      return TextureData(texture_id, glm::ivec2(width, height));
+      return TextureData(texture_id, glm::ivec2(width, height), index);
     }
     else {
-      logging::logger->error("Failed to load image \'{}\'.\nError: {}", filepath.string(), stbi_failure_reason());
+      utility::logger->error("Failed to load image \'{}\'.\nError: {}", filepath.string(), stbi_failure_reason());
 
       return TextureData();
     }
   }
 
-  TextureData AllocateTexture(const glm::ivec2& size, const GLenum& format)
+  TextureData AllocateTexture(const glm::ivec2& size, const GLenum& format, const GLuint& index)
   {
     GLuint texture_id = 0;
 
     glGenTextures(1, &texture_id);
-    glActiveTexture(GL_TEXTURE0);
+    glActiveTexture(GL_TEXTURE0 + index);
     glBindTexture(GL_TEXTURE_2D, texture_id);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -61,15 +62,33 @@ namespace system {
 
     glTexStorage2D(GL_TEXTURE_2D, 1, format, size.x, size.y);
 
-    logging::logger->debug("Allocated texture with size {},{}.", size.x, size.y);
+    utility::logger->debug("Allocated texture with size {},{}.", size.x, size.y);
 
-    return TextureData(texture_id, size);
+    return TextureData(texture_id, size, index);
   }
 
-  void DeleteImage(const TextureData& image)
+  void ClearTexture(TextureData& texture, const glm::vec4& colour)
   {
-    logging::logger->debug("Removed texture \'{}\'.", image.texture_id_);
+    GLubyte clear_colour[4] = { static_cast<GLubyte>(colour.r), static_cast<GLubyte>(colour.g), static_cast<GLubyte>(colour.b), static_cast<GLubyte>(colour.a) };
 
-    glDeleteTextures(1, &image.texture_id_);
+    glActiveTexture(GL_TEXTURE0 + texture.texture_index_);
+    glBindTexture(GL_TEXTURE_2D, texture.texture_id_);
+    glClearTexImage(texture.texture_id_, 0, GL_RED, GL_UNSIGNED_BYTE, &clear_colour);
+  }
+
+  void DeleteTexture(const TextureData& texture)
+  {
+    if (texture.texture_id_ > -1)
+    {
+      utility::logger->debug("Removed texture \'{}\'.", texture.texture_id_);
+
+      glDeleteTextures(1, &texture.texture_id_);
+    }
+  }
+
+  void UnuseTexture(const GLuint& index)
+  {
+    glActiveTexture(GL_TEXTURE0 + index);
+    glBindTexture(GL_TEXTURE_2D, 0);
   }
 }

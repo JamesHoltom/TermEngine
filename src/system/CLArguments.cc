@@ -3,7 +3,7 @@
 #include "CLArguments.h"
 #include "../utility/SpdlogUtils.h"
 
-namespace system {
+namespace term_engine::system {
   std::filesystem::path scriptPath;
 
   void GetCLArguments(int& argc, char**& argv)
@@ -21,11 +21,11 @@ namespace system {
     }
     catch (cxxopts::OptionParseException& ex)
     {
-      logging::logger->error("Failed to parse command-line arguments. Error: {}", std::string(ex.what()));
+      utility::logger->error("Failed to parse command-line arguments. Error: {}", std::string(ex.what()));
     }
     catch (cxxopts::OptionSpecException& ex)
     {
-      logging::logger->error("Failed to define command-line arguments. Error: {}", std::string(ex.what()));
+      utility::logger->error("Failed to define command-line arguments. Error: {}", std::string(ex.what()));
     }
   }
 }

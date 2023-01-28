@@ -10,7 +10,7 @@
 #include "FileFunctions.h"
 #include "../utility/SpdlogUtils.h"
 
-namespace system {
+namespace term_engine::system {
   std::filesystem::path project_path;
 
   std::filesystem::path GetRootPath()
@@ -50,17 +50,17 @@ namespace system {
     {
       const std::filesystem::path fullPath = location / filename;
 
-      logging::logger->debug("Testing location {}...", fullPath);
+      utility::logger->debug("Testing location {}...", fullPath);
 
       if (std::filesystem::exists(fullPath))
       {
-        logging::logger->debug("Found project path at {}.", fullPath);
+        utility::logger->debug("Found project path at {}.", fullPath);
 
         return fullPath;
       }
     }
 
-    logging::logger->warn("Could not find project directory {}!", filename);
+    utility::logger->warn("Could not find project directory {}!", filename);
 
     return "";
   }
@@ -86,28 +86,28 @@ namespace system {
     {
       const std::filesystem::path fullPath = location / filename;
 
-      logging::logger->debug("Testing resource path at {}.", fullPath);
+      utility::logger->debug("Testing resource path at {}.", fullPath);
 
       if (std::filesystem::exists(fullPath))
       {
-        logging::logger->debug("Found resource path at {}.", fullPath);
+        utility::logger->debug("Found resource path at {}.", fullPath);
 
         return fullPath;
       }
     }
 
-    logging::logger->warn("Could not find resource \"{}\"!", filename);
+    utility::logger->warn("Could not find resource \"{}\"!", filename);
 
     return "";
   }
 
   std::string ReadFile(const std::string& filename)
   {
-    std::filesystem::path filepath = system::SearchForResourcePath(filename);
+    std::filesystem::path filepath = SearchForResourcePath(filename);
 
     if (filepath == "")
     {
-      logging::logger->warn("Could not find file to read data from!");
+      utility::logger->warn("Could not find file to read data from!");
       
       return "";
     }
@@ -126,7 +126,7 @@ namespace system {
     }
     else
     {
-      logging::logger->error("Failed to read from file {}.", filepath);
+      utility::logger->error("Failed to read from file {}.", filepath);
 
       return "";
     }
@@ -136,7 +136,7 @@ namespace system {
   {
     if (filename == "")
     {
-      logging::logger->warn("No file has been selected to write/append data to!");
+      utility::logger->warn("No file has been selected to write/append data to!");
       
       return;
     }
@@ -154,13 +154,13 @@ namespace system {
     }
     else
     {
-      logging::logger->error("Failed to write to file {}.", filepath);
+      utility::logger->error("Failed to write to file {}.", filepath);
     }
   }
 
   bool FileExists(const std::string& filename)
   {
-    return system::SearchForResourcePath(filename) != "";
+    return SearchForResourcePath(filename) != "";
   }
 
   FileList GetFileList(const std::string& directory)

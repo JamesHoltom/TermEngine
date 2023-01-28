@@ -5,7 +5,7 @@
 #include "SpdlogUtils.h"
 #include "../system/FileFunctions.h"
 
-namespace logging {
+namespace term_engine::utility {
   LoggerPtr logger;
 
   void InitLogger()

@@ -6,7 +6,7 @@
 #include <vector>
 #include "../utility/GLUtils.h"
 
-namespace rendering {
+namespace term_engine::rendering {
   struct CharacterParams;
 
   /// @brief Used to store a collection of character parameters, which represents an object.

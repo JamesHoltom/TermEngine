@@ -1,10 +1,8 @@
-local bgText, showBg, bg, alpha
+local scene, bgText, showBg, bg, alpha
 
 function Init()
-  view.setSize(ivec2(19, 2))
-  window.setSize(ivec2(640, 512))
-
-  bgText = TextObject(Values.IVEC2_ZERO, ivec2(19, 2))
+  scene = defaultScene()
+  bgText = TextObject(scene, Values.IVEC2_ZERO, ivec2(19, 2))
   bgText.text = "Press 'b' to changethe background"
 
   showBg = 0
@@ -45,9 +43,9 @@ function Loop(timestep)
 
   if bgChanged then
     if bg == "" then
-      background.remove()
+      scene.background.unload()
     else
-      background.set(bg, vec2(64.0, 0.0), vec4(255.0, 255.0, 255.0, alpha))
+      scene.background.load(bg)
     end
   end
 end

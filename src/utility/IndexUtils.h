@@ -4,38 +4,88 @@
 #define INDEX_UTILS_H
 
 #include <glm/glm.hpp>
+#include "../objects/GameScene.h"
+#include "../rendering/FontAtlas.h"
 
-namespace term_engine {
+namespace term_engine::utility {
   /**
    * @brief Returns the data index for the given position.
    * 
-   * @param[in] size   The size of the object.
-   * @param[in] position The position to retrieve the index for.
+   * @param[in] game_scene  The game scene with the font to derive the row/column from.
+   * @param[in] size        The size of the object.
+   * @param[in] position    The position to retrieve the index for.
    * @returns The data index.
    */
-  int GetIndexFromPosition(const glm::ivec2& size, const glm::ivec2& position);
+  int GetIndexFromPosition(const objects::GameSceneWeakPtr& game_scene, const glm::ivec2& size, const glm::ivec2& position);
 
   /**
-   * @brief Returns the row/column for the given position.
+   * @brief Returns the data index for the given position.
    * 
-   * @param[in] position The position to retrieve the row/column for.
-   * @returns The row/column.
+   * @param[in] font_atlas  The font atlas to derive the row/column from.
+   * @param[in] size        The size of the object.
+   * @param[in] position    The position to retrieve the index for.
+   * @returns The data index.
    */
-  glm::ivec2 GetRowColFromPosition(const glm::ivec2& position);
+  int GetIndexFromPosition(const rendering::FontAtlas& font_atlas, const glm::ivec2& size, const glm::ivec2& position);
 
   /**
    * @brief Returns the position for the given data index.
-   * @note This translates from Lua's index (starting from 1) to C++'s index (starting from 0).
    * 
+   * @param[in] game_scene The game scene with the font to derive the row/column from.
    * @param[in] size   The size of the object.
    * @param[in] index The data index to retrieve the position for.
    * @returns The position.
    */
-  glm::ivec2 GetPositionFromIndex(const glm::ivec2& size, const int& index);
+  glm::ivec2 GetPositionFromIndex(const objects::GameSceneWeakPtr& game_scene, const glm::ivec2& size, const int& index);
+
+  /**
+   * @brief Returns the position for the given data index.
+   * 
+   * @param[in] font_atlas  The font atlas to derive the row/column from.
+   * @param[in] size        The size of the object.
+   * @param[in] index       The data index to retrieve the position for.
+   * @returns The position.
+   */
+  glm::ivec2 GetPositionFromIndex(const rendering::FontAtlas& font_atlas, const glm::ivec2& size, const int& index);
+
+  /**
+   * @brief Returns the row/column for the given position.
+   * 
+   * @param[in] game_scene The game scene with the font to derive the row/column from.
+   * @param[in] position The position to retrieve the row/column for.
+   * @returns The row/column.
+   */
+  glm::ivec2 GetRowColFromPosition(const objects::GameSceneWeakPtr& game_scene, const glm::ivec2& position);
+
+  /**
+   * @brief Returns the row/column for the given position.
+   * 
+   * @param[in] font_atlas  The font atlas to derive the row/column from.
+   * @param[in] position The position to retrieve the row/column for.
+   * @returns The row/column.
+   */
+  glm::ivec2 GetRowColFromPosition(const rendering::FontAtlas& font_atlas, const glm::ivec2& position);
+
+  /**
+   * @brief Returns the position for the given row/column.
+   * 
+   * @param[in] game_scene The game scene with the font to derive the row/column from.
+   * @param[in] rowcol The row/column to retrieve the position for.
+   * @returns The position.
+   */
+  glm::ivec2 GetPositionFromRowCol(const objects::GameSceneWeakPtr& game_scene, const glm::ivec2& rowcol);
+
+  /**
+   * @brief Returns the position for the given row/column.
+   * 
+   * @param[in] font_atlas  The font atlas to derive the row/column from.
+   * @param[in] rowcol The row/column to retrieve the position for.
+   * @returns The position.
+   */
+  glm::ivec2 GetPositionFromRowCol(const rendering::FontAtlas& font_atlas, const glm::ivec2& rowcol);
 
   /**
    * @brief Returns the row/column for the given data index.
-   * @note This translates from Lua's index (starting from 1) to C++'s index (starting from 0).
    * 
    * @param[in] size   The size of the object.
    * @param[in] index The data index to retrieve the row/column for.
@@ -53,12 +103,20 @@ namespace term_engine {
   int GetIndexFromRowCol(const glm::ivec2& size, const glm::ivec2& rowcol);
 
   /**
-   * @brief Returns the position for the given row/column.
+   * @brief Converts a C-style index (i.e. starting from 0) into a Lua-style index (i.e. starting from 1).
    * 
-   * @param[in] rowcol The row/column to retrieve the position for.
-   * @returns The position.
+   * @param[in] index The index to convert.
+   * @returns The converted index.
    */
-  glm::ivec2 GetPositionFromRowCol(const glm::ivec2& rowcol);
+  int ToLuaIndex(const int& index);
+
+  /**
+   * @brief Converts a Lua-style index (i.e. starting from 1) into a C-style index (i.e. starting from 0).
+   * 
+   * @param[in] index The index to convert.
+   * @returns The converted index.
+   */
+  int ToCppIndex(const int& index);
 }
 
 #endif // ! INDEX_UTILS_H

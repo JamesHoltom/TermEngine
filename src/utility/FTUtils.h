@@ -8,7 +8,7 @@
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
 
-namespace FT {
+namespace term_engine::utility {
   /// @brief The FreeType library instance used to manage and render fonts.
   extern FT_Library font_library;
 
@@ -18,7 +18,7 @@ namespace FT {
    * @param[in] result The result of the FreeType call to check.
    * @returns The result that was passed in.
    */
-  FT_Error Log(FT_Error result);
+  FT_Error FTLog(FT_Error result);
 
   /**
    * @brief Initialises FreeType.

@@ -6,7 +6,7 @@
 #include <memory>
 #include <SDL2/SDL.h>
 
-namespace SDL {
+namespace term_engine::utility {
   /// @brief The flags to initialise SDL with.
   constexpr int SDL_INIT_FLAGS = SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER;
 
@@ -16,13 +16,13 @@ namespace SDL {
   struct TextureDestroyer;
 
   /// @brief Wraps _SDL_Window_ with a smart pointer to allow automatic cleanup.
-  typedef std::unique_ptr<SDL_Window, WindowDestroyer> Window;
+  typedef std::unique_ptr<SDL_Window, WindowDestroyer> SDLWindow;
   /// @brief Wraps _SDL_Renderer_ with a smart pointer to allow automatic cleanup.
-  typedef std::unique_ptr<SDL_Renderer, RendererDestroyer> Renderer;
+  typedef std::unique_ptr<SDL_Renderer, RendererDestroyer> SDLRenderer;
   /// @brief Wraps _SDL_Surface_ with a smart pointer to allow automatic cleanup.
-  typedef std::unique_ptr<SDL_Surface, SurfaceDestroyer> Surface;
+  typedef std::unique_ptr<SDL_Surface, SurfaceDestroyer> SDLSurface;
   /// @brief Wraps _SDL_Texture_ with a smart pointer to allow automatic cleanup.
-  typedef std::unique_ptr<SDL_Texture, TextureDestroyer> Texture;
+  typedef std::unique_ptr<SDL_Texture, TextureDestroyer> SDLTexture;
 
   /// @brief Smart pointer destructor used to destroy a _SDL_Window_.
   struct WindowDestroyer {

@@ -5,7 +5,7 @@
 
 #include <filesystem>
 
-namespace system {
+namespace term_engine::system {
   /**
    * @details The command-line arguments are laid out as follows:
    * 

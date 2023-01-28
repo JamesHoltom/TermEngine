@@ -1,19 +1,15 @@
 #include <filesystem>
 #include "ScriptingInterface.h"
 #include "bindings/glmBindings.h"
-#include "bindings/EventBindings.h"
-#include "bindings/FileBindings.h"
+#include "bindings/CoreBindings.h"
 #include "bindings/ObjectBindings.h"
-#include "bindings/ResourceBindings.h"
-#include "bindings/TimingBindings.h"
 #include "bindings/UtilityBindings.h"
-#include "bindings/ViewBindings.h"
 #include "../system/CLArguments.h"
 #include "../system/FileFunctions.h"
 #include "../utility/SpdlogUtils.h"
 
 
-namespace scripting {
+namespace term_engine::scripting {
   std::unique_ptr<sol::state> lua_state;
   std::string lua_file;
 
@@ -24,13 +20,9 @@ namespace scripting {
 
     // Create bindings for C++ functions.
     bindings::BindGlmToState(*lua_state);
-    bindings::BindEventToState(*lua_state);
-    bindings::BindFileToState(*lua_state);
-    bindings::BindObjectToState(*lua_state);
-    bindings::BindResourcesToState(*lua_state);
-    bindings::BindTimingToState(*lua_state);
+    bindings::BindCoreToState(*lua_state);
+    bindings::BindObjectsToState(*lua_state);
     bindings::BindUtilitiesToState(*lua_state);
-    bindings::BindViewToState(*lua_state);
   }
 
   void InitScript()
@@ -60,18 +52,18 @@ namespace scripting {
     }
 
     (*lua_state)["package"]["path"] = packagePath;
-    logging::logger->debug("Lua path: {}", std::string((*lua_state)["package"]["path"]));
+    utility::logger->debug("Lua path: {}", std::string((*lua_state)["package"]["path"]));
 
     Load(rootDirectory + "/" + LOADER_SCRIPT_PATH);
 
     if (project_file != "")
     {
-      logging::logger->info("Loading project...");
+      utility::logger->info("Loading project...");
       Load(project_file.string());
     }
     else
     {
-      logging::logger->info("No project to load!");
+      utility::logger->info("No project to load!");
       Load(rootDirectory + "/" + DEFAULT_SCRIPT_PATH);
     }
   }
@@ -92,16 +84,16 @@ namespace scripting {
       if (result.valid())
       {
         lua_file = filename;
-        logging::logger->debug("Loaded Lua script {}.", filename);
+        utility::logger->debug("Loaded Lua script {}.", filename);
       }
       else
       {
         sol::error err = result;
-        logging::logger->error("Failed to load Lua script {}\nError: {}. ", filename, err.what());
+        utility::logger->error("Failed to load Lua script {}\nError: {}. ", filename, err.what());
       }
     }
     catch (const std::exception& err) {
-      logging::logger->error("A loading error occurred!\nFile: {}\nError: {}", lua_file, err.what());
+      utility::logger->error("A loading error occurred!\nFile: {}\nError: {}", lua_file, err.what());
     }
   }
 
@@ -119,11 +111,11 @@ namespace scripting {
       else
       {
         sol::error err = result;
-        logging::logger->error("Received Lua error on init: {}", err.what());
+        utility::logger->error("Received Lua error on init: {}", err.what());
       }
     }
     catch (const std::exception& err) {
-      logging::logger->error("A scripting error occurred!\nFile: {}\nError: {}", lua_file, err.what());
+      utility::logger->error("A scripting error occurred!\nFile: {}\nError: {}", lua_file, err.what());
     }
 
     return return_value;
@@ -137,11 +129,11 @@ namespace scripting {
       if (!result.valid())
       {
         sol::error err = result;
-        logging::logger->error("Received Lua error on loop: {}", err.what());
+        utility::logger->error("Received Lua error on loop: {}", err.what());
       }
     }
     catch (const std::exception& err) {
-      logging::logger->error("A scripting error occurred!\nFile: {}\nError: {}", lua_file, err.what());
+      utility::logger->error("A scripting error occurred!\nFile: {}\nError: {}", lua_file, err.what());
     }
   }
 
@@ -159,11 +151,11 @@ namespace scripting {
       else
       {
         sol::error err = result;
-        logging::logger->error("Received Lua error on quit: {}", err.what());
+        utility::logger->error("Received Lua error on quit: {}", err.what());
       }
     }
     catch (const std::exception& err) {
-      logging::logger->error("A scripting error occurred!\nFile: {}\nError: {}", lua_file, err.what());
+      utility::logger->error("A scripting error occurred!\nFile: {}\nError: {}", lua_file, err.what());
     }
 
     return return_value;

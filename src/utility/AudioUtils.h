@@ -7,7 +7,7 @@
 #include <SDL2/SDL_audio.h>
 #include "../vendor/miniaudio.h"
 
-namespace audio {
+namespace term_engine::utility {
   /// @brief The ID of the audio device in SDL.
   extern SDL_AudioDeviceID device_id;
   /// @brief Handler to the audio engine.
@@ -18,7 +18,7 @@ namespace audio {
    * 
    * @returns If the engine was successfully initialised.
    */
-  int Init();
+  int InitAudio();
 
   /// @brief Destroys the audio engine and does cleanup.
   void CleanUp();

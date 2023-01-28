@@ -1,39 +1,24 @@
 #include "Window.h"
 #include "../utility/SpdlogUtils.h"
 
-namespace objects {
-  Window::Window() :
+namespace term_engine::rendering {
+  Window::Window(const glm::ivec2& position, const glm::ivec2& size, const std::string& title, const Uint32& flags) :
     clear_colour_(DEFAULT_WINDOW_CLEAR_COLOUR / 255.0f),
     render_mode_(GL_FILL)
   {
-    Initialise(glm::ivec2(SDL_WINDOWPOS_CENTERED), glm::ivec2(DEFAULT_WIDTH, DEFAULT_HEIGHT));
-
-    if (is_init_)
-    {
-      SetTitle(std::string(DEFAULT_TITLE));
-      SetVsync(vsync_flag_);
-    }
-  }
-
-  Window::Window(const glm::ivec2& position, const glm::ivec2& size, const std::string& title) :
-    clear_colour_(DEFAULT_WINDOW_CLEAR_COLOUR / 255.0f),
-    render_mode_(GL_FILL)
-  {
-    Initialise(position, size);
+    SetUpWindow(position, size, flags);
 
     if (is_init_)
     {
       SetTitle(title);
-      SetVsync(vsync_flag_);
     }
   }
 
   Window::~Window()
   {
-    SDL_GL_DeleteContext(context_);
     window_.reset();
 
-    logging::logger->debug("Destroyed window.");
+    utility::logger->debug("Destroyed window.");
   }
 
   glm::ivec2 Window::GetPosition() const
@@ -102,6 +87,18 @@ namespace objects {
   void Window::SetSize(const glm::ivec2& size) const
   {
     SDL_SetWindowSize(window_.get(), size.x, size.y);
+
+    glViewport(0, 0, size.x, size.y);
+  }
+
+  void Window::SetClearColour(const glm::vec4& colour)
+  {
+    clear_colour_ = glm::clamp(colour, glm::vec4(), glm::vec4(255.0f));
+  }
+
+  void Window::SetTitle(const std::string& title) const
+  {
+    SDL_SetWindowTitle(window_.get(), title.c_str());
   }
 
   void Window::SetResizable(const bool& flag) const
@@ -139,68 +136,92 @@ namespace objects {
     SDL_SetWindowMouseGrab(window_.get(), flag ? SDL_TRUE : SDL_FALSE);
   }
 
-  void Window::SetClearColour(const glm::vec3& colour)
-  {
-    clear_colour_ = glm::vec4(colour, 255.0f) / 255.0f;
-  }
-
-  void Window::SetClearColour(const glm::vec4& colour)
-  {
-    clear_colour_ = colour / 255.0f;
-  }
-
-  bool IsVsyncEnabled()
-  {
-    return SDL_GL_GetSwapInterval() != 0;
-  }
-
-  void SetVsync(const GLint& flag)
-  {
-    if (flag >= -1 && flag <= 1)
-    {
-      if (SDL_GL_SetSwapInterval(flag) < 0)
-      {
-        logging::logger->error("Failed to set vsync flag: ", SDL_GetError());
-      }
-    }
-    else
-    {
-      logging::logger->warn("Invalid vsync flag given.");
-    }
-  }
-
   void Window::SetWireframe(const bool& flag)
   {
     render_mode_ = flag ? GL_LINE : GL_FILL;
   }
 
-  void Window::Initialise(const glm::ivec2& position, const glm::ivec2& size)
+  void Window::Refresh() const
   {
-    window_ = SDL::Window(SDL_CreateWindow("TermEngine", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, DEFAULT_WIDTH, DEFAULT_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI));
+    SDL_GL_MakeCurrent(window_.get(), context_);
+    SDL_GL_SwapWindow(window_.get());
+  }
+
+  bool Window::IsVsyncEnabled()
+  {
+    return SDL_GL_GetSwapInterval() != 0;
+  }
+
+  void Window::SetVsync(const GLint& flag)
+  {
+    if (flag >= -1 && flag <= 1)
+    {
+      if (SDL_GL_SetSwapInterval(flag) < 0)
+      {
+        utility::logger->error("Failed to set vsync flag: ", SDL_GetError());
+      }
+    }
+    else
+    {
+      utility::logger->warn("Invalid vsync flag given.");
+    }
+  }
+
+  void Window::CleanUpContext()
+  {
+    if (context_ != NULL)
+    {
+      SDL_GL_DeleteContext(context_);
+    }
+  }
+
+  void Window::SetUpWindow(const glm::ivec2& position, const glm::ivec2& size, const Uint32& flags)
+  {
+    window_ = utility::SDLWindow(SDL_CreateWindow("TermEngine", position.x, position.y, size.x, size.y, SDL_WINDOW_OPENGL | flags));
 
     if (window_ == nullptr)
     {
-      logging::logger->error("An SDL error occurred: {}", SDL_GetError());
+      utility::logger->error("An SDL error occurred: {}", SDL_GetError());
 
       return;
     }
 
-    context_ = SDL_GL_CreateContext(window_.get());
-
-    // GLEW needs to be initialised as soon as a GL context is created.
-    if (context_ == NULL)
+    if (!is_context_created_)
     {
-      logging::logger->error("An SDL error occurred: {}", SDL_GetError());
+      context_ = SDL_GL_CreateContext(window_.get());
 
-      return;
+      bool all_ok = context_ != NULL;
+
+      if (all_ok)
+      {
+        // GLEW needs to be initialised as soon as a GL context is created.
+        all_ok = utility::InitGLEW();
+      }
+      else
+      {
+        utility::logger->error("An error occurred whilst creating the context: {}", SDL_GetError());
+
+        return;
+      }
+
+      if (all_ok)
+      {
+        is_context_created_ = true;
+      }
+      else
+      {
+        return;
+      }
     }
 
     SDL_GL_MakeCurrent(window_.get(), context_);
-    SDL_GL_SetSwapInterval(0);
+    SDL_GL_SetSwapInterval(vsync_flag_);
+
+    glViewport(0, 0, size.x, size.y);
 
     is_init_ = true;
 
-    logging::logger->debug("Created window.");
+    utility::logger->debug("Created window.");
   }
 
   void Window::Clear() const
@@ -211,9 +232,7 @@ namespace objects {
     glClearColor(clear_colour_.r, clear_colour_.g, clear_colour_.b, clear_colour_.a);
   }
 
-  void Window::Refresh() const
-  {
-    SDL_GL_MakeCurrent(window_.get(), context_);
-    SDL_GL_SwapWindow(window_.get());
-  }
+  bool Window::is_context_created_ = false;
+  SDL_GLContext Window::context_;
+  GLint Window::vsync_flag_ = 0;
 }
