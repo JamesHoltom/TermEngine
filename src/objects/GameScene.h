@@ -5,6 +5,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 #include "BaseObject.h"
 #include "../rendering/Background.h"
 #include "../rendering/Buffer.h"
@@ -18,6 +19,11 @@ namespace term_engine::objects {
 
   typedef std::weak_ptr<GameScene> GameSceneWeakPtr;
   typedef std::shared_ptr<GameScene> GameScenePtr;
+  typedef std::pair<std::string, ObjectWeakPtr> GameSceneNamePair;
+
+  constexpr char GAME_SCENE_TYPE[] = "GameScene";
+
+  extern std::vector<GameSceneNamePair> name_list_;
 
   class GameScene : public BaseObject {
   public:
@@ -38,6 +44,14 @@ namespace term_engine::objects {
     std::string GetObjectType() const;
 
     /**
+     * @brief Returns the list priority for this object.
+     * @details This is used to sort the list of objects before updating.
+     * 
+     * @returns The priority for this object.
+     */
+    ObjectSortPriority GetListPriority() const;
+
+    /**
      * @brief Returns the name of the game scene.
      * 
      * @returns The scene name.
@@ -49,72 +63,64 @@ namespace term_engine::objects {
      * 
      * @returns The window handle.
      */
-    rendering::Window& GetWindow();
+    rendering::GameWindow* GetWindow();
 
     /**
      * @brief Returns the font atlas used by the game scene.
      * 
      * @returns The font atlas.
      */
-    rendering::FontAtlas& GetFontAtlas();
+    rendering::FontAtlas* GetFontAtlas();
 
     /**
      * @brief Returns the background rendered behind the game scene.
      * 
      * @returns The background.
      */
-    rendering::Background& GetBackground();
+    rendering::Background* GetBackground();
 
     /**
      * @brief Returns the shader program used to render backgrounds to the game scene.
      * 
      * @returns The shader program.
      */
-    rendering::ShaderProgram& GetBackgroundShader();
+    rendering::ShaderProgram* GetBackgroundShader();
 
     /**
      * @brief Returns the shader program used to render characters to the game scene.
      * 
      * @returns The shader program.
      */
-    rendering::ShaderProgram& GetTextShader();
+    rendering::ShaderProgram* GetTextShader();
 
     /**
      * @brief Returns the character map so that objects can be drawn to it.
      * 
      * @returns The character map.
      */
-    rendering::CharacterMap& GetCharacterMap();
-
-    /**
-     * @brief Returns if the 'Is Dirty' flag is set, and there are objects that need to be re-rendered.
-     * 
-     * @returns If the 'Is Dirty' flag is set.
-     */
-    bool IsDirty() const;
+    rendering::CharacterMap* GetCharacterMap();
 
     /// @brief Sets the 'Is Dirty' flag.
     void Dirty();
 
-    /// @brief Unsets the 'Is Dirty' flag.
-    void Clean();
-
     /**
-     * @brief Adds a game scene to the list.
+     * @brief Returns if the game scene is flagged to be removed.
      * 
-     * @param[in] name The name of the game scene.
-     * @returns A smart pointer to the game scene if it was added to the list, or a null pointer if it failed.
+     * @returns If the game scene is flagged to be removed.
      */
-    static ObjectPtr& Add(const std::string& name);
+    bool FlaggedForRemoval() const;
 
-    /// @brief Clears all game scenes from the object list.
-    static void ClearAll();
+    /// @brief Flags the game scene to be removed.
+    void FlagRemoval();
+
+    /// @brief Unsets the removal flag from the game scene.
+    void UnflagRemoval();
 
   private:
     /// @brief The name of the game scene.
     std::string name_;
     /// @brief A handle to the window the game scene renders to.
-    rendering::Window window_;
+    rendering::GameWindow window_;
     /// @brief The background texture rendered behind the game scene.
     rendering::Background background_;
     /// @brief The list of characters to render to the game scene.
@@ -131,18 +137,52 @@ namespace term_engine::objects {
     rendering::ShaderProgram text_shader_program_;
     /// @brief A flag to check if any objects have been modified, and will need to be re-rendered.
     bool is_dirty_;
-
-    /**
-     * @brief Returns the list priority for this object.
-     * @details This is used to sort the list of objects before updating.
-     * 
-     * @returns The priority for this object.
-     */
-    ObjectSortPriority GetListPriority() const;
+    /// @brief A flag to mark this game scene to be removed, mainly by _window_close_ events.
+    bool marked_for_removal_;
   };
 
-  /// @brief The default game scene.
-  extern GameScenePtr default_scene;
+  ///*@brief An object proxy to interact with game scenes.
+  class GameSceneProxy : public BaseProxy {
+  public:
+    /**
+     * @brief Constructs the object proxy.
+     * 
+     * @param[in] object A smart pointer to the object.
+     */
+    GameSceneProxy(const ObjectPtr& object);
+
+    /// @brief Destroys the object proxy.
+    ~GameSceneProxy();
+
+    OBJECT_PROXY_GETTER(GameScene, GetObjectType, std::string)
+    OBJECT_PROXY_GETTER(GameScene, GetName, std::string)
+    OBJECT_PROXY_GETTER_PTR(GameScene, GetWindow, rendering::GameWindow)
+    OBJECT_PROXY_GETTER_PTR(GameScene, GetFontAtlas, rendering::FontAtlas)
+    OBJECT_PROXY_GETTER_PTR(GameScene, GetBackground, rendering::Background)
+    OBJECT_PROXY_GETTER_PTR(GameScene, GetBackgroundShader, rendering::ShaderProgram)
+    OBJECT_PROXY_GETTER_PTR(GameScene, GetTextShader, rendering::ShaderProgram)
+    OBJECT_PROXY_GETTER_PTR(GameScene, GetCharacterMap, rendering::CharacterMap)
+    OBJECT_PROXY_CALLER(GameScene, FlagRemoval)
+    OBJECT_PROXY_CALLER(GameScene, UnflagRemoval)
+  };
+
+  /**
+   * @brief Adds a game scene to the list.
+   * 
+   * @param[in] name The name of the game scene.
+   * @returns A proxy to the object.
+   */
+  GameSceneProxy AddGameScene(const std::string& name);
+
+  ObjectWeakPtr GetGameSceneByName(const std::string& name);
+
+  void MarkGameSceneForRemoval(const Uint32& windowId);
+
+  /// @brief Clears all game scenes from the object list.
+  void ClearAllGameScenes();
+
+  /// @brief Clears all game scenes that are flagged for removal from the object list.
+  void ClearFlaggedGameScenes();
 }
 
 #endif // ! GAME_SCENE_H

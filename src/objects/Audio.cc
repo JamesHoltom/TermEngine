@@ -33,7 +33,12 @@ namespace term_engine::objects {
 
   std::string Audio::GetObjectType() const
   {
-    return "Audio";
+    return std::string(AUDIO_TYPE);
+  }
+
+  ObjectSortPriority Audio::GetListPriority() const
+  {
+    return ObjectSortPriority::AUDIO;
   }
 
   void Audio::Play()
@@ -159,7 +164,14 @@ namespace term_engine::objects {
     ma_sound_set_volume(&sound_, (float)volume);
   }
 
-  ObjectPtr& Audio::Add(const std::string& filepath, const std::string& type)
+  AudioProxy::AudioProxy(const ObjectPtr& object) :
+    BaseProxy(object)
+  {}
+
+  AudioProxy::~AudioProxy()
+  {}
+
+  AudioProxy AddAudio(const std::string& filepath, const std::string& type)
   {
     unsigned int flag = 0;
 
@@ -174,20 +186,15 @@ namespace term_engine::objects {
 
     const std::filesystem::path id = system::SearchForResourcePath(filepath);
 
-    is_list_dirty_ = true;
+    is_object_list_dirty_ = true;
 
-    return std::ref(object_list_.emplace_front(std::make_shared<Audio>(id, flag)));
+    return AudioProxy(object_list_.emplace_front(std::make_shared<Audio>(id, flag)));
   }
 
-  void Audio::ClearAll()
+  void ClearAllAudio()
   {
-    object_list_.remove_if([](const ObjectPtr& object) { return object->GetObjectType() == "Audio"; });
+    object_list_.remove_if([](const ObjectPtr& object) { return object->GetObjectType() == std::string(AUDIO_TYPE); });
 
-    utility::logger->debug("Cleared all audio resources from the list.");
-  }
-
-  ObjectSortPriority Audio::GetListPriority() const
-  {
-    return ObjectSortPriority::AUDIO;
+    utility::logger->debug("Cleared all audio objects from the list.");
   }
 }

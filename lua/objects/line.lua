@@ -6,17 +6,17 @@ local empty_character = Character(characters.NO_CHARACTER, characters.DEFAULT_FO
 
 --[[
 -- @brief Extends the Object usertype to make drawing lines of characters simpler.
--- @param _game_scene The game scene to add the object to.
 -- @param _start      The start position of the line.
 -- @param _end        The end position of the line.
 -- @param _char       The character to render the line with.
+-- @param _game_scene The game scene to add the object to.
 --]]
-function LineObject(_game_scene, _start, _end, _char)
+function LineObject(_start, _end, _char, _game_scene)
   local self = {
-    obj = GameObject(_game_scene, Values.IVEC2_ZERO, Values.IVEC2_ONE), -- @brief Handle to the Object.
-    startPosition = _start,                                             -- @brief The starting position of the line.
-    endPosition = _end,                                                 -- @brief The ending position of the line.
-    character = _char                                                   -- @brief The Character to use for the line.
+    obj = GameObject(Values.IVEC2_ZERO, Values.IVEC2_ONE, _game_scene or "default"),  -- @brief Handle to the Object.
+    startPosition = _start,                                                           -- @brief The starting position of the line.
+    endPosition = _end,                                                               -- @brief The ending position of the line.
+    character = _char                                                                 -- @brief The Character to use for the line.
   }
 
   -- @brief Refreshes the object data with the updated settings.

@@ -75,7 +75,12 @@ namespace term_engine::objects {
 
   std::string TimedFunction::GetObjectType() const
   {
-    return "TimedFunction";
+    return std::string(TIMED_FUNCTION_TYPE);
+  }
+
+  ObjectSortPriority TimedFunction::GetListPriority() const
+  {
+    return ObjectSortPriority::TIMED_FUNCTION;
   }
 
   int TimedFunction::GetDelay() const
@@ -93,7 +98,14 @@ namespace term_engine::objects {
     return times_repeated_;
   }
 
-  ObjectPtr& TimedFunction::Add(const int& delay, const bool& repeat, const sol::function callback)
+  TimedFunctionProxy::TimedFunctionProxy(const ObjectPtr& object) :
+    BaseProxy(object)
+  {}
+
+  TimedFunctionProxy::~TimedFunctionProxy()
+  {}
+
+  TimedFunctionProxy AddTimedFunction(const int& delay, const bool& repeat, const sol::function callback)
   {
     int set_delay = delay;
 
@@ -104,20 +116,15 @@ namespace term_engine::objects {
       set_delay = 0;
     }
 
-    is_list_dirty_ = true;
+    is_object_list_dirty_ = true;
 
-    return std::ref(object_list_.emplace_front(std::make_shared<TimedFunction>(set_delay, repeat, callback)));
+    return TimedFunctionProxy(object_list_.emplace_front(std::make_shared<TimedFunction>(set_delay, repeat, callback)));
   }
 
-  void TimedFunction::ClearAll()
+  void ClearAllTimedFunctions()
   {
-    object_list_.remove_if([](const ObjectPtr& object) { return object->GetObjectType() == "TimedFunction"; });
+    object_list_.remove_if([](const ObjectPtr& object) { return object->GetObjectType() == std::string(TIMED_FUNCTION_TYPE); });
 
     utility::logger->debug("Cleared all timed functions from the list.");
-  }
-
-  ObjectSortPriority TimedFunction::GetListPriority() const
-  {
-    return ObjectSortPriority::TIMED_FUNCTION;
   }
 }

@@ -4,10 +4,10 @@
 
 --[[
 -- @brief Extends the Object usertype to make menus simpler to setup.
--- @param _game_scene The game scene to add the object to.
 -- @param _position 	The position of the menu.
+-- @param _game_scene The game scene to add the object to.
 --]]
-function MenuObject(_game_scene, _position)
+function MenuObject(_position, _game_scene)
 	--[[
 	-- @brief Represents an option in a MenuObject.
 	-- @param _title		The title of the option.
@@ -66,11 +66,11 @@ function MenuObject(_game_scene, _position)
 	end
 
 	local self = {
-		obj = GameObject(_game_scene, _position, Values.IVEC2_ONE),	-- @brief Handle to the Object.
-		events = {},																								-- @brief The list of event listeners.
-		options = {},																								-- @brief The list of options.
-		option_width = 0,																						-- @brief The maximum width of the options.
-		active_index = 1																						-- @brief The index of the option currently selected.
+		obj = GameObject(_position, Values.IVEC2_ONE, _game_scene or "default"),	-- @brief Handle to the Object.
+		events = {},																															-- @brief The list of event listeners.
+		options = {},																															-- @brief The list of options.
+		option_width = 0,																													-- @brief The maximum width of the options.
+		active_index = 1																													-- @brief The index of the option currently selected.
 	}
 
 	-- @brief Refreshes the object data with the updated list of options.

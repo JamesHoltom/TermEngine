@@ -54,6 +54,8 @@ namespace term_engine::scripting {
     (*lua_state)["package"]["path"] = packagePath;
     utility::logger->debug("Lua path: {}", std::string((*lua_state)["package"]["path"]));
 
+    (*lua_state)["default_scene"] = objects::AddGameScene("default");
+
     Load(rootDirectory + "/" + LOADER_SCRIPT_PATH);
 
     if (project_file != "")

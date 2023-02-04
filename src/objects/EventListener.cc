@@ -45,7 +45,17 @@ namespace term_engine::objects {
 
   std::string EventListener::GetObjectType() const
   {
-    return "EventListener";
+    return std::string(EVENT_LISTENER_TYPE);
+  }
+
+  ObjectSortPriority EventListener::GetListPriority() const
+  {
+    return ObjectSortPriority::EVENT_LISTENER;
+  }
+
+  GameSceneWeakPtr EventListener::GetGameScene() const
+  {
+    return game_scene_;
   }
 
   std::string EventListener::GetListenerType() const
@@ -69,22 +79,40 @@ namespace term_engine::objects {
     }
   }
 
-  ObjectPtr& EventListener::Add(const GameScenePtr& game_scene, const std::string& type, const sol::function callback)
+  EventListenerProxy::EventListenerProxy(const ObjectPtr& object) :
+    BaseProxy(object)
+  {}
+
+  EventListenerProxy::~EventListenerProxy()
+  {}
+
+  EventListenerProxy AddEventListenerToScene(const std::string& type, const std::string& name, const sol::function callback)
   {
-    is_list_dirty_ = true;
+    is_object_list_dirty_ = true;
+
+    GameScenePtr game_scene = std::dynamic_pointer_cast<GameScene>(GetGameSceneByName(name).lock());
     
-    return std::ref(object_list_.emplace_front(std::make_shared<EventListener>(game_scene, type, callback)));
+    return EventListenerProxy(object_list_.emplace_front(std::make_shared<EventListener>(game_scene, type, callback)));
   }
 
-  void EventListener::ClearAll()
+  EventListenerProxy AddEventListener(const std::string& type, const sol::function callback)
   {
-    object_list_.remove_if([](const ObjectPtr& object) { return object->GetObjectType() == "EventListener"; });
+    return AddEventListenerToScene(type, "default", callback);
+  }
+
+  void ClearAllEventListeners()
+  {
+    object_list_.remove_if([](const ObjectPtr& object) { return object->GetObjectType() == std::string(EVENT_LISTENER_TYPE); });
 
     utility::logger->debug("Cleared all event listeners from the list.");
   }
 
-  ObjectSortPriority EventListener::GetListPriority() const
+  void ClearEventListenersByGameScene(const std::string& name)
   {
-    return ObjectSortPriority::EVENT_LISTENER;
+    GameScenePtr game_scene = std::dynamic_pointer_cast<GameScene>(GetGameSceneByName(name).lock());
+
+    object_list_.remove_if([&game_scene](const ObjectPtr& object) { return object->GetObjectType() == std::string(EVENT_LISTENER_TYPE) && std::dynamic_pointer_cast<EventListener>(object)->GetGameScene().lock() == game_scene; });
+
+    utility::logger->debug("Cleared all event listeners for game scene \"{}\" from the list.", name);
   }
 }

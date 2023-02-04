@@ -91,6 +91,9 @@ namespace term_engine::events {
               "size", glm::ivec2(event.window.data1, event.window.data2)
             ));
             break;
+          case SDL_WINDOWEVENT_CLOSE:
+            event_queue.emplace_back("window_close", scripting::lua_state->create_table());
+            break;
       }
     }
   }

@@ -17,8 +17,11 @@ namespace term_engine::rendering {
   /// @brief The default clear colour to use when refreshing the window.
   constexpr glm::vec4 DEFAULT_WINDOW_CLEAR_COLOUR(0.0f, 0.0f, 0.0f, 255.0f);
 
-  class Window {
+  class GameWindow {
   public:
+    /// @brief Constructs the window with the default parameters.
+    GameWindow();
+
     /**
      * @brief Constructs the window with the given parameters.
      * 
@@ -26,10 +29,17 @@ namespace term_engine::rendering {
      * @param[in] size      The size of the window, in pixels (px).
      * @param[in] title     The title of the window.
      */
-    Window(const glm::ivec2& position, const glm::ivec2& size, const std::string& title, const Uint32& flags);
+    GameWindow(const glm::ivec2& position, const glm::ivec2& size, const std::string& title, const Uint32& flags);
 
     /// @brief Destroys the window.
-    ~Window();
+    ~GameWindow();
+
+    /**
+     * @brief Returns the window's ID.
+     * 
+     * @returns The window ID.
+     */
+    Uint32 GetId() const;
 
     /**
      * @brief Returns the position of the window.
@@ -157,6 +167,11 @@ namespace term_engine::rendering {
     /// @brief Disables wireframe rendering.
     void SetWireframe(const bool& flag);
 
+    void Use() const;
+
+    /// @brief Clears the window, ready for the next frame.
+    void Clear() const;
+
     /// @brief Flips the window buffers, rendering the current frame's buffer to the screen.
     void Refresh() const;
     
@@ -176,18 +191,20 @@ namespace term_engine::rendering {
      */
     static void SetVsync(const GLint& flag);
 
+    /// @brief Removes the OpenGL context for the window.
     static void CleanUpContext();
 
   private:
     /// @brief The SDL handle to the window.
-    utility::SDLWindow window_;
-
+    SDL_Window* window_;
+    /// @brief Has the window been fully initialised?
     bool is_init_;
     /// @brief The colour to use for setting when clearing the window after every frame.
     glm::vec4 clear_colour_;
     /// @brief Whether to use wireframe rendering or not.
     GLuint render_mode_;
 
+    /// @brief Flag used to indicate if an OpenGL context has been created. This is used to initialise GLEW when one is available.
     static bool is_context_created_;
     /// @brief The OpenGL context to bind windows to.
     static SDL_GLContext context_;
@@ -196,9 +213,6 @@ namespace term_engine::rendering {
 
     /// @brief Initialises the window.
     void SetUpWindow(const glm::ivec2& position, const glm::ivec2& size, const Uint32& flags);
-
-    /// @brief Clears the window, ready for the next frame.
-    void Clear() const;
   };
 }
 

@@ -69,7 +69,7 @@ namespace term_engine::scripting::bindings {
     */
 
     state.create_named_table("window",
-      "vsync", sol::overload(&rendering::Window::IsVsyncEnabled, &rendering::Window::SetVsync));
+      "vsync", sol::overload(&rendering::GameWindow::IsVsyncEnabled, &rendering::GameWindow::SetVsync));
   }
 }
 

@@ -1,6 +1,11 @@
 #include "BaseObject.h"
 
 namespace term_engine::objects {
+  bool is_object_list_dirty_ = false;
+  ObjectList object_list_;
+
+  std::size_t BaseObject::object_next_id_ = 0;
+
   BaseObject::BaseObject() :
     object_id_(object_next_id_++),
     is_active_(true)
@@ -21,36 +26,48 @@ namespace term_engine::objects {
     is_active_ = flag;
   }
 
-  void BaseObject::Sort()
+  BaseProxy::BaseProxy(const ObjectPtr& object) :
+    ptr_(object)
+  {}
+
+  bool BaseProxy::IsExpired() const
   {
-    if (is_list_dirty_)
+    return ptr_.expired();
+  }
+
+  void BaseProxy::Release() const
+  {
+    if (ptr_.expired())
+    {
+      utility::logger->warn("Cannot release an already removed object!");
+
+      return;
+    }
+    
+    RemoveObject(ptr_.lock()->GetObjectId());
+  }
+
+  void SortObjects()
+  {
+    if (is_object_list_dirty_)
     {
       object_list_.sort([](const ObjectPtr& lhs, const ObjectPtr& rhs) {
         return lhs->GetListPriority() < rhs->GetListPriority();
       });
 
-      is_list_dirty_ = false;
+      is_object_list_dirty_ = false;
     }
   }
 
-  void BaseObject::Remove(ObjectPtr& object)
+  void RemoveObject(const size_t& id)
   {
-    object_list_.remove(object);
+    object_list_.remove_if([&id](const ObjectPtr& object) { return object->GetObjectId() == id; });
 
-    object.reset();
+    utility::logger->info("Removed object with ID {}.", id);
   }
 
-  void BaseObject::CleanUp()
+  void CleanUpObjects()
   {
-    for (ObjectPtr& object : object_list_)
-    {
-      object.reset();
-    }
-
     object_list_.clear();
   }
-
-  std::size_t BaseObject::object_next_id_ = 0;
-  bool BaseObject::is_list_dirty_ = false;
-  ObjectList BaseObject::object_list_;
 }

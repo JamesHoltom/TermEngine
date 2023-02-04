@@ -6,16 +6,16 @@ local empty_character = Character(characters.NO_CHARACTER, characters.DEFAULT_FO
 
 --[[
 -- @brief Extends the Object usertype to make drawing boxes simpler.
--- @param _game_scene The game scene to add the object to.
 -- @param _position 	The position of the box.
 -- @param _size 			The size of the box.
+-- @param _game_scene The game scene to add the object to.
 --]]
-function BoxObject(_game_scene, _position, _size)
+function BoxObject(_position, _size, _game_scene)
 	local self = {
-		obj = GameObject(_game_scene, _position, _size),	-- @brief Handle to the Object.
-		fill = empty_character,														-- @brief The Character to use for the fill.
-		outline = empty_character,												-- @brief The Character to use for the outline.
-		has_outline = false																-- @brief Has an outline been set?
+		obj = GameObject(_position, _size, _game_scene or "default"),	-- @brief Handle to the Object.
+		fill = empty_character,																				-- @brief The Character to use for the fill.
+		outline = empty_character,																		-- @brief The Character to use for the outline.
+		has_outline = false																						-- @brief Has an outline been set?
 	}
 	
 	-- @brief Refreshes the object data with the updated settings.

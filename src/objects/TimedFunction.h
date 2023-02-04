@@ -9,6 +9,8 @@
 #include "../utility/SolUtils.h"
 
 namespace term_engine::objects {
+  constexpr char TIMED_FUNCTION_TYPE[] = "TimedFunction";
+
   /// @brief Used to delay the execution of a function by a set amount of time.
   class TimedFunction : public BaseObject {
   public:
@@ -35,6 +37,14 @@ namespace term_engine::objects {
     std::string GetObjectType() const;
 
     /**
+     * @brief Returns the list priority for this object.
+     * @details This is used to sort the list of objects before updating.
+     * 
+     * @returns The priority for this object.
+     */
+    ObjectSortPriority GetListPriority() const;
+
+    /**
      * @brief Returns the amount of delay before calling the function, in milliseconds (ms).
      * 
      * @returns The amount of delay.
@@ -55,19 +65,6 @@ namespace term_engine::objects {
      */
     int GetTimesRepeated() const;
 
-    /**
-     * @brief Adds a timed function to the list.
-     * 
-     * @param[in] delay    The amount of time to delay calling the function for, in milliseconds (ms).
-     * @param[in] repeat   Whether to continuously call the function, using the delay as an interval.
-     * @param[in] callback The function to call when the delay has been met.
-     * @returns A smart pointer to the timed function if it was added to the list, or a null pointer if it failed.
-     */
-    static ObjectPtr& Add(const int& delay, const bool& repeat, const sol::function callback);
-
-    /// @brief Clears all timed functions from the object list.
-    static void ClearAll();
-
   protected:
     /// @brief The timer used to measure when to trigger the callback.
     timing::Timer timer_;
@@ -79,15 +76,39 @@ namespace term_engine::objects {
     int times_repeated_;
     /// @brief The callback function to call when the delay has finished.
     sol::function callback_;
-
-    /**
-     * @brief Returns the list priority for this object.
-     * @details This is used to sort the list of objects before updating.
-     * 
-     * @returns The priority for this object.
-     */
-    ObjectSortPriority GetListPriority() const;
   };
+
+  /// @brief An object proxy to interact with event listeners.
+  class TimedFunctionProxy : public BaseProxy {
+  public:
+    /**
+     * @brief Constructs the object proxy.
+     * 
+     * @param[in] object A smart pointer to the object.
+     */
+    TimedFunctionProxy(const ObjectPtr& object);
+
+    /// @brief Destroys the object proxy.
+    ~TimedFunctionProxy();
+
+    OBJECT_PROXY_GETTER(TimedFunction, GetObjectType, std::string)
+    OBJECT_PROXY_GETTER(TimedFunction, GetDelay, int)
+    OBJECT_PROXY_GETTER(TimedFunction, IsRepeatable, bool)
+    OBJECT_PROXY_GETTER(TimedFunction, GetTimesRepeated, int)
+  };
+
+  /**
+   * @brief Adds a timed function to the list.
+   * 
+   * @param[in] delay    The amount of time to delay calling the function for, in milliseconds (ms).
+   * @param[in] repeat   Whether to continuously call the function, using the delay as an interval.
+   * @param[in] callback The function to call when the delay has been met.
+   * @returns A proxy to the object.
+   */
+  TimedFunctionProxy AddTimedFunction(const int& delay, const bool& repeat, const sol::function callback);
+
+  /// @brief Clears all timed functions from the object list.
+  void ClearAllTimedFunctions();
 }
 
 #endif // ! TIMED_FUNCTION_H

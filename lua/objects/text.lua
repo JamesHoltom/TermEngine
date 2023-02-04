@@ -6,18 +6,18 @@ local empty_character = Character(characters.NO_CHARACTER, characters.DEFAULT_FO
 
 --[[
 -- @brief Extends the Object usertype to make writing text simpler.
--- @param _game_scene The game scene to add the object to.
 -- @param _position 	The position of the textbox.
 -- @param _size 			The size of the textbox.
 -- @param _text 			The text to write.
+-- @param _game_scene The game scene to add the object to.
 --]]
-function TextObject(_game_scene, _position, _size, _text)
+function TextObject(_position, _size, _text, _game_scene)
 	local self = {
-		obj = GameObject(_game_scene, _position, _size),			-- @brief Handle to the Object.
-		text = tostring(_text or ""),													-- @brief The text to render.
-		fit_text = false,																			-- @brief Should the background colour fit the text, or the Object bounds?
-		fg_colour = characters.DEFAULT_FOREGROUND_COLOUR,			-- @brief The text colour.
-		bg_colour = characters.DEFAULT_BACKGROUND_COLOUR			-- @brief The background colour.
+		obj = GameObject(_position, _size, _game_scene or "default"),			-- @brief Handle to the Object.
+		text = tostring(_text or ""),																			-- @brief The text to render.
+		fit_text = false,																									-- @brief Should the background colour fit the text, or the Object bounds?
+		fg_colour = characters.DEFAULT_FOREGROUND_COLOUR,									-- @brief The text colour.
+		bg_colour = characters.DEFAULT_BACKGROUND_COLOUR									-- @brief The background colour.
 	}
 
 	-- @brief Refreshes the object data with the updated settings.

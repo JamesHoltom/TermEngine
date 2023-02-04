@@ -12,24 +12,29 @@
 #include "../utility/SolUtils.h"
 
 namespace term_engine::objects {
-  class GameObject;
+  class GameObjectProxy;
 
-  typedef std::shared_ptr<GameObject> GameObjectPtr;
+  constexpr char GAME_OBJECT_TYPE[] = "GameObject";
 
-  /**
-   * @brief Used to represent a game object, that is rendered to the screen.
-   * @details Other attributes can be added at the script level; this structure only cares about rendering characters to the screen.
-   */
+  /// @brief Used to represent a game object, that is rendered to the screen.
   class GameObject : public BaseObject {
   public:
     /**
      * @brief Constructs the object with the given parameters.
      * 
-     * @param[in] game_scene The game scene the object renders to.
+     * @param[in] game_scene The game scene the object belongs to.
      * @param[in] position   The position of the object in the window.
      * @param[in] size       The size of the object, i.e. how many rows & columns.
      */
     GameObject(const GameSceneWeakPtr& game_scene, const glm::ivec2& position, const glm::ivec2& size);
+
+    /**
+     * @brief Copy-constructs the object from an existing object.
+     * 
+     * @param[in] game_scene The game scene the object belongs to.
+     * @param[in] object 
+     */
+    GameObject(const GameSceneWeakPtr& game_scene, const GameObject* object);
 
     /// @brief Destroys the object.
     ~GameObject();
@@ -43,6 +48,21 @@ namespace term_engine::objects {
      * @return The object type.
      */
     std::string GetObjectType() const;
+
+    /**
+     * @brief Returns the list priority for this object.
+     * @details This is used to sort the list of objects before updating.
+     * 
+     * @returns The priority for this object.
+     */
+    ObjectSortPriority GetListPriority() const;
+
+    /**
+     * @brief Returns a weak pointer to the game scene this object belongs to.
+     * 
+     * @returns The weak pointer to the game scene.
+     */
+    GameSceneWeakPtr GetGameScene() const;
 
     /**
      * @brief Returns the position of the object.
@@ -63,7 +83,7 @@ namespace term_engine::objects {
      * 
      * @returns The data within the object.
      */
-    rendering::CharacterData& GetData();
+    rendering::CharacterData* GetData();
 
     /**
      * @brief Sets the position of the object.
@@ -86,21 +106,20 @@ namespace term_engine::objects {
      */
     void Set(const sol::function& func);
 
-    /// @brief Marks that the object has been modified, and will need to be updated in the list.
-    void Dirty();
+    /**
+     * @brief Moves the object to the given game scene.
+     * 
+     * @param[in] name The name of the target game scene.
+     */
+    void MoveToGameScene(const std::string& name);
 
     /**
-     * @brief Adds an object to the list.
+     * @brief Copies the object to the given game scene.
      * 
-     * @param[in] game_scene The game scene the object renders to.
-     * @param[in] position   The position of the object.
-     * @param[in] size       The size of the object, in rows & columns.
-     * @returns A smart pointer to the object if it was added to the list, or a null pointer if it failed.
+     * @param[in] name The name of the target game scene.
+     * @returns The copied object.
      */
-    static GameObjectPtr& Add(const GameScenePtr& game_scene, const glm::ivec2& position, const glm::ivec2& size);
-
-    /// @brief Clears all objects from the object list.
-    static void ClearAll();
+    GameObjectProxy CopyToGameScene(const std::string& name);
 
   private:
     /// @brief The top-left position of the object.
@@ -113,15 +132,60 @@ namespace term_engine::objects {
     rendering::CharacterData data_;
     /// @brief The game scene this object renders to.
     GameSceneWeakPtr game_scene_;
-
-    /**
-     * @brief Returns the list priority for this object.
-     * @details This is used to sort the list of objects before updating.
-     * 
-     * @returns The priority for this object.
-     */
-    ObjectSortPriority GetListPriority() const;
   };
+
+  /// @brief An object proxy to interact with game objects.
+  class GameObjectProxy : public BaseProxy {
+  public:
+    /**
+     * @brief Constructs the object proxy.
+     * 
+     * @param[in] object A smart pointer to the object.
+     */
+    GameObjectProxy(const ObjectPtr& object);
+
+    /// @brief Destroys the object proxy.
+    ~GameObjectProxy();
+
+    OBJECT_PROXY_GETTER(GameObject, GetObjectType, std::string)
+    OBJECT_PROXY_GETTER(GameObject, GetPosition, glm::ivec2)
+    OBJECT_PROXY_GETTER(GameObject, GetSize, glm::ivec2)
+    OBJECT_PROXY_GETTER_PTR(GameObject, GetData, rendering::CharacterData)
+    OBJECT_PROXY_SETTER(GameObject, SetPosition, glm::ivec2)
+    OBJECT_PROXY_SETTER(GameObject, SetSize, glm::ivec2)
+    OBJECT_PROXY_CALLER_WITH_PARAM(GameObject, Set, sol::function)
+    OBJECT_PROXY_CALLER_WITH_PARAM(GameObject, MoveToGameScene, std::string)
+    OBJECT_PROXY_CALLER_WITH_PARAM_AND_RETURN(GameObject, CopyToGameScene, GameObjectProxy, std::string)
+  };
+
+  /**
+   * @brief Adds a game object to the list.
+   * 
+   * @param[in] position   The position of the game object.
+   * @param[in] size       The size of the game object, in rows & columns.
+   * @param[in] name       The name of the game scene the game object belongs to.
+   * @returns A proxy to the object.
+   */
+  GameObjectProxy AddGameObjectToScene(const glm::ivec2& position, const glm::ivec2& size, const std::string& name);
+
+  /**
+   * @brief Adds a game object for the default game scene to the list.
+   * 
+   * @param[in] position   The position of the game object.
+   * @param[in] size       The size of the game object, in rows & columns.
+   * @returns A proxy to the object.
+   */
+  GameObjectProxy AddGameObject(const glm::ivec2& position, const glm::ivec2& size);
+
+  /// @brief Clears all game objects from the object list.
+  void ClearAllGameObjects();
+
+  /**
+   * @brief Clears all game objects belonging to a game scene.
+   * 
+   * @param[in] name The name of the game scene.
+   */
+  void ClearObjectsByGameScene(const std::string& name);
 }
 
 #endif // ! GAME_OBJECT_H

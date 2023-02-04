@@ -16,6 +16,17 @@ namespace term_engine::objects {
     utility::logger->debug("Created object with ID {} at {},{} with size {}x{}.", object_id_, position.x, position.y, size.x, size.y);
   }
 
+  GameObject::GameObject(const GameSceneWeakPtr& game_scene, const GameObject* object) :
+    BaseObject(),
+    position_(object->position_),
+    size_(object->size_),
+    is_dirty_(object->is_dirty_),
+    data_(object->data_),
+    game_scene_(game_scene)
+  {
+    utility::logger->debug("Copied object with ID {} to ID {}.", object->object_id_, object_id_);
+  }
+
   GameObject::~GameObject()
   {
     utility::logger->debug("Destroyed object with ID {}.", object_id_);
@@ -29,7 +40,7 @@ namespace term_engine::objects {
       {
         GameScenePtr ptr = game_scene_.lock();
 
-        ptr->GetCharacterMap().PushCharacters(position_, size_, data_);
+        ptr->GetCharacterMap()->PushCharacters(position_, size_, data_);
         ptr->Dirty();
 
         is_dirty_ = false;
@@ -39,7 +50,17 @@ namespace term_engine::objects {
 
   std::string GameObject::GetObjectType() const
   {
-    return "Object";
+    return std::string(GAME_OBJECT_TYPE);
+  }
+
+  ObjectSortPriority GameObject::GetListPriority() const
+  {
+    return ObjectSortPriority::OBJECT;
+  }
+
+  GameSceneWeakPtr GameObject::GetGameScene() const
+  {
+    return game_scene_;
   }
 
   glm::ivec2 GameObject::GetPosition() const
@@ -52,11 +73,11 @@ namespace term_engine::objects {
     return size_;
   }
 
-  rendering::CharacterData& GameObject::GetData()
+  rendering::CharacterData* GameObject::GetData()
   {
     is_dirty_ = true;
 
-    return data_;
+    return &data_;
   }
 
   void GameObject::SetPosition(const glm::ivec2& position)
@@ -93,31 +114,56 @@ namespace term_engine::objects {
     is_dirty_ = true;
   }
 
-  void GameObject::Dirty()
+  void GameObject::MoveToGameScene(const std::string& name)
   {
-    is_dirty_ = true;
+    GameScenePtr ptr = std::dynamic_pointer_cast<GameScene>(GetGameSceneByName(name).lock());
+
+    game_scene_ = ptr;
   }
 
-  GameObjectPtr& GameObject::Add(const GameScenePtr& game_scene, const glm::ivec2& position, const glm::ivec2& size)
+  GameObjectProxy GameObject::CopyToGameScene(const std::string& name)
   {
-    is_list_dirty_ = true;
+    is_object_list_dirty_ = true;
 
-    GameObjectPtr ptr = std::make_shared<GameObject>(game_scene, position, size);
+    GameScenePtr game_scene = std::dynamic_pointer_cast<GameScene>(GetGameSceneByName(name).lock());
 
-    object_list_.push_front(ptr);
+    return GameObjectProxy(object_list_.emplace_front(std::make_shared<GameObject>(game_scene, this)));
+  }
+
+  GameObjectProxy::GameObjectProxy(const ObjectPtr& object) :
+    BaseProxy(object)
+  {}
+
+  GameObjectProxy::~GameObjectProxy()
+  {}
+
+  GameObjectProxy AddGameObjectToScene(const glm::ivec2& position, const glm::ivec2& size, const std::string& name)
+  {
+    is_object_list_dirty_ = true;
+
+    GameScenePtr game_scene = std::dynamic_pointer_cast<GameScene>(GetGameSceneByName(name).lock());
     
-    return std::ref(ptr);
+    return GameObjectProxy(object_list_.emplace_front(std::make_shared<GameObject>(game_scene, position, size)));
   }
 
-  void GameObject::ClearAll()
+  GameObjectProxy AddGameObject(const glm::ivec2& position, const glm::ivec2& size)
   {
-    object_list_.remove_if([](const ObjectPtr& object) { return object->GetObjectType() == "Object"; });
+    return AddGameObjectToScene(position, size, "default");
+  }
+
+  void ClearAllObjects()
+  {
+    object_list_.remove_if([](const ObjectPtr& object) { return object->GetObjectType() == std::string(GAME_OBJECT_TYPE); });
 
     utility::logger->debug("Cleared all objects from the list.");
   }
 
-  ObjectSortPriority GameObject::GetListPriority() const
+  void ClearObjectsByGameScene(const std::string& name)
   {
-    return ObjectSortPriority::OBJECT;
+    GameScenePtr game_scene = std::dynamic_pointer_cast<GameScene>(GetGameSceneByName(name).lock());
+
+    object_list_.remove_if([&game_scene](const ObjectPtr& object) { return object->GetObjectType() == std::string(GAME_OBJECT_TYPE) && std::dynamic_pointer_cast<GameObject>(object)->GetGameScene().lock() == game_scene; });
+
+    utility::logger->debug("Cleared all objects for game scene \"{}\" from the list.", name);
   }
 }

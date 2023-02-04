@@ -12,12 +12,12 @@
 #include "../../objects/TimedFunction.h"
 #include "../../utility/SolUtils.h"
 
-SOL_BASE_CLASSES(term_engine::objects::Audio, term_engine::objects::BaseObject);
-SOL_BASE_CLASSES(term_engine::objects::EventListener, term_engine::objects::BaseObject);
-SOL_BASE_CLASSES(term_engine::objects::GameObject, term_engine::objects::BaseObject);
-SOL_BASE_CLASSES(term_engine::objects::GameScene, term_engine::objects::BaseObject);
-SOL_BASE_CLASSES(term_engine::objects::TimedFunction, term_engine::objects::BaseObject);
-SOL_DERIVED_CLASSES(term_engine::objects::BaseObject, term_engine::objects::Audio, term_engine::objects::EventListener, term_engine::objects::GameObject, term_engine::objects::GameScene, term_engine::objects::TimedFunction);
+SOL_BASE_CLASSES(term_engine::objects::AudioProxy, term_engine::objects::BaseProxy);
+SOL_BASE_CLASSES(term_engine::objects::EventListenerProxy, term_engine::objects::BaseProxy);
+SOL_BASE_CLASSES(term_engine::objects::GameObjectProxy, term_engine::objects::BaseProxy);
+SOL_BASE_CLASSES(term_engine::objects::GameSceneProxy, term_engine::objects::BaseProxy);
+SOL_BASE_CLASSES(term_engine::objects::TimedFunctionProxy, term_engine::objects::BaseProxy);
+SOL_DERIVED_CLASSES(term_engine::objects::BaseProxy, term_engine::objects::AudioProxy, term_engine::objects::EventListenerProxy, term_engine::objects::GameObjectProxy, term_engine::objects::GameSceneProxy, term_engine::objects::TimedFunctionProxy);
 
 namespace term_engine::scripting::bindings {
   /**
@@ -27,84 +27,77 @@ namespace term_engine::scripting::bindings {
    */
   void BindObjectsToState(sol::state& state)
   {
-    state.new_usertype<objects::BaseObject>(
-      "BaseObject",
-      "id", sol::readonly_property(&objects::BaseObject::GetObjectId));
-    
-    state.new_usertype<objects::Audio>(
+    state.new_usertype<objects::BaseProxy>(
+      "__proxy",
+      sol::meta_function::construct, sol::no_constructor,
+      "id", sol::readonly_property(&objects::BaseProxy::GetObjectId),
+      "active", sol::property(&objects::BaseProxy::IsActive, &objects::BaseProxy::SetActive),
+      "release", &objects::BaseProxy::Release);
+
+    state.new_usertype<objects::AudioProxy>(
       "Audio",
-      sol::meta_function::construct, sol::factories(&objects::Audio::Add),
-      sol::call_constructor, sol::factories(&objects::Audio::Add),
-      sol::meta_function::garbage_collect, sol::destructor(&objects::BaseObject::Remove),
-      sol::base_classes, sol::bases<objects::BaseObject>(),
-      "play", &objects::Audio::Play,
-      "stop", &objects::Audio::Stop,
-      "pause", &objects::Audio::Pause,
-      "resume", &objects::Audio::Resume,
-      "looping", sol::property(&objects::Audio::IsLooping, &objects::Audio::SetLooping),
-      "pan", sol::property(&objects::Audio::GetPan, &objects::Audio::SetPan),
-      "pitch", sol::property(&objects::Audio::GetPitch, &objects::Audio::SetPitch),
-      "position", sol::property(&objects::Audio::GetPosition, &objects::Audio::SetPosition),
-      "volume", sol::property(&objects::Audio::GetVolume, &objects::Audio::SetVolume),
-      "paused", sol::readonly_property(&objects::Audio::IsPaused),
-      "playing", sol::readonly_property(&objects::Audio::IsPlaying),
-      "filepath", sol::readonly_property(&objects::Audio::GetFilePath),
-      "cursor", sol::readonly_property(&objects::Audio::GetCursorSeconds),
-      "length", sol::readonly_property(&objects::Audio::GetLengthSeconds),
-      "release", &objects::BaseObject::Remove);
+      sol::meta_function::construct, sol::factories(&objects::AddAudio),
+      sol::call_constructor, sol::factories(&objects::AddAudio),
+      sol::base_classes, sol::bases<objects::BaseProxy>(),
+      "play", &objects::AudioProxy::Play,
+      "stop", &objects::AudioProxy::Stop,
+      "pause", &objects::AudioProxy::Pause,
+      "resume", &objects::AudioProxy::Resume,
+      "looping", sol::property(&objects::AudioProxy::IsLooping, &objects::AudioProxy::SetLooping),
+      "pan", sol::property(&objects::AudioProxy::GetPan, &objects::AudioProxy::SetPan),
+      "pitch", sol::property(&objects::AudioProxy::GetPitch, &objects::AudioProxy::SetPitch),
+      "position", sol::property(&objects::AudioProxy::GetPosition, &objects::AudioProxy::SetPosition),
+      "volume", sol::property(&objects::AudioProxy::GetVolume, &objects::AudioProxy::SetVolume),
+      "paused", sol::readonly_property(&objects::AudioProxy::IsPaused),
+      "playing", sol::readonly_property(&objects::AudioProxy::IsPlaying),
+      "filepath", sol::readonly_property(&objects::AudioProxy::GetFilePath),
+      "cursor", sol::readonly_property(&objects::AudioProxy::GetCursorSeconds),
+      "length", sol::readonly_property(&objects::AudioProxy::GetLengthSeconds));
     
-    state.new_usertype<objects::EventListener>(
+    state.new_usertype<objects::EventListenerProxy>(
       "EventListener",
-      sol::meta_function::construct, sol::factories(&objects::EventListener::Add),
-      sol::call_constructor, sol::factories(&objects::EventListener::Add),
-      sol::meta_function::garbage_collect, sol::destructor(&objects::BaseObject::Remove),
-      sol::base_classes, sol::bases<objects::BaseObject>(),
-      "active", sol::property(&objects::EventListener::IsActive, &objects::EventListener::SetActive),
-      "type", sol::readonly_property(&objects::EventListener::GetListenerType),
-      "trigger", &objects::EventListener::Trigger,
-      "release", &objects::BaseObject::Remove);
+      sol::meta_function::construct, sol::factories(&objects::AddEventListenerToScene, &objects::AddEventListener),
+      sol::call_constructor, sol::factories(&objects::AddEventListenerToScene, &objects::AddEventListener),
+      sol::base_classes, sol::bases<objects::BaseProxy>(),
+      "type", sol::readonly_property(&objects::EventListenerProxy::GetListenerType),
+      "trigger", &objects::EventListenerProxy::Trigger);
 
-    state.new_usertype<objects::GameObject>(
+    state.new_usertype<objects::GameObjectProxy>(
       "GameObject",
-      sol::meta_function::construct, sol::factories(&objects::GameObject::Add),
-      sol::call_constructor, sol::factories(&objects::GameObject::Add),
-      sol::meta_function::garbage_collect, sol::destructor(&objects::BaseObject::Remove),
-      sol::base_classes, sol::bases<objects::BaseObject>(),
-      "position", sol::property(&objects::GameObject::GetPosition, &objects::GameObject::SetPosition),
-      "size", sol::property(&objects::GameObject::GetSize, &objects::GameObject::SetSize),
-      "data", sol::property(&objects::GameObject::GetData),
-      "set", &objects::GameObject::Set,
-      "active", sol::property(&objects::GameObject::IsActive, &objects::GameObject::SetActive),
-      "release", &objects::BaseObject::Remove);
+      sol::meta_function::construct, sol::factories(&objects::AddGameObjectToScene, &objects::AddGameObject),
+      sol::call_constructor, sol::factories(&objects::AddGameObjectToScene, &objects::AddGameObject),
+      sol::base_classes, sol::bases<objects::BaseProxy>(),
+      "position", sol::property(&objects::GameObjectProxy::GetPosition, &objects::GameObjectProxy::SetPosition),
+      "size", sol::property(&objects::GameObjectProxy::GetSize, &objects::GameObjectProxy::SetSize),
+      "data", sol::readonly_property(&objects::GameObjectProxy::GetData),
+      "set", &objects::GameObjectProxy::Set,
+      "moveToScene", &objects::GameObjectProxy::MoveToGameScene,
+      "copyToScene", &objects::GameObjectProxy::CopyToGameScene);
 
-    state.new_usertype<objects::GameScene>(
+    state.new_usertype<objects::GameSceneProxy>(
       "GameScene",
-      sol::meta_function::construct, sol::factories(&objects::GameScene::Add),
-      sol::call_constructor, sol::factories(&objects::GameScene::Add),
-      sol::meta_function::garbage_collect, sol::destructor(&objects::BaseObject::Remove),
-      sol::base_classes, sol::bases<objects::BaseObject>(),
-      "name", sol::readonly_property(&objects::GameScene::GetName),
-      "background", sol::readonly_property(&objects::GameScene::GetBackground),
-      "charmap", sol::readonly_property(&objects::GameScene::GetCharacterMap),
-      "font", sol::readonly_property(&objects::GameScene::GetFontAtlas),
-      "backgroundShader", sol::readonly_property(&objects::GameScene::GetBackgroundShader),
-      "textShader", sol::readonly_property(&objects::GameScene::GetTextShader),
-      "window", sol::readonly_property(&objects::GameScene::GetWindow),
-      "release", &objects::BaseObject::Remove);
+      sol::meta_function::construct, sol::factories(&objects::AddGameScene),
+      sol::call_constructor, sol::factories(&objects::AddGameScene),
+      sol::base_classes, sol::bases<objects::BaseProxy>(),
+      "name", sol::readonly_property(&objects::GameSceneProxy::GetName),
+      "background", sol::readonly_property(&objects::GameSceneProxy::GetBackground),
+      "charmap", sol::readonly_property(&objects::GameSceneProxy::GetCharacterMap),
+      "font", sol::readonly_property(&objects::GameSceneProxy::GetFontAtlas),
+      "backgroundShader", sol::readonly_property(&objects::GameSceneProxy::GetBackgroundShader),
+      "textShader", sol::readonly_property(&objects::GameSceneProxy::GetTextShader),
+      "window", sol::readonly_property(&objects::GameSceneProxy::GetWindow),
+      "close", &objects::GameSceneProxy::FlagRemoval,
+      "preventClose", &objects::GameSceneProxy::UnflagRemoval);
     
-    state["defaultScene"] = []() -> objects::GameScenePtr { return objects::default_scene; };
-
-    state.new_usertype<objects::TimedFunction>(
+    state.new_usertype<objects::TimedFunctionProxy>(
       "TimedFunction",
-      sol::meta_function::construct, sol::factories(&objects::TimedFunction::Add),
-      sol::call_constructor, sol::factories(&objects::TimedFunction::Add),
-      sol::meta_function::garbage_collect, sol::destructor(&objects::BaseObject::Remove),
-      sol::base_classes, sol::bases<objects::BaseObject>(),
-      "active", sol::property(&objects::TimedFunction::IsActive, &objects::TimedFunction::SetActive),
-      "delay", sol::readonly_property(&objects::TimedFunction::GetDelay),
-      "repeat", sol::readonly_property(&objects::TimedFunction::IsRepeatable),
-      "timesRepeated", sol::readonly_property(&objects::TimedFunction::GetTimesRepeated),
-      "release", &objects::BaseObject::Remove);
+      sol::meta_function::construct, sol::factories(&objects::AddTimedFunction),
+      sol::call_constructor, sol::factories(&objects::AddTimedFunction),
+      sol::base_classes, sol::bases<objects::BaseProxy>(),
+      "active", sol::property(&objects::TimedFunctionProxy::IsActive, &objects::TimedFunctionProxy::SetActive),
+      "delay", sol::readonly_property(&objects::TimedFunctionProxy::GetDelay),
+      "repeat", sol::readonly_property(&objects::TimedFunctionProxy::IsRepeatable),
+      "timesRepeated", sol::readonly_property(&objects::TimedFunctionProxy::GetTimesRepeated));
 
     state.new_usertype<rendering::Background>(
       "Background",
@@ -182,17 +175,17 @@ namespace term_engine::scripting::bindings {
     state.create_named_table(
       "Window",
       sol::meta_function::construct, sol::no_constructor,
-      "position", sol::property(&rendering::Window::GetPosition, &rendering::Window::SetPosition),
-      "centerPosition", &rendering::Window::CenterPosition,
-      "size", sol::property(&rendering::Window::GetSize, &rendering::Window::SetSize),
-      "resizable", sol::property(&rendering::Window::IsResizable, &rendering::Window::SetResizable),
-      "minimised", sol::property(&rendering::Window::IsMinimised, &rendering::Window::Minimise),
-      "maximised", sol::property(&rendering::Window::IsMaximised, &rendering::Window::Maximise),
-      "restore", &rendering::Window::Restore,
-      "show", &rendering::Window::Show,
-      "hide", &rendering::Window::Hide,
-      "captured", sol::property(&rendering::Window::IsMouseGrabbed, &rendering::Window::SetMouseGrab),
-      "clearColour", sol::property(&rendering::Window::GetClearColour, &rendering::Window::SetClearColour));
+      "position", sol::property(&rendering::GameWindow::GetPosition, &rendering::GameWindow::SetPosition),
+      "centerPosition", &rendering::GameWindow::CenterPosition,
+      "size", sol::property(&rendering::GameWindow::GetSize, &rendering::GameWindow::SetSize),
+      "resizable", sol::property(&rendering::GameWindow::IsResizable, &rendering::GameWindow::SetResizable),
+      "minimised", sol::property(&rendering::GameWindow::IsMinimised, &rendering::GameWindow::Minimise),
+      "maximised", sol::property(&rendering::GameWindow::IsMaximised, &rendering::GameWindow::Maximise),
+      "restore", &rendering::GameWindow::Restore,
+      "show", &rendering::GameWindow::Show,
+      "hide", &rendering::GameWindow::Hide,
+      "captured", sol::property(&rendering::GameWindow::IsMouseGrabbed, &rendering::GameWindow::SetMouseGrab),
+      "clearColour", sol::property(&rendering::GameWindow::GetClearColour, &rendering::GameWindow::SetClearColour));
   }
 }
 

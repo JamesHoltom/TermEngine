@@ -30,8 +30,6 @@ namespace term_engine {
     events::InitQueue();
     timing::InitFPS();
 
-    objects::default_scene = std::dynamic_pointer_cast<objects::GameScene>(objects::GameScene::Add("default"));
-    
     scripting::InitInterface();
     scripting::InitScript();
 
@@ -40,12 +38,10 @@ namespace term_engine {
 
   void CleanUp()
   {
-    objects::BaseObject::CleanUp();
+    objects::CleanUpObjects();
     events::CleanUpQueue();
     scripting::CleanUp();
     events::CleanUp();
-
-    objects::default_scene.reset();
 
     utility::CleanUpFreeType();
     utility::CleanUpSDL();
@@ -86,16 +82,23 @@ namespace term_engine {
         utility::LogKeyboardEvents(event);
         utility::LogWindowEvents(event);
         events::DoSDLEvents(event);
+
+        if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE)
+        {
+          objects::MarkGameSceneForRemoval(event.window.windowID);
+        }
       }
 
       scripting::OnLoop(timestep.GetIntervalElapsed());
 
-      objects::BaseObject::Sort();
+      objects::SortObjects();
 
-      for (const objects::ObjectPtr& object : objects::BaseObject::object_list_)
+      for (objects::ObjectPtr& object : objects::object_list_)
       {
         object->Update();
       }
+
+      objects::ClearFlaggedGameScenes();
 
       timing::NextFrame();
 

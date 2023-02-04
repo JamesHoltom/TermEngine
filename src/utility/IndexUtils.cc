@@ -32,7 +32,7 @@ namespace term_engine::utility {
   glm::ivec2 GetRowColFromPosition(const objects::GameSceneWeakPtr& game_scene, const glm::ivec2& position)
   {
     objects::GameScenePtr ptr = game_scene.lock();
-    glm::ivec2 rowcol(position / ptr->GetFontAtlas().GetCharacterSize());
+    glm::ivec2 rowcol(position / ptr->GetFontAtlas()->GetCharacterSize());
 
     return rowcol;
   }
@@ -47,7 +47,7 @@ namespace term_engine::utility {
   glm::ivec2 GetPositionFromRowCol(const objects::GameSceneWeakPtr& game_scene, const glm::ivec2& rowcol)
   {
     objects::GameScenePtr ptr = game_scene.lock();
-    glm::ivec2 position(rowcol * ptr->GetFontAtlas().GetCharacterSize());
+    glm::ivec2 position(rowcol * ptr->GetFontAtlas()->GetCharacterSize());
 
     return position;
   }

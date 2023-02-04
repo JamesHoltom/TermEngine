@@ -10,75 +10,14 @@ namespace term_engine::utility {
   /// @brief The flags to initialise SDL with.
   constexpr int SDL_INIT_FLAGS = SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER;
 
-  struct WindowDestroyer;
-  struct RendererDestroyer;
-  struct SurfaceDestroyer;
-  struct TextureDestroyer;
-
   /// @brief Wraps _SDL_Window_ with a smart pointer to allow automatic cleanup.
-  typedef std::unique_ptr<SDL_Window, WindowDestroyer> SDLWindow;
+  typedef std::unique_ptr<SDL_Window, decltype(&SDL_DestroyWindow)> SDLWindow;
   /// @brief Wraps _SDL_Renderer_ with a smart pointer to allow automatic cleanup.
-  typedef std::unique_ptr<SDL_Renderer, RendererDestroyer> SDLRenderer;
+  typedef std::unique_ptr<SDL_Renderer, decltype(&SDL_DestroyRenderer)> SDLRenderer;
   /// @brief Wraps _SDL_Surface_ with a smart pointer to allow automatic cleanup.
-  typedef std::unique_ptr<SDL_Surface, SurfaceDestroyer> SDLSurface;
+  typedef std::unique_ptr<SDL_Surface, decltype(&SDL_FreeSurface)> SDLSurface;
   /// @brief Wraps _SDL_Texture_ with a smart pointer to allow automatic cleanup.
-  typedef std::unique_ptr<SDL_Texture, TextureDestroyer> SDLTexture;
-
-  /// @brief Smart pointer destructor used to destroy a _SDL_Window_.
-  struct WindowDestroyer {
-    /**
-     * @brief Operator for calling the destructor like a function.
-     * 
-     * @param[in,out] window The window to destroy.
-     */
-    void operator()(SDL_Window* window) const noexcept
-    {
-      SDL_DestroyWindow(window);
-      window = nullptr;
-    }
-  };
-
-  /// @brief Smart pointer destructor used to destroy a _SDL_Renderer_.
-  struct RendererDestroyer {
-    /**
-     * @brief Operator for calling the destructor like a function.
-     * 
-     * @param[in,out] renderer The renderer to destroy.
-     */
-    void operator()(SDL_Renderer* renderer) const noexcept
-    {
-      SDL_DestroyRenderer(renderer);
-      renderer = nullptr;
-    }
-  };
-
-  /// @brief Smart pointer destructor used to destroy a _SDL_Surface_.
-  struct SurfaceDestroyer {
-    /**
-     * @brief Operator for calling the destructor like a function.
-     * 
-     * @param[in,out] surface The surface to destroy.
-     */
-    void operator()(SDL_Surface* surface) const noexcept
-    {
-      SDL_FreeSurface(surface);
-      surface = nullptr;
-    }
-  };
-
-  /// @brief Smart pointer destructor used to destroy a _SDL_Texture_.
-  struct TextureDestroyer {
-    /**
-     * @brief Operator for calling the destructor like a function.
-     * 
-     * @param[in,out] texture The texture to destroy.
-     */
-    void operator()(SDL_Texture* texture) const noexcept
-    {
-      SDL_DestroyTexture(texture);
-      texture = nullptr;
-    }
-  };
+  typedef std::unique_ptr<SDL_Texture, decltype(&SDL_DestroyTexture)> SDLTexture;
 
   /**
    * @brief Initialises SDL.

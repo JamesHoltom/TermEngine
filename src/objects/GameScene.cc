@@ -1,10 +1,13 @@
 #include <memory>
 #include "GameScene.h"
+#include "GameObject.h"
 #include "../shaders/default.h"
 #include "../system/FileFunctions.h"
 #include "../utility/SpdlogUtils.h"
 
 namespace term_engine::objects {
+  std::vector<GameSceneNamePair> name_list_;
+
   GameScene::GameScene(const std::string& name) :
     BaseObject(),
     name_(name),
@@ -15,7 +18,8 @@ namespace term_engine::objects {
     text_buffer_(),
     background_shader_program_(),
     text_shader_program_(),
-    is_dirty_(true)
+    is_dirty_(true),
+    marked_for_removal_(false)
   {
     window_.SetSize(font_atlas_.GetCharacterSize() * character_map_.GetSize());
 
@@ -43,9 +47,12 @@ namespace term_engine::objects {
   }
 
   void GameScene::Update()
-  {
+  {    
     if (is_active_ && is_dirty_)
     {
+      window_.Use();
+      window_.Clear();
+
       background_.CopyToBuffer(background_buffer_);
       character_map_.CopyToBuffer(text_buffer_, font_atlas_);
       text_buffer_.PushToGL();
@@ -79,71 +86,7 @@ namespace term_engine::objects {
 
   std::string GameScene::GetObjectType() const
   {
-    return "GameScene";
-  }
-
-  std::string GameScene::GetName() const
-  {
-    return name_;
-  }
-
-  rendering::Window& GameScene::GetWindow()
-  {
-    return window_;
-  }
-
-  rendering::FontAtlas& GameScene::GetFontAtlas()
-  {
-    return font_atlas_;
-  }
-
-  rendering::Background& GameScene::GetBackground()
-  {
-    return background_;
-  }
-
-  rendering::ShaderProgram& GameScene::GetBackgroundShader()
-  {
-    return background_shader_program_;
-  }
-
-  rendering::ShaderProgram& GameScene::GetTextShader()
-  {
-    return text_shader_program_;
-  }
-
-  rendering::CharacterMap& GameScene::GetCharacterMap()
-  {
-    return character_map_;
-  }
-
-  bool GameScene::IsDirty() const
-  {
-    return is_dirty_;
-  }
-
-  void GameScene::Dirty()
-  {
-    is_dirty_ = true;
-  }
-
-  void GameScene::Clean()
-  {
-    is_dirty_ = false;
-  }
-
-  ObjectPtr& GameScene::Add(const std::string& name)
-  {
-    is_list_dirty_ = true;
-    
-    return std::ref(object_list_.emplace_front(std::make_shared<GameScene>(name)));
-  }
-
-  void GameScene::ClearAll()
-  {
-    object_list_.remove_if([](const ObjectPtr& object) { return object->GetObjectType() == "GameScene"; });
-
-    utility::logger->debug("Cleared all game scenes from the list.");
+    return std::string(GAME_SCENE_TYPE);
   }
 
   ObjectSortPriority GameScene::GetListPriority() const
@@ -151,5 +94,133 @@ namespace term_engine::objects {
     return ObjectSortPriority::GAME_SCENE;
   }
 
-  GameScenePtr default_scene;
+  std::string GameScene::GetName() const
+  {
+    return name_;
+  }
+
+  rendering::GameWindow* GameScene::GetWindow()
+  {
+    return &window_;
+  }
+
+  rendering::FontAtlas* GameScene::GetFontAtlas()
+  {
+    return &font_atlas_;
+  }
+
+  rendering::Background* GameScene::GetBackground()
+  {
+    return &background_;
+  }
+
+  rendering::ShaderProgram* GameScene::GetBackgroundShader()
+  {
+    return &background_shader_program_;
+  }
+
+  rendering::ShaderProgram* GameScene::GetTextShader()
+  {
+    return &text_shader_program_;
+  }
+
+  rendering::CharacterMap* GameScene::GetCharacterMap()
+  {
+    return &character_map_;
+  }
+
+  void GameScene::Dirty()
+  {
+    is_dirty_ = true;
+  }
+
+  bool GameScene::FlaggedForRemoval() const
+  {
+    return marked_for_removal_;
+  }
+
+  void GameScene::FlagRemoval()
+  {
+    marked_for_removal_ = true;
+  }
+
+  void GameScene::UnflagRemoval()
+  {
+    marked_for_removal_ = false;
+  }
+
+  GameSceneProxy::GameSceneProxy(const ObjectPtr& object) :
+    BaseProxy(object)
+  {}
+
+  GameSceneProxy::~GameSceneProxy()
+  {}
+
+  GameSceneProxy AddGameScene(const std::string& name)
+  {
+    is_object_list_dirty_ = true;
+
+    ObjectPtr ptr = object_list_.emplace_front(std::make_shared<GameScene>(name));
+
+    name_list_.push_back(std::make_pair(name, ptr));
+    
+    return GameSceneProxy(ptr);
+  }
+
+  ObjectWeakPtr GetGameSceneByName(const std::string& name)
+  {
+    for (const GameSceneNamePair& name_pair : name_list_)
+    {
+      if (name_pair.first == name)
+      {
+        return name_pair.second;
+      }
+    }
+
+    return ObjectWeakPtr();
+  }
+
+  void MarkGameSceneForRemoval(const Uint32& window_id)
+  {
+    for (GameSceneNamePair& game_scene : name_list_)
+    {
+      ObjectPtr ptr = game_scene.second.lock();
+
+      if (ptr->GetObjectType() == std::string(GAME_SCENE_TYPE))
+      {
+        GameScenePtr gs_ptr = std::dynamic_pointer_cast<GameScene>(ptr);
+        
+        if (gs_ptr->GetWindow()->GetId() == window_id)
+        {
+          gs_ptr->FlagRemoval();
+
+          utility::logger->debug("Flagged game scene \"{}\" for removal.", gs_ptr->GetName());
+
+          break;
+        }
+      }
+    }
+  }
+
+  void ClearAllGameScenes()
+  {
+    object_list_.remove_if([](const ObjectPtr& object) { return object->GetObjectType() == std::string(GAME_SCENE_TYPE); });
+
+    utility::logger->debug("Cleared all game scenes from the list.");
+  }
+
+  void ClearFlaggedGameScenes()
+  {
+    for (ObjectPtr& object : object_list_)
+    {
+      GameScenePtr ptr = std::dynamic_pointer_cast<GameScene>(object);
+
+      if (object->GetObjectType() == std::string(GAME_SCENE_TYPE) && ptr->FlaggedForRemoval())
+      {
+        ClearObjectsByGameScene(ptr->GetName());
+      }
+    }
+
+    object_list_.remove_if([](const ObjectPtr& object) { return object->GetObjectType() == std::string(GAME_SCENE_TYPE) && std::dynamic_pointer_cast<GameScene>(object)->FlaggedForRemoval(); });
+  }
 }

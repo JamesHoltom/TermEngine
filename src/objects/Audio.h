@@ -4,6 +4,7 @@
 #define AUDIO_H
 
 #include <filesystem>
+#include <optional>
 #include <string>
 #include <glm/glm.hpp>
 #include "BaseObject.h"
@@ -17,11 +18,13 @@
  */
 
 namespace term_engine::objects {
-  /// @brief Represents an audio resource, used to play music/sounds.
+  constexpr char AUDIO_TYPE[] = "Audio";
+
+  /// @brief Stores an audio resource, used to play music/sounds.
   class Audio : public BaseObject {
   public:
     /**
-     * @brief Constructs the audio resource with the given parameters.
+     * @brief Constructs the object with the given parameters.
      * 
      * @param[in] filepath The filepath to the audio resource.
      * @param[in] flag     Used to set if the whole resource is loaded or streamed into memory.
@@ -29,18 +32,26 @@ namespace term_engine::objects {
      */
     Audio(const std::filesystem::path& filepath, const unsigned int& flag);
 
-    /// @brief Destroys the audio resource.
+    /// @brief Destroys the object.
     ~Audio();
 
-    /// @brief Updates the audio resource.
+    /// @brief Updates the object.
     void Update();
 
     /**
-     * @brief Returns the type of the object.
+     * @brief Returns the type of object.
      * 
-     * @return The object type.
+     * @returns The object type.
      */
     std::string GetObjectType() const;
+
+    /**
+     * @brief Returns the list priority for this object.
+     * @details This is used to sort the list of objects before updating.
+     * 
+     * @returns The priority for this object.
+     */
+    ObjectSortPriority GetListPriority() const;
 
     /// @brief Plays the audio resource at the start of the audio.
     void Play();
@@ -159,19 +170,6 @@ namespace term_engine::objects {
      */
     void SetVolume(const double& volume);
 
-    /**
-     * @brief Adds an audio resource to the list.
-     * 
-     * @param[in] filepath The filepath to the audio resource.
-     * @param[in] type     Set to "static" to load audio directly into memory, or "stream" to stream a portion of audio at a time.
-     * @remarks Streaming audio with the "stream" type is recommended for large music files. Loading entire audio resources with the "static" type is recommended for small sound files.
-     * @returns A smart pointer to the resource if it was added to the list, or a null pointer if it failed.
-     */
-    static ObjectPtr& Add(const std::string& filepath, const std::string& type);
-
-    /// @brief Clears all audio resources from the object list.
-    static void ClearAll();
-
   private:
     /// @brief The filepath to the audio resource.
     std::filesystem::path filepath_;
@@ -187,15 +185,55 @@ namespace term_engine::objects {
     glm::vec2 position_;
     /// @brief The audio volume.
     double volume_;
-
-    /**
-     * @brief Returns the list priority for this object.
-     * @details This is used to sort the list of objects before updating.
-     * 
-     * @returns The priority for this object.
-     */
-    ObjectSortPriority GetListPriority() const;
   };
+
+  /// @brief An object proxy to interact with audio resources.
+  class AudioProxy : public BaseProxy {
+  public:
+    /**
+     * @brief Constructs the object proxy.
+     * 
+     * @param[in] object A smart pointer to the object.
+     */
+    AudioProxy(const ObjectPtr& object);
+
+    /// @brief Destroys the object proxy.
+    ~AudioProxy();
+    
+    OBJECT_PROXY_GETTER(Audio, GetObjectType, std::string)
+    OBJECT_PROXY_CALLER(Audio, Play)
+    OBJECT_PROXY_CALLER(Audio, Stop)
+    OBJECT_PROXY_CALLER(Audio, Pause)
+    OBJECT_PROXY_CALLER(Audio, Resume)
+    OBJECT_PROXY_GETTER(Audio, IsPlaying, bool)
+    OBJECT_PROXY_GETTER(Audio, IsPaused, bool)
+    OBJECT_PROXY_GETTER(Audio, IsLooping, bool)
+    OBJECT_PROXY_GETTER(Audio, GetPan, double)
+    OBJECT_PROXY_GETTER(Audio, GetPitch, double)
+    OBJECT_PROXY_GETTER(Audio, GetPosition, glm::vec2)
+    OBJECT_PROXY_GETTER(Audio, GetVolume, double)
+    OBJECT_PROXY_GETTER(Audio, GetCursorSeconds, double)
+    OBJECT_PROXY_GETTER(Audio, GetLengthSeconds, double)
+    OBJECT_PROXY_GETTER(Audio, GetFilePath, std::string)
+    OBJECT_PROXY_SETTER(Audio, SetLooping, bool)
+    OBJECT_PROXY_SETTER(Audio, SetPan, double)
+    OBJECT_PROXY_SETTER(Audio, SetPitch, double)
+    OBJECT_PROXY_SETTER(Audio, SetPosition, glm::vec2)
+    OBJECT_PROXY_SETTER(Audio, SetVolume, double)
+  };
+
+  /**
+   * @brief Adds an audio object to the list.
+   * 
+   * @param[in] filepath The filepath to the audio object.
+   * @param[in] type     Set to "static" to load audio directly into memory, or "stream" to stream a portion of audio at a time.
+   * @remarks Streaming audio with the "stream" type is recommended for large music files. Loading entire audio resources with the "static" type is recommended for small sound files.
+   * @returns A proxy to the object.
+   */
+  AudioProxy AddAudio(const std::string& filepath, const std::string& type);
+
+  /// @brief Clears all audio objects from the object list.
+  void ClearAllAudio();
 }
 
 #endif // ! AUDIO_H

@@ -9,7 +9,8 @@ namespace term_engine::rendering {
   FontAtlas::FontAtlas(const std::filesystem::path& filepath, const FT_Int& size) :
     filepath_(filepath),
     size_(size),
-    is_loaded_(false)
+    is_loaded_(false),
+    next_pos_(glm::uvec2(0))
   {
     bool all_ok = true;
 
@@ -135,7 +136,7 @@ namespace term_engine::rendering {
       GLint character_baseline = (face_->size->metrics.ascender - face_->glyph->metrics.horiBearingY) >> 6;
 
       // If the next character will spill out of the bottom-right corner of the texture, stop and return an error.
-      if (next_pos_.y + character_height > TEXTURE_SIZE && next_pos_.x + character_width > TEXTURE_SIZE)
+      if (next_pos_.y + character_height + 1 > TEXTURE_SIZE && next_pos_.x + character_width + 1 > TEXTURE_SIZE)
       {
         utility::logger->warn("The texture for this font is full!");
 
@@ -158,12 +159,12 @@ namespace term_engine::rendering {
       if (next_pos_.x + character_width > TEXTURE_SIZE)
       {
         next_pos_.x = 0;
-        next_pos_.y += max_height_;
+        next_pos_.y += max_height_ + 1;
         max_height_ = 0;
       }
       else
       {
-        next_pos_.x += character_width;
+        next_pos_.x += character_width + 1;
       }
       
       auto new_character = atlas_.insert_or_assign(character, bbox);
