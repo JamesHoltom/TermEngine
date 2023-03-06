@@ -1,8 +1,15 @@
+#include <iomanip>
+#include <sstream>
 #include "DebugUtils.h"
 #include "GLUtils.h"
 #include "SpdlogUtils.h"
+#include "../objects/BaseObject.h"
 
 namespace term_engine::utility {
+  DebugInfoList debug_info_list;
+  DebugSceneMenuOption menu_option;
+  size_t current_line;
+  
   void LogKeyboardEvents(const SDL_Event& event)
   {
     std::string keyboard_type;
@@ -58,7 +65,7 @@ namespace term_engine::utility {
       keyboard_modifiers.erase(0, 2);
     }
 
-    utility::logger->debug("Keyboard Event: {}, Key: {}, Modifiers: {}", keyboard_type, SDL_GetKeyName(event.key.keysym.sym), keyboard_modifiers);
+    logger->debug("Keyboard Event: {}, Key: {}, Modifiers: {}", keyboard_type, SDL_GetKeyName(event.key.keysym.sym), keyboard_modifiers);
   }
 
   void LogWindowEvents(const SDL_Event& event)
@@ -91,11 +98,11 @@ namespace term_engine::utility {
       {
         if (showXY)
         {
-          utility::logger->debug("Window ID: {}, Event: {}, X: {}, Y: {}", event.window.windowID, window_string, event.window.data1, event.window.data2);
+          logger->debug("Window ID: {}, Event: {}, X: {}, Y: {}", event.window.windowID, window_string, event.window.data1, event.window.data2);
         }
         else
         {
-          utility::logger->debug("Window ID: {}, Event: {}", event.window.windowID, window_string);
+          logger->debug("Window ID: {}, Event: {}", event.window.windowID, window_string);
         }
       }
     }
@@ -106,7 +113,7 @@ namespace term_engine::utility {
     int vao_id, ebo_id, ebo_size, max_vertex_attribs, vbo_id;
     int vertex_attrib_is_enabled;
 
-    utility::logger->debug("Debugging currently bound VAO...");
+    logger->debug("Debugging currently bound VAO...");
 
     glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &vao_id);
     glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &ebo_id);
@@ -116,9 +123,9 @@ namespace term_engine::utility {
     }
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &max_vertex_attribs);
 
-    utility::logger->debug("VAO ID: {}", vao_id);
-    utility::logger->debug("EBO ID: {}, size: {}", ebo_id, ebo_size);
-    utility::logger->debug("Max vertex attributes: {}", max_vertex_attribs);
+    logger->debug("VAO ID: {}", vao_id);
+    logger->debug("EBO ID: {}, size: {}", ebo_id, ebo_size);
+    logger->debug("Max vertex attributes: {}", max_vertex_attribs);
 
     for (int i = 0; i < max_vertex_attribs; ++i) {
       glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_ENABLED, &vertex_attrib_is_enabled);
@@ -127,11 +134,11 @@ namespace term_engine::utility {
       {
         glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING, &vbo_id);
 
-        utility::logger->debug("Vertex attribute #{} is bound to VBO: {}", i, vbo_id);
+        logger->debug("Vertex attribute #{} is bound to VBO: {}", i, vbo_id);
       }
       else
       {
-        utility::logger->debug("Vertex attribute #{} is unbound.", i);
+        logger->debug("Vertex attribute #{} is unbound.", i);
       }
     }
   }
@@ -140,11 +147,64 @@ namespace term_engine::utility {
   {
     int vbo_id, vbo_size;
 
-    utility::logger->debug("Debugging currently bound VBO...");
+    logger->debug("Debugging currently bound VBO...");
 
     glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &vbo_id);
     glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &vbo_size);
 
-    utility::logger->debug("VBO ID: {}, size: {}", vbo_id, vbo_size);
+    logger->debug("VBO ID: {}, size: {}", vbo_id, vbo_size);
+  }
+
+  ObjectDebugInfoWeakPtr AddDebugInfo(const std::string& name)
+  {
+    ObjectDebugInfoPtr debug_info = debug_info_list.emplace_back(std::make_shared<ObjectDebugInfo>(name));
+
+    return debug_info;
+  }
+
+  void RemoveDebugInfo(const ObjectDebugInfoWeakPtr& ptr)
+  {
+    debug_info_list.erase(std::remove_if(debug_info_list.begin(), debug_info_list.end(), [&ptr](const ObjectDebugInfoPtr& info) { return ptr.lock()->name_ == info->name_; }), debug_info_list.end());
+  }
+
+  std::string GetDebugInfo()
+  {
+    size_t info_end = std::min(current_line + 15, debug_info_list.size());
+    std::stringstream return_string;
+
+    for (size_t i = current_line; i < info_end; ++i)
+    {
+      std::string timing = std::to_string(debug_info_list[i]->update_time_);
+      std::string usage = std::to_string(debug_info_list[i]->ptr_uses_);
+
+      return_string << std::setw(16) << std::setiosflags(std::ios::left) << debug_info_list[i]->name_;
+
+      switch (menu_option)
+      {
+        case DebugSceneMenuOption::TIMING:
+          return_string << std::setw(16) << std::resetiosflags(std::ios::left) << timing.substr(0, timing.length() > 13 ? 13 : 16);
+
+          if (timing.length() > 13)
+          {
+            return_string << "...";
+          }
+
+          break;
+        case DebugSceneMenuOption::PTR_USAGE:
+          return_string << std::setw(16) << std::resetiosflags(std::ios::left) << usage.substr(0, usage.length() > 13 ? 13 : 16);
+
+          if (usage.length() > 13)
+          {
+            return_string << "...";
+          }
+
+          break;
+        case DebugSceneMenuOption::FLAGS:
+          
+          break;
+      }
+    }
+
+    return return_string.str();
   }
 }

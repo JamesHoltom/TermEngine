@@ -9,6 +9,7 @@
 #include "../../rendering/Window.h"
 #include "../../system/FileFunctions.h"
 #include "../../timing/FPSManager.h"
+#include "../../utility/DebugUtils.h"
 #include "../../utility/IndexUtils.h"
 #include "../../utility/SolUtils.h"
 
@@ -56,11 +57,11 @@ namespace term_engine::scripting::bindings {
       "getMovement", &events::GetMouseMovement);
 
     state.set_function("round", lroundf);
+
+    state.set_function("getDebugInfo", &utility::GetDebugInfo);
     
     /* TODO: Fix these, taking into account the Lua-style index.
-    state.set_function("getIndexFromPosition", sol::overload(
-      sol::resolve<int(objects::GameScenePtr, glm::ivec2, glm::ivec2)>(utility::GetIndexFromPosition),
-      sol::resolve<int(rendering::FontAtlas, glm::ivec2, glm::ivec2)>(utility::GetIndexFromPosition)));
+    state.set_function("getIndexFromPosition", &utility::GetIndexFromPosition,
     state.set_function("getRowColFromPosition", utility::GetRowColFromPosition);
     state.set_function("getPositionFromIndex", utility::GetPositionFromIndex);
     state.set_function("getRowColFromIndex", utility::GetRowColFromIndex);

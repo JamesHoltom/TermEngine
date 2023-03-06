@@ -10,7 +10,7 @@ namespace term_engine::objects {
     times_repeated_(0),
     callback_(sol::make_reference<sol::function>((*scripting::lua_state), callback))
   {
-    timer_.Start();
+    debug_info_ = utility::AddDebugInfo(GetObjectType() + " " + std::to_string(GetObjectId()));
 
     utility::logger->debug("Created {} timed function with ID {} and delay of {}ms.", repeat ? "repeatable" : "non-repeatable", object_id_, delay_);
   }
@@ -18,6 +18,8 @@ namespace term_engine::objects {
   TimedFunction::~TimedFunction()
   {
     callback_ = sol::nil;
+
+    utility::RemoveDebugInfo(debug_info_);
 
     utility::logger->debug("Removed timed function with ID {}.", object_id_);
   }

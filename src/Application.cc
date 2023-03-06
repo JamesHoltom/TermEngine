@@ -4,6 +4,7 @@
 #include "events/Listener.h"
 #include "objects/BaseObject.h"
 #include "objects/GameScene.h"
+#include "rendering/FontAtlas.h"
 #include "scripting/ScriptingInterface.h"
 #include "timing/FPSManager.h"
 #include "utility/AudioUtils.h"
@@ -41,6 +42,7 @@ namespace term_engine {
     objects::CleanUpObjects();
     events::CleanUpQueue();
     scripting::CleanUp();
+    rendering::FontAtlas::CleanUpFontAtlas();
     events::CleanUp();
 
     utility::CleanUpFreeType();
@@ -93,10 +95,7 @@ namespace term_engine {
 
       objects::SortObjects();
 
-      for (objects::ObjectPtr& object : objects::object_list_)
-      {
-        object->Update();
-      }
+      objects::UpdateObjects();
 
       objects::ClearFlaggedGameScenes();
 

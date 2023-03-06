@@ -13,6 +13,8 @@ namespace term_engine::objects {
     data_.resize(data_size);
     data_.shrink_to_fit();
 
+    debug_info_ = utility::AddDebugInfo(GetObjectType() + " " + std::to_string(GetObjectId()));
+
     utility::logger->debug("Created object with ID {} at {},{} with size {}x{}.", object_id_, position.x, position.y, size.x, size.y);
   }
 
@@ -24,11 +26,15 @@ namespace term_engine::objects {
     data_(object->data_),
     game_scene_(game_scene)
   {
+    debug_info_ = utility::AddDebugInfo(GetObjectType() + " " + std::to_string(GetObjectId()));
+
     utility::logger->debug("Copied object with ID {} to ID {}.", object->object_id_, object_id_);
   }
 
   GameObject::~GameObject()
   {
+    utility::RemoveDebugInfo(debug_info_);
+
     utility::logger->debug("Destroyed object with ID {}.", object_id_);
   }
 

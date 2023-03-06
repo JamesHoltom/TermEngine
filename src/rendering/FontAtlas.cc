@@ -1,16 +1,24 @@
+#include <algorithm>
 #include <array>
 #include <freetype/ftbitmap.h>
+#include <freetype/ftsizes.h>
 #include "FontAtlas.h"
-#include "ShaderProgram.h"
 #include "../system/FileFunctions.h"
 #include "../utility/SpdlogUtils.h"
 
 namespace term_engine::rendering {
-  FontAtlas::FontAtlas(const std::filesystem::path& filepath, const FT_Int& size) :
+  FontAtlas::FontAtlas() :
+    FontAtlas(std::filesystem::path(DEFAULT_FONT))
+  {}
+
+  FontAtlas::FontAtlas(const std::filesystem::path& filepath) :
     filepath_(filepath),
-    size_(size),
+    whitespace_bbox_(glm::ivec2(), glm::ivec2(32), 0, 0),
+    character_count_(0),
     is_loaded_(false),
-    next_pos_(glm::uvec2(0))
+    texture_dirty_(false),
+    size_list_(),
+    packer_(glm::ivec2(TEXTURE_SIZE))
   {
     bool all_ok = true;
 
@@ -30,18 +38,17 @@ namespace term_engine::rendering {
       all_ok = false;
     }
 
-    if (utility::FTLog(FT_Set_Pixel_Sizes(face_, 0, size)) != FT_Err_Ok)
-    {
-      utility::logger->error("Failed to set font size for font \"{}\".", filepath_.string());
+    const size_t textureSize = 32 * 32 * sizeof(unsigned char);
+    std::array<unsigned char, textureSize> whiteTexture;
+    std::fill(whiteTexture.begin(), whiteTexture.end(), 255);
 
-      all_ok = false;
-    }
+    packer_.Insert(whiteTexture.data(), glm::ivec2(32));
+
+    SetFontSize(DEFAULT_FONT_SIZE);
 
     if (all_ok)
     {
-      utility::logger->debug("Loaded font \"{}\" with size {}.", filepath_.string(), size);
-
-      ResetCharacterSize();
+      utility::logger->debug("Loaded font \"{}\".", filepath_.string());
 
       glActiveTexture(GL_TEXTURE0);
       glBindTexture(GL_TEXTURE_2D, texture_.texture_id_);
@@ -50,6 +57,8 @@ namespace term_engine::rendering {
     }
     else
     {
+      utility::logger->error("Failed to set up font \"{}\".", filepath_.string());
+
       DeleteTexture(texture_);
 
       return;
@@ -62,6 +71,8 @@ namespace term_engine::rendering {
     {
       DeleteTexture(texture_);
 
+      size_list_.clear();
+
       if (utility::FTLog(FT_Done_Face(face_)) != FT_Err_Ok)
       {
         utility::logger->error("Failed to remove font \"{}\".", filepath_.string());
@@ -73,23 +84,29 @@ namespace term_engine::rendering {
     }
   }
 
-  std::string FontAtlas::GetFilepath() const
+  std::string FontAtlas::GetFilePath() const
   {
-    return filepath_;
+    return filepath_.string();
   }
 
-  FT_Int FontAtlas::GetFontSize() const
+  glm::ivec2 FontAtlas::GetCharacterSize(const FT_UInt& size)
   {
-    return size_;
+    SetFontSize(size);
+
+    return glm::ivec2(face_->size->metrics.max_advance >> 6, ((face_->size->metrics.ascender - face_->size->metrics.descender) >> 6));
   }
 
-  glm::ivec2 FontAtlas::GetCharacterSize() const
+  CharacterBB FontAtlas::GetCharacter(const FT_ULong& character, const FT_UInt& size)
   {
-    return character_size_;
-  }
+    if (!is_loaded_)
+    {
+      utility::logger->warn("Cannot get \"{}\" character from unloaded font \"{}\".", (char)(character), filepath_.string());
 
-  CharacterBB FontAtlas::GetCharacter(const FT_ULong& character)
-  {
+      return EMPTY_CHARACTER;
+    }
+
+    SetFontSize(size);
+
     CharacterList::iterator found_char = atlas_.find(character);
 
     if (character == '\0' || character == '\n' || character == '\r' || character == '\t')
@@ -98,7 +115,7 @@ namespace term_engine::rendering {
     }
     else if (found_char == atlas_.end())
     {
-      return CreateCharTexture(character);
+      return CreateCharTexture(character, size);
     }
     else
     {
@@ -106,69 +123,87 @@ namespace term_engine::rendering {
     }
   }
 
-  void FontAtlas::SetCharacterSize(const glm::ivec2& character_size)
+  CharacterBB FontAtlas::GetWhitespace() const
   {
-    character_size_ = character_size;
+    if (!is_loaded_)
+    {
+      utility::logger->warn("Cannot get whitespace from unloaded font \"{}\".", filepath_.string());
+
+      return EMPTY_CHARACTER;
+    }
+
+    return whitespace_bbox_;
   }
 
-  void FontAtlas::ResetCharacterSize()
+  bool FontAtlas::IsLoaded() const
   {
-    character_size_ = glm::ivec2(face_->size->metrics.max_advance >> 6, ((face_->size->metrics.ascender - face_->size->metrics.descender) >> 6));
+    return is_loaded_;
   }
 
   void FontAtlas::Use() const
   {
-    glActiveTexture(GL_TEXTURE0 + texture_.texture_index_);
-    glBindTexture(GL_TEXTURE_2D, texture_.texture_id_);
+    if (is_loaded_) {
+      if (active_font_ != texture_.texture_id_)
+      {
+        glActiveTexture(GL_TEXTURE0 + texture_.texture_index_);
+        glBindTexture(GL_TEXTURE_2D, texture_.texture_id_);
+
+        active_font_ = texture_.texture_id_;
+      }
+    }
+    else
+    {
+      utility::logger->warn("Cannot use unloaded font \"{}\"!", filepath_.string());
+    }
   }
 
-  CharacterBB FontAtlas::CreateCharTexture(const FT_ULong& character)
+  void FontAtlas::UpdateTexture()
   {
-    glActiveTexture(GL_TEXTURE0 + texture_.texture_index_);
-    glBindTexture(GL_TEXTURE_2D, texture_.texture_id_);
+    if (texture_dirty_)
+    {
+      glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texture_.size_.x, texture_.size_.y, GL_RED, GL_UNSIGNED_BYTE, packer_.GetBufferData());
+
+      texture_dirty_ = false;
+    }
+  }
+
+  FontAtlasPtr FontAtlas::GetFontAtlas(const std::filesystem::path& filepath)
+  {
+    std::string key_name = filepath.string();
+
+    atlas_cache_.emplace(key_name, std::make_shared<FontAtlas>(filepath));
+
+    return atlas_cache_.at(key_name);
+  }
+
+  void FontAtlas::CleanUpFontAtlas()
+  {
+    for (std::pair<std::string, FontAtlasPtr> pair : atlas_cache_)
+    {
+      pair.second.reset();
+    }
+
+    atlas_cache_.clear();
+  }
+
+  CharacterBB FontAtlas::CreateCharTexture(const FT_ULong& character, const FT_UInt& size)
+  {
+    Use();
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
     if (utility::FTLog(FT_Load_Char(face_, character, FT_LOAD_RENDER)) == FT_Err_Ok)
     {
       // Character metrics are stored in an unscaled, 1/64th of a pixel per unit format, and must be converted before use.
-      GLuint character_width = face_->glyph->bitmap.width;
-      GLuint character_height = face_->glyph->bitmap.rows;
+      glm::ivec2 character_size = glm::ivec2(face_->glyph->bitmap.width, face_->glyph->bitmap.rows);
       GLint character_baseline = (face_->size->metrics.ascender - face_->glyph->metrics.horiBearingY) >> 6;
+      glm::ivec2 character_pos = packer_.Insert(face_->glyph->bitmap.buffer, character_size);
+      CharacterBB bbox(character_pos, character_size, size, character_baseline);
 
-      // If the next character will spill out of the bottom-right corner of the texture, stop and return an error.
-      if (next_pos_.y + character_height + 1 > TEXTURE_SIZE && next_pos_.x + character_width + 1 > TEXTURE_SIZE)
-      {
-        utility::logger->warn("The texture for this font is full!");
+      utility::logger->debug("Created character, \'{}\' with dimensions {},{} at pos {},{} and added to cache.", (char)character, character_size.x, character_size.y, character_pos.x, character_pos.y);
 
-        return EMPTY_CHARACTER;
-      }
-
-      glPixelStorei(GL_UNPACK_ROW_LENGTH, character_width);
-      glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, character_height);
-      glTexSubImage2D(GL_TEXTURE_2D, 0, next_pos_.x, next_pos_.y, character_width, character_height, GL_RED, GL_UNSIGNED_BYTE, face_->glyph->bitmap.buffer);
-
-      CharacterBB bbox = { next_pos_, glm::ivec2(character_width, character_height), character_baseline };
-
-      utility::logger->debug("Created character, \'{}\' with dimensions {},{} at pos {},{} and added to cache.", (char)character, character_width, character_height, next_pos_.x, next_pos_.y);
-
-      if (character_height > max_height_)
-      {
-        max_height_ = character_height;
-      }
-
-      if (next_pos_.x + character_width > TEXTURE_SIZE)
-      {
-        next_pos_.x = 0;
-        next_pos_.y += max_height_ + 1;
-        max_height_ = 0;
-      }
-      else
-      {
-        next_pos_.x += character_width + 1;
-      }
-      
       auto new_character = atlas_.insert_or_assign(character, bbox);
 
+      texture_dirty_ = true;
       character_count_++;
 
       return bbox;
@@ -181,10 +216,40 @@ namespace term_engine::rendering {
     }
   }
 
-  void FontAtlas::ClearCache()
+  void FontAtlas::SetFontSize(const FT_UInt& size)
   {
-    rendering::ClearTexture(texture_, glm::vec4());
+    FontSizeList::const_iterator findSize = size_list_.find(size);
 
-    next_pos_ = glm::uvec2();
+    if (findSize != size_list_.end())
+    {
+      if (utility::FTLog(FT_Activate_Size(findSize->second)) != FT_Err_Ok)
+      {
+        utility::logger->error("Failed to activate existing font size for font \"{}\".", filepath_.string());
+      }
+    }
+    else
+    {
+      FT_Size new_size;
+
+      if (utility::FTLog(FT_New_Size(face_, &new_size)) != FT_Err_Ok)
+      {
+        utility::logger->error("Failed to create font size for font \"{}\".", filepath_.string());
+      }
+
+      if (utility::FTLog(FT_Activate_Size(new_size)) != FT_Err_Ok)
+      {
+        utility::logger->error("Failed to activate new font size for font \"{}\".", filepath_.string());
+      }
+
+      size_list_.insert(FontSizeList::value_type(size, new_size));
+    }
+
+    if (utility::FTLog(FT_Set_Pixel_Sizes(face_, 0, size)) != FT_Err_Ok)
+    {
+      utility::logger->error("Failed to set font size for font \"{}\".", filepath_.string());
+    }
   }
+
+  GLuint FontAtlas::active_font_ = 0;
+  FontAtlasList FontAtlas::atlas_cache_;
 }

@@ -22,14 +22,17 @@ namespace term_engine::rendering {
      * 
      * @returns The position of the view.
      */
-    glm::vec2 GetPosition();
+    glm::vec2 GetPosition() const;
 
     /**
      * @brief Gets the size of the view.
      * 
      * @returns The size of the view.
      */
-    glm::ivec2 GetSize();
+    glm::ivec2 GetSize() const;
+
+
+    GLuint GetFontSize() const;
 
     /**
      * @brief Sets the position of the view on the window.
@@ -45,6 +48,11 @@ namespace term_engine::rendering {
      */
     void SetSize(const glm::ivec2& size);
 
+
+    void SetFontSize(const GLuint& font_size);
+
+    void Clear();
+
     /**
      * @brief Pushes character data to the buffer at the given index.
      * 
@@ -53,13 +61,15 @@ namespace term_engine::rendering {
     void PushCharacters(const glm::ivec2& position, const glm::ivec2& size, const CharacterData& data);
 
     /// @brief Renders the list of views to the window.
-    void CopyToBuffer(Buffer& buffer, FontAtlas& font_atlas) const;
+    void CopyToBuffer(Buffer& buffer, const FontAtlasPtr& font_atlas) const;
 
   private:
     /// @brief The position of the view.
     glm::vec2 position_;
     /// @brief The size of the view, in rows/columns.
     glm::ivec2 size_;
+
+    GLuint font_size_;
     /// @brief The character data to be rendered to a window.
     CharacterData data_;
   };

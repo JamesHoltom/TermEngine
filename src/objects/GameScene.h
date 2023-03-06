@@ -8,10 +8,10 @@
 #include <vector>
 #include "BaseObject.h"
 #include "../rendering/Background.h"
-#include "../rendering/Buffer.h"
-#include "../rendering/CharacterMap.h"
 #include "../rendering/FontAtlas.h"
 #include "../rendering/ShaderProgram.h"
+#include "../rendering/Buffer.h"
+#include "../rendering/CharacterMap.h"
 #include "../rendering/Window.h"
 
 namespace term_engine::objects {
@@ -59,18 +59,11 @@ namespace term_engine::objects {
     std::string GetName() const;
 
     /**
-     * @brief Returns the window handle used to render the game scene.
-     * 
-     * @returns The window handle.
-     */
-    rendering::GameWindow* GetWindow();
-
-    /**
      * @brief Returns the font atlas used by the game scene.
      * 
      * @returns The font atlas.
      */
-    rendering::FontAtlas* GetFontAtlas();
+    rendering::FontAtlasPtr GetFontAtlas();
 
     /**
      * @brief Returns the background rendered behind the game scene.
@@ -100,6 +93,13 @@ namespace term_engine::objects {
      */
     rendering::CharacterMap* GetCharacterMap();
 
+    /**
+     * @brief Returns the window handle used to render the game scene.
+     * 
+     * @returns The window handle.
+     */
+    rendering::GameWindow* GetWindow();
+
     /// @brief Sets the 'Is Dirty' flag.
     void Dirty();
 
@@ -116,7 +116,7 @@ namespace term_engine::objects {
     /// @brief Unsets the removal flag from the game scene.
     void UnflagRemoval();
 
-  private:
+  protected:
     /// @brief The name of the game scene.
     std::string name_;
     /// @brief A handle to the window the game scene renders to.
@@ -130,7 +130,7 @@ namespace term_engine::objects {
     /// @brief The buffer containing vertex data for backgrounds.
     rendering::Buffer background_buffer_;
     /// @brief The font atlas used to render characters to the game scene.
-    rendering::FontAtlas font_atlas_;
+    rendering::FontAtlasPtr font_atlas_;
     /// @brief The shader program used to render background elements to the game scene.
     rendering::ShaderProgram background_shader_program_;
     /// @brief The shader program used to render text elements to the game scene.
@@ -157,13 +157,15 @@ namespace term_engine::objects {
     OBJECT_PROXY_GETTER(GameScene, GetObjectType, std::string)
     OBJECT_PROXY_GETTER(GameScene, GetName, std::string)
     OBJECT_PROXY_GETTER_PTR(GameScene, GetWindow, rendering::GameWindow)
-    OBJECT_PROXY_GETTER_PTR(GameScene, GetFontAtlas, rendering::FontAtlas)
+    OBJECT_PROXY_GETTER(GameScene, GetFontAtlas, rendering::FontAtlasPtr)
     OBJECT_PROXY_GETTER_PTR(GameScene, GetBackground, rendering::Background)
     OBJECT_PROXY_GETTER_PTR(GameScene, GetBackgroundShader, rendering::ShaderProgram)
     OBJECT_PROXY_GETTER_PTR(GameScene, GetTextShader, rendering::ShaderProgram)
     OBJECT_PROXY_GETTER_PTR(GameScene, GetCharacterMap, rendering::CharacterMap)
     OBJECT_PROXY_CALLER(GameScene, FlagRemoval)
     OBJECT_PROXY_CALLER(GameScene, UnflagRemoval)
+
+    void ResizeToFit() const;
   };
 
   /**

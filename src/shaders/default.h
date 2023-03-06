@@ -20,7 +20,6 @@ namespace term_engine::shaders {
   constexpr char TEXT_FRAG_GLSL[] = 
   "#version 440 core\n"
   "out vec4 fragment_colour;\n"
-  "uniform int is_text;\n"
   "uniform sampler2D fragment_texture;\n"
   "in FS_DATA\n"
   "{\n"
@@ -30,9 +29,7 @@ namespace term_engine::shaders {
   "void main()\n"
   "{\n"
   " fragment_colour = fs_data.colour;\n"
-  " if (is_text > 0.0) {\n"
-  "  fragment_colour.w *= texture(fragment_texture, fs_data.texture_position).r;\n"
-  " }\n"
+  " fragment_colour.w *= texture(fragment_texture, fs_data.texture_position).r;\n"
   "}";
 
   constexpr char BACKGROUND_FRAG_GLSL[] = 

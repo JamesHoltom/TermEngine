@@ -7,72 +7,85 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include "../utility/DebugUtils.h"
 #include "../utility/SpdlogUtils.h"
 
 #define OBJECT_PROXY_GETTER(P, F, R) \
   std::optional<R> F() const \
   { \
-    if (ptr_.expired()) \
-    { \
+    std::shared_ptr<P> objPtr = std::dynamic_pointer_cast<P>(ptr_.lock()); \
+    if (objPtr) { \
+      R retVal = objPtr->F(); \
+      objPtr.reset(); \
+      return retVal; \
+    } else { \
       utility::logger->warn("Cannot return value from a removed object!"); \
       return std::nullopt; \
     } \
-    return std::dynamic_pointer_cast<P>(ptr_.lock())->F(); \
   }
 
 #define OBJECT_PROXY_GETTER_PTR(P, F, R) \
   R* F() const \
   { \
-    if (ptr_.expired()) \
-    { \
+    std::shared_ptr<P> objPtr = std::dynamic_pointer_cast<P>(ptr_.lock()); \
+    if (objPtr) { \
+      R* retVal = objPtr->F(); \
+      objPtr.reset(); \
+      return retVal; \
+    } else { \
       utility::logger->warn("Cannot return value from a removed object!"); \
       return nullptr; \
     } \
-    return std::dynamic_pointer_cast<P>(ptr_.lock())->F(); \
   }
 
 #define OBJECT_PROXY_SETTER(P, F, S) \
   void F(const S& value) const \
   { \
-    if (ptr_.expired()) \
-    { \
+    std::shared_ptr<P> objPtr = std::dynamic_pointer_cast<P>(ptr_.lock()); \
+    if (objPtr) { \
+      objPtr->F(value); \
+      objPtr.reset(); \
+    } else { \
       utility::logger->warn("Cannot set value on a removed object!"); \
-      return; \
     } \
-    std::dynamic_pointer_cast<P>(ptr_.lock())->F(value); \
   }
 
 #define OBJECT_PROXY_CALLER(P, F) \
   void F() const \
   { \
-    if (ptr_.expired()) \
-    { \
+    std::shared_ptr<P> objPtr = std::dynamic_pointer_cast<P>(ptr_.lock()); \
+    if (objPtr) { \
+      objPtr->F(); \
+      objPtr.reset(); \
+    } else { \
       utility::logger->warn("Cannot call function for a removed object!"); \
-      return; \
     } \
-    std::dynamic_pointer_cast<P>(ptr_.lock())->F(); \
   }
 
 #define OBJECT_PROXY_CALLER_WITH_PARAM(P, F, T) \
   void F(const T& value) const \
   { \
-    if (ptr_.expired()) \
-    { \
+    std::shared_ptr<P> objPtr = std::dynamic_pointer_cast<P>(ptr_.lock()); \
+    if (objPtr) { \
+      objPtr->F(value); \
+      objPtr.reset(); \
+    } else { \
       utility::logger->warn("Cannot call function for a removed object!"); \
-      return; \
     } \
-    std::dynamic_pointer_cast<P>(ptr_.lock())->F(value); \
   }
 
 #define OBJECT_PROXY_CALLER_WITH_PARAM_AND_RETURN(P, F, R, T) \
   std::optional<R> F(const T& value) const \
   { \
-    if (ptr_.expired()) \
-    { \
+    std::shared_ptr<P> objPtr = std::dynamic_pointer_cast<P>(ptr_.lock()); \
+    if (objPtr) { \
+      R retVal = objPtr->F(value); \
+      objPtr.reset(); \
+      return retVal; \
+    } else { \
       utility::logger->warn("Cannot call function for a removed object!"); \
       return std::nullopt; \
     } \
-    return std::dynamic_pointer_cast<P>(ptr_.lock())->F(value); \
   }
 
 namespace term_engine::objects {
@@ -100,7 +113,6 @@ namespace term_engine::objects {
 
     /**
      * @brief Default logic to destroy a base object.
-     * @details Required to be virtual to enforce only the construction of derived classes.
      */
     virtual ~BaseObject() {}
 
@@ -143,13 +155,15 @@ namespace term_engine::objects {
      */
     void SetActive(const bool& flag);
 
+    utility::ObjectDebugInfoWeakPtr debug_info_;
+
   protected:
     /// @brief The ID of the object.
-    std::size_t object_id_;
+    size_t object_id_;
     /// @brief Is the object active? (i.e. Is the object being rendered and acted on?)
     bool is_active_;
     /// @brief Represents the ID to use for the next object.
-    static std::size_t object_next_id_;
+    static size_t object_next_id_;
   };
 
   /**
@@ -207,6 +221,9 @@ namespace term_engine::objects {
    * @details The order of sorted objects follows the _ObjectSortPriority_ enumeration.
    */
   void SortObjects();
+
+
+  void UpdateObjects();
 
   /**
    * @brief Removes an object from the list.

@@ -98,7 +98,7 @@ namespace term_engine::rendering {
         uniform.location_ = i;
         uniform.name_ = std::string(uniform_name, name_len);
 
-        delete uniform_name;
+        delete[] uniform_name;
 
         uniforms_.push_back(uniform);
 

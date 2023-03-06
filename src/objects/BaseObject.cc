@@ -4,11 +4,12 @@ namespace term_engine::objects {
   bool is_object_list_dirty_ = false;
   ObjectList object_list_;
 
-  std::size_t BaseObject::object_next_id_ = 0;
+  size_t BaseObject::object_next_id_ = 0;
 
   BaseObject::BaseObject() :
     object_id_(object_next_id_++),
-    is_active_(true)
+    is_active_(true),
+    debug_info_()
   {}
 
   size_t BaseObject::GetObjectId() const
@@ -56,6 +57,25 @@ namespace term_engine::objects {
       });
 
       is_object_list_dirty_ = false;
+    }
+  }
+
+  void UpdateObjects() 
+  {
+    timing::Timer update_timer;
+    update_timer.Start();
+
+    for (ObjectPtr& object : object_list_)
+    {
+      object->Update();
+
+      utility::ObjectDebugInfoPtr ptr = object->debug_info_.lock();
+      
+      if (ptr)
+      {
+        ptr->ptr_uses_ = object.use_count();
+        ptr->update_time_ = update_timer.GetIntervalElapsedMs();
+      }
     }
   }
 

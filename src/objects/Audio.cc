@@ -13,6 +13,8 @@ namespace term_engine::objects {
     position_(glm::vec2(0.0f)),
     volume_(1.0f)
   {
+    debug_info_ = utility::AddDebugInfo(GetObjectType() + " " + std::to_string(GetObjectId()));
+    
     utility::logger->debug("Created audio resource with ID {} at {}.", object_id_, filepath.string());
 
     if (ma_sound_init_from_file(&utility::engine, filepath.c_str(), flag, nullptr, nullptr, &sound_) != MA_SUCCESS)
@@ -25,7 +27,9 @@ namespace term_engine::objects {
   {
     ma_sound_uninit(&sound_);
 
-    utility::logger->debug("Created audio resource with ID {}.", object_id_);
+    utility::RemoveDebugInfo(debug_info_);
+
+    utility::logger->debug("Destroyed audio resource with ID {}.", object_id_);
   }
 
   void Audio::Update()

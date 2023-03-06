@@ -21,13 +21,11 @@ namespace term_engine::rendering {
      * 
      * @param[in] position          The position of the vertex.
      * @param[in] texture_position  The position of the texture.
-     * @param[in] texture_id        The ID of the texture.
      * @param[in] colour            The colour to render the vertex/texture with.
      */
-    BufferData(const glm::vec2& position, const glm::vec2& texture_position, const GLint& texture_id, const glm::vec4& colour) :
+    BufferData(const glm::vec2& position, const glm::vec2& texture_position, const glm::vec4& colour) :
       position_(position),
       texture_position_(texture_position),
-      texture_id_(texture_id),
       colour_(colour / 255.0f) {}
 
     /**
@@ -40,15 +38,12 @@ namespace term_engine::rendering {
     friend std::ostream& operator<<(std::ostream& os, const BufferData& data) {
       return os << std::endl
         << "Vertex position: " << data.position_.x << ", " << data.position_.y << std::endl
-        << "Texture ID: " << data.texture_id_ << std::endl
         << "Texture position: " << data.texture_position_.x << ", " << data.texture_position_.y << std::endl
         << "Colour: " << data.colour_.r << ", " << data.colour_.g << ", " << data.colour_.b << ", " << data.colour_.a << std::endl;
     }
 
     /// @brief The position of the vertex.
     glm::vec2 position_;
-    /// @brief The ID of the texture to render.
-    GLint texture_id_;
     /// @brief The position of the texture.
     glm::vec2 texture_position_;
     /// @brief The colour to render the vertex/texture with.

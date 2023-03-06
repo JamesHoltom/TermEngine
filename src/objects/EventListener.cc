@@ -10,12 +10,17 @@ namespace term_engine::objects {
     type_(type),
     callback_(sol::make_reference<sol::function>((*scripting::lua_state), callback))
   {
+    debug_info_ = utility::AddDebugInfo(GetObjectType() + " " + std::to_string(GetObjectId()));
+    
     utility::logger->debug("Created event listener with ID {} and type {}.", object_id_, type);
   }
 
   EventListener::~EventListener()
   {
     callback_ = sol::nil;
+    
+    utility::RemoveDebugInfo(debug_info_);
+
     utility::logger->debug("Destroyed event listener with ID {} and type {}.", object_id_, type_);
   }
 

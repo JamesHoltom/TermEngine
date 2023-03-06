@@ -1,10 +1,18 @@
-local timingText, timingValue
+local timingText, timingValue, fpsText, debugText
 
 function Init()
-  timingText = TextObject(defaultScene(), Values.IVEC2_ONE, ivec2(20, 2))
+  fps.target = 60
+
+  defaultScene.charmap.size = ivec2(32, 19)
+  defaultScene:resizeToFit()
+
+  timingText = TextObject(Values.IVEC2_ONE, ivec2(20, 2))
   timingText.text = "This text changes as time progresses!"
 
   timingValue = 0.0
+
+  fpsText = TextObject(ivec2(24, 0), ivec2(8, 1))
+  debugText = TextObject(ivec2(0, 3), ivec2(32, 16))
 
   return true
 end
@@ -16,6 +24,7 @@ function Loop(timestep)
   local bgValueG = (math.cos(timingValue) * 127.5) + 127.5
   local bgValueB = (math.sin(timingValue) * 127.5) + 127.5
 
-  timingText.fg_colour = vec4(vec3(255.0), fgValue)
-  timingText.bg_colour = vec4(bgValueR, bgValueG, bgValueB, 255.0) 
+  timingText.bg_colour = vec4(bgValueR, bgValueG, bgValueB, 255.0)
+  fpsText.text = fps.getAverage()
+  debugText.text = getDebugInfo()
 end

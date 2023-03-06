@@ -87,7 +87,8 @@ namespace term_engine::scripting::bindings {
       "textShader", sol::readonly_property(&objects::GameSceneProxy::GetTextShader),
       "window", sol::readonly_property(&objects::GameSceneProxy::GetWindow),
       "close", &objects::GameSceneProxy::FlagRemoval,
-      "preventClose", &objects::GameSceneProxy::UnflagRemoval);
+      "preventClose", &objects::GameSceneProxy::UnflagRemoval,
+      "resizeToFit", &objects::GameSceneProxy::ResizeToFit);
     
     state.new_usertype<objects::TimedFunctionProxy>(
       "TimedFunction",
@@ -127,15 +128,14 @@ namespace term_engine::scripting::bindings {
       "CharacterMap",
       sol::meta_function::construct, sol::no_constructor,
       "position", sol::property(&rendering::CharacterMap::GetPosition, &rendering::CharacterMap::SetPosition),
-      "size", sol::property(&rendering::CharacterMap::GetSize, &rendering::CharacterMap::SetSize));
+      "size", sol::property(&rendering::CharacterMap::GetSize, &rendering::CharacterMap::SetSize),
+      "fontSize", sol::property(&rendering::CharacterMap::GetFontSize, &rendering::CharacterMap::SetFontSize));
     
     state.new_usertype<rendering::FontAtlas>(
       "FontAtlas",
       sol::meta_function::construct, sol::no_constructor,
-      "filepath", sol::readonly_property(&rendering::FontAtlas::GetFilepath),
-      "fontSize", sol::readonly_property(&rendering::FontAtlas::GetFontSize),
-      "characterSize", sol::property(&rendering::FontAtlas::GetCharacterSize, &rendering::FontAtlas::SetCharacterSize),
-      "resetCharacterSize", &rendering::FontAtlas::ResetCharacterSize);
+      "filepath", sol::readonly_property(&rendering::FontAtlas::GetFilePath),
+      "characterSize", &rendering::FontAtlas::GetCharacterSize);
 
     state.new_usertype<rendering::ShaderProgram>(
       "ShaderProgram",

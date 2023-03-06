@@ -24,7 +24,7 @@ namespace term_engine::rendering {
 
     if (is_loaded_)
     {
-      utility::logger->debug("Created background with {}x{} image {} at ID {}.", size_.x, size_.y, filepath.string(), texture_.texture_id_);
+      utility::logger->debug("Created background with {}x{} image \"{}\" at texture ID {}.", size_.x, size_.y, filepath.string(), texture_.texture_id_);
     }
     else
     {
@@ -39,7 +39,7 @@ namespace term_engine::rendering {
       DeleteTexture(texture_);
     }
 
-    utility::logger->debug("Removed background.");
+    utility::logger->debug("Destroyed background with image \"{}\".", filepath_.string());
   }
 
   glm::ivec2 Background::GetPosition() const
@@ -125,9 +125,9 @@ namespace term_engine::rendering {
       * | \
       * 3--2
       */
-      buffer.data.push_back(rendering::BufferData(glm::vec2(position_), glm::vec2(), texture_.texture_id_, normalised_colour));
-      buffer.data.push_back(rendering::BufferData(glm::vec2(position_ + size_), glm::vec2(1.0f), texture_.texture_id_, normalised_colour));
-      buffer.data.push_back(rendering::BufferData(glm::vec2(position_.x, position_.y + size_.y), glm::vec2(0.0f, 1.0f), texture_.texture_id_, normalised_colour));
+      buffer.data.push_back(rendering::BufferData(glm::vec2(position_), glm::vec2(), normalised_colour));
+      buffer.data.push_back(rendering::BufferData(glm::vec2(position_ + size_), glm::vec2(1.0f), normalised_colour));
+      buffer.data.push_back(rendering::BufferData(glm::vec2(position_.x, position_.y + size_.y), glm::vec2(0.0f, 1.0f), normalised_colour));
 
       /* Draw order:
       * 1--2
@@ -135,9 +135,9 @@ namespace term_engine::rendering {
       *   \|
       *    3
       */
-      buffer.data.push_back(rendering::BufferData(glm::vec2(position_), glm::vec2(), texture_.texture_id_, normalised_colour));
-      buffer.data.push_back(rendering::BufferData(glm::vec2(position_.x + size_.x, position_.y), glm::vec2(1.0f, 0.0f), texture_.texture_id_, normalised_colour));
-      buffer.data.push_back(rendering::BufferData(glm::vec2(position_ + size_), glm::vec2(1.0f), texture_.texture_id_, normalised_colour));
+      buffer.data.push_back(rendering::BufferData(glm::vec2(position_), glm::vec2(), normalised_colour));
+      buffer.data.push_back(rendering::BufferData(glm::vec2(position_.x + size_.x, position_.y), glm::vec2(1.0f, 0.0f), normalised_colour));
+      buffer.data.push_back(rendering::BufferData(glm::vec2(position_ + size_), glm::vec2(1.0f), normalised_colour));
     }
   }
 
