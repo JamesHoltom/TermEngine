@@ -17,7 +17,7 @@ namespace term_engine::system {
   {
 #ifdef linux
     char szPath[PATH_MAX];
-    ssize_t count = readlink( "/proc/self/exe", szPath, PATH_MAX );
+    long count = readlink( "/proc/self/exe", szPath, PATH_MAX );
 
     if( count < 0 || count >= PATH_MAX )
     {
@@ -77,7 +77,6 @@ namespace term_engine::system {
 #endif
       rootPath,
       rootPath / "resources",
-      // TODO: Make the project path available here. Perhaps finish project-related code and make it available there?
       project_path,
       project_path / "resources"
     };
@@ -132,7 +131,7 @@ namespace term_engine::system {
     }
   }
 
-  void WriteFile(const std::string& filename, const std::string& data, const bool& append)
+  void WriteFile(const std::string& filename, const std::string& data, bool append)
   {
     if (filename == "")
     {

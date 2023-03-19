@@ -3,7 +3,10 @@
 #ifndef DEBUG_FUNCTIONS_H
 #define DEBUG_FUNCTIONS_H
 
+#include <algorithm>
+#include <iomanip>
 #include <memory>
+#include <sstream>
 #include <string>
 #include <vector>
 #include <SDL2/SDL.h>
@@ -11,29 +14,66 @@
 
 namespace term_engine::utility {
 
-  enum DebugSceneMenuOption { TIMING = 0, PTR_USAGE = 1, FLAGS = 2 };
+  enum DebugSceneMenuOption { TIMING = 0 };
 
   struct ObjectDebugInfo;
+  struct InfoItem;
+  struct ObjectDebugInfoDeleter;
 
-  typedef std::shared_ptr<ObjectDebugInfo> ObjectDebugInfoPtr;
+  typedef std::unique_ptr<ObjectDebugInfo, ObjectDebugInfoDeleter> ObjectDebugInfoPtr;
 
-  typedef std::weak_ptr<ObjectDebugInfo> ObjectDebugInfoWeakPtr;
+  typedef std::vector<InfoItem> DebugInfoSubList;
+  typedef std::vector<ObjectDebugInfo*> DebugInfoList;
 
-  typedef std::vector<ObjectDebugInfoPtr> DebugInfoList;
+  struct InfoItem {
+    std::string name_;
+    uint64_t total_time_;
+    uint32_t indent_;
+
+    InfoItem(const std::string& name, uint32_t indent) :
+      name_(name),
+      total_time_(0),
+      indent_(indent)
+    {}
+
+    std::string ToString() const;
+  };
 
   struct ObjectDebugInfo {
-    std::string name_;
-    long ptr_uses_;
-    uint64_t update_time_;
+    InfoItem main_item_;
+    timing::Timer timer_;
+    DebugInfoSubList sub_list_;
 
     ObjectDebugInfo(const std::string& name) :
-      name_(name)
+      main_item_(name, 0)
     {}
+
+    void AddSubItem(const std::string& name, uint32_t indent);
+
+    void Start();
+
+    void Interval(int interval_index = 0);
+
+    std::string ToString() const;
+
+    uint64_t GetLineCount() const;
   };
 
   extern DebugInfoList debug_info_list;
-  extern DebugSceneMenuOption menu_option;
-  extern size_t current_line;
+
+  struct ObjectDebugInfoDeleter {
+    void operator()(ObjectDebugInfo* ptr) const
+    {
+      DebugInfoList::iterator it = std::find(debug_info_list.begin(), debug_info_list.end(), ptr);
+
+      if (it != debug_info_list.end())
+      {
+        debug_info_list.erase(it);
+      }
+
+      delete ptr;
+    }
+  };
 
   /**
    * @brief Logs any keyboard-related events in an _SDL_Event_ object.
@@ -55,11 +95,13 @@ namespace term_engine::utility {
   /// @brief Logs information about the currently bound VBO.
   void LogVBOData();
 
-  ObjectDebugInfoWeakPtr AddDebugInfo(const std::string& name);
+  ObjectDebugInfoPtr AddDebugInfo(const std::string& name);
 
-  void RemoveDebugInfo(const ObjectDebugInfoWeakPtr& ptr);
+  std::string GetDebugInfo(DebugSceneMenuOption option, uint64_t line);
 
-  std::string GetDebugInfo();
+  uint64_t GetDebugInfoCount();
+
+  uint64_t GetDebugInfoLines();
 }
 
 #endif // ! DBEUG_FUNCTIONS_H

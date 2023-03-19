@@ -6,7 +6,7 @@
 #include "SpdlogUtils.h"
 
 namespace term_engine::utility {
-  void GLAPIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const char* message, const void* userParam)
+  void GLAPIENTRY glDebugOutput(uint32_t source, uint32_t type, uint32_t id, uint32_t severity, int length, const char* message, const void* userParam)
   {
     // Ignore non-significant error/warning codes
     if (id == 131169 || id == 131185 || id == 131218 || id == 131204) {
@@ -89,7 +89,7 @@ namespace term_engine::utility {
     return true;
   }
 
-  void PrintProgramLog(const GLuint& program_id)
+  void PrintProgramLog(uint32_t program_id)
   {
     if (glIsProgram(program_id))
     {
@@ -98,7 +98,7 @@ namespace term_engine::utility {
 
       glGetProgramiv(program_id, GL_INFO_LOG_LENGTH, &max_log_length);
 
-      GLchar* info_log = new char[max_log_length];
+      char* info_log = new char[max_log_length];
 
       glGetProgramInfoLog(program_id, max_log_length, &log_length, info_log);
 
@@ -119,18 +119,18 @@ namespace term_engine::utility {
     }
   }
 
-  void PrintStageLog(const GLuint& shader_id)
+  void PrintStageLog(uint32_t shader_id)
   {
     if (glIsShader(shader_id))
     {
-      GLint log_length;
-      GLint max_log_length;
-      GLint shader_type;
+      int log_length;
+      int max_log_length;
+      int shader_type;
 
       glGetShaderiv(shader_id, GL_INFO_LOG_LENGTH, &max_log_length);
       glGetShaderiv(shader_id, GL_SHADER_TYPE, &shader_type);
 
-      GLchar* info_log = new char[max_log_length];
+      char* info_log = new char[max_log_length];
 
       glGetShaderInfoLog(shader_id, max_log_length, &log_length, info_log);
 
@@ -151,9 +151,9 @@ namespace term_engine::utility {
     }
   }
 
-  ShaderProcessResult LinkShaderProgram(const GLuint& program_id)
+  ShaderProcessResult LinkShaderProgram(uint32_t program_id)
   {
-    GLint program_linked = GL_FALSE;
+    int program_linked = GL_FALSE;
 
     glLinkProgram(program_id);
     glGetProgramiv(program_id, GL_LINK_STATUS, &program_linked);
@@ -168,11 +168,11 @@ namespace term_engine::utility {
     return ShaderProcessResult(program_id, program_linked);
   }
 
-  ShaderProcessResult CompileShaderStage(const std::string& glsl_code, const GLenum& type)
+  ShaderProcessResult CompileShaderStage(const std::string& glsl_code, uint32_t type)
   {
-    GLint shader_compiled = GL_FALSE;
-    const GLuint shader_id = glCreateShader(type);
-    const GLchar* source_c_string = { glsl_code.c_str() };
+    int shader_compiled = GL_FALSE;
+    uint32_t shader_id = glCreateShader(type);
+    const char* source_c_string = { glsl_code.c_str() };
 
     glShaderSource(shader_id, 1, &source_c_string, nullptr);
     glCompileShader(shader_id);
@@ -188,7 +188,7 @@ namespace term_engine::utility {
     return ShaderProcessResult(shader_id, shader_compiled);
   }
 
-  std::string GetShaderTypeName(const GLenum& type)
+  std::string GetShaderTypeName(uint32_t type)
   {
     std::string result = "unknown";
 

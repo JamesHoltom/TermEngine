@@ -3,7 +3,7 @@
 #include "../utility/SpdlogUtils.h"
 
 namespace term_engine::objects {
-  TimedFunction::TimedFunction(const int& delay, const bool& repeat, const sol::function callback) :
+  TimedFunction::TimedFunction(uint64_t delay, bool repeat, const sol::function callback) :
     BaseObject(),
     delay_(delay),
     repeat_(repeat),
@@ -18,14 +18,15 @@ namespace term_engine::objects {
   TimedFunction::~TimedFunction()
   {
     callback_ = sol::nil;
-
-    utility::RemoveDebugInfo(debug_info_);
+    debug_info_.reset();
 
     utility::logger->debug("Removed timed function with ID {}.", object_id_);
   }
 
   void TimedFunction::Update()
   {
+    debug_info_->Start();
+
     if (is_active_)
     {
       if (!timer_.IsStarted())
@@ -73,6 +74,8 @@ namespace term_engine::objects {
         timer_.Stop();
       }
     }
+
+    debug_info_->Interval();
   }
 
   std::string TimedFunction::GetObjectType() const
@@ -85,7 +88,7 @@ namespace term_engine::objects {
     return ObjectSortPriority::TIMED_FUNCTION;
   }
 
-  int TimedFunction::GetDelay() const
+  uint64_t TimedFunction::GetDelay() const
   {
     return delay_;
   }
@@ -95,21 +98,14 @@ namespace term_engine::objects {
     return repeat_;
   }
 
-  int TimedFunction::GetTimesRepeated() const
+  uint32_t TimedFunction::GetTimesRepeated() const
   {
     return times_repeated_;
   }
 
-  TimedFunctionProxy::TimedFunctionProxy(const ObjectPtr& object) :
-    BaseProxy(object)
-  {}
-
-  TimedFunctionProxy::~TimedFunctionProxy()
-  {}
-
-  TimedFunctionProxy AddTimedFunction(const int& delay, const bool& repeat, const sol::function callback)
+  TimedFunction* AddTimedFunction(uint64_t delay, bool repeat, const sol::function callback)
   {
-    int set_delay = delay;
+    int64_t set_delay = delay;
 
     if (delay < 0)
     {
@@ -120,12 +116,17 @@ namespace term_engine::objects {
 
     is_object_list_dirty_ = true;
 
-    return TimedFunctionProxy(object_list_.emplace_front(std::make_shared<TimedFunction>(set_delay, repeat, callback)));
+    object_list_.emplace_front(std::make_unique<TimedFunction>(set_delay, repeat, callback));
+
+    return static_cast<TimedFunction*>(object_list_.front().get());
   }
 
   void ClearAllTimedFunctions()
   {
-    object_list_.remove_if([](const ObjectPtr& object) { return object->GetObjectType() == std::string(TIMED_FUNCTION_TYPE); });
+    object_list_.remove_if([](const ObjectPtr& object)
+    {
+      return object->GetObjectType() == std::string(TIMED_FUNCTION_TYPE);
+    });
 
     utility::logger->debug("Cleared all timed functions from the list.");
   }

@@ -17,6 +17,8 @@ namespace term_engine::rendering {
   /// @brief The default clear colour to use when refreshing the window.
   constexpr glm::vec4 DEFAULT_WINDOW_CLEAR_COLOUR(0.0f, 0.0f, 0.0f, 255.0f);
 
+  enum CloseLogic { HIDE = 0, CLOSE = 1, QUIT = 2 };
+
   class GameWindow {
   public:
     /// @brief Constructs the window with the default parameters.
@@ -29,7 +31,7 @@ namespace term_engine::rendering {
      * @param[in] size      The size of the window, in pixels (px).
      * @param[in] title     The title of the window.
      */
-    GameWindow(const glm::ivec2& position, const glm::ivec2& size, const std::string& title, const Uint32& flags);
+    GameWindow(const glm::ivec2& position, const glm::ivec2& size, const std::string& title, uint32_t flags);
 
     /// @brief Destroys the window.
     ~GameWindow();
@@ -39,7 +41,7 @@ namespace term_engine::rendering {
      * 
      * @returns The window ID.
      */
-    Uint32 GetId() const;
+    uint32_t GetId() const;
 
     /**
      * @brief Returns the position of the window.
@@ -68,6 +70,9 @@ namespace term_engine::rendering {
      * @returns The clear colour of the window.
      */
     glm::vec4 GetClearColour() const;
+
+
+    CloseLogic GetCloseBehaviour() const;
 
     /**
      * @brief Returns if the window can be resized by the player.
@@ -122,13 +127,6 @@ namespace term_engine::rendering {
     void SetSize(const glm::ivec2& size) const;
     
     /**
-     * @brief Sets the clear colour of the window.
-     * 
-     * @param[in] colour The clear colour to use.
-     */
-    void SetClearColour(const glm::vec4& colour);
-
-    /**
      * @brief Sets the title of the window.
      * 
      * @param[in] title The title to set.
@@ -136,11 +134,21 @@ namespace term_engine::rendering {
     void SetTitle(const std::string& title) const;
     
     /**
+     * @brief Sets the clear colour of the window.
+     * 
+     * @param[in] colour The clear colour to use.
+     */
+    void SetClearColour(const glm::vec4& colour);
+
+
+    void SetCloseBehaviour(CloseLogic behaviour);
+
+    /**
      * @brief Sets if the window can be resized by the player.
      * 
      * @param[in] flag The value to set.
      */
-    void SetResizable(const bool& flag) const;
+    void SetResizable(bool flag) const;
     
     /// @brief Minimises the window.
     void Minimise() const;
@@ -162,10 +170,10 @@ namespace term_engine::rendering {
      * 
      * @param[in] flag Whether the window should grab the mouse or not.
      */
-    void SetMouseGrab(const bool& flag) const;
+    void SetMouseGrab(bool flag) const;
     
     /// @brief Disables wireframe rendering.
-    void SetWireframe(const bool& flag);
+    void SetWireframe(bool flag);
 
     void Use() const;
 
@@ -189,7 +197,7 @@ namespace term_engine::rendering {
      * 
      * @param[in] flag Whether to enable or disable vsync.
      */
-    static void SetVsync(const GLint& flag);
+    static void SetVsync(int flag);
 
     /// @brief Removes the OpenGL context for the window.
     static void CleanUpContext();
@@ -202,17 +210,16 @@ namespace term_engine::rendering {
     /// @brief The colour to use for setting when clearing the window after every frame.
     glm::vec4 clear_colour_;
     /// @brief Whether to use wireframe rendering or not.
-    GLuint render_mode_;
+    uint32_t render_mode_;
+
+    CloseLogic close_logic_;
 
     /// @brief Flag used to indicate if an OpenGL context has been created. This is used to initialise GLEW when one is available.
     static bool is_context_created_;
     /// @brief The OpenGL context to bind windows to.
     static SDL_GLContext context_;
     /// @brief Whether Vsync is enabled/disabled.
-    static GLint vsync_flag_;
-
-    /// @brief Initialises the window.
-    void SetUpWindow(const glm::ivec2& position, const glm::ivec2& size, const Uint32& flags);
+    static int vsync_flag_;
   };
 }
 

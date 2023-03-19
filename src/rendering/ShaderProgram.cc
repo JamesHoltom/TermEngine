@@ -12,6 +12,8 @@ namespace term_engine::rendering {
     shader_geom_id_(0)
   {
     program_id_ = glCreateProgram();
+
+    utility::logger->debug("Created shader program with ID {}.", program_id_);
   }
 
   ShaderProgram::~ShaderProgram()
@@ -23,7 +25,7 @@ namespace term_engine::rendering {
     glDeleteProgram(program_id_);
   }
 
-  GLuint ShaderProgram::GetProgramId() const
+  uint32_t ShaderProgram::GetProgramId() const
   {
     return program_id_;
   }
@@ -33,14 +35,14 @@ namespace term_engine::rendering {
     return is_linked_;
   }
 
-  void ShaderProgram::AttachFile(const std::filesystem::path& filepath, const GLenum& type)
+  void ShaderProgram::AttachFile(const std::filesystem::path& filepath, uint32_t type)
   {
     const std::string glsl_code = system::ReadFile(filepath);
 
     AttachString(glsl_code, type);
   }
 
-  void ShaderProgram::AttachString(const std::string& glsl_code, const GLenum& type)
+  void ShaderProgram::AttachString(const std::string& glsl_code, uint32_t type)
   {
     if (glsl_code != "")
     {
@@ -80,18 +82,18 @@ namespace term_engine::rendering {
 
       is_linked_ = true;
 
-      GLint count, max_len;
+      int count, max_len;
 
       glGetProgramiv(program_id_, GL_ACTIVE_UNIFORMS, &count);
       glGetProgramiv(program_id_, GL_ACTIVE_UNIFORM_MAX_LENGTH, &max_len);
 
       uniforms_.reserve(count);
 
-      for (GLuint i = 0; i < count; ++i)
+      for (int i = 0; i < count; ++i)
       {
         Uniform uniform;
-        GLchar* uniform_name = new GLchar[max_len];
-        GLint name_len;
+        char* uniform_name = new char[max_len];
+        int name_len;
 
         glGetActiveUniform(program_id_, i, max_len, &name_len, &uniform.count_, &uniform.type_, uniform_name);
 
@@ -143,7 +145,7 @@ namespace term_engine::rendering {
   }
 
   template<>
-  void ShaderProgram::SetUniform(const std::string& name, const GLfloat& data) const
+  void ShaderProgram::SetUniform(const std::string& name, float data) const
   {
     if (!is_linked_)
     {
@@ -154,7 +156,7 @@ namespace term_engine::rendering {
 
     Use();
 
-    const GLint location = glGetUniformLocation(program_id_, name.c_str());
+    const int location = glGetUniformLocation(program_id_, name.c_str());
 
     if (location == -1)
     {
@@ -167,7 +169,7 @@ namespace term_engine::rendering {
   }
 
   template<>
-  void ShaderProgram::SetUniform(const std::string& name, const GLint& data) const
+  void ShaderProgram::SetUniform(const std::string& name, int data) const
   {
     if (!is_linked_)
     {
@@ -178,7 +180,7 @@ namespace term_engine::rendering {
 
     Use();
 
-    const GLint location = glGetUniformLocation(program_id_, name.c_str());
+    const int location = glGetUniformLocation(program_id_, name.c_str());
 
     if (location == -1)
     {
@@ -187,11 +189,18 @@ namespace term_engine::rendering {
       return;
     }
 
-    glUniform1i(location, data);
+    if (data >= 0)
+    {
+      glUniform1i(location, data);
+    }
+    else
+    {
+      glUniform1ui(location, data);
+    }
   }
 
   template<>
-  void ShaderProgram::SetUniform(const std::string& name, const GLuint& data) const
+  void ShaderProgram::SetUniformVector(const std::string& name, const glm::vec2& data) const
   {
     if (!is_linked_)
     {
@@ -202,31 +211,7 @@ namespace term_engine::rendering {
 
     Use();
 
-    const GLint location = glGetUniformLocation(program_id_, name.c_str());
-
-    if (location == -1)
-    {
-      utility::logger->warn("Uniform \"{}\" does not exist.", name);
-
-      return;
-    }
-
-    glUniform1ui(location, data);
-  }
-
-  template<>
-  void ShaderProgram::SetUniform(const std::string& name, const glm::vec2& data) const
-  {
-    if (!is_linked_)
-    {
-      utility::logger->warn("Cannot set uniform for an unlinked shader.");
-
-      return;
-    }
-
-    Use();
-
-    const GLint location = glGetUniformLocation(program_id_, name.c_str());
+    const int location = glGetUniformLocation(program_id_, name.c_str());
 
     if (location == -1)
     {
@@ -239,7 +224,7 @@ namespace term_engine::rendering {
   }
 
   template<>
-  void ShaderProgram::SetUniform(const std::string& name, const glm::ivec2& data) const
+  void ShaderProgram::SetUniformVector(const std::string& name, const glm::ivec2& data) const
   {
     if (!is_linked_)
     {
@@ -250,7 +235,7 @@ namespace term_engine::rendering {
 
     Use();
 
-    const GLint location = glGetUniformLocation(program_id_, name.c_str());
+    const int location = glGetUniformLocation(program_id_, name.c_str());
 
     if (location == -1)
     {
@@ -263,7 +248,7 @@ namespace term_engine::rendering {
   }
 
   template<>
-  void ShaderProgram::SetUniform(const std::string& name, const glm::uvec2& data) const
+  void ShaderProgram::SetUniformVector(const std::string& name, const glm::uvec2& data) const
   {
     if (!is_linked_)
     {
@@ -274,7 +259,7 @@ namespace term_engine::rendering {
 
     Use();
 
-    const GLint location = glGetUniformLocation(program_id_, name.c_str());
+    const int location = glGetUniformLocation(program_id_, name.c_str());
 
     if (location == -1)
     {
@@ -287,7 +272,7 @@ namespace term_engine::rendering {
   }
 
   template<>
-  void ShaderProgram::SetUniform(const std::string& name, const glm::vec3& data) const
+  void ShaderProgram::SetUniformVector(const std::string& name, const glm::vec3& data) const
   {
     if (!is_linked_)
     {
@@ -298,7 +283,7 @@ namespace term_engine::rendering {
 
     Use();
 
-    const GLint location = glGetUniformLocation(program_id_, name.c_str());
+    const int location = glGetUniformLocation(program_id_, name.c_str());
 
     if (location == -1)
     {
@@ -311,7 +296,7 @@ namespace term_engine::rendering {
   }
 
   template<>
-  void ShaderProgram::SetUniform(const std::string& name, const glm::ivec3& data) const
+  void ShaderProgram::SetUniformVector(const std::string& name, const glm::ivec3& data) const
   {
     if (!is_linked_)
     {
@@ -322,7 +307,7 @@ namespace term_engine::rendering {
 
     Use();
 
-    const GLint location = glGetUniformLocation(program_id_, name.c_str());
+    const int location = glGetUniformLocation(program_id_, name.c_str());
 
     if (location == -1)
     {
@@ -335,7 +320,7 @@ namespace term_engine::rendering {
   }
 
   template<>
-  void ShaderProgram::SetUniform(const std::string& name, const glm::uvec3& data) const
+  void ShaderProgram::SetUniformVector(const std::string& name, const glm::uvec3& data) const
   {
     if (!is_linked_)
     {
@@ -346,7 +331,7 @@ namespace term_engine::rendering {
 
     Use();
 
-    const GLint location = glGetUniformLocation(program_id_, name.c_str());
+    const int location = glGetUniformLocation(program_id_, name.c_str());
 
     if (location == -1)
     {
@@ -359,7 +344,7 @@ namespace term_engine::rendering {
   }
 
   template<>
-  void ShaderProgram::SetUniform(const std::string& name, const glm::vec4& data) const
+  void ShaderProgram::SetUniformVector(const std::string& name, const glm::vec4& data) const
   {
     if (!is_linked_)
     {
@@ -370,7 +355,7 @@ namespace term_engine::rendering {
 
     Use();
 
-    const GLint location = glGetUniformLocation(program_id_, name.c_str());
+    const int location = glGetUniformLocation(program_id_, name.c_str());
 
     if (location == -1)
     {
@@ -383,7 +368,7 @@ namespace term_engine::rendering {
   }
 
   template<>
-  void ShaderProgram::SetUniform(const std::string& name, const glm::ivec4& data) const
+  void ShaderProgram::SetUniformVector(const std::string& name, const glm::ivec4& data) const
   {
     if (!is_linked_)
     {
@@ -394,7 +379,7 @@ namespace term_engine::rendering {
 
     Use();
 
-    const GLint location = glGetUniformLocation(program_id_, name.c_str());
+    const int location = glGetUniformLocation(program_id_, name.c_str());
 
     if (location == -1)
     {
@@ -407,7 +392,7 @@ namespace term_engine::rendering {
   }
 
   template<>
-  void ShaderProgram::SetUniform(const std::string& name, const glm::uvec4& data) const
+  void ShaderProgram::SetUniformVector(const std::string& name, const glm::uvec4& data) const
   {
     if (!is_linked_)
     {
@@ -418,7 +403,7 @@ namespace term_engine::rendering {
 
     Use();
 
-    const GLint location = glGetUniformLocation(program_id_, name.c_str());
+    const int location = glGetUniformLocation(program_id_, name.c_str());
 
     if (location == -1)
     {
@@ -431,7 +416,7 @@ namespace term_engine::rendering {
   }
 
   template<>
-  void ShaderProgram::SetUniformMatrix(const std::string& name, const glm::mat2& data, const GLboolean& transpose) const
+  void ShaderProgram::SetUniformMatrix(const std::string& name, const glm::mat2& data, uint8_t transpose) const
   {
     if (!is_linked_)
     {
@@ -442,7 +427,7 @@ namespace term_engine::rendering {
 
     Use();
 
-    const GLint location = glGetUniformLocation(program_id_, name.c_str());
+    const int location = glGetUniformLocation(program_id_, name.c_str());
 
     if (location == -1)
     {
@@ -455,7 +440,7 @@ namespace term_engine::rendering {
   }
 
   template<>
-  void ShaderProgram::SetUniformMatrix(const std::string& name, const glm::mat3& data, const GLboolean& transpose) const
+  void ShaderProgram::SetUniformMatrix(const std::string& name, const glm::mat3& data, uint8_t transpose) const
   {
     if (!is_linked_)
     {
@@ -466,7 +451,7 @@ namespace term_engine::rendering {
 
     Use();
 
-    const GLint location = glGetUniformLocation(program_id_, name.c_str());
+    const int location = glGetUniformLocation(program_id_, name.c_str());
 
     if (location == -1)
     {
@@ -479,7 +464,7 @@ namespace term_engine::rendering {
   }
 
   template<>
-  void ShaderProgram::SetUniformMatrix(const std::string& name, const glm::mat4& data, const GLboolean& transpose) const
+  void ShaderProgram::SetUniformMatrix(const std::string& name, const glm::mat4& data, uint8_t transpose) const
   {
     if (!is_linked_)
     {
@@ -490,7 +475,7 @@ namespace term_engine::rendering {
 
     Use();
 
-    const GLint location = glGetUniformLocation(program_id_, name.c_str());
+    const int location = glGetUniformLocation(program_id_, name.c_str());
 
     if (location == -1)
     {
@@ -503,7 +488,7 @@ namespace term_engine::rendering {
   }
 
   template<>
-  void ShaderProgram::SetUniformMatrix(const std::string& name, const glm::mat2x3& data, const GLboolean& transpose) const
+  void ShaderProgram::SetUniformMatrix(const std::string& name, const glm::mat2x3& data, uint8_t transpose) const
   {
     if (!is_linked_)
     {
@@ -514,7 +499,7 @@ namespace term_engine::rendering {
 
     Use();
 
-    const GLint location = glGetUniformLocation(program_id_, name.c_str());
+    const int location = glGetUniformLocation(program_id_, name.c_str());
 
     if (location == -1)
     {
@@ -527,7 +512,7 @@ namespace term_engine::rendering {
   }
 
   template<>
-  void ShaderProgram::SetUniformMatrix(const std::string& name, const glm::mat2x4& data, const GLboolean& transpose) const
+  void ShaderProgram::SetUniformMatrix(const std::string& name, const glm::mat2x4& data, uint8_t transpose) const
   {
     if (!is_linked_)
     {
@@ -538,7 +523,7 @@ namespace term_engine::rendering {
 
     Use();
 
-    const GLint location = glGetUniformLocation(program_id_, name.c_str());
+    const int location = glGetUniformLocation(program_id_, name.c_str());
 
     if (location == -1)
     {
@@ -551,7 +536,7 @@ namespace term_engine::rendering {
   }
 
   template<>
-  void ShaderProgram::SetUniformMatrix(const std::string& name, const glm::mat3x2& data, const GLboolean& transpose) const
+  void ShaderProgram::SetUniformMatrix(const std::string& name, const glm::mat3x2& data, uint8_t transpose) const
   {
     if (!is_linked_)
     {
@@ -562,7 +547,7 @@ namespace term_engine::rendering {
 
     Use();
 
-    const GLint location = glGetUniformLocation(program_id_, name.c_str());
+    const int location = glGetUniformLocation(program_id_, name.c_str());
 
     if (location == -1)
     {
@@ -575,7 +560,7 @@ namespace term_engine::rendering {
   }
 
   template<>
-  void ShaderProgram::SetUniformMatrix(const std::string& name, const glm::mat3x4& data, const GLboolean& transpose) const
+  void ShaderProgram::SetUniformMatrix(const std::string& name, const glm::mat3x4& data, uint8_t transpose) const
   {
     if (!is_linked_)
     {
@@ -586,7 +571,7 @@ namespace term_engine::rendering {
 
     Use();
 
-    const GLint location = glGetUniformLocation(program_id_, name.c_str());
+    const int location = glGetUniformLocation(program_id_, name.c_str());
 
     if (location == -1)
     {
@@ -599,7 +584,7 @@ namespace term_engine::rendering {
   }
 
   template<>
-  void ShaderProgram::SetUniformMatrix(const std::string& name, const glm::mat4x2& data, const GLboolean& transpose) const
+  void ShaderProgram::SetUniformMatrix(const std::string& name, const glm::mat4x2& data, uint8_t transpose) const
   {
     if (!is_linked_)
     {
@@ -610,7 +595,7 @@ namespace term_engine::rendering {
 
     Use();
 
-    const GLint location = glGetUniformLocation(program_id_, name.c_str());
+    const int location = glGetUniformLocation(program_id_, name.c_str());
 
     if (location == -1)
     {
@@ -623,7 +608,7 @@ namespace term_engine::rendering {
   }
 
   template<>
-  void ShaderProgram::SetUniformMatrix(const std::string& name, const glm::mat4x3& data, const GLboolean& transpose) const
+  void ShaderProgram::SetUniformMatrix(const std::string& name, const glm::mat4x3& data, uint8_t transpose) const
   {
     if (!is_linked_)
     {
@@ -634,7 +619,7 @@ namespace term_engine::rendering {
 
     Use();
 
-    const GLint location = glGetUniformLocation(program_id_, name.c_str());
+    const int location = glGetUniformLocation(program_id_, name.c_str());
 
     if (location == -1)
     {

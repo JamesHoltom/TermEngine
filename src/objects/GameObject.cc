@@ -2,23 +2,22 @@
 #include "../utility/SpdlogUtils.h"
 
 namespace term_engine::objects {
-  GameObject::GameObject(const GameSceneWeakPtr& game_scene, const glm::ivec2& position, const glm::ivec2& size) :
+  GameObject::GameObject(GameScene* game_scene, const glm::ivec2& position, const glm::ivec2& size) :
     BaseObject(),
     position_(position),
     size_(size),
     game_scene_(game_scene)
   {
-    size_t data_size = (size_t)size.x * (size_t)size.y;
+    const uint64_t data_size = size.x * size.y;
     data_.reserve(data_size);
     data_.resize(data_size);
-    data_.shrink_to_fit();
 
     debug_info_ = utility::AddDebugInfo(GetObjectType() + " " + std::to_string(GetObjectId()));
 
     utility::logger->debug("Created object with ID {} at {},{} with size {}x{}.", object_id_, position.x, position.y, size.x, size.y);
   }
 
-  GameObject::GameObject(const GameSceneWeakPtr& game_scene, const GameObject* object) :
+  GameObject::GameObject(GameScene* game_scene, GameObject* object) :
     BaseObject(),
     position_(object->position_),
     size_(object->size_),
@@ -33,25 +32,23 @@ namespace term_engine::objects {
 
   GameObject::~GameObject()
   {
-    utility::RemoveDebugInfo(debug_info_);
+    debug_info_.reset();
 
     utility::logger->debug("Destroyed object with ID {}.", object_id_);
   }
 
   void GameObject::Update()
   {
+    debug_info_->Start();
+
     if (is_active_ && is_dirty_)
     {
-      if (!game_scene_.expired())
-      {
-        GameScenePtr ptr = game_scene_.lock();
+      game_scene_->GetCharacterMap()->PushCharacters(position_, size_, data_);
 
-        ptr->GetCharacterMap()->PushCharacters(position_, size_, data_);
-        ptr->Dirty();
-
-        is_dirty_ = false;
-      }
+      is_dirty_ = false;
     }
+
+    debug_info_->Interval();
   }
 
   std::string GameObject::GetObjectType() const
@@ -64,7 +61,7 @@ namespace term_engine::objects {
     return ObjectSortPriority::OBJECT;
   }
 
-  GameSceneWeakPtr GameObject::GetGameScene() const
+  GameScene* GameObject::GetGameScene() const
   {
     return game_scene_;
   }
@@ -94,15 +91,14 @@ namespace term_engine::objects {
 
   void GameObject::SetSize(const glm::ivec2& size)
   {
-    size_t old_data_size = (size_t)size_.x * (size_t)size_.y;
-    size_t new_data_size = (size_t)size.x * (size_t)size.y;
+    const uint64_t old_data_size = size_.x * size_.y;
+    const uint64_t new_data_size = size.x * size.y;
 
     if (old_data_size < new_data_size) {
       data_.reserve(new_data_size);
     }
 
     data_.resize(new_data_size);
-    data_.shrink_to_fit();
 
     size_ = size;
     is_dirty_ = true;
@@ -122,54 +118,70 @@ namespace term_engine::objects {
 
   void GameObject::MoveToGameScene(const std::string& name)
   {
-    GameScenePtr ptr = std::dynamic_pointer_cast<GameScene>(GetGameSceneByName(name).lock());
+    GameScene* game_scene = GetGameSceneByName(name);
 
-    game_scene_ = ptr;
+    if (game_scene == nullptr)
+    {
+      utility::logger->warn("Cannot move game object to non-existent game scene \"{}\"!", name);
+    }
+    else
+    {
+      game_scene_ = game_scene;
+    }
   }
 
-  GameObjectProxy GameObject::CopyToGameScene(const std::string& name)
+  GameObject* GameObject::CopyToGameScene(const std::string& name)
   {
     is_object_list_dirty_ = true;
 
-    GameScenePtr game_scene = std::dynamic_pointer_cast<GameScene>(GetGameSceneByName(name).lock());
+    GameScene* game_scene = GetGameSceneByName(name);
 
-    return GameObjectProxy(object_list_.emplace_front(std::make_shared<GameObject>(game_scene, this)));
+    if (game_scene == nullptr)
+    {
+      utility::logger->warn("Cannot copy game object to non-existent game scene \"{}\"!", name);
+
+      return nullptr;
+    }
+    else
+    {
+      object_list_.emplace_front(std::make_unique<GameObject>(game_scene, this));
+
+      return static_cast<GameObject*>(object_list_.front().get());
+    }
   }
 
-  GameObjectProxy::GameObjectProxy(const ObjectPtr& object) :
-    BaseProxy(object)
-  {}
-
-  GameObjectProxy::~GameObjectProxy()
-  {}
-
-  GameObjectProxy AddGameObjectToScene(const glm::ivec2& position, const glm::ivec2& size, const std::string& name)
+  GameObject* AddGameObjectToScene(const glm::ivec2& position, const glm::ivec2& size, const std::string& name)
   {
     is_object_list_dirty_ = true;
 
-    GameScenePtr game_scene = std::dynamic_pointer_cast<GameScene>(GetGameSceneByName(name).lock());
-    
-    return GameObjectProxy(object_list_.emplace_front(std::make_shared<GameObject>(game_scene, position, size)));
+    GameScene* game_scene = GetGameSceneByName(name);
+
+    if (game_scene == nullptr)
+    {
+      utility::logger->warn("Cannot add game object for non-existent game scene \"{}\"!", name);
+
+      return nullptr;
+    }
+    else
+    {
+      object_list_.emplace_front(std::make_unique<GameObject>(game_scene, position, size));
+      
+      return static_cast<GameObject*>(object_list_.front().get());
+    }
   }
 
-  GameObjectProxy AddGameObject(const glm::ivec2& position, const glm::ivec2& size)
+  GameObject* AddGameObject(const glm::ivec2& position, const glm::ivec2& size)
   {
     return AddGameObjectToScene(position, size, "default");
   }
 
   void ClearAllObjects()
   {
-    object_list_.remove_if([](const ObjectPtr& object) { return object->GetObjectType() == std::string(GAME_OBJECT_TYPE); });
+    object_list_.remove_if([](const ObjectPtr& object)
+    {
+      return object->GetObjectType() == std::string(GAME_OBJECT_TYPE);
+    });
 
     utility::logger->debug("Cleared all objects from the list.");
-  }
-
-  void ClearObjectsByGameScene(const std::string& name)
-  {
-    GameScenePtr game_scene = std::dynamic_pointer_cast<GameScene>(GetGameSceneByName(name).lock());
-
-    object_list_.remove_if([&game_scene](const ObjectPtr& object) { return object->GetObjectType() == std::string(GAME_OBJECT_TYPE) && std::dynamic_pointer_cast<GameObject>(object)->GetGameScene().lock() == game_scene; });
-
-    utility::logger->debug("Cleared all objects for game scene \"{}\" from the list.", name);
   }
 }

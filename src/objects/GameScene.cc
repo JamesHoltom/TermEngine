@@ -6,7 +6,9 @@
 #include "../utility/SpdlogUtils.h"
 
 namespace term_engine::objects {
-  std::vector<GameSceneNamePair> name_list_;
+  std::vector<GameScene*> GameScene::scene_list_;
+
+  bool GameScene::quit_flag_ = false;
 
   GameScene::GameScene(const std::string& name) :
     BaseObject(),
@@ -14,34 +16,37 @@ namespace term_engine::objects {
     window_(rendering::DEFAULT_POSITION, rendering::DEFAULT_SIZE, std::string(rendering::DEFAULT_TITLE), 0),
     background_(),
     font_atlas_(),
+    font_size_(rendering::DEFAULT_FONT_SIZE),
     character_map_(),
     text_buffer_(),
     background_shader_program_(),
-    text_shader_program_(),
-    is_dirty_(true),
-    marked_for_removal_(false)
+    text_shader_program_()
   {
     const std::filesystem::path font_path = system::SearchForResourcePath(std::string(rendering::DEFAULT_FONT));
 
     font_atlas_ = rendering::FontAtlas::GetFontAtlas(font_path);
-    window_.SetSize(font_atlas_->GetCharacterSize(character_map_.GetFontSize()) * character_map_.GetSize());
-
-    const glm::ivec2 window_size = window_.GetSize();
-    const glm::mat4 projection = glm::ortho(0.0f, (GLfloat)window_size.x, (GLfloat)window_size.y, 0.0f);
+    window_.SetSize(font_atlas_->GetCharacterSize(font_size_) * character_map_.GetSize());
 
     background_shader_program_.AttachString(shaders::DEFAULT_VERT_GLSL, GL_VERTEX_SHADER);
     background_shader_program_.AttachString(shaders::BACKGROUND_FRAG_GLSL, GL_FRAGMENT_SHADER);
     background_shader_program_.Link();
     background_shader_program_.SetUniform("fragment_texture", 1);
-    background_shader_program_.SetUniformMatrix("projection", projection, GL_FALSE);
 
     text_shader_program_.AttachString(shaders::DEFAULT_VERT_GLSL, GL_VERTEX_SHADER);
     text_shader_program_.AttachString(shaders::TEXT_FRAG_GLSL, GL_FRAGMENT_SHADER);
     text_shader_program_.Link();
     text_shader_program_.SetUniform("fragment_texture", 0);
-    text_shader_program_.SetUniformMatrix("projection", projection, GL_FALSE);
+
+    ResetProjection();
 
     debug_info_ = utility::AddDebugInfo(GetObjectType() + " " + std::to_string(GetObjectId()));
+    debug_info_->AddSubItem("Window", 1);
+    debug_info_->AddSubItem("Font Update", 1);
+    debug_info_->AddSubItem("BG Update", 1);
+    debug_info_->AddSubItem("Text Update", 1);
+    debug_info_->AddSubItem("BG Draw", 1);
+    debug_info_->AddSubItem("Text Draw", 1);
+    debug_info_->AddSubItem("Refresh", 1);
 
     utility::logger->debug("Created game scene with ID {} and name {}.", object_id_, name);
   }
@@ -49,42 +54,62 @@ namespace term_engine::objects {
   GameScene::~GameScene()
   {
     font_atlas_.reset();
+    debug_info_.reset();
 
-    utility::RemoveDebugInfo(debug_info_);
+    scene_list_.erase(std::remove(scene_list_.begin(), scene_list_.end(), this), scene_list_.end());
 
     utility::logger->debug("Destroyed object with ID {}.", object_id_);
   }
 
   void GameScene::Update()
   {
-    if (is_active_ && is_dirty_)
+    if (is_active_)
     {
+      debug_info_->Start();
+
       window_.Use();
       window_.Clear();
 
-      background_.CopyToBuffer(background_buffer_);
-      character_map_.CopyToBuffer(text_buffer_, font_atlas_);
+      debug_info_->Interval(0);
+
       font_atlas_->UpdateTexture();
-      text_buffer_.PushToGL();
-      background_buffer_.PushToGL();
+
+      debug_info_->Interval(1);
+
+      background_buffer_.data.clear();
+      background_.CopyToBuffer(background_buffer_);
+
+      debug_info_->Interval(2);
+
+      text_buffer_.data.clear();
+      CopyCharacterMapToBuffer(character_map_, text_buffer_, font_atlas_, font_size_);
+
+      debug_info_->Interval(3);
 
       if (background_.IsLoaded())
       {
-        background_buffer_.Use();
+        background_buffer_.PushToGL();
+        
         background_.Use();
         background_shader_program_.Use();
-        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glDrawArrays(GL_TRIANGLES, 0, background_buffer_.data.size());
       }
+
+      debug_info_->Interval(4);
+
+      text_buffer_.PushToGL();
 
       text_buffer_.Use();
       font_atlas_->Use();
       text_shader_program_.Use();
 
-      glDrawArrays(GL_TRIANGLES, 0, text_buffer_.data.capacity());
+      glDrawArrays(GL_TRIANGLES, 0, text_buffer_.data.size());
+
+      debug_info_->Interval(5);
 
       window_.Refresh();
 
-      is_dirty_ = false;
+      debug_info_->Interval(6);
     }
   }
 
@@ -133,120 +158,119 @@ namespace term_engine::objects {
     return &window_;
   }
 
-  void GameScene::Dirty()
+  uint32_t GameScene::GetFontSize() const
   {
-    is_dirty_ = true;
+    return font_size_;
   }
 
-  bool GameScene::FlaggedForRemoval() const
+  void GameScene::SetFontSize(uint32_t font_size)
   {
-    return marked_for_removal_;
+    font_size_ = font_size;
+
+    ResizeToFit();
   }
 
-  void GameScene::FlagRemoval()
+  void GameScene::ResizeToFit() const
   {
-    marked_for_removal_ = true;
+    const glm::ivec2 character_size = font_atlas_->GetCharacterSize(font_size_);
+
+    window_.SetSize(character_size * character_map_.GetSize());
+
+    ResetProjection();
   }
 
-  void GameScene::UnflagRemoval()
+  void GameScene::ResetProjection() const
   {
-    marked_for_removal_ = false;
+    const glm::ivec2 window_size = window_.GetSize();
+    const glm::mat4 projection = glm::ortho(0.0f, (float)window_size.x, (float)window_size.y, 0.0f);
+    
+    background_shader_program_.SetUniformMatrix("projection", projection, GL_FALSE);
+    text_shader_program_.SetUniformMatrix("projection", projection, GL_FALSE);
   }
 
-  GameSceneProxy::GameSceneProxy(const ObjectPtr& object) :
-    BaseProxy(object)
-  {}
-
-  GameSceneProxy::~GameSceneProxy()
-  {}
-
-  void GameSceneProxy::ResizeToFit() const
-  {
-    if (ptr_.expired())
-    {
-      utility::logger->warn("Cannot call function for a removed object!");
-      return;
-    }
-
-    GameScenePtr gs_ptr = std::dynamic_pointer_cast<GameScene>(ptr_.lock());
-    const glm::ivec2 character_size = gs_ptr->GetFontAtlas()->GetCharacterSize(gs_ptr->GetCharacterMap()->GetFontSize());
-
-    gs_ptr->GetWindow()->SetPosition(character_size * gs_ptr->GetCharacterMap()->GetSize());
-
-    gs_ptr.reset();
-  }
-
-  GameSceneProxy AddGameScene(const std::string& name)
+  GameScene* AddGameScene(const std::string& name)
   {
     is_object_list_dirty_ = true;
 
-    ObjectPtr ptr = object_list_.emplace_front(std::make_shared<GameScene>(name));
+    object_list_.emplace_front(std::make_unique<GameScene>(name));
 
-    name_list_.push_back(std::make_pair(name, ptr));
-    
-    return GameSceneProxy(ptr);
+    return GameScene::scene_list_.emplace_back(static_cast<GameScene*>(object_list_.front().get()));
   }
 
-  ObjectWeakPtr GetGameSceneByName(const std::string& name)
+  GameScene* GetGameSceneByName(const std::string& name)
   {
-    for (const GameSceneNamePair& name_pair : name_list_)
+    for (GameScene* game_scene : GameScene::scene_list_)
     {
-      if (name_pair.first == name)
+      if (game_scene->GetName() == name)
       {
-        return name_pair.second;
+        return game_scene;
       }
     }
 
-    return ObjectWeakPtr();
+    return nullptr;
   }
 
-  void MarkGameSceneForRemoval(const Uint32& window_id)
+  void MarkGameSceneForRemoval(uint32_t window_id)
   {
-    for (GameSceneNamePair& game_scene : name_list_)
+    for (GameScene*& game_scene : GameScene::scene_list_)
     {
-      ObjectPtr ptr = game_scene.second.lock();
+      rendering::GameWindow* window = game_scene->GetWindow();
 
-      if (ptr->GetObjectType() == std::string(GAME_SCENE_TYPE))
+      if (window->GetId() == window_id)
       {
-        GameScenePtr gs_ptr = std::dynamic_pointer_cast<GameScene>(ptr);
-        
-        if (gs_ptr->GetWindow()->GetId() == window_id)
+        if (game_scene->GetName() == std::string(DEFAULT_GAME_SCENE_NAME))
         {
-          gs_ptr->FlagRemoval();
-
-          utility::logger->debug("Flagged game scene \"{}\" for removal.", gs_ptr->GetName());
-
-          gs_ptr.reset();
-
-          break;
+          GameScene::quit_flag_ = true;
         }
 
-        gs_ptr.reset();
-      }
+        switch (window->GetCloseBehaviour())
+        {
+          case rendering::CloseLogic::HIDE:
+            window->Hide();
 
-      ptr.reset();
+            utility::logger->debug("Hid game scene \"{}\".", game_scene->GetName());
+
+            break;
+          case rendering::CloseLogic::CLOSE:
+            game_scene->FlagForRemoval();
+
+            utility::logger->debug("Flagged game scene \"{}\" for removal.", game_scene->GetName());
+
+            break;
+          case rendering::CloseLogic::QUIT:
+            GameScene::quit_flag_ = true;
+
+            utility::logger->debug("Call to quit game from game scene \"{}\".", game_scene->GetName());
+
+            break;
+        }
+
+        break;
+      }
+    }
+  }
+
+  void FlagGameObjectsWithFlaggedGameScenes()
+  {
+    for (ObjectPtr& object : object_list_)
+    {
+      if (object->GetObjectType() == std::string(GAME_OBJECT_TYPE))
+      {
+        if (dynamic_cast<GameObject*>(object.get())->GetGameScene()->FlaggedForRemoval())
+        {
+          object->FlagForRemoval();
+        }
+      }
     }
   }
 
   void ClearAllGameScenes()
   {
-    object_list_.remove_if([](const ObjectPtr& object) { return object->GetObjectType() == std::string(GAME_SCENE_TYPE); });
+    object_list_.remove_if([](const ObjectPtr& object)
+    {
+      return object->GetObjectType() == std::string(GAME_SCENE_TYPE);
+    });
 
     utility::logger->debug("Cleared all game scenes from the list.");
-  }
-
-  void ClearFlaggedGameScenes()
-  {
-    for (ObjectPtr& object : object_list_)
-    {
-      GameScenePtr ptr = std::dynamic_pointer_cast<GameScene>(object);
-
-      if (object->GetObjectType() == std::string(GAME_SCENE_TYPE) && ptr->FlaggedForRemoval())
-      {
-        ClearObjectsByGameScene(ptr->GetName());
-      }
-    }
-
-    object_list_.remove_if([](const ObjectPtr& object) { return object->GetObjectType() == std::string(GAME_SCENE_TYPE) && std::dynamic_pointer_cast<GameScene>(object)->FlaggedForRemoval(); });
   }
 }

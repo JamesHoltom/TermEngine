@@ -14,10 +14,10 @@ namespace term_engine::rendering {
   typedef std::vector<Uniform> UniformList;
 
   struct Uniform {
-    GLint location_;
+    int location_;
     std::string name_;
-    GLint count_;
-    GLenum type_;
+    int count_;
+    uint32_t type_;
   };
 
   class ShaderProgram
@@ -26,34 +26,35 @@ namespace term_engine::rendering {
     ShaderProgram();
     ~ShaderProgram();
 
-    GLuint GetProgramId() const;
+    uint32_t GetProgramId() const;
 
     bool IsLinked() const;
 
-    void AttachFile(const std::filesystem::path& filepath, const GLenum& type);
+    void AttachFile(const std::filesystem::path& filepath, uint32_t type);
 
-    void AttachString(const std::string& glsl_code, const GLenum& type);
+    void AttachString(const std::string& glsl_code, uint32_t type);
 
     void Link();
 
     void Use() const;
 
-    template <typename T> void SetUniform(const std::string& name, const T& data) const;
-    
-    template <typename T> void SetUniformMatrix(const std::string& name, const T& data, const GLboolean& transpose = GL_FALSE) const;
+    template <typename T> void SetUniform(const std::string& name, T data) const;
 
-    // TODO: Figure out how to implement array uniforms.
+    template <typename T> void SetUniformVector(const std::string& name, const T& data) const;
+    
+    template <typename T> void SetUniformMatrix(const std::string& name, const T& data, uint8_t transpose = GL_FALSE) const;
+
     //template <typename T> void SetUniformArray(const std::string& name, const GLsizei& count, const T* data) const;
 
   private:
-    void RemoveCompiledShaders();
-
-    GLuint program_id_;
+    uint32_t program_id_;
     bool is_linked_;
-    GLuint shader_vert_id_;
-    GLuint shader_frag_id_;
-    GLuint shader_geom_id_;
+    uint32_t shader_vert_id_;
+    uint32_t shader_frag_id_;
+    uint32_t shader_geom_id_;
     UniformList uniforms_;
+
+    void RemoveCompiledShaders();
   };
 }
 

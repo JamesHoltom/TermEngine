@@ -8,42 +8,56 @@
 #include "scripting/ScriptingInterface.h"
 #include "timing/FPSManager.h"
 #include "utility/AudioUtils.h"
-#include "utility/DebugUtils.h"
 #include "utility/FTUtils.h"
 #include "utility/GLUtils.h"
 #include "utility/SDLUtils.h"
 #include "utility/SpdlogUtils.h"
 
 namespace term_engine {
+  utility::ObjectDebugInfoPtr app_debug_info;
+
   void Init()
   {
     utility::InitLogger();
 
-    if (utility::InitSDL() > 0 || utility::InitFreeType() > 0)
+    if (!utility::InitSDL() || !utility::InitFreeType() || !utility::InitAudio())
     {
-      utility::logger->critical("Failed to initialise SDL/FT!");
+      utility::logger->critical("Failed to initialise SDL/FT/MA!");
       exit(2);
     }
 
     utility::InitGL();
-    utility::InitAudio();
     events::Init();
-    events::InitQueue();
+    events::InitList();
     timing::InitFPS();
 
     scripting::InitInterface();
     scripting::InitScript();
+
+    (*scripting::lua_state)["defaultScene"] = objects::AddGameScene(std::string(objects::DEFAULT_GAME_SCENE_NAME));
+
+    app_debug_info = utility::AddDebugInfo("[Main Loop]");
+    app_debug_info->AddSubItem("Events", 1);
+    app_debug_info->AddSubItem("Script", 1);
+    app_debug_info->AddSubItem("Update", 1);
+    app_debug_info->AddSubItem("Flagging", 1);
+    app_debug_info->AddSubItem("Loop", 1);
+    app_debug_info->AddSubItem("Remaining", 1);
 
     utility::logger->debug("Finished init!");
   }
 
   void CleanUp()
   {
+    app_debug_info.reset();
+
     objects::CleanUpObjects();
-    events::CleanUpQueue();
+    events::CleanUpList();
     scripting::CleanUp();
     rendering::FontAtlas::CleanUpFontAtlas();
     events::CleanUp();
+
+    rendering::GameWindow::CleanUpContext();
 
     utility::CleanUpFreeType();
     utility::CleanUpSDL();
@@ -54,7 +68,9 @@ namespace term_engine {
   void Run()
   {
     bool quit = false;
+    timing::Timer debug_timer;
     timing::Timer timestep;
+    debug_timer.Start();
     timestep.Start();
 
     timing::SetTargetFPS(timing::DEFAULT_FPS);
@@ -66,13 +82,19 @@ namespace term_engine {
 
     while (!quit)
     {
+      app_debug_info->Start();
+
       // Using the side-effect of SDL_QuitRequested() calling SDL_PumpEvents() to omit it from the below code.
-      if (SDL_QuitRequested())
+      if (SDL_QuitRequested() || objects::GameScene::quit_flag_)
       {
         if (scripting::OnQuit())
         {
           quit = true;
           break;
+        }
+        else
+        {
+          objects::GameScene::quit_flag_ = false;
         }
       }
 
@@ -91,22 +113,31 @@ namespace term_engine {
         }
       }
 
+      app_debug_info->Interval();
+
       scripting::OnLoop(timestep.GetIntervalElapsed());
 
-      objects::SortObjects();
+      app_debug_info->Interval();
 
+      objects::SortObjects();
       objects::UpdateObjects();
 
-      objects::ClearFlaggedGameScenes();
+      app_debug_info->Interval();
+
+      objects::FlagGameObjectsWithFlaggedGameScenes();
+      objects::ClearFlaggedObjects();
+
+      app_debug_info->Interval();
 
       timing::NextFrame();
 
       events::UpdatePrevEvents();
 
       timing::CalculateFPS();
-      timing::Delay();
-    }
+      app_debug_info->Interval();
 
-    timestep.Stop();
+      timing::Delay();
+      app_debug_info->Interval();
+    }
   }
 }

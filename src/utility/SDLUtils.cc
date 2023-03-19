@@ -2,13 +2,13 @@
 #include "SpdlogUtils.h"
 
 namespace term_engine::utility {
-  int InitSDL()
+  bool InitSDL()
   {
     if (SDL_Init(SDL_INIT_FLAGS) != 0)
     {
       utility::logger->error("Failed to fully initialise SDL!\nError: {}", SDL_GetError());
 
-      return 1;
+      return false;
     }
 
     for (int i = 0; i < SDL_GetNumAudioDrivers(); ++i)
@@ -20,13 +20,15 @@ namespace term_engine::utility {
     if (SDL_InitSubSystem(SDL_INIT_AUDIO) != 0)
     {
       utility::logger->error("Failed to initialise audio!\nError: {}", SDL_GetError());
+
+      return false;
     }
 
     srand(SDL_GetTicks());
 
     utility::logger->debug("Initialised SDL.");
 
-    return 0;
+    return true;
   }
 
   void CleanUpSDL()

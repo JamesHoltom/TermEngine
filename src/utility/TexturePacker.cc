@@ -22,7 +22,7 @@ namespace term_engine::utility {
     buffer_.clear();
   }
 
-  glm::ivec2 TexturePacker::Insert(unsigned char* buffer_data, const glm::ivec2& size)
+  glm::ivec2 TexturePacker::Insert(uint8_t* buffer_data, const glm::ivec2& size)
   {
     TextureNode* node = Pack(root_.get(), size);
 
@@ -44,12 +44,12 @@ namespace term_engine::utility {
 
     if (buffer_data)
     {
-      for (size_t y = 0; y < node->size_.y; ++y)
+      for (int y = 0; y < node->size_.y; ++y)
       {
-        for (size_t x = 0; x < node->size_.x; ++x)
+        for (int x = 0; x < node->size_.x; ++x)
         {
-          const unsigned int setX = node->position_.x + x;
-          const unsigned int setY = node->position_.y + y;
+          const int setX = node->position_.x + x;
+          const int setY = node->position_.y + y;
 
           buffer_.at((setY * texture_size_.x) + setX) = buffer_data[(y * size.x) + x];
         }
@@ -64,7 +64,7 @@ namespace term_engine::utility {
     return texture_size_;
   }
 
-  const unsigned char* TexturePacker::GetBufferData() const
+  const uint8_t* TexturePacker::GetBufferData() const
   {
     return buffer_.data();
   }
@@ -150,9 +150,9 @@ namespace term_engine::utility {
   {
     BufferData new_data(new_size.x * new_size.y, 0);
 
-    for (size_t y = 0; y < texture_size_.y; ++y)
+    for (int y = 0; y < texture_size_.y; ++y)
     {
-      for (size_t x = 0; x < texture_size_.x; ++x)
+      for (int x = 0; x < texture_size_.x; ++x)
       {
         new_data[(y * new_size.x) + x] = buffer_[(y * texture_size_.x) + x];
       }

@@ -23,7 +23,7 @@ namespace term_engine::utility {
       sinks.push_back(console_sink);
       sinks.push_back(file_sink);
 
-      logger = std::make_shared<spdlog::logger>("termengine", begin(sinks), end(sinks));
+      logger = std::make_unique<spdlog::logger>("termengine", begin(sinks), end(sinks));
       logger->set_level(spdlog::level::debug);
     }
     catch (const spdlog::spdlog_ex& ex)

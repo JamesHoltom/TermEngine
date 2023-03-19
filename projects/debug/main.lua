@@ -11,5 +11,5 @@ function Init()
 end
 
 function Loop(_)
-	debugText.text = getDebugInfo()
+	debugText.text = debug_info.get(Values.DEBUG_TIMING, 0)
 end

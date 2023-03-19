@@ -3,10 +3,10 @@
 #include "../system/FileFunctions.h"
 
 namespace term_engine::utility {
-  SDL_AudioDeviceID device_id;
+  uint32_t device_id;
   ma_engine engine;
 
-  int InitAudio()
+  bool InitAudio()
   {
     ma_engine_config config = ma_engine_config_init();
     config.channels = 2;
@@ -18,7 +18,7 @@ namespace term_engine::utility {
     {
       utility::logger->error("Failed to initialise audio engine.");
 
-      return 1;
+      return false;
     }
 
     SDL_AudioSpec desired;
@@ -37,14 +37,14 @@ namespace term_engine::utility {
     {
       utility::logger->error("Failed to open audio device. {}", SDL_GetError());
 
-      return 1;
+      return false;
     }
 
     SDL_PauseAudioDevice(device_id, SDL_FALSE);
 
     utility::logger->debug("Initialised miniaudio.");
 
-    return 0;
+    return true;
   }
 
   void CleanUp()
@@ -55,10 +55,10 @@ namespace term_engine::utility {
     utility::logger->debug("Shut down miniaudio.");
   }
 
-  void data_callback(void* userdata, ma_uint8* buffer, int bufferSizeInBytes)
+  void data_callback(void* userdata, uint8_t* buffer, int bufferSizeInBytes)
   {
     /* Reading is just a matter of reading straight from the engine. */
-    ma_uint32 bufferSizeInFrames = (ma_uint32)bufferSizeInBytes / ma_get_bytes_per_frame(ma_format_f32, ma_engine_get_channels(&engine));
+    uint32_t bufferSizeInFrames = (uint32_t)bufferSizeInBytes / ma_get_bytes_per_frame(ma_format_f32, ma_engine_get_channels(&engine));
     ma_engine_read_pcm_frames(&engine, buffer, bufferSizeInFrames, NULL);
   }
 }

@@ -8,19 +8,9 @@
 #include <glm/glm.hpp>
 #include "SpdlogUtils.h"
 
-/**
- * @todo Add code here to pack glyphs for a particular font into a a texture.
- * 
- * - The texture can be resized on a power of 2.
- * - The glyph can be of any font size.
- * 
- * @link https://straypixels.net/texture-packing-for-fonts/ @endlink
- * @link https://blackpawn.com/texts/lightmaps/default.html @endlink
- */
-
 namespace term_engine::utility {
-  constexpr size_t INITIAL_TEXTURE_SIZE = 128;
-  constexpr unsigned int PADDING = 1;
+  constexpr uint64_t INITIAL_TEXTURE_SIZE = 128;
+  constexpr uint32_t PADDING = 1;
 
   class TexturePacker {
   public:
@@ -30,16 +20,16 @@ namespace term_engine::utility {
 
     ~TexturePacker();
 
-    glm::ivec2 Insert(unsigned char* buffer_data, const glm::ivec2& size);
+    glm::ivec2 Insert(uint8_t* buffer_data, const glm::ivec2& size);
 
     glm::ivec2 GetTextureSize() const;
 
-    const unsigned char* GetBufferData() const;
+    const uint8_t* GetBufferData() const;
 
   private:
     struct TextureNode;
 
-    typedef std::vector<unsigned char> BufferData;
+    typedef std::vector<uint8_t> BufferData;
     typedef std::unique_ptr<TextureNode> TextureNodePtr;
 
     struct TextureNode {
@@ -47,7 +37,7 @@ namespace term_engine::utility {
         TextureNode(glm::ivec2(), glm::ivec2(INT_MAX), 0)
       {}
 
-      TextureNode(const glm::ivec2& position, const glm::ivec2& size, const size_t& layer) :
+      TextureNode(const glm::ivec2& position, const glm::ivec2& size, uint64_t layer) :
         position_(position),
         size_(size),
         full_(false),
@@ -69,7 +59,7 @@ namespace term_engine::utility {
       glm::ivec2 position_;
       glm::ivec2 size_;
       bool full_;
-      size_t layer_;
+      uint64_t layer_;
 
       TextureNodePtr left_;
       TextureNodePtr right_;
@@ -87,8 +77,6 @@ namespace term_engine::utility {
 
     void ResizeBuffer(const glm::ivec2& new_size);
   };
-
-  
 }
 
 #endif // ! GLYPH_PACKING_UTILS_H

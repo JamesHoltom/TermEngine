@@ -5,99 +5,19 @@
 
 #include <forward_list>
 #include <memory>
-#include <optional>
 #include <string>
 #include "../utility/DebugUtils.h"
 #include "../utility/SpdlogUtils.h"
 
-#define OBJECT_PROXY_GETTER(P, F, R) \
-  std::optional<R> F() const \
-  { \
-    std::shared_ptr<P> objPtr = std::dynamic_pointer_cast<P>(ptr_.lock()); \
-    if (objPtr) { \
-      R retVal = objPtr->F(); \
-      objPtr.reset(); \
-      return retVal; \
-    } else { \
-      utility::logger->warn("Cannot return value from a removed object!"); \
-      return std::nullopt; \
-    } \
-  }
-
-#define OBJECT_PROXY_GETTER_PTR(P, F, R) \
-  R* F() const \
-  { \
-    std::shared_ptr<P> objPtr = std::dynamic_pointer_cast<P>(ptr_.lock()); \
-    if (objPtr) { \
-      R* retVal = objPtr->F(); \
-      objPtr.reset(); \
-      return retVal; \
-    } else { \
-      utility::logger->warn("Cannot return value from a removed object!"); \
-      return nullptr; \
-    } \
-  }
-
-#define OBJECT_PROXY_SETTER(P, F, S) \
-  void F(const S& value) const \
-  { \
-    std::shared_ptr<P> objPtr = std::dynamic_pointer_cast<P>(ptr_.lock()); \
-    if (objPtr) { \
-      objPtr->F(value); \
-      objPtr.reset(); \
-    } else { \
-      utility::logger->warn("Cannot set value on a removed object!"); \
-    } \
-  }
-
-#define OBJECT_PROXY_CALLER(P, F) \
-  void F() const \
-  { \
-    std::shared_ptr<P> objPtr = std::dynamic_pointer_cast<P>(ptr_.lock()); \
-    if (objPtr) { \
-      objPtr->F(); \
-      objPtr.reset(); \
-    } else { \
-      utility::logger->warn("Cannot call function for a removed object!"); \
-    } \
-  }
-
-#define OBJECT_PROXY_CALLER_WITH_PARAM(P, F, T) \
-  void F(const T& value) const \
-  { \
-    std::shared_ptr<P> objPtr = std::dynamic_pointer_cast<P>(ptr_.lock()); \
-    if (objPtr) { \
-      objPtr->F(value); \
-      objPtr.reset(); \
-    } else { \
-      utility::logger->warn("Cannot call function for a removed object!"); \
-    } \
-  }
-
-#define OBJECT_PROXY_CALLER_WITH_PARAM_AND_RETURN(P, F, R, T) \
-  std::optional<R> F(const T& value) const \
-  { \
-    std::shared_ptr<P> objPtr = std::dynamic_pointer_cast<P>(ptr_.lock()); \
-    if (objPtr) { \
-      R retVal = objPtr->F(value); \
-      objPtr.reset(); \
-      return retVal; \
-    } else { \
-      utility::logger->warn("Cannot call function for a removed object!"); \
-      return std::nullopt; \
-    } \
-  }
-
 namespace term_engine::objects {
   class BaseObject;
 
-  /// @brief Shared pointer to an object.
-  typedef std::shared_ptr<BaseObject> ObjectPtr;
-  /// @brief Weak pointer to an object.
-  typedef std::weak_ptr<BaseObject> ObjectWeakPtr;
+  /// @brief Unique pointer to an object.
+  typedef std::unique_ptr<BaseObject> ObjectPtr;
   /// @brief Used to store a list of objects.
   typedef std::forward_list<ObjectPtr> ObjectList;
 
+  /// @brief Defines the sorting priorities for each type of object in the list.
   enum ObjectSortPriority { EVENT_LISTENER = 0, TIMED_FUNCTION = 1, OBJECT = 2, AUDIO = 3, GAME_SCENE = 4 };
 
   /// @brief Has an object been added to the list, which needs to be sorted?
@@ -139,7 +59,7 @@ namespace term_engine::objects {
      * 
      * @returns The object ID.
      */
-    size_t GetObjectId() const;
+    uint64_t GetObjectId() const;
 
     /**
      * @brief Returns if the object is active.
@@ -153,67 +73,33 @@ namespace term_engine::objects {
      * 
      * @param[in] flag The value to set.
      */
-    void SetActive(const bool& flag);
+    void SetActive(bool flag);
 
-    utility::ObjectDebugInfoWeakPtr debug_info_;
+    /**
+     * @brief Returns if the game scene is flagged to be removed.
+     * 
+     * @returns If the game scene is flagged to be removed.
+     */
+    bool FlaggedForRemoval() const;
+
+    /// @brief Flags the game scene to be removed.
+    void FlagForRemoval();
+
+    /// @brief Unsets the removal flag from the game scene.
+    void UnflagForRemoval();
+
+    /// @brief Debugging information for this object.
+    utility::ObjectDebugInfoPtr debug_info_;
 
   protected:
     /// @brief The ID of the object.
-    size_t object_id_;
+    uint64_t object_id_;
     /// @brief Is the object active? (i.e. Is the object being rendered and acted on?)
     bool is_active_;
+    /// @brief A flag to mark this object to be removed.
+    bool marked_for_removal_;
     /// @brief Represents the ID to use for the next object.
-    static size_t object_next_id_;
-  };
-
-  /**
-   * @brief The base object proxy, on which other object proxies derive from.
-   * @remarks The object proxy is set up as a usertype in Sol, rather than the object itself.
-   * This is because the lifetime of objects is handled in C++, not Lua.
-   * If the object the proxy refers to is removed, calling any member function will print an error message and return nil, if required.
-   */
-  class BaseProxy {
-  public:
-    /**
-     * @brief Constructs the object proxy.
-     * 
-     * @param[in] object A smart pointer to the object.
-     */
-    BaseProxy(const ObjectPtr& object);
-
-    /**
-     * @brief Default logic to destroy an object proxy.
-     * @details Required to be virtual to enforce only the construction of derived classes.
-     */
-    virtual ~BaseProxy() {}
-
-    /**
-     * @brief Returns the type of object.
-     * 
-     * @returns The object type, or nil if the object is expired.
-     */
-    virtual std::optional<std::string> GetObjectType() const = 0;
-
-    OBJECT_PROXY_GETTER(BaseObject, GetObjectId, size_t)
-    OBJECT_PROXY_GETTER(BaseObject, IsActive, bool)
-    OBJECT_PROXY_SETTER(BaseObject, SetActive, bool)
-
-    /**
-     * @brief Returns if the object is expired.
-     * 
-     * @returns If the object is expired.
-     */
-    bool IsExpired() const;
-
-    /**
-     * @brief Releases the object the proxy points to.
-     * @remarks This causes all other object proxies to expire, that point to this object.
-     */
-    void Release() const;
-
-  protected:
-    /// @brief Smart pointer to the object.
-    ObjectWeakPtr ptr_;
+    static uint64_t object_next_id_;
   };
 
   /**
@@ -222,18 +108,14 @@ namespace term_engine::objects {
    */
   void SortObjects();
 
-
+  /// @brief Runs the `Update()` function for each object in the list.
   void UpdateObjects();
-
-  /**
-   * @brief Removes an object from the list.
-   * 
-   * @param[in] id The ID of the object.
-   */
-  void RemoveObject(const size_t& id);
 
   /// @brief Removes all objects in the list.
   void CleanUpObjects();
+
+  /// @brief Clears all objects that are flagged for removal from the object list.
+  void ClearFlaggedObjects();
 }
 
 #endif // ! BASE_OBJECT_H

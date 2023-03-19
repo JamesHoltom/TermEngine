@@ -54,8 +54,6 @@ namespace term_engine::scripting {
     (*lua_state)["package"]["path"] = packagePath;
     utility::logger->debug("Lua path: {}", std::string((*lua_state)["package"]["path"]));
 
-    (*lua_state)["defaultScene"] = objects::AddGameScene("default");
-
     Load(rootDirectory + "/" + LOADER_SCRIPT_PATH);
 
     if (project_file != "")
@@ -123,7 +121,7 @@ namespace term_engine::scripting {
     return return_value;
   }
 
-  void OnLoop(const float& timestep)
+  void OnLoop(uint64_t timestep)
   {
     try {
       sol::protected_function_result result = (*lua_state)["Loop"](timestep);

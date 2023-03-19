@@ -12,7 +12,7 @@ namespace term_engine::utility {
   constexpr char DEFAULT_LOG_LOCATION[] = "logs/term_engine.log";
 
   /// @brief Smart pointer to share a single instance of a `Logger`.
-  typedef std::shared_ptr<spdlog::logger> LoggerPtr;
+  typedef std::unique_ptr<spdlog::logger> LoggerPtr;
 
   /// @brief The instance of the logger.
   extern LoggerPtr logger;

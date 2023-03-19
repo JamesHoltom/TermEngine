@@ -12,6 +12,7 @@ namespace term_engine::rendering {
   /// @brief The default number of rows/columns in the view.
   constexpr glm::ivec2 DEFAULT_CHARACTER_MAP_SIZE = glm::ivec2(32, 16);
 
+  /// @brief 
   class CharacterMap {
   public:
     /// @brief Constructs the character map.
@@ -31,9 +32,6 @@ namespace term_engine::rendering {
      */
     glm::ivec2 GetSize() const;
 
-
-    GLuint GetFontSize() const;
-
     /**
      * @brief Sets the position of the view on the window.
      * 
@@ -48,9 +46,7 @@ namespace term_engine::rendering {
      */
     void SetSize(const glm::ivec2& size);
 
-
-    void SetFontSize(const GLuint& font_size);
-
+    /// @brief Clears the character map.
     void Clear();
 
     /**
@@ -60,16 +56,21 @@ namespace term_engine::rendering {
      */
     void PushCharacters(const glm::ivec2& position, const glm::ivec2& size, const CharacterData& data);
 
-    /// @brief Renders the list of views to the window.
-    void CopyToBuffer(Buffer& buffer, const FontAtlasPtr& font_atlas) const;
+    /**
+     * @brief Copies the data from a character map into an OpenGL buffer.
+     * 
+     * @param[in] character_map 
+     * @param[in,out] buffer 
+     * @param[in] font_atlas 
+     * @param[in] font_size
+     */
+    friend void CopyCharacterMapToBuffer(const CharacterMap& character_map, Buffer& buffer, const FontAtlasPtr& font_atlas, uint32_t font_size);
 
   private:
     /// @brief The position of the view.
     glm::vec2 position_;
     /// @brief The size of the view, in rows/columns.
     glm::ivec2 size_;
-
-    GLuint font_size_;
     /// @brief The character data to be rendered to a window.
     CharacterData data_;
   };

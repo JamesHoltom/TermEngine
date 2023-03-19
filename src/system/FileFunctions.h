@@ -56,7 +56,7 @@ namespace term_engine::system {
    * @param[in] data      The data to write.
    * @param[in] append    Should the data be appended to any existing contents in the file?
    */
-  void WriteFile(const std::string& filename, const std::string& data, const bool& append);
+  void WriteFile(const std::string& filename, const std::string& data, bool append);
 
   /**
    * @brief Returns if a file with the given path exists.

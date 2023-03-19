@@ -18,13 +18,11 @@ namespace term_engine::rendering {
   struct CharacterBB;
 
   /// @brief Used to store characters and the texture layers of the character they represent.
-  typedef std::unordered_map<FT_UInt32, CharacterBB> CharacterList;
+  typedef std::unordered_map<uint32_t, CharacterBB> CharacterList;
 
-  typedef std::map<FT_UInt, FT_Size> FontSizeList;
+  typedef std::map<uint32_t, FT_Size> FontSizeList;
 
   typedef std::shared_ptr<FontAtlas> FontAtlasPtr;
-
-  typedef std::weak_ptr<FontAtlas> FontAtlasWeakPtr;
 
   typedef std::unordered_map<std::string, FontAtlasPtr> FontAtlasList;
 
@@ -35,12 +33,12 @@ namespace term_engine::rendering {
 
     glm::ivec2 character_size_;
 
-    FT_UInt font_size_;
+    uint32_t font_size_;
 
     int baseline_;
 
 
-    CharacterBB(const glm::ivec2& position, const glm::ivec2& character_size, const FT_UInt& font_size, const int& baseline) :
+    CharacterBB(const glm::ivec2& position, const glm::ivec2& character_size, uint32_t font_size, int baseline) :
       position_(position),
       character_size_(character_size),
       font_size_(font_size),
@@ -55,9 +53,9 @@ namespace term_engine::rendering {
   constexpr char DEFAULT_FONT[] = "arial.ttf";
 #endif
   /// @brief The default font size to use when running the engine.
-  constexpr int DEFAULT_FONT_SIZE = 32;
+  constexpr uint32_t DEFAULT_FONT_SIZE = 32;
   /// @brief The size of the texture to store font characters in.
-  constexpr GLsizei TEXTURE_SIZE = 1024;
+  constexpr uint32_t TEXTURE_SIZE = 1024;
   /// @brief Defines an empty character that is returned when one fails to load, or a zero-character (i.e. '\0') is loaded.
   const CharacterBB EMPTY_CHARACTER = CharacterBB(glm::ivec2(), glm::ivec2(), 0, 0);
   
@@ -78,7 +76,7 @@ namespace term_engine::rendering {
      */
     std::string GetFilePath() const;
 
-    glm::ivec2 GetCharacterSize(const FT_UInt& size);
+    glm::ivec2 GetCharacterSize(uint32_t size);
 
     /**
      * @brief Finds a character in the atlas and returns the texture layer the character is on.
@@ -88,7 +86,7 @@ namespace term_engine::rendering {
      * @param[in] size      The font size of the character, in pixels (px).
      * @returns The texture layer that holds the character.
      */
-    CharacterBB GetCharacter(const FT_ULong& character, const FT_UInt& size);
+    CharacterBB GetCharacter(uint64_t character, uint32_t size);
 
     CharacterBB GetWhitespace() const;
 
@@ -118,7 +116,7 @@ namespace term_engine::rendering {
     /// @brief The texture ID for OpenGL to use when rendering.
     rendering::TextureData texture_;
     /// @brief The amount of characters currently stored in the font atlas.
-    GLuint character_count_;
+    uint32_t character_count_;
 
     bool is_loaded_;
 
@@ -128,7 +126,7 @@ namespace term_engine::rendering {
 
     FontSizeList size_list_;
 
-    static GLuint active_font_;
+    static uint32_t active_font_;
 
     static FontAtlasList atlas_cache_;
 
@@ -139,10 +137,10 @@ namespace term_engine::rendering {
      * @param[in] size      The font size of the character to render, in pixels (px).
      * @returns The bounding box of the loaded character.
      */
-    CharacterBB CreateCharTexture(const FT_ULong& character, const FT_UInt& size);
+    CharacterBB CreateCharTexture(uint64_t character, uint32_t size);
 
 
-    void SetFontSize(const FT_UInt& size);
+    void SetFontSize(uint32_t size);
   };
 }
 

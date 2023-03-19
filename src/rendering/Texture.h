@@ -11,8 +11,8 @@ namespace term_engine::rendering {
   /// @brief Represents a texture that has been created in OpenGL.
   struct TextureData {
     /// @brief The OpenGL texture ID for the image.
-    GLuint texture_id_;
-    GLuint texture_index_;
+    uint32_t texture_id_;
+    uint32_t texture_index_;
     /// @brief The size of the texture.
     glm::ivec2 size_;
 
@@ -30,7 +30,7 @@ namespace term_engine::rendering {
      * @param[in] size        The size of the texture, in pixels (px).
      * @param[in] index       The texture index to bind to.
      */
-    TextureData(const GLuint& texture_id, const glm::ivec2& size, const GLuint& index) :
+    TextureData(uint32_t texture_id, const glm::ivec2& size, uint32_t index) :
       texture_id_(texture_id),
       texture_index_(index),
       size_(size)
@@ -44,7 +44,7 @@ namespace term_engine::rendering {
    * @param[in] index    The texture index to bind to.
    * @returns The loaded texture data.
    */
-  TextureData CreateTextureFromImage(const std::filesystem::path& filepath, const GLuint& index);
+  TextureData CreateTextureFromImage(const std::filesystem::path& filepath, uint32_t index);
 
   /**
    * @brief Allocates an OpenGL texture with a given size.
@@ -54,7 +54,7 @@ namespace term_engine::rendering {
    * @param[in] index   The texture index to bind to.
    * @returns The allocated texture data.
    */
-  TextureData AllocateTexture(const glm::ivec2& size, const GLenum& format, const GLuint& index);
+  TextureData AllocateTexture(const glm::ivec2& size, uint32_t format, uint32_t index);
 
   /**
    * @brief Clears the image data for the given texture.
@@ -76,7 +76,7 @@ namespace term_engine::rendering {
    * 
    * @param[in] index The texture index to unbind.
    */
-  void UnuseTexture(const GLuint& index);
+  void UnuseTexture(uint32_t index);
 }
 
 #endif // ! TEXTURE_H

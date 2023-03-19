@@ -121,19 +121,19 @@ namespace term_engine::utility {
     return result;
   }
 
-  int InitFreeType()
+  bool InitFreeType()
   {
     FT_Error err = FTLog(FT_Init_FreeType(&font_library));
 
     if (err != FT_Err_Ok) {
       utility::logger->error("Failed to initialise FreeType. Received error #{}", err);
 
-      return 1;
+      return false;
     }
 
     utility::logger->debug("Initialised FreeType.");
 
-    return 0;
+    return true;
   }
 
   void CleanUpFreeType()

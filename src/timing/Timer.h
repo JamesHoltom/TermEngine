@@ -61,20 +61,12 @@ namespace term_engine::timing {
     uint64_t GetPauseDuration();
 
     /**
-     * @brief Returns the duration of time since the last interval, in milliseconds.
+     * @brief Returns the duration of time since the last interval.
      * @details _interval_point_ is also set to now, so the next call to _GetIntervalElapsed_ gets the interval since this call.
      * 
      * @returns The duration of time since the timer was started, or when _GetIntervalElapsed_ was last called.
      */
-    uint64_t GetIntervalElapsedMs();
-
-    /**
-     * @brief Returns the duration of time since the last interval, in seconds.
-     * @details _interval_point_ is also set to now, so the next call to _GetIntervalElapsed_ gets the interval since this call.
-     * 
-     * @returns The duration of time since the timer was started, or when _GetIntervalElapsed_ was last called.
-     */
-    float GetIntervalElapsed();
+    uint64_t GetIntervalElapsed();
 
   private:
     /// @brief The point in time when the _Timer_ was started.

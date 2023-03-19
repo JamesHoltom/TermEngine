@@ -9,8 +9,8 @@
 #include "../utility/GLUtils.h"
 
 namespace term_engine::rendering {
-  class Background
-  {
+  /// @brief Manages a background image that can be rendered to a game scene.
+  class Background {
   public:
     /// @brief Constructs the background.
     Background();

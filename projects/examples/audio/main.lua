@@ -7,21 +7,27 @@
     CC0 license: https://creativecommons.org/publicdomain/zero/1.0/
   ]]
 
-local audioText, cursorText, settingsText, audioMusic
+local audioText, cursorText, settingsText, audioMusic, audioSeek, audioLength
 
 function Init()
-  view.setSize(ivec2(42, 5))
-  window.fitToView()
+  defaultScene.charmap.size = ivec2(42, 7)
+  defaultScene:resizeToFit()
 
-  audioText = TextObject(Values.IVEC2_ZERO, ivec2(26, 4))
-  audioText.text = "Press 'n' to play sound\nPress 'm' to play music\nPress 'p' to pause music\nPress 'l' to loop music"
+  audioText = TextObject(Values.IVEC2_ZERO, ivec2(26, 6))
+  audioText.text = "Press 'n' to play sound" ..
+                 "\nPress 'm' to play music" ..
+                 "\nPress 'p' to pause" ..
+                 "\nPress 'l' to loop" ..
+                 "\nPress 'r' to rewind" ..
+                 "\nPress 't' to seek to time"
 
-  cursorText = TextObject(ivec2(0.0, 4.0), ivec2(42, 1))
-  settingsText = TextObject(ivec2(28.0, 0.0), ivec2(14, 4))
+  cursorText = TextObject(ivec2(0, 6), ivec2(28, 1))
+  settingsText = TextObject(ivec2(28, 0), ivec2(14, 5))
 
   audioMusic = Audio("resources/audio/Map.wav", "stream")
 
-  print("Length: " .. audioMusic.length)
+  audioSeek = 1000
+  audioLength = audioMusic.length * 1000
 
   return true
 end
@@ -29,9 +35,7 @@ end
 function Loop(timestep)
   local settingsChanged = true
 
-  if keyboard.isPressed("n") then
-    audio.trigger("resources/audio/1.wav")
-  elseif keyboard.isPressed("m") then
+  if keyboard.isPressed("m") then
     if audioMusic.playing then
       print("Stop")
       audioMusic:stop()
@@ -42,11 +46,17 @@ function Loop(timestep)
   elseif keyboard.isPressed("p") then
     if audioMusic.paused then
       print("Resume")
-      audioMusic:resume()
+      audioMusic:play()
     elseif audioMusic.playing then
       print("Pause")
       audioMusic:pause()
     end
+  elseif keyboard.isPressed("t") then
+    print("Seek")
+    audioMusic:seek(audioSeek)
+  elseif keyboard.isPressed("r") then
+    print("Rewind")
+    audioMusic:rewind()
   elseif keyboard.isPressed("q") then
     settingsChanged = true
 
@@ -75,6 +85,22 @@ function Loop(timestep)
     audioMusic.looping = not audioMusic.looping
 
     settingsChanged = true
+  elseif keyboard.isPressed("[") then
+    audioSeek = audioSeek - 100
+
+    if audioSeek < 0 then
+      audioSeek = 0
+    end
+
+    settingsChanged = true
+  elseif keyboard.isPressed("]") then
+    audioSeek = audioSeek + 100
+
+    if audioSeek > audioLength then
+      audioSeek = audioLength
+    end
+
+    settingsChanged = true
   end
 
   if settingsChanged then
@@ -89,7 +115,8 @@ function Loop(timestep)
     settingsText.text = "Volume:  " .. string.format("%.1f", audioMusic.volume) ..
                         "\nPan:    " .. string.format("% .1f", audioMusic.pan) ..
                         "\nPitch:   " .. string.format("%.1f", audioMusic.pitch) ..
-                        "\nLooping: " .. isLooping
+                        "\nLooping: " .. isLooping ..
+                        "\nSeek:    " .. audioSeek
   end
 
   if audioMusic.playing then

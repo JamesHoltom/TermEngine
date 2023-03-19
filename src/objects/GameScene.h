@@ -17,17 +17,19 @@
 namespace term_engine::objects {
   class GameScene;
 
-  typedef std::weak_ptr<GameScene> GameSceneWeakPtr;
-  typedef std::shared_ptr<GameScene> GameScenePtr;
-  typedef std::pair<std::string, ObjectWeakPtr> GameSceneNamePair;
-
+  /// @brief The name of the default game scene.
+  constexpr char DEFAULT_GAME_SCENE_NAME[] = "default";
+  /// @brief The type name for GameScenes.
   constexpr char GAME_SCENE_TYPE[] = "GameScene";
 
-  extern std::vector<GameSceneNamePair> name_list_;
-
+  /// @brief Represents a window 
   class GameScene : public BaseObject {
   public:
-    /// @brief Constructs the game scene.
+    /**
+     * @brief Constructs the game scene with the given name.
+     * 
+     * @param[in] name The name of the scene.
+     */
     GameScene(const std::string& name);
 
     /// @brief Destroys the game scene.
@@ -100,21 +102,17 @@ namespace term_engine::objects {
      */
     rendering::GameWindow* GetWindow();
 
-    /// @brief Sets the 'Is Dirty' flag.
-    void Dirty();
+    uint32_t GetFontSize() const;
 
-    /**
-     * @brief Returns if the game scene is flagged to be removed.
-     * 
-     * @returns If the game scene is flagged to be removed.
-     */
-    bool FlaggedForRemoval() const;
+    void SetFontSize(uint32_t font_size);
 
-    /// @brief Flags the game scene to be removed.
-    void FlagRemoval();
+    /// @brief Resizes the window to fit the character map.
+    void ResizeToFit() const;
 
-    /// @brief Unsets the removal flag from the game scene.
-    void UnflagRemoval();
+    /// @brief A list of raw pointers to the game scenes.
+    static std::vector<GameScene*> scene_list_;
+    /// @brief Flag to indicate if the user wants to quit the program.
+    static bool quit_flag_;
 
   protected:
     /// @brief The name of the game scene.
@@ -131,60 +129,32 @@ namespace term_engine::objects {
     rendering::Buffer background_buffer_;
     /// @brief The font atlas used to render characters to the game scene.
     rendering::FontAtlasPtr font_atlas_;
+    /// @brief The font size to render characters at, in pixels (px).
+    uint32_t font_size_;
     /// @brief The shader program used to render background elements to the game scene.
     rendering::ShaderProgram background_shader_program_;
     /// @brief The shader program used to render text elements to the game scene.
     rendering::ShaderProgram text_shader_program_;
-    /// @brief A flag to check if any objects have been modified, and will need to be re-rendered.
-    bool is_dirty_;
-    /// @brief A flag to mark this game scene to be removed, mainly by _window_close_ events.
-    bool marked_for_removal_;
-  };
 
-  ///*@brief An object proxy to interact with game scenes.
-  class GameSceneProxy : public BaseProxy {
-  public:
-    /**
-     * @brief Constructs the object proxy.
-     * 
-     * @param[in] object A smart pointer to the object.
-     */
-    GameSceneProxy(const ObjectPtr& object);
-
-    /// @brief Destroys the object proxy.
-    ~GameSceneProxy();
-
-    OBJECT_PROXY_GETTER(GameScene, GetObjectType, std::string)
-    OBJECT_PROXY_GETTER(GameScene, GetName, std::string)
-    OBJECT_PROXY_GETTER_PTR(GameScene, GetWindow, rendering::GameWindow)
-    OBJECT_PROXY_GETTER(GameScene, GetFontAtlas, rendering::FontAtlasPtr)
-    OBJECT_PROXY_GETTER_PTR(GameScene, GetBackground, rendering::Background)
-    OBJECT_PROXY_GETTER_PTR(GameScene, GetBackgroundShader, rendering::ShaderProgram)
-    OBJECT_PROXY_GETTER_PTR(GameScene, GetTextShader, rendering::ShaderProgram)
-    OBJECT_PROXY_GETTER_PTR(GameScene, GetCharacterMap, rendering::CharacterMap)
-    OBJECT_PROXY_CALLER(GameScene, FlagRemoval)
-    OBJECT_PROXY_CALLER(GameScene, UnflagRemoval)
-
-    void ResizeToFit() const;
+    void ResetProjection() const;
   };
 
   /**
    * @brief Adds a game scene to the list.
    * 
    * @param[in] name The name of the game scene.
-   * @returns A proxy to the object.
+   * @returns A raw pointer to the object.
    */
-  GameSceneProxy AddGameScene(const std::string& name);
+  GameScene* AddGameScene(const std::string& name);
 
-  ObjectWeakPtr GetGameSceneByName(const std::string& name);
+  GameScene* GetGameSceneByName(const std::string& name);
 
-  void MarkGameSceneForRemoval(const Uint32& windowId);
+  void MarkGameSceneForRemoval(uint32_t windowId);
+
+  void FlagGameObjectsWithFlaggedGameScenes();
 
   /// @brief Clears all game scenes from the object list.
   void ClearAllGameScenes();
-
-  /// @brief Clears all game scenes that are flagged for removal from the object list.
-  void ClearFlaggedGameScenes();
 }
 
 #endif // ! GAME_SCENE_H

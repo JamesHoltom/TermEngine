@@ -38,8 +38,8 @@ namespace term_engine::rendering {
       all_ok = false;
     }
 
-    const size_t textureSize = 32 * 32 * sizeof(unsigned char);
-    std::array<unsigned char, textureSize> whiteTexture;
+    const uint64_t textureSize = 32 * 32 * sizeof(uint8_t);
+    std::array<uint8_t, textureSize> whiteTexture;
     std::fill(whiteTexture.begin(), whiteTexture.end(), 255);
 
     packer_.Insert(whiteTexture.data(), glm::ivec2(32));
@@ -89,14 +89,14 @@ namespace term_engine::rendering {
     return filepath_.string();
   }
 
-  glm::ivec2 FontAtlas::GetCharacterSize(const FT_UInt& size)
+  glm::ivec2 FontAtlas::GetCharacterSize(uint32_t size)
   {
     SetFontSize(size);
 
     return glm::ivec2(face_->size->metrics.max_advance >> 6, ((face_->size->metrics.ascender - face_->size->metrics.descender) >> 6));
   }
 
-  CharacterBB FontAtlas::GetCharacter(const FT_ULong& character, const FT_UInt& size)
+  CharacterBB FontAtlas::GetCharacter(uint64_t character, uint32_t size)
   {
     if (!is_loaded_)
     {
@@ -186,7 +186,7 @@ namespace term_engine::rendering {
     atlas_cache_.clear();
   }
 
-  CharacterBB FontAtlas::CreateCharTexture(const FT_ULong& character, const FT_UInt& size)
+  CharacterBB FontAtlas::CreateCharTexture(uint64_t character, uint32_t size)
   {
     Use();
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -195,7 +195,7 @@ namespace term_engine::rendering {
     {
       // Character metrics are stored in an unscaled, 1/64th of a pixel per unit format, and must be converted before use.
       glm::ivec2 character_size = glm::ivec2(face_->glyph->bitmap.width, face_->glyph->bitmap.rows);
-      GLint character_baseline = (face_->size->metrics.ascender - face_->glyph->metrics.horiBearingY) >> 6;
+      FT_Pos character_baseline = (face_->size->metrics.ascender - face_->glyph->metrics.horiBearingY) >> 6;
       glm::ivec2 character_pos = packer_.Insert(face_->glyph->bitmap.buffer, character_size);
       CharacterBB bbox(character_pos, character_size, size, character_baseline);
 
@@ -216,7 +216,7 @@ namespace term_engine::rendering {
     }
   }
 
-  void FontAtlas::SetFontSize(const FT_UInt& size)
+  void FontAtlas::SetFontSize(uint32_t size)
   {
     FontSizeList::const_iterator findSize = size_list_.find(size);
 
@@ -250,6 +250,6 @@ namespace term_engine::rendering {
     }
   }
 
-  GLuint FontAtlas::active_font_ = 0;
+  uint32_t FontAtlas::active_font_ = 0;
   FontAtlasList FontAtlas::atlas_cache_;
 }

@@ -46,9 +46,9 @@ namespace term_engine::scripting {
   /**
    * @brief Runs the "Loop" Lua function, which is used to execute game code every frame.
    * 
-   * @param[in] timestep The timestep for this frame, i.e. the amount of time since the last frame ticked.
+   * @param[in] timestep The timestep for this frame, i.e. the amount of time in milliseconds (ms) since the last frame ticked.
    */
-  void OnLoop(const float& timestep);
+  void OnLoop(uint64_t timestep);
 
   /**
    * @brief Runs the "Quit" Lua function, which runs game code before closing TermEngine.

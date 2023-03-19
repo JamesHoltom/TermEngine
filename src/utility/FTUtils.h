@@ -23,16 +23,11 @@ namespace term_engine::utility {
   /**
    * @brief Initialises FreeType.
    * 
-   * @param[in,out] library An instance of the FreeType library to initialise.
    * @returns Was FreeType successfully initialised?
    */
-  int InitFreeType();
+  bool InitFreeType();
 
-  /**
-   * @brief Shuts down FreeType.
-   * 
-   * @param[in,out] library An instance of the FreeType library to shut down.
-   */
+  /// @brief Shuts down FreeType.
   void CleanUpFreeType();
 }
 

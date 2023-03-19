@@ -4,7 +4,7 @@
 #include "../utility/SpdlogUtils.h"
 
 namespace term_engine::objects {
-  EventListener::EventListener(const GameSceneWeakPtr& game_scene, const std::string& type, const sol::function callback) :
+  EventListener::EventListener(GameScene* game_scene, const std::string& type, const sol::function callback) :
     BaseObject(),
     game_scene_(game_scene),
     type_(type),
@@ -18,15 +18,16 @@ namespace term_engine::objects {
   EventListener::~EventListener()
   {
     callback_ = sol::nil;
-    
-    utility::RemoveDebugInfo(debug_info_);
+    debug_info_.reset();
 
     utility::logger->debug("Destroyed event listener with ID {} and type {}.", object_id_, type_);
   }
 
   void EventListener::Update()
   {
-    for (const events::Event& event : events::event_queue)
+    debug_info_->Start();
+
+    for (const events::Event& event : events::event_list)
     {
       if (event.type_ == type_)
       {
@@ -46,6 +47,8 @@ namespace term_engine::objects {
         }
       }
     }
+
+    debug_info_->Interval();
   }
 
   std::string EventListener::GetObjectType() const
@@ -58,7 +61,7 @@ namespace term_engine::objects {
     return ObjectSortPriority::EVENT_LISTENER;
   }
 
-  GameSceneWeakPtr EventListener::GetGameScene() const
+  GameScene* EventListener::GetGameScene() const
   {
     return game_scene_;
   }
@@ -84,39 +87,49 @@ namespace term_engine::objects {
     }
   }
 
-  EventListenerProxy::EventListenerProxy(const ObjectPtr& object) :
-    BaseProxy(object)
-  {}
-
-  EventListenerProxy::~EventListenerProxy()
-  {}
-
-  EventListenerProxy AddEventListenerToScene(const std::string& type, const std::string& name, const sol::function callback)
+  EventListener* AddEventListenerToScene(const std::string& type, const std::string& name, const sol::function callback)
   {
     is_object_list_dirty_ = true;
 
-    GameScenePtr game_scene = std::dynamic_pointer_cast<GameScene>(GetGameSceneByName(name).lock());
+    GameScene* game_scene = GetGameSceneByName(name);
     
-    return EventListenerProxy(object_list_.emplace_front(std::make_shared<EventListener>(game_scene, type, callback)));
+    if (game_scene == nullptr)
+    {
+      utility::logger->warn("Cannot add event listener for non-existent game scene \"{}\"!", name);
+
+      return nullptr;
+    }
+    else
+    {
+      object_list_.emplace_front(std::make_unique<EventListener>(game_scene, type, callback));
+
+      return static_cast<EventListener*>(object_list_.front().get());
+    }
   }
 
-  EventListenerProxy AddEventListener(const std::string& type, const sol::function callback)
+  EventListener* AddEventListener(const std::string& type, const sol::function callback)
   {
     return AddEventListenerToScene(type, "default", callback);
   }
 
   void ClearAllEventListeners()
   {
-    object_list_.remove_if([](const ObjectPtr& object) { return object->GetObjectType() == std::string(EVENT_LISTENER_TYPE); });
+    object_list_.remove_if([](const ObjectPtr& object)
+    {
+      return object->GetObjectType() == std::string(EVENT_LISTENER_TYPE);
+    });
 
     utility::logger->debug("Cleared all event listeners from the list.");
   }
 
   void ClearEventListenersByGameScene(const std::string& name)
   {
-    GameScenePtr game_scene = std::dynamic_pointer_cast<GameScene>(GetGameSceneByName(name).lock());
+    GameScene* game_scene = GetGameSceneByName(name);
 
-    object_list_.remove_if([&game_scene](const ObjectPtr& object) { return object->GetObjectType() == std::string(EVENT_LISTENER_TYPE) && std::dynamic_pointer_cast<EventListener>(object)->GetGameScene().lock() == game_scene; });
+    object_list_.remove_if([&game_scene](const ObjectPtr& object)
+    {
+      return object->GetObjectType() == std::string(EVENT_LISTENER_TYPE) && dynamic_cast<EventListener*>(object.get())->GetGameScene() == game_scene;
+    });
 
     utility::logger->debug("Cleared all event listeners for game scene \"{}\" from the list.", name);
   }

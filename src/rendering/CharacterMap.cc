@@ -5,13 +5,11 @@
 #include "../utility/IndexUtils.h"
 
 namespace term_engine::rendering {
-  // TODO: Set default character size here!
   CharacterMap::CharacterMap() :
     position_(glm::vec2()),
-    size_(DEFAULT_CHARACTER_MAP_SIZE),
-    font_size_(DEFAULT_FONT_SIZE)
+    size_(DEFAULT_CHARACTER_MAP_SIZE)
   {
-    const size_t size = size_.x * size_.y;
+    const uint64_t size = size_.x * size_.y;
 
     data_.reserve(size);
     data_.resize(size);
@@ -27,11 +25,6 @@ namespace term_engine::rendering {
     return size_;
   }
 
-  GLuint CharacterMap::GetFontSize() const
-  {
-    return font_size_;
-  }
-
   void CharacterMap::SetPosition(const glm::vec2& position)
   {
     position_ = position;
@@ -39,16 +32,12 @@ namespace term_engine::rendering {
 
   void CharacterMap::SetSize(const glm::ivec2& size)
   {
+    const uint64_t data_size = size.x * size.y;
     data_.clear();
-    data_.reserve((size_t)size.x * (size_t)size.y);
-    data_.resize((size_t)size.x * (size_t)size.y);
+    data_.reserve(data_size);
+    data_.resize(data_size);
 
     size_ = size;
-  }
-
-  void CharacterMap::SetFontSize(const GLuint& font_size)
-  {
-    font_size_ = font_size;
   }
 
   void CharacterMap::Clear()
@@ -65,8 +54,8 @@ namespace term_engine::rendering {
       return;
     }
 
-    size_t column_pos = 0;
-    size_t index = utility::GetIndexFromRowCol(size_, position);
+    uint64_t column_pos = 0;
+    uint64_t index = utility::GetIndexFromRowCol(size_, position);
 
     for (const CharacterParams& character : data)
     {
@@ -89,22 +78,20 @@ namespace term_engine::rendering {
     }
   }
 
-  void CharacterMap::CopyToBuffer(Buffer& buffer, const FontAtlasPtr& font_atlas) const
+  void CopyCharacterMapToBuffer(const CharacterMap& character_map, Buffer& buffer, const FontAtlasPtr& font_atlas, uint32_t font_size)
   {
-    size_t index = 0;
-    BufferList text_buffer;
-    text_buffer.reserve(data_.size() * 6);
+    uint64_t index = 0;
 
-    for (const CharacterParams& character : data_)
+    for (const CharacterParams& character : character_map.data_)
     {
-      const CharacterBB textBbox = font_atlas->GetCharacter(character.character_, font_size_);
+      const CharacterBB textBbox = font_atlas->GetCharacter(character.character_, font_size);
       const CharacterBB bgBbox = font_atlas->GetWhitespace();
-      const glm::vec2 charSize = glm::vec2(font_atlas->GetCharacterSize(font_size_));
-      const glm::vec2 charOffset = glm::vec2(utility::GetRowColFromIndex(size_, index++) * font_atlas->GetCharacterSize(font_size_));
+      const glm::vec2 charSize = glm::vec2(font_atlas->GetCharacterSize(font_size));
+      const glm::vec2 charOffset = glm::vec2(utility::GetRowColFromIndex(character_map.size_, index++) * font_atlas->GetCharacterSize(font_size));
       const glm::vec2 textOffset = glm::vec2((charSize.x - textBbox.character_size_.x) / 2, textBbox.baseline_);
-      const glm::vec2 textTexPos = glm::vec2(textBbox.position_) / (GLfloat)TEXTURE_SIZE;
-      const glm::vec2 textTexSize = glm::vec2(textBbox.character_size_) / (GLfloat)TEXTURE_SIZE;
-      const glm::vec2 bgTexSize = glm::vec2(bgBbox.character_size_) / (GLfloat)TEXTURE_SIZE;
+      const glm::vec2 textTexPos = glm::vec2(textBbox.position_) / (float)TEXTURE_SIZE;
+      const glm::vec2 textTexSize = glm::vec2(textBbox.character_size_) / (float)TEXTURE_SIZE;
+      const glm::vec2 bgTexSize = glm::vec2(bgBbox.character_size_) / (float)TEXTURE_SIZE;
 
       // Draw the background.
       /* Draw order:
@@ -113,9 +100,9 @@ namespace term_engine::rendering {
        * | \
        * 3--2
        */
-      buffer.data.push_back(BufferData(position_ + charOffset, glm::vec2(), character.background_colour_));
-      buffer.data.push_back(BufferData(position_ + charOffset + charSize, bgTexSize, character.background_colour_));
-      buffer.data.push_back(BufferData(position_ + charOffset + glm::vec2(0.0f, charSize.y), glm::vec2(0.0f, bgTexSize.y), character.background_colour_));
+      buffer.data.push_back(BufferData(character_map.position_ + charOffset, glm::vec2(), character.background_colour_));
+      buffer.data.push_back(BufferData(character_map.position_ + charOffset + charSize, bgTexSize, character.background_colour_));
+      buffer.data.push_back(BufferData(character_map.position_ + charOffset + glm::vec2(0.0f, charSize.y), glm::vec2(0.0f, bgTexSize.y), character.background_colour_));
 
       /* Draw order:
        * 1--2
@@ -123,9 +110,9 @@ namespace term_engine::rendering {
        *   \|
        *    3
        */
-      buffer.data.push_back(BufferData(position_ + charOffset, glm::vec2(), character.background_colour_));
-      buffer.data.push_back(BufferData(position_ + charOffset + glm::vec2(charSize.x, 0), glm::vec2(bgTexSize.x, 0.0f), character.background_colour_));
-      buffer.data.push_back(BufferData(position_ + charOffset + charSize, bgTexSize, character.background_colour_));
+      buffer.data.push_back(BufferData(character_map.position_ + charOffset, glm::vec2(), character.background_colour_));
+      buffer.data.push_back(BufferData(character_map.position_ + charOffset + glm::vec2(charSize.x, 0), glm::vec2(bgTexSize.x, 0.0f), character.background_colour_));
+      buffer.data.push_back(BufferData(character_map.position_ + charOffset + charSize, bgTexSize, character.background_colour_));
 
       // Draw the foreground.
       /* Draw order:
@@ -134,9 +121,9 @@ namespace term_engine::rendering {
        * | \
        * 3--2
        */
-      text_buffer.push_back(BufferData(position_ + charOffset + textOffset, textTexPos, character.foreground_colour_));
-      text_buffer.push_back(BufferData(position_ + charOffset + glm::vec2(textBbox.character_size_) + textOffset, textTexPos + textTexSize, character.foreground_colour_));
-      text_buffer.push_back(BufferData(position_ + charOffset + glm::vec2(0, textBbox.character_size_.y) + textOffset, glm::vec2(textTexPos.x, textTexPos.y + textTexSize.y), character.foreground_colour_));
+      buffer.data.push_back(BufferData(character_map.position_ + charOffset + textOffset, textTexPos, character.foreground_colour_));
+      buffer.data.push_back(BufferData(character_map.position_ + charOffset + glm::vec2(textBbox.character_size_) + textOffset, textTexPos + textTexSize, character.foreground_colour_));
+      buffer.data.push_back(BufferData(character_map.position_ + charOffset + glm::vec2(0, textBbox.character_size_.y) + textOffset, glm::vec2(textTexPos.x, textTexPos.y + textTexSize.y), character.foreground_colour_));
 
       /* Draw order:
        * 1--2
@@ -144,11 +131,9 @@ namespace term_engine::rendering {
        *   \|
        *    3
        */
-      text_buffer.push_back(BufferData(position_ + charOffset + textOffset, textTexPos, character.foreground_colour_));
-      text_buffer.push_back(BufferData(position_ + charOffset + glm::vec2(textBbox.character_size_.x, 0) + textOffset, glm::vec2(textTexPos.x + textTexSize.x, textTexPos.y), character.foreground_colour_));
-      text_buffer.push_back(BufferData(position_ + charOffset + glm::vec2(textBbox.character_size_) + textOffset, textTexPos + textTexSize, character.foreground_colour_));
+      buffer.data.push_back(BufferData(character_map.position_ + charOffset + textOffset, textTexPos, character.foreground_colour_));
+      buffer.data.push_back(BufferData(character_map.position_ + charOffset + glm::vec2(textBbox.character_size_.x, 0) + textOffset, glm::vec2(textTexPos.x + textTexSize.x, textTexPos.y), character.foreground_colour_));
+      buffer.data.push_back(BufferData(character_map.position_ + charOffset + glm::vec2(textBbox.character_size_) + textOffset, textTexPos + textTexSize, character.foreground_colour_));
     }
-
-    buffer.data.insert(buffer.data.end(), text_buffer.begin(), text_buffer.end());
   }
 }

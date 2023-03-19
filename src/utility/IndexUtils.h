@@ -17,7 +17,7 @@ namespace term_engine::utility {
    * @param[in] position    The position to retrieve the index for.
    * @returns The data index.
    */
-  int GetIndexFromPosition(const objects::GameSceneWeakPtr& game_scene, const glm::ivec2& size, const glm::ivec2& position);
+  int GetIndexFromPosition(objects::GameScene* game_scene, const glm::ivec2& size, const glm::ivec2& position);
 
   /**
    * @brief Returns the position for the given data index.
@@ -27,7 +27,7 @@ namespace term_engine::utility {
    * @param[in] index The data index to retrieve the position for.
    * @returns The position.
    */
-  glm::ivec2 GetPositionFromIndex(const objects::GameSceneWeakPtr& game_scene, const glm::ivec2& size, const int& index);
+  glm::ivec2 GetPositionFromIndex(objects::GameScene* game_scene, const glm::ivec2& size, int index);
 
   /**
    * @brief Returns the row/column for the given position.
@@ -36,7 +36,7 @@ namespace term_engine::utility {
    * @param[in] position The position to retrieve the row/column for.
    * @returns The row/column.
    */
-  glm::ivec2 GetRowColFromPosition(const objects::GameSceneWeakPtr& game_scene, const glm::ivec2& position);
+  glm::ivec2 GetRowColFromPosition(objects::GameScene* game_scene, const glm::ivec2& position);
 
   /**
    * @brief Returns the position for the given row/column.
@@ -45,7 +45,7 @@ namespace term_engine::utility {
    * @param[in] rowcol The row/column to retrieve the position for.
    * @returns The position.
    */
-  glm::ivec2 GetPositionFromRowCol(const objects::GameSceneWeakPtr& game_scene, const glm::ivec2& rowcol);
+  glm::ivec2 GetPositionFromRowCol(objects::GameScene* game_scene, const glm::ivec2& rowcol);
 
   /**
    * @brief Returns the row/column for the given data index.
@@ -54,7 +54,7 @@ namespace term_engine::utility {
    * @param[in] index The data index to retrieve the row/column for.
    * @returns The row/column.
    */
-  glm::ivec2 GetRowColFromIndex(const glm::ivec2& size, const int& index);
+  glm::ivec2 GetRowColFromIndex(const glm::ivec2& size, int index);
 
   /**
    * @brief Returns the data index for the given row/column.
@@ -71,7 +71,7 @@ namespace term_engine::utility {
    * @param[in] index The index to convert.
    * @returns The converted index.
    */
-  int ToLuaIndex(const int& index);
+  int ToLuaIndex(int index);
 
   /**
    * @brief Converts a Lua-style index (i.e. starting from 1) into a C-style index (i.e. starting from 0).
@@ -79,7 +79,7 @@ namespace term_engine::utility {
    * @param[in] index The index to convert.
    * @returns The converted index.
    */
-  int ToCppIndex(const int& index);
+  int ToCppIndex(int index);
 }
 
 #endif // ! INDEX_UTILS_H

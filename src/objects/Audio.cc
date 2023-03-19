@@ -4,7 +4,7 @@
 #include "../utility/SpdlogUtils.h"
 
 namespace term_engine::objects {
-  Audio::Audio(const std::filesystem::path& filepath, const unsigned int& flag) :
+  Audio::Audio(const std::filesystem::path& filepath, uint32_t flag) :
     BaseObject(),
     filepath_(filepath),
     is_paused_(false),
@@ -26,8 +26,7 @@ namespace term_engine::objects {
   Audio::~Audio()
   {
     ma_sound_uninit(&sound_);
-
-    utility::RemoveDebugInfo(debug_info_);
+    debug_info_.reset();
 
     utility::logger->debug("Destroyed audio resource with ID {}.", object_id_);
   }
@@ -47,7 +46,6 @@ namespace term_engine::objects {
 
   void Audio::Play()
   {
-    ma_sound_seek_to_pcm_frame(&sound_, 0);
     ma_sound_start(&sound_);
     is_paused_ = false;
   }
@@ -65,10 +63,17 @@ namespace term_engine::objects {
     is_paused_ = true;
   }
 
-  void Audio::Resume()
+  void Audio::Rewind()
   {
-    ma_sound_start(&sound_);
-    is_paused_ = false;
+    ma_sound_seek_to_pcm_frame(&sound_, 0);
+  }
+
+  void Audio::Seek(uint64_t time)
+  {
+    const uint32_t sample_rate = ma_engine_get_sample_rate(&utility::engine);
+    const ma_uint64 frame = time * (sample_rate / 1000);
+
+    ma_sound_seek_to_pcm_frame(&sound_, frame);
   }
 
   bool Audio::IsPlaying() const
@@ -135,19 +140,19 @@ namespace term_engine::objects {
     return filepath_;
   }
 
-  void Audio::SetLooping(const bool& flag)
+  void Audio::SetLooping(bool flag)
   {
     ma_sound_set_looping(&sound_, flag ? MA_TRUE : MA_FALSE);
   }
 
-  void Audio::SetPan(const double& pan)
+  void Audio::SetPan(double pan)
   {
     pan_ = pan;
 
     ma_sound_set_pan(&sound_, (float)pan);
   }
 
-  void Audio::SetPitch(const double& pitch)
+  void Audio::SetPitch(double pitch)
   {
     pitch_ = pitch;
 
@@ -161,21 +166,14 @@ namespace term_engine::objects {
     ma_sound_set_position(&sound_, position.x, 0.0f, position.y);
   }
   
-  void Audio::SetVolume(const double& volume)
+  void Audio::SetVolume(double volume)
   {
     volume_ = volume;
     
     ma_sound_set_volume(&sound_, (float)volume);
   }
 
-  AudioProxy::AudioProxy(const ObjectPtr& object) :
-    BaseProxy(object)
-  {}
-
-  AudioProxy::~AudioProxy()
-  {}
-
-  AudioProxy AddAudio(const std::string& filepath, const std::string& type)
+  Audio* AddAudio(const std::string& filepath, const std::string& type)
   {
     unsigned int flag = 0;
 
@@ -192,12 +190,17 @@ namespace term_engine::objects {
 
     is_object_list_dirty_ = true;
 
-    return AudioProxy(object_list_.emplace_front(std::make_shared<Audio>(id, flag)));
+    object_list_.emplace_front(std::make_unique<Audio>(id, flag));
+
+    return static_cast<Audio*>(object_list_.front().get());
   }
 
   void ClearAllAudio()
   {
-    object_list_.remove_if([](const ObjectPtr& object) { return object->GetObjectType() == std::string(AUDIO_TYPE); });
+    object_list_.remove_if([](const ObjectPtr& object)
+    {
+      return object->GetObjectType() == std::string(AUDIO_TYPE);
+    });
 
     utility::logger->debug("Cleared all audio objects from the list.");
   }

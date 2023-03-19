@@ -25,10 +25,10 @@ namespace term_engine::utility {
 
   struct ShaderProcessResult
   {
-    GLuint id_;
-    GLboolean success_;
+    uint32_t id_;
+    uint8_t success_;
 
-    ShaderProcessResult(const GLuint& id, const GLboolean& success) :
+    ShaderProcessResult(uint32_t id, uint8_t success) :
       id_(id),
       success_(success)
     {}
@@ -44,12 +44,10 @@ namespace term_engine::utility {
    * @param[in] message    An array pointer to the error message.
    * @param[in] user_param Unused.
    */
-  void GLAPIENTRY glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const char* message, const void* user_param);
+  void GLAPIENTRY glDebugOutput(uint32_t source, uint32_t type, uint32_t id, uint32_t severity, int length, const char* message, const void* user_param);
 
   /**
-   * @brief Prepares OpenGL for use. Do not call this function! Use `Init()` instead.
-   * 
-   * @returns Was OpenGL successfully initialised?
+   * @brief Prepares OpenGL for use.
    */
   void InitGL();
 
@@ -66,7 +64,7 @@ namespace term_engine::utility {
    * 
    * @param[in] program_id The ID of the program to log.
    */
-  void PrintProgramLog(const GLuint& program_id);
+  void PrintProgramLog(uint32_t program_id);
 
   /**
    * @brief Logs the compilation/linking log of the given shader stage.
@@ -74,13 +72,13 @@ namespace term_engine::utility {
    * @param[in] stage_id The ID of the shader stage to log.
    * @see [OpenGL shader stages](https://www.khronos.org/opengl/wiki/Shader#Stages)
    */
-  void PrintStageLog(const GLuint& stage_id);
+  void PrintStageLog(uint32_t stage_id);
 
-  ShaderProcessResult LinkShaderProgram(const GLuint& program_id);
+  ShaderProcessResult LinkShaderProgram(uint32_t program_id);
 
-  ShaderProcessResult CompileShaderStage(const std::string& glsl_code, const GLenum& type);
+  ShaderProcessResult CompileShaderStage(const std::string& glsl_code, uint32_t type);
 
-  std::string GetShaderTypeName(const GLenum& type);
+  std::string GetShaderTypeName(uint32_t type);
 }
 
 #endif // ! GL_UTILS_H

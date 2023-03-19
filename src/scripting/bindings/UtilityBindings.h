@@ -7,6 +7,7 @@
 #include "../../events/InputManager.h"
 #include "../../rendering/Character.h"
 #include "../../rendering/Window.h"
+#include "../../system/AudioFunctions.h"
 #include "../../system/FileFunctions.h"
 #include "../../timing/FPSManager.h"
 #include "../../utility/DebugUtils.h"
@@ -21,11 +22,18 @@ namespace term_engine::scripting::bindings {
    */
   void BindUtilitiesToState(sol::state& state)
   {
-    state.create_named_table(
-      "characters",
+    state.create_named_table("audio",
+      "trigger", &system::PlaySound);
+
+    state.create_named_table("characters",
       "NO_CHARACTER", sol::var(rendering::NO_CHARACTER),
       "DEFAULT_FOREGROUND_COLOUR", sol::var(rendering::DEFAULT_FOREGROUND_COLOUR),
       "DEFAULT_BACKGROUND_COLOUR", sol::var(rendering::DEFAULT_BACKGROUND_COLOUR));
+    
+    state.create_named_table("debug_info",
+      "get", &utility::GetDebugInfo,
+      "getCount", &utility::GetDebugInfoCount,
+      "getLineCount", &utility::GetDebugInfoLines);
     
     state.create_named_table("fps",
       "print", &timing::PrintFPS,
@@ -58,8 +66,6 @@ namespace term_engine::scripting::bindings {
 
     state.set_function("round", lroundf);
 
-    state.set_function("getDebugInfo", &utility::GetDebugInfo);
-    
     /* TODO: Fix these, taking into account the Lua-style index.
     state.set_function("getIndexFromPosition", &utility::GetIndexFromPosition,
     state.set_function("getRowColFromPosition", utility::GetRowColFromPosition);

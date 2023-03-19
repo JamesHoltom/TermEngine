@@ -4,15 +4,16 @@ namespace term_engine::objects {
   bool is_object_list_dirty_ = false;
   ObjectList object_list_;
 
-  size_t BaseObject::object_next_id_ = 0;
+  uint64_t BaseObject::object_next_id_ = 0;
 
   BaseObject::BaseObject() :
     object_id_(object_next_id_++),
     is_active_(true),
+    marked_for_removal_(false),
     debug_info_()
   {}
 
-  size_t BaseObject::GetObjectId() const
+  uint64_t BaseObject::GetObjectId() const
   {
     return object_id_;
   }
@@ -22,30 +23,24 @@ namespace term_engine::objects {
     return is_active_;
   }
 
-  void BaseObject::SetActive(const bool& flag)
+  void BaseObject::SetActive(bool flag)
   {
     is_active_ = flag;
   }
 
-  BaseProxy::BaseProxy(const ObjectPtr& object) :
-    ptr_(object)
-  {}
-
-  bool BaseProxy::IsExpired() const
+  bool BaseObject::FlaggedForRemoval() const
   {
-    return ptr_.expired();
+    return marked_for_removal_;
   }
 
-  void BaseProxy::Release() const
+  void BaseObject::FlagForRemoval()
   {
-    if (ptr_.expired())
-    {
-      utility::logger->warn("Cannot release an already removed object!");
+    marked_for_removal_ = true;
+  }
 
-      return;
-    }
-    
-    RemoveObject(ptr_.lock()->GetObjectId());
+  void BaseObject::UnflagForRemoval()
+  {
+    marked_for_removal_ = false;
   }
 
   void SortObjects()
@@ -53,7 +48,7 @@ namespace term_engine::objects {
     if (is_object_list_dirty_)
     {
       object_list_.sort([](const ObjectPtr& lhs, const ObjectPtr& rhs) {
-        return lhs->GetListPriority() < rhs->GetListPriority();
+        return lhs->GetListPriority() < rhs->GetListPriority() && lhs->GetObjectId() < rhs->GetObjectId();
       });
 
       is_object_list_dirty_ = false;
@@ -68,26 +63,20 @@ namespace term_engine::objects {
     for (ObjectPtr& object : object_list_)
     {
       object->Update();
-
-      utility::ObjectDebugInfoPtr ptr = object->debug_info_.lock();
-      
-      if (ptr)
-      {
-        ptr->ptr_uses_ = object.use_count();
-        ptr->update_time_ = update_timer.GetIntervalElapsedMs();
-      }
     }
-  }
-
-  void RemoveObject(const size_t& id)
-  {
-    object_list_.remove_if([&id](const ObjectPtr& object) { return object->GetObjectId() == id; });
-
-    utility::logger->info("Removed object with ID {}.", id);
   }
 
   void CleanUpObjects()
   {
+    object_list_.reverse();
     object_list_.clear();
+  }
+
+  void ClearFlaggedObjects()
+  {
+    object_list_.remove_if([](const ObjectPtr& object)
+    {
+      return object->FlaggedForRemoval();
+    });
   }
 }

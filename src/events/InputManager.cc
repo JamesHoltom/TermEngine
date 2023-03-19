@@ -39,19 +39,19 @@ namespace term_engine::events {
     std::copy(current_key_state, current_key_state + key_state_size, previous_key_state);
   }
 
-  bool MouseIsDown(const int& button)
+  bool MouseIsDown(int button)
   {
     return current_mouse_state & SDL_BUTTON(button);
   }
 
-  bool MouseIsPressed(const int& button)
+  bool MouseIsPressed(int button)
   {
     bool result = (current_mouse_state & SDL_BUTTON(button)) && !(previous_mouse_state & SDL_BUTTON(button));
 
     return result;
   }
 
-  bool MouseIsReleased(const int& button)
+  bool MouseIsReleased(int button)
   {
     bool result = !(current_mouse_state & SDL_BUTTON(button)) && (previous_mouse_state & SDL_BUTTON(button));
 
@@ -75,7 +75,7 @@ namespace term_engine::events {
     return ScancodeIsDown(code);
   }
 
-  bool ScancodeIsDown(const SDL_Scancode& code)
+  bool ScancodeIsDown(SDL_Scancode code)
   {
     if (code != SDL_SCANCODE_UNKNOWN)
     {
@@ -96,7 +96,7 @@ namespace term_engine::events {
     return ScancodeIsPressed(code);
   }
 
-  bool ScancodeIsPressed(const SDL_Scancode& code)
+  bool ScancodeIsPressed(SDL_Scancode code)
   {
     if (code != SDL_SCANCODE_UNKNOWN)
     {
@@ -117,7 +117,7 @@ namespace term_engine::events {
     return ScancodeIsReleased(code);
   }
 
-  bool ScancodeIsReleased(const SDL_Scancode& code)
+  bool ScancodeIsReleased(SDL_Scancode code)
   {
     if (code != SDL_SCANCODE_UNKNOWN)
     {

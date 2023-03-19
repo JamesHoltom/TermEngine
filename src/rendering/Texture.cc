@@ -3,9 +3,9 @@
 #include "../utility/SpdlogUtils.h"
 
 namespace term_engine::rendering {
-  TextureData CreateTextureFromImage(const std::filesystem::path& filepath, const GLuint& index)
+  TextureData CreateTextureFromImage(const std::filesystem::path& filepath, uint32_t index)
   {
-    GLuint texture_id = 0;
+    uint32_t texture_id = 0;
     int width, height, channels;
 
     glGenTextures(1, &texture_id);
@@ -16,10 +16,10 @@ namespace term_engine::rendering {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    unsigned char *data = stbi_load(filepath.c_str(), &width, &height, &channels, 0);
+    uint8_t* data = stbi_load(filepath.c_str(), &width, &height, &channels, 0);
 
     if (data != nullptr) {
-      GLint mode = GL_RGB;
+      int mode = GL_RGB;
 
       if (channels == 4)
       {
@@ -44,9 +44,9 @@ namespace term_engine::rendering {
     }
   }
 
-  TextureData AllocateTexture(const glm::ivec2& size, const GLenum& format, const GLuint& index)
+  TextureData AllocateTexture(const glm::ivec2& size, uint32_t format, uint32_t index)
   {
-    GLuint texture_id = 0;
+    uint32_t texture_id = 0;
 
     glGenTextures(1, &texture_id);
     glActiveTexture(GL_TEXTURE0 + index);
@@ -69,7 +69,7 @@ namespace term_engine::rendering {
 
   void ClearTexture(TextureData& texture, const glm::vec4& colour)
   {
-    GLubyte clear_colour[4] = { static_cast<GLubyte>(colour.r), static_cast<GLubyte>(colour.g), static_cast<GLubyte>(colour.b), static_cast<GLubyte>(colour.a) };
+    uint8_t clear_colour[4] = { static_cast<uint8_t>(colour.r), static_cast<uint8_t>(colour.g), static_cast<uint8_t>(colour.b), static_cast<uint8_t>(colour.a) };
 
     glActiveTexture(GL_TEXTURE0 + texture.texture_index_);
     glBindTexture(GL_TEXTURE_2D, texture.texture_id_);
@@ -86,7 +86,7 @@ namespace term_engine::rendering {
     }
   }
 
-  void UnuseTexture(const GLuint& index)
+  void UnuseTexture(uint32_t index)
   {
     glActiveTexture(GL_TEXTURE0 + index);
     glBindTexture(GL_TEXTURE_2D, 0);

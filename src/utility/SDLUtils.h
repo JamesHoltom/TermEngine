@@ -8,7 +8,7 @@
 
 namespace term_engine::utility {
   /// @brief The flags to initialise SDL with.
-  constexpr int SDL_INIT_FLAGS = SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER;
+  constexpr uint32_t SDL_INIT_FLAGS = SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER;
 
   /// @brief Wraps _SDL_Window_ with a smart pointer to allow automatic cleanup.
   typedef std::unique_ptr<SDL_Window, decltype(&SDL_DestroyWindow)> SDLWindow;
@@ -24,7 +24,7 @@ namespace term_engine::utility {
    * 
    * @returns Was SDL successfully initialised?
    */
-  int InitSDL();
+  bool InitSDL();
 
   /// @brief Shuts down SDL.
   void CleanUpSDL();

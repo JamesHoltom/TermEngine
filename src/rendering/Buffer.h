@@ -14,7 +14,7 @@ namespace term_engine::rendering {
   /// @brief Used to store data in a Buffer.
   typedef std::vector<BufferData> BufferList;
 
-  /// @brief Represents the structure of the buffer used to render characters.
+  /// @brief Represents the structure of a buffer element.
   struct BufferData {
     /**
      * @brief Constructs the buffer data with the given parameters.
@@ -50,6 +50,7 @@ namespace term_engine::rendering {
     glm::vec4 colour_;
   };
 
+  /// @brief Manages a list of buffer data and pushes it to a VBO in OpenGL.
   class Buffer {
   public:
     /// @brief Constructs the buffer.
@@ -66,7 +67,7 @@ namespace term_engine::rendering {
     BufferList data;
 
     /// @brief Pushes the buffer data to the VBO.
-    void PushToGL() const;
+    void PushToGL();
 
     /// @brief Binds the buffer.
     void Use() const;
@@ -76,20 +77,22 @@ namespace term_engine::rendering {
      * 
      * @return The VAO ID.
      */
-    GLuint GetVaoId() const;
+    uint32_t GetVaoId() const;
 
     /**
      * @brief Returns the VBO ID for the buffer.
      * 
      * @return The VBO ID.
      */
-    GLuint GetVboId() const;
+    uint32_t GetVboId() const;
 
   private:
     /// @brief The ID of the VAO used to contain the VBO.
-    GLuint vao_id_;
+    uint32_t vao_id_;
     /// @brief The ID of the VBO used to store the buffer-related data.
-    GLuint vbo_id_;
+    uint32_t vbo_id_;
+    /// @brief The current size of the data buffer.
+    uint64_t current_data_size_;
   };
 }
 

@@ -1,5 +1,3 @@
-#include <iomanip>
-#include <sstream>
 #include "DebugUtils.h"
 #include "GLUtils.h"
 #include "SpdlogUtils.h"
@@ -7,9 +5,76 @@
 
 namespace term_engine::utility {
   DebugInfoList debug_info_list;
-  DebugSceneMenuOption menu_option;
-  size_t current_line;
+
+  std::string InfoItem::ToString() const
+  {
+    std::stringstream ss;
+    const std::string time_str = std::to_string(total_time_);
+    const uint32_t time_str_len = time_str.length() > 13 ? 13 : 16;
+
+    ss
+      << std::string(indent_, ' ')
+      << std::setw(16 - indent_) << std::setiosflags(std::ios::left) << name_.substr(0, 16 - indent_)
+      << std::setw(16) << std::resetiosflags(std::ios::left)
+      << time_str.substr(0, time_str_len);
+
+    if (time_str_len == 13)
+    {
+      ss << "...";
+    }
+
+    return ss.str();
+  }
   
+  void ObjectDebugInfo::AddSubItem(const std::string& name, uint32_t indent)
+  {
+    sub_list_.push_back(InfoItem(name, indent));
+  }
+
+  void ObjectDebugInfo::Start()
+  {
+    timer_.Start();
+    main_item_.total_time_ = 0;
+  }
+
+  void ObjectDebugInfo::Interval(int interval_index)
+  {
+    if (sub_list_.size() == 0)
+    {
+      main_item_.total_time_ = timer_.GetIntervalElapsed();
+    }
+    else if (interval_index < sub_list_.size())
+    {
+      const uint64_t time = timer_.GetIntervalElapsed();
+
+      sub_list_[interval_index].total_time_ = time;
+      main_item_.total_time_ += time;
+    }
+    else
+    {
+      logger->warn("Invalid debug info index {} set.", interval_index);
+    }
+  }
+
+  std::string ObjectDebugInfo::ToString() const
+  {
+    std::stringstream ss;
+
+    ss << main_item_.ToString();
+
+    for (const InfoItem& item : sub_list_)
+    {
+      ss << item.ToString();
+    }
+
+    return ss.str();
+  }
+
+  uint64_t ObjectDebugInfo::GetLineCount() const
+  {
+    return sub_list_.size() + 1;
+  }
+
   void LogKeyboardEvents(const SDL_Event& event)
   {
     std::string keyboard_type;
@@ -155,56 +220,41 @@ namespace term_engine::utility {
     logger->debug("VBO ID: {}, size: {}", vbo_id, vbo_size);
   }
 
-  ObjectDebugInfoWeakPtr AddDebugInfo(const std::string& name)
+  ObjectDebugInfoPtr AddDebugInfo(const std::string& name)
   {
-    ObjectDebugInfoPtr debug_info = debug_info_list.emplace_back(std::make_shared<ObjectDebugInfo>(name));
+    ObjectDebugInfoPtr debug_info = ObjectDebugInfoPtr(new ObjectDebugInfo(name));
+    debug_info_list.push_back(debug_info.get());
 
-    return debug_info;
+    return std::move(debug_info);
   }
 
-  void RemoveDebugInfo(const ObjectDebugInfoWeakPtr& ptr)
+  std::string GetDebugInfo(DebugSceneMenuOption option, uint64_t line)
   {
-    debug_info_list.erase(std::remove_if(debug_info_list.begin(), debug_info_list.end(), [&ptr](const ObjectDebugInfoPtr& info) { return ptr.lock()->name_ == info->name_; }), debug_info_list.end());
-  }
-
-  std::string GetDebugInfo()
-  {
-    size_t info_end = std::min(current_line + 15, debug_info_list.size());
+    const uint64_t info_end = std::min(line + 15, debug_info_list.size());
     std::stringstream return_string;
 
-    for (size_t i = current_line; i < info_end; ++i)
+    for (uint64_t i = line; i < info_end; ++i)
     {
-      std::string timing = std::to_string(debug_info_list[i]->update_time_);
-      std::string usage = std::to_string(debug_info_list[i]->ptr_uses_);
-
-      return_string << std::setw(16) << std::setiosflags(std::ios::left) << debug_info_list[i]->name_;
-
-      switch (menu_option)
-      {
-        case DebugSceneMenuOption::TIMING:
-          return_string << std::setw(16) << std::resetiosflags(std::ios::left) << timing.substr(0, timing.length() > 13 ? 13 : 16);
-
-          if (timing.length() > 13)
-          {
-            return_string << "...";
-          }
-
-          break;
-        case DebugSceneMenuOption::PTR_USAGE:
-          return_string << std::setw(16) << std::resetiosflags(std::ios::left) << usage.substr(0, usage.length() > 13 ? 13 : 16);
-
-          if (usage.length() > 13)
-          {
-            return_string << "...";
-          }
-
-          break;
-        case DebugSceneMenuOption::FLAGS:
-          
-          break;
-      }
+      return_string << debug_info_list[i]->ToString();
     }
 
     return return_string.str();
+  }
+
+  uint64_t GetDebugInfoCount()
+  {
+    return debug_info_list.size();
+  }
+
+  uint64_t GetDebugInfoLines()
+  {
+    uint64_t info_lines = 0;
+
+    for (ObjectDebugInfo* debug_info : debug_info_list)
+    {
+      info_lines += debug_info->GetLineCount();
+    }
+
+    return info_lines;
   }
 }

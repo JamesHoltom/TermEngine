@@ -2,7 +2,8 @@
 #include "../utility/DebugUtils.h"
 
 namespace term_engine::rendering {
-  Buffer::Buffer()
+  Buffer::Buffer() :
+    current_data_size_(0)
   {
     glGenVertexArrays(1, &vao_id_);
     glBindVertexArray(vao_id_);
@@ -28,7 +29,7 @@ namespace term_engine::rendering {
     utility::LogVAOData();
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo_id_);
-    glBufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_STREAM_DRAW);
 
     glBindVertexArray(0);
   }
@@ -39,11 +40,24 @@ namespace term_engine::rendering {
     glDeleteBuffers(1, &vbo_id_);
   }
 
-  void Buffer::PushToGL() const
+  void Buffer::PushToGL()
   {
     glBindVertexArray(vao_id_);
     glBindBuffer(GL_ARRAY_BUFFER, vbo_id_);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(BufferData) * data.capacity(), data.data(), GL_DYNAMIC_DRAW);
+
+    // If the size of the buffer has changed, recreate the OpenGL buffer with the new size.
+    // if (current_data_size_ != data.size())
+    // {
+    //   current_data_size_ = data.size();
+    //   glBufferData(GL_ARRAY_BUFFER, sizeof(BufferData) * current_data_size_, data.data(), GL_STREAM_DRAW);
+
+    //   utility::logger->info("Resized buffer at VAO {} to {} items...", vao_id_, current_data_size_);
+    // }
+
+    // utility::logger->info("Rendering {} items to VAO {}...", data.size(), vao_id_);
+
+    // glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(BufferData) * current_data_size_, data.data());
+    glBufferData(GL_ARRAY_BUFFER, sizeof(BufferData) * data.size(), data.data(), GL_STREAM_DRAW);
   }
 
   void Buffer::Use() const
@@ -51,12 +65,12 @@ namespace term_engine::rendering {
     glBindVertexArray(vao_id_);
   }
 
-  GLuint Buffer::GetVaoId() const
+  uint32_t Buffer::GetVaoId() const
   {
     return vao_id_;
   }
 
-  GLuint Buffer::GetVboId() const
+  uint32_t Buffer::GetVboId() const
   {
     return vbo_id_;
   }
