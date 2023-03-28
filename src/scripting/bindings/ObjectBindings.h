@@ -83,13 +83,13 @@ namespace term_engine::scripting::bindings {
       "name", sol::readonly_property(&objects::GameScene::GetName),
       "background", sol::readonly_property(&objects::GameScene::GetBackground),
       "charmap", sol::readonly_property(&objects::GameScene::GetCharacterMap),
-      "font", sol::readonly_property(&objects::GameScene::GetFontAtlas),
+      "font", sol::property(&objects::GameScene::GetFontAtlas, &objects::GameScene::SetFontAtlas),
       "fontSize", sol::property(&objects::GameScene::GetFontSize, &objects::GameScene::SetFontSize),
       "backgroundShader", sol::readonly_property(&objects::GameScene::GetBackgroundShader),
       "textShader", sol::readonly_property(&objects::GameScene::GetTextShader),
       "window", sol::readonly_property(&objects::GameScene::GetWindow),
       "preventClose", &objects::GameScene::UnflagForRemoval,
-      "resizeToFit", &objects::GameScene::ResizeToFit);
+      "resizeToFit", &objects::GameScene::ResizeToFitCharacterMap);
     
     state.new_usertype<objects::TimedFunction>(
       "TimedFunction",
@@ -122,14 +122,15 @@ namespace term_engine::scripting::bindings {
                                                 void(const char&, const glm::vec4&, const glm::vec4&)>(),
       sol::meta_function::equal_to, [](const rendering::CharacterParams& lhs, const rendering::CharacterParams& rhs) { return lhs == rhs; },
       "character", &rendering::CharacterParams::character_,
-      "foreground_colour", &rendering::CharacterParams::foreground_colour_,
-      "background_colour", &rendering::CharacterParams::background_colour_);
+      "foregroundColour", &rendering::CharacterParams::foreground_colour_,
+      "backgroundColour", &rendering::CharacterParams::background_colour_);
 
     state.new_usertype<rendering::CharacterMap>(
       "CharacterMap",
       sol::meta_function::construct, sol::no_constructor,
       "position", sol::property(&rendering::CharacterMap::GetPosition, &rendering::CharacterMap::SetPosition),
-      "size", sol::property(&rendering::CharacterMap::GetSize, &rendering::CharacterMap::SetSize));
+      "size", sol::property(&rendering::CharacterMap::GetSize, &rendering::CharacterMap::SetSize),
+      "hideEmptyCharacters", sol::property(&rendering::CharacterMap::ShouldEmptyCharactersHaveBackground, &rendering::CharacterMap::SetEmptyCharacterBackground));
     
     state.new_usertype<rendering::FontAtlas>(
       "FontAtlas",
@@ -168,7 +169,7 @@ namespace term_engine::scripting::bindings {
       "started", sol::readonly_property(&timing::Timer::IsStarted),
       "paused", sol::readonly_property(&timing::Timer::IsPaused),
       "duration", sol::readonly_property(&timing::Timer::GetDuration),
-      "paused_duration", sol::readonly_property(&timing::Timer::GetPauseDuration));
+      "pausedDuration", sol::readonly_property(&timing::Timer::GetPauseDuration));
 
     state.new_usertype<rendering::GameWindow>(
       "Window",

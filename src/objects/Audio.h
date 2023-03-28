@@ -10,11 +10,6 @@
 #include "BaseObject.h"
 #include "../vendor/miniaudio.h"
 
-/*
- * TODO: 
- *   - Add "Seek" function.
- */
-
 namespace term_engine::objects {
   /// @brief The type name for Audio objects.
   constexpr char AUDIO_TYPE[] = "Audio";

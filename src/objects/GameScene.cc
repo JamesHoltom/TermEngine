@@ -22,9 +22,7 @@ namespace term_engine::objects {
     background_shader_program_(),
     text_shader_program_()
   {
-    const std::filesystem::path font_path = system::SearchForResourcePath(std::string(rendering::DEFAULT_FONT));
-
-    font_atlas_ = rendering::FontAtlas::GetFontAtlas(font_path);
+    font_atlas_ = rendering::GetFontAtlas(std::string(rendering::DEFAULT_FONT));
     window_.SetSize(font_atlas_->GetCharacterSize(font_size_) * character_map_.GetSize());
 
     background_shader_program_.AttachString(shaders::DEFAULT_VERT_GLSL, GL_VERTEX_SHADER);
@@ -43,8 +41,8 @@ namespace term_engine::objects {
     debug_info_->AddSubItem("Window", 1);
     debug_info_->AddSubItem("Font Update", 1);
     debug_info_->AddSubItem("BG Update", 1);
-    debug_info_->AddSubItem("Text Update", 1);
     debug_info_->AddSubItem("BG Draw", 1);
+    debug_info_->AddSubItem("Text Update", 1);
     debug_info_->AddSubItem("Text Draw", 1);
     debug_info_->AddSubItem("Refresh", 1);
 
@@ -53,7 +51,6 @@ namespace term_engine::objects {
 
   GameScene::~GameScene()
   {
-    font_atlas_.reset();
     debug_info_.reset();
 
     scene_list_.erase(std::remove(scene_list_.begin(), scene_list_.end(), this), scene_list_.end());
@@ -76,24 +73,31 @@ namespace term_engine::objects {
 
       debug_info_->Interval(1);
 
-      background_buffer_.data.clear();
-      background_.CopyToBuffer(background_buffer_);
+      if (background_.IsLoaded())
+      {
+        background_buffer_.data.clear();
+        background_.CopyToBuffer(background_buffer_);
 
-      debug_info_->Interval(2);
+        debug_info_->Interval(2);
+
+        background_buffer_.PushToGL();
+        
+        background_buffer_.Use();
+        background_.Use();
+        background_shader_program_.Use();
+
+        glDrawArrays(GL_TRIANGLES, 0, background_buffer_.data.size());
+
+        debug_info_->Interval(3);
+      }
+      else
+      {
+        debug_info_->Reset(2);
+        debug_info_->Reset(3);
+      }
 
       text_buffer_.data.clear();
       CopyCharacterMapToBuffer(character_map_, text_buffer_, font_atlas_, font_size_);
-
-      debug_info_->Interval(3);
-
-      if (background_.IsLoaded())
-      {
-        background_buffer_.PushToGL();
-        
-        background_.Use();
-        background_shader_program_.Use();
-        glDrawArrays(GL_TRIANGLES, 0, background_buffer_.data.size());
-      }
 
       debug_info_->Interval(4);
 
@@ -128,9 +132,14 @@ namespace term_engine::objects {
     return name_;
   }
 
-  rendering::FontAtlasPtr GameScene::GetFontAtlas()
+  rendering::FontAtlas* GameScene::GetFontAtlas()
   {
     return font_atlas_;
+  }
+
+  uint32_t GameScene::GetFontSize() const
+  {
+    return font_size_;
   }
 
   rendering::Background* GameScene::GetBackground()
@@ -158,19 +167,19 @@ namespace term_engine::objects {
     return &window_;
   }
 
-  uint32_t GameScene::GetFontSize() const
+  void GameScene::SetFontAtlas(rendering::FontAtlas* font_atlas)
   {
-    return font_size_;
+    font_atlas_ = font_atlas;
   }
 
   void GameScene::SetFontSize(uint32_t font_size)
   {
     font_size_ = font_size;
 
-    ResizeToFit();
+    ResizeToFitCharacterMap();
   }
 
-  void GameScene::ResizeToFit() const
+  void GameScene::ResizeToFitCharacterMap() const
   {
     const glm::ivec2 character_size = font_atlas_->GetCharacterSize(font_size_);
 
@@ -210,7 +219,7 @@ namespace term_engine::objects {
     return nullptr;
   }
 
-  void MarkGameSceneForRemoval(uint32_t window_id)
+  void FlagGameSceneForRemoval(uint32_t window_id)
   {
     for (GameScene*& game_scene : GameScene::scene_list_)
     {

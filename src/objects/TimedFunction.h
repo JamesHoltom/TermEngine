@@ -33,7 +33,7 @@ namespace term_engine::objects {
     /**
      * @brief Returns the type of the object.
      * 
-     * @return The object type.
+     * @returns The object type.
      */
     std::string GetObjectType() const;
 

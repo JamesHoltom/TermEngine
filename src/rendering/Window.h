@@ -17,8 +17,10 @@ namespace term_engine::rendering {
   /// @brief The default clear colour to use when refreshing the window.
   constexpr glm::vec4 DEFAULT_WINDOW_CLEAR_COLOUR(0.0f, 0.0f, 0.0f, 255.0f);
 
+  /// @brief Defines what can happen when the user closes the window.
   enum CloseLogic { HIDE = 0, CLOSE = 1, QUIT = 2 };
 
+  /// @brief Used to handle a window on the screen.
   class GameWindow {
   public:
     /// @brief Constructs the window with the default parameters.
@@ -71,7 +73,11 @@ namespace term_engine::rendering {
      */
     glm::vec4 GetClearColour() const;
 
-
+    /**
+     * @brief Returns whether the window will close, quit or hide upon user input.
+     * 
+     * @returns A value defining the window behaviour.
+     */
     CloseLogic GetCloseBehaviour() const;
 
     /**
@@ -91,7 +97,7 @@ namespace term_engine::rendering {
     /**
      * @brief Returns if the window is currently maximised.
      * 
-     * @return If the window is maximised.
+     * @returns If the window is maximised.
      */
     bool IsMaximised() const;
 
@@ -140,7 +146,11 @@ namespace term_engine::rendering {
      */
     void SetClearColour(const glm::vec4& colour);
 
-
+    /**
+     * @brief Sets if the window will close, quit or hide upon user input.
+     * 
+     * @param[in] behaviour A value defining the window behaviour.
+     */
     void SetCloseBehaviour(CloseLogic behaviour);
 
     /**
@@ -175,6 +185,7 @@ namespace term_engine::rendering {
     /// @brief Disables wireframe rendering.
     void SetWireframe(bool flag);
 
+    /// @brief Sets the window as currently active.
     void Use() const;
 
     /// @brief Clears the window, ready for the next frame.
@@ -211,9 +222,8 @@ namespace term_engine::rendering {
     glm::vec4 clear_colour_;
     /// @brief Whether to use wireframe rendering or not.
     uint32_t render_mode_;
-
+    /// @brief The type of window behaviour when the user closes the window.
     CloseLogic close_logic_;
-
     /// @brief Flag used to indicate if an OpenGL context has been created. This is used to initialise GLEW when one is available.
     static bool is_context_created_;
     /// @brief The OpenGL context to bind windows to.

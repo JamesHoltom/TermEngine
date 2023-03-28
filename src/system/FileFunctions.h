@@ -15,13 +15,6 @@ namespace term_engine::system {
   extern std::filesystem::path project_path;
 
   /**
-   * @brief Gets the directory that the TermEngine executable is located in.
-   * 
-   * @returns The root directory.
-   */
-  std::filesystem::path GetRootPath();
-
-  /**
    * @brief Finds the "main.lua" file at the given project directory in the system's default location, or in the projects folder.
    * @details If the file isn't found anywhere, a blank string is returned.
    * 

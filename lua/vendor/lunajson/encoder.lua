@@ -255,18 +255,18 @@ local function newencoder()
 		i = i + 1
 
 		-- Set the foreground colour.
-		f_string("foreground_colour")
+		f_string("foregroundColour")
 		builder[i] = ":"
 		i = i + 1
-		f_vec(g.foreground_colour, 4, false)
+		f_vec(g.foregroundColour, 4, false)
 		builder[i] = ","
 		i = i + 1
 
 		-- Set the background colour.
-		f_string("background_colour")
+		f_string("backgroundColour")
 		builder[i] = ":"
 		i = i + 1
-		f_vec(g.background_colour, 4, false)
+		f_vec(g.backgroundColour, 4, false)
 
 		-- End the object.
 		builder[i] = '}'
@@ -341,9 +341,9 @@ local function newencoder()
 	end
 
 	local function f_userdata(ud)
-		if ud.__type.name == "term_engine::objects::CharacterParams" then
+		if ud.__type.name == "term_engine::rendering::CharacterParams" then
 			f_character(ud)
-		elseif ud.__type.name == "term_engine::objects::Object" then
+		elseif ud.__type.name == "term_engine::objects::GameObject" then
 			f_object(ud)
 		elseif ud.__type.name == "glm::vec<2, int, glm::packed_highp>" or ud.__type.name == "glm::vec<2, float, glm::packed_highp>" then
 			f_vec(ud, 2, true)

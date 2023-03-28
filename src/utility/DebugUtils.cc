@@ -14,7 +14,7 @@ namespace term_engine::utility {
 
     ss
       << std::string(indent_, ' ')
-      << std::setw(16 - indent_) << std::setiosflags(std::ios::left) << name_.substr(0, 16 - indent_)
+      << std::setw(16 - indent_) << std::setiosflags(std::ios::left) << title_.substr(0, 16 - indent_)
       << std::setw(16) << std::resetiosflags(std::ios::left)
       << time_str.substr(0, time_str_len);
 
@@ -26,9 +26,9 @@ namespace term_engine::utility {
     return ss.str();
   }
   
-  void ObjectDebugInfo::AddSubItem(const std::string& name, uint32_t indent)
+  void ObjectDebugInfo::AddSubItem(const std::string& title, uint32_t indent)
   {
-    sub_list_.push_back(InfoItem(name, indent));
+    sub_list_.push_back(InfoItem(title, indent));
   }
 
   void ObjectDebugInfo::Start()
@@ -49,6 +49,22 @@ namespace term_engine::utility {
 
       sub_list_[interval_index].total_time_ = time;
       main_item_.total_time_ += time;
+    }
+    else
+    {
+      logger->warn("Invalid debug info index {} set.", interval_index);
+    }
+  }
+
+  void ObjectDebugInfo::Reset(int interval_index)
+  {
+    if (sub_list_.size() == 0)
+    {
+      main_item_.total_time_ = 0;
+    }
+    else if (interval_index < sub_list_.size())
+    {
+      sub_list_[interval_index].total_time_ = 0;
     }
     else
     {
@@ -220,9 +236,9 @@ namespace term_engine::utility {
     logger->debug("VBO ID: {}, size: {}", vbo_id, vbo_size);
   }
 
-  ObjectDebugInfoPtr AddDebugInfo(const std::string& name)
+  ObjectDebugInfoPtr AddDebugInfo(const std::string& title)
   {
-    ObjectDebugInfoPtr debug_info = ObjectDebugInfoPtr(new ObjectDebugInfo(name));
+    ObjectDebugInfoPtr debug_info = ObjectDebugInfoPtr(new ObjectDebugInfo(title));
     debug_info_list.push_back(debug_info.get());
 
     return std::move(debug_info);

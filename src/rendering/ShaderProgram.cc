@@ -48,22 +48,22 @@ namespace term_engine::rendering {
     {
       utility::ShaderProcessResult results = utility::CompileShaderStage(glsl_code, type);
 
-      if (results.success_ == GL_TRUE)
+      if (results.second == GL_TRUE)
       {
         switch (type)
         {
-          case GL_VERTEX_SHADER:    shader_vert_id_ = results.id_;  break;
-          case GL_FRAGMENT_SHADER:  shader_frag_id_ = results.id_;  break;
-          case GL_GEOMETRY_SHADER:  shader_geom_id_ = results.id_;  break;
+          case GL_VERTEX_SHADER:    shader_vert_id_ = results.first;  break;
+          case GL_FRAGMENT_SHADER:  shader_frag_id_ = results.first;  break;
+          case GL_GEOMETRY_SHADER:  shader_geom_id_ = results.first;  break;
         }
 
-        glAttachShader(program_id_, results.id_);
+        glAttachShader(program_id_, results.first);
 
-        utility::logger->debug("Compiled {} shader with ID {}.", utility::GetShaderTypeName(type), results.id_);
+        utility::logger->debug("Compiled {} shader with ID {}.", utility::GetShaderTypeName(type), results.first);
       }
       else
       {
-        utility::logger->error("Failed to compile {} shader with ID {}.", utility::GetShaderTypeName(type), results.id_);
+        utility::logger->error("Failed to compile {} shader with ID {}.", utility::GetShaderTypeName(type), results.first);
       }
     }
     else
@@ -76,7 +76,7 @@ namespace term_engine::rendering {
   {
     utility::ShaderProcessResult results = utility::LinkShaderProgram(program_id_);
 
-    if (results.success_ == GL_TRUE)
+    if (results.second == GL_TRUE)
     {
       RemoveCompiledShaders();
 

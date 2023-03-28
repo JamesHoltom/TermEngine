@@ -1,8 +1,7 @@
 local scene, bgText, showBg, bg, alpha
 
 function Init()
-  scene = defaultScene()
-  bgText = TextObject(scene, Values.IVEC2_ZERO, ivec2(19, 2))
+  bgText = TextObject(Values.IVEC2_ZERO, ivec2(19, 2))
   bgText.text = "Press 'b' to changethe background"
 
   showBg = 0
@@ -43,9 +42,9 @@ function Loop(timestep)
 
   if bgChanged then
     if bg == "" then
-      scene.background.unload()
+      defaultScene.background:unload()
     else
-      scene.background.load(bg)
+      defaultScene.background:load(bg)
     end
   end
 end

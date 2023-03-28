@@ -11,8 +11,8 @@ function printTable(table, depth)
       printTable(v, depth + 1)
       print(tab .. "}")
     elseif type(v) == "userdata" then
-      if v.__type.name == "term_engine::objects::Object" then
-        print(tab .. k .. ": Object - Pos(" .. tostring(v.position) .. "), Size(" .. tostring(v.size) .. "), Active(" .. tostring(v.active) .. "), Data([")
+      if v.__type.name == "term_engine::objects::GameObject" then
+        print(tab .. k .. ": GameObject - Pos(" .. tostring(v.position) .. "), Size(" .. tostring(v.size) .. "), Active(" .. tostring(v.active) .. "), Data([")
 
         for i, j in ipairs(v.data) do
           print(tab .. tab .. i .. ": Character - Char(" .. j.character .. "), Foreground(" .. tostring(j.foreground_colour) .. "), Background(" .. tostring(j.background_colour) .. ")")
@@ -31,7 +31,7 @@ end
 function Init()
   -- Set up the data for the vON (de)serialisation.
   local vCharacter = Character("v", Colours.RED, Colours.WHITE)
-  local vObj = Object(Values.IVEC2_ONE, Values.IVEC2_ONE)
+  local vObj = GameObject(Values.IVEC2_ONE, Values.IVEC2_ONE)
   vObj.data[1] = vCharacter
   local vData = {
     a_number = 1234,
@@ -45,7 +45,7 @@ function Init()
 
   -- Set up the data for the JSON (de)serialisation.
   local jCharacter = Character("j", Colours.BLUE, Colours.WHITE)
-  local jObj = Object(ivec2(1, 3), Values.IVEC2_ONE)
+  local jObj = GameObject(ivec2(1, 3), Values.IVEC2_ONE)
   jObj.data[1] = jCharacter
   local jData = {
     a_number = 5678,

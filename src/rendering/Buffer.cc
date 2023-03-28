@@ -46,18 +46,15 @@ namespace term_engine::rendering {
     glBindBuffer(GL_ARRAY_BUFFER, vbo_id_);
 
     // If the size of the buffer has changed, recreate the OpenGL buffer with the new size.
-    // if (current_data_size_ != data.size())
-    // {
-    //   current_data_size_ = data.size();
-    //   glBufferData(GL_ARRAY_BUFFER, sizeof(BufferData) * current_data_size_, data.data(), GL_STREAM_DRAW);
+    if (current_data_size_ != data.size())
+    {
+      current_data_size_ = data.size();
+      glBufferData(GL_ARRAY_BUFFER, sizeof(BufferData) * current_data_size_, data.data(), GL_STREAM_DRAW);
 
-    //   utility::logger->info("Resized buffer at VAO {} to {} items...", vao_id_, current_data_size_);
-    // }
+      utility::logger->debug("Resized buffer at VAO {} to {} items...", vao_id_, current_data_size_);
+    }
 
-    // utility::logger->info("Rendering {} items to VAO {}...", data.size(), vao_id_);
-
-    // glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(BufferData) * current_data_size_, data.data());
-    glBufferData(GL_ARRAY_BUFFER, sizeof(BufferData) * data.size(), data.data(), GL_STREAM_DRAW);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(BufferData) * current_data_size_, data.data());
   }
 
   void Buffer::Use() const

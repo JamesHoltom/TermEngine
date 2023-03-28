@@ -54,7 +54,7 @@ namespace term_engine {
     objects::CleanUpObjects();
     events::CleanUpList();
     scripting::CleanUp();
-    rendering::FontAtlas::CleanUpFontAtlas();
+    rendering::CleanUpFontAtlas();
     events::CleanUp();
 
     rendering::GameWindow::CleanUpContext();
@@ -99,6 +99,7 @@ namespace term_engine {
       }
 
       events::UpdateEvents();
+      events::CleanUpList();
 
       SDL_Event event;
 
@@ -109,7 +110,7 @@ namespace term_engine {
 
         if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE)
         {
-          objects::MarkGameSceneForRemoval(event.window.windowID);
+          objects::FlagGameSceneForRemoval(event.window.windowID);
         }
       }
 

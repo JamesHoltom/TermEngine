@@ -49,8 +49,8 @@
 		-	nil
 
 	The TermEngine-specific types that are supported are:
-		- Character (referred to as term_engine::objects::CharacterParams)
-		- Object (referred to as term_engine::objects::Object)
+		- Character (referred to as term_engine::rendering::CharacterParams)
+		- GameObject (referred to as term_engine::objects::GameObject)
 		+ Vectors
 			- ivec2
 			- vec2
@@ -144,12 +144,12 @@ function d_findVariable(s, i, len, lastType, jobstate)
 
 	  -- "g" precedes a Character.
     elseif c == "g" then
-			lastType = "term_engine::objects::CharacterParams"
+			lastType = "term_engine::rendering::CharacterParams"
 			typeRead = true
 
-	  -- "O" precedes a Object.
+	  -- "O" precedes a GameObject.
 		elseif c == "O" then
-			lastType = "term_engine::objects::Object"
+			lastType = "term_engine::objects::GameObject"
 			typeRead = true
 
 	  -- "p" precedes a 2D integer vector (ivec2).
@@ -590,7 +590,7 @@ _serialize = {
 
 local extra_deserialize = {
 	-- A Character, consisting of the character, foreground and background colours.
-	["term_engine::objects::CharacterParams"] = function(s, i, len, unnecessaryEnd, jobstate)
+	["term_engine::rendering::CharacterParams"] = function(s, i, len, unnecessaryEnd, jobstate)
 		local i, a = i or 1
 		local c, fg, bg = "", vec4(), vec4()
 		
@@ -662,8 +662,8 @@ local extra_deserialize = {
 
 		error("vON: CharacterParams definition started... Found no end.")
 	end,
-	-- An Object, consisting of the data, position and size.
-	["term_engine::objects::Object"] = function(s, i, len, unnecessaryEnd, jobstate)
+	-- A GameObject, consisting of the data, position and size.
+	["term_engine::objects::GameObject"] = function(s, i, len, unnecessaryEnd, jobstate)
 		local i, a = i or 1
 		local pos, size, active, data = ivec2(), ivec2(), true, {}
 
@@ -702,7 +702,7 @@ local extra_deserialize = {
 			i = a + 1
 		end
 
-		local obj = Object(pos, size)
+		local obj = GameObject(pos, size)
 		obj.active = active
 
 		local endOfArray = find(s, "}", i)
@@ -925,8 +925,8 @@ local extra_deserialize = {
 }
 
 local extra_serialize = {
-	["term_engine::objects::CharacterParams"] = function(data, mustInitiate, isNumeric, isKey, isLast, first, jobstate)
-		local tmp = data.character .. "," .. tostring(data.foreground_colour) .. "," .. tostring(data.background_colour)
+	["term_engine::rendering::CharacterParams"] = function(data, mustInitiate, isNumeric, isKey, isLast, first, jobstate)
+		local tmp = data.character .. "," .. tostring(data.foregroundColour) .. "," .. tostring(data.backgroundColour)
 
 		if mustInitiate then
 			tmp = "g" .. tmp
@@ -938,14 +938,14 @@ local extra_serialize = {
 			return tmp .. ";"
 		end
 	end,
-	["term_engine::objects::Object"] = function(data, mustInitiate, isNumeric, isKey, isLast, first, jobstate)
+	["term_engine::objects::GameObject"] = function(data, mustInitiate, isNumeric, isKey, isLast, first, jobstate)
 		local active = 0
 		if data.active then active = 1 end
 		local tmp = "O" .. tostring(data.position) .. "," .. tostring(data.size) .. "," .. active .. "{"
 		local len = #data.data
 
 		for i = 1, len do
-			tmp = tmp .. _serialize["term_engine::objects::CharacterParams"](data.data[i], false, nil, nil, i == len, nil, {false})
+			tmp = tmp .. _serialize["term_engine::rendering::CharacterParams"](data.data[i], false, nil, nil, i == len, nil, {false})
 		end
 		
 		tmp = tmp .. "}"

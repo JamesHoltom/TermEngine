@@ -12,7 +12,7 @@ namespace term_engine::utility {
     buffer_(initialSize.x * initialSize.y, 0)
   {
     can_resize_ = false;
-    root_ = std::make_unique<TextureNode>();
+    root_ = std::make_unique<TextureNode>(glm::ivec2(), glm::ivec2(INT_MAX), 0);
   }
 
   TexturePacker::~TexturePacker()
@@ -69,7 +69,7 @@ namespace term_engine::utility {
     return buffer_.data();
   }
 
-  TexturePacker::TextureNode* TexturePacker::Pack(TextureNode* node, const glm::ivec2& size)
+  TextureNode* TexturePacker::Pack(TextureNode* node, const glm::ivec2& size)
   {
     // If the node is fully packed, the new node isn't going to fit here.
     if (node->full_)
@@ -130,12 +130,12 @@ namespace term_engine::utility {
         if (is_vertical_split)
         {
           left = new TextureNode(node->position_, glm::ivec2(node->size_.x, size.y), node->layer_ + 1);
-          right = new TextureNode(glm::ivec2(node->position_.x, node->position_.y + size.y), glm::ivec2(node->size_.x, node->size_.y - size.y), node->layer_ + 1);
+          right = new TextureNode(glm::ivec2(node->position_.x, node->position_.y + size.y + 1), glm::ivec2(node->size_.x, node->size_.y - size.y - 1), node->layer_ + 1);
         }
         else
         {
           left = new TextureNode(node->position_, glm::ivec2(size.x, node->size_.y), node->layer_ + 1);
-          right = new TextureNode(glm::ivec2(node->position_.x + size.x, node->position_.y), glm::ivec2(node->size_.x - size.x, node->size_.y), node->layer_ + 1);
+          right = new TextureNode(glm::ivec2(node->position_.x + size.x + 1, node->position_.y), glm::ivec2(node->size_.x - size.x - 1, node->size_.y), node->layer_ + 1);
         }
 
         node->left_ = std::unique_ptr<TextureNode>(left);

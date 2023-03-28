@@ -22,7 +22,7 @@ namespace term_engine::objects {
   /// @brief The type name for GameScenes.
   constexpr char GAME_SCENE_TYPE[] = "GameScene";
 
-  /// @brief Represents a window 
+  /// @brief Manages a window on the user's screen, which other game objects and event listeners can be added to.
   class GameScene : public BaseObject {
   public:
     /**
@@ -63,51 +63,68 @@ namespace term_engine::objects {
     /**
      * @brief Returns the font atlas used by the game scene.
      * 
-     * @returns The font atlas.
+     * @returns The raw pointer to the font atlas.
      */
-    rendering::FontAtlasPtr GetFontAtlas();
+    rendering::FontAtlas* GetFontAtlas();
+
+    /**
+     * @brief Returns the font size this scene renders characters at.
+     * 
+     * @returns The scene's font size.
+     */
+    uint32_t GetFontSize() const;
 
     /**
      * @brief Returns the background rendered behind the game scene.
      * 
-     * @returns The background.
+     * @returns The raw pointer to the background.
      */
     rendering::Background* GetBackground();
 
     /**
      * @brief Returns the shader program used to render backgrounds to the game scene.
      * 
-     * @returns The shader program.
+     * @returns The raw pointer to the shader program.
      */
     rendering::ShaderProgram* GetBackgroundShader();
 
     /**
      * @brief Returns the shader program used to render characters to the game scene.
      * 
-     * @returns The shader program.
+     * @returns The raw pointer to the shader program.
      */
     rendering::ShaderProgram* GetTextShader();
 
     /**
      * @brief Returns the character map so that objects can be drawn to it.
      * 
-     * @returns The character map.
+     * @returns The raw pointer to the character map.
      */
     rendering::CharacterMap* GetCharacterMap();
 
     /**
      * @brief Returns the window handle used to render the game scene.
      * 
-     * @returns The window handle.
+     * @returns The raw pointer to the window.
      */
     rendering::GameWindow* GetWindow();
 
-    uint32_t GetFontSize() const;
+    /**
+     * @brief Sets the font atlas used by the game scene.
+     * 
+     * @param[in] font_atlas A raw pointer to the font atlas.
+     */
+    void SetFontAtlas(rendering::FontAtlas* font_atlas);
 
+    /**
+     * @brief Sets the font size this scene renders characters at.
+     * 
+     * @param[in] font_size The new font size.
+     */
     void SetFontSize(uint32_t font_size);
 
     /// @brief Resizes the window to fit the character map.
-    void ResizeToFit() const;
+    void ResizeToFitCharacterMap() const;
 
     /// @brief A list of raw pointers to the game scenes.
     static std::vector<GameScene*> scene_list_;
@@ -128,7 +145,7 @@ namespace term_engine::objects {
     /// @brief The buffer containing vertex data for backgrounds.
     rendering::Buffer background_buffer_;
     /// @brief The font atlas used to render characters to the game scene.
-    rendering::FontAtlasPtr font_atlas_;
+    rendering::FontAtlas* font_atlas_;
     /// @brief The font size to render characters at, in pixels (px).
     uint32_t font_size_;
     /// @brief The shader program used to render background elements to the game scene.
@@ -136,6 +153,7 @@ namespace term_engine::objects {
     /// @brief The shader program used to render text elements to the game scene.
     rendering::ShaderProgram text_shader_program_;
 
+    /// @brief Re-sets the projection matrix in the scene's shader, according to the size of the window.
     void ResetProjection() const;
   };
 
@@ -147,10 +165,25 @@ namespace term_engine::objects {
    */
   GameScene* AddGameScene(const std::string& name);
 
+  /**
+   * @brief Returns the game scene with the given name.
+   * 
+   * @param[in] name The name of the game scene.
+   * @returns A raw pointer to the object, or a null pointer if not found.
+   */
   GameScene* GetGameSceneByName(const std::string& name);
 
-  void MarkGameSceneForRemoval(uint32_t windowId);
+  /**
+   * @brief Flags the game scene with the given window ID for removal.
+   * @details Game scenes are not automatically removed when the user closes a window:
+   *          unless a script calls the scene's "preventClose()", the game scene will
+   *          close after all objects have been updated.
+   * 
+   * @param[in] windowId The ID of the window related to the game scene.
+   */
+  void FlagGameSceneForRemoval(uint32_t windowId);
 
+  /// @brief Flags game objects that are related to game scenes that have been flagged for removal.
   void FlagGameObjectsWithFlaggedGameScenes();
 
   /// @brief Clears all game scenes from the object list.

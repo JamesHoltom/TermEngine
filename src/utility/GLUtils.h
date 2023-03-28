@@ -18,21 +18,14 @@
 #endif
 
 namespace term_engine::utility {
-
+  /// @brief The major version of OpenGL to request.
   constexpr int MAJOR_VERSION = 4;
-
+  /// @brief The minor version of OpenGL to request.
   constexpr int MINOR_VERSION = 6;
 
-  struct ShaderProcessResult
-  {
-    uint32_t id_;
-    uint8_t success_;
+  /// @brief Used to return the results of compiling a shader stage/program.
+  typedef std::pair<uint32_t, uint8_t> ShaderProcessResult;
 
-    ShaderProcessResult(uint32_t id, uint8_t success) :
-      id_(id),
-      success_(success)
-    {}
-  };
   /**
    * @brief Allows OpenGL to log any errors that occur.
    * 
@@ -46,9 +39,7 @@ namespace term_engine::utility {
    */
   void GLAPIENTRY glDebugOutput(uint32_t source, uint32_t type, uint32_t id, uint32_t severity, int length, const char* message, const void* user_param);
 
-  /**
-   * @brief Prepares OpenGL for use.
-   */
+  /// @brief Prepares OpenGL for use.
   void InitGL();
 
   /**
@@ -74,10 +65,29 @@ namespace term_engine::utility {
    */
   void PrintStageLog(uint32_t stage_id);
 
+  /**
+   * @brief Links a shader program with the given ID with its attached stages.
+   * 
+   * @param[in] program_id The shader program ID to link.
+   * @returns If the program was successfully linked.
+   */
   ShaderProcessResult LinkShaderProgram(uint32_t program_id);
 
+  /**
+   * @brief Compiles the shader stage with the given GLSL code and type.
+   * 
+   * @param[in] glsl_code The GLSL code to compile.
+   * @param[in] type      The type of shader stage being compiled.
+   * @returns If the shader stage was successfully compiled.
+   */
   ShaderProcessResult CompileShaderStage(const std::string& glsl_code, uint32_t type);
 
+  /**
+   * @brief Returns the string name for the given shader stage type.
+   * 
+   * @param[in] type The shader stage type.
+   * @returns The string name.
+   */
   std::string GetShaderTypeName(uint32_t type);
 }
 

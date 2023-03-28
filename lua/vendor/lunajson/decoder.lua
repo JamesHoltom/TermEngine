@@ -30,7 +30,7 @@ end
 --[[ @JamesHoltom - TermEngine-specific constructors to be carried into the context start here. ]]
 
 local _Character = Character
-local _Object = Object
+local _GameObject = GameObject
 local _vec2 = vec2
 local _ivec2 = ivec2
 local _vec3 = vec3
@@ -383,13 +383,13 @@ local function newdecoder()
 
 	local function check_for_userdata(obj)
 		if obj.__type and obj.__data then
-			if obj.__type == "term_engine::objects::CharacterParams" then
+			if obj.__type == "term_engine::rendering::CharacterParams" then
 				return _Character(
 					obj.__data.character,
-					_vec4(tonumber(obj.__data.foreground_colour.x), tonumber(obj.__data.foreground_colour.y), tonumber(obj.__data.foreground_colour.z), tonumber(obj.__data.foreground_colour.w)),
-					_vec4(tonumber(obj.__data.background_colour.x), tonumber(obj.__data.background_colour.y), tonumber(obj.__data.background_colour.z), tonumber(obj.__data.background_colour.w)))
-			elseif obj.__type == "term_engine::objects::Object" then
-				local tmp = _Object(
+					_vec4(tonumber(obj.__data.foregroundColour.x), tonumber(obj.__data.foregroundColour.y), tonumber(obj.__data.foregroundColour.z), tonumber(obj.__data.foregroundColour.w)),
+					_vec4(tonumber(obj.__data.backgroundColour.x), tonumber(obj.__data.backgroundColour.y), tonumber(obj.__data.backgroundColour.z), tonumber(obj.__data.backgroundColour.w)))
+			elseif obj.__type == "term_engine::objects::GameObject" then
+				local tmp = _GameObject(
 					_ivec2(tonumber(obj.__data.position.x), tonumber(obj.__data.position.y)),
 					_ivec2(tonumber(obj.__data.size.x), tonumber(obj.__data.size.y)))
 				
@@ -398,8 +398,8 @@ local function newdecoder()
 				for k,v in ipairs(obj.__data.data) do
 					tmp.data[k] = _Character(
 						v.character,
-						_vec4(tonumber(v.foreground_colour.x), tonumber(v.foreground_colour.y), tonumber(v.foreground_colour.z), tonumber(v.foreground_colour.w)),
-						_vec4(tonumber(v.background_colour.x), tonumber(v.background_colour.y), tonumber(v.background_colour.z), tonumber(v.background_colour.w)))
+						_vec4(tonumber(v.foregroundColour.x), tonumber(v.foregroundColour.y), tonumber(v.foregroundColour.z), tonumber(v.foregroundColour.w)),
+						_vec4(tonumber(v.backgroundColour.x), tonumber(v.backgroundColour.y), tonumber(v.backgroundColour.z), tonumber(v.backgroundColour.w)))
 				end
 
 				return tmp

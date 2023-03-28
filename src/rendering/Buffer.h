@@ -9,7 +9,6 @@
 
 namespace term_engine::rendering {
   struct BufferData;
-  struct Buffer;
 
   /// @brief Used to store data in a Buffer.
   typedef std::vector<BufferData> BufferList;
@@ -75,14 +74,14 @@ namespace term_engine::rendering {
     /**
      * @brief Returns the VAO ID for the buffer.
      * 
-     * @return The VAO ID.
+     * @returns The VAO ID.
      */
     uint32_t GetVaoId() const;
 
     /**
      * @brief Returns the VBO ID for the buffer.
      * 
-     * @return The VBO ID.
+     * @returns The VBO ID.
      */
     uint32_t GetVboId() const;
 

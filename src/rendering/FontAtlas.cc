@@ -7,13 +7,17 @@
 #include "../utility/SpdlogUtils.h"
 
 namespace term_engine::rendering {
+  CharacterBB whitespace_bbox = { glm::ivec2(0), glm::ivec2(32), 0, 0 };
+  FontAtlasList atlas_cache;
+  uint32_t FontAtlas::active_font_id_ = 0;
+
   FontAtlas::FontAtlas() :
     FontAtlas(std::filesystem::path(DEFAULT_FONT))
   {}
 
   FontAtlas::FontAtlas(const std::filesystem::path& filepath) :
     filepath_(filepath),
-    whitespace_bbox_(glm::ivec2(), glm::ivec2(32), 0, 0),
+    atlas_({}),
     character_count_(0),
     is_loaded_(false),
     texture_dirty_(false),
@@ -44,7 +48,7 @@ namespace term_engine::rendering {
 
     packer_.Insert(whiteTexture.data(), glm::ivec2(32));
 
-    SetFontSize(DEFAULT_FONT_SIZE);
+    SetSize(DEFAULT_FONT_SIZE);
 
     if (all_ok)
     {
@@ -61,7 +65,10 @@ namespace term_engine::rendering {
 
       DeleteTexture(texture_);
 
-      return;
+      if (utility::FTLog(FT_Done_Face(face_)) != FT_Err_Ok)
+      {
+        utility::logger->error("Failed to remove font \"{}\".", filepath_.string());
+      }
     }
   }
 
@@ -91,9 +98,16 @@ namespace term_engine::rendering {
 
   glm::ivec2 FontAtlas::GetCharacterSize(uint32_t size)
   {
-    SetFontSize(size);
+    FontSizeList::iterator findSize = size_list_.find(size);
 
-    return glm::ivec2(face_->size->metrics.max_advance >> 6, ((face_->size->metrics.ascender - face_->size->metrics.descender) >> 6));
+    /// @todo Fix this returning a size of 0,0!
+
+    if (findSize == size_list_.end())
+    {
+      findSize = AddSize(size);
+    }
+
+    return glm::ivec2(findSize->second->metrics.max_advance >> 6, ((findSize->second->metrics.ascender - findSize->second->metrics.descender) >> 6));
   }
 
   CharacterBB FontAtlas::GetCharacter(uint64_t character, uint32_t size)
@@ -105,9 +119,9 @@ namespace term_engine::rendering {
       return EMPTY_CHARACTER;
     }
 
-    SetFontSize(size);
+    SetSize(size);
 
-    CharacterList::iterator found_char = atlas_.find(character);
+    CharacterList::iterator found_char = atlas_.find(std::pair<uint64_t, uint32_t>(character, size));
 
     if (character == '\0' || character == '\n' || character == '\r' || character == '\t')
     {
@@ -123,18 +137,6 @@ namespace term_engine::rendering {
     }
   }
 
-  CharacterBB FontAtlas::GetWhitespace() const
-  {
-    if (!is_loaded_)
-    {
-      utility::logger->warn("Cannot get whitespace from unloaded font \"{}\".", filepath_.string());
-
-      return EMPTY_CHARACTER;
-    }
-
-    return whitespace_bbox_;
-  }
-
   bool FontAtlas::IsLoaded() const
   {
     return is_loaded_;
@@ -143,12 +145,12 @@ namespace term_engine::rendering {
   void FontAtlas::Use() const
   {
     if (is_loaded_) {
-      if (active_font_ != texture_.texture_id_)
+      if (active_font_id_ != texture_.texture_id_)
       {
         glActiveTexture(GL_TEXTURE0 + texture_.texture_index_);
         glBindTexture(GL_TEXTURE_2D, texture_.texture_id_);
 
-        active_font_ = texture_.texture_id_;
+        active_font_id_ = texture_.texture_id_;
       }
     }
     else
@@ -167,23 +169,36 @@ namespace term_engine::rendering {
     }
   }
 
-  FontAtlasPtr FontAtlas::GetFontAtlas(const std::filesystem::path& filepath)
+  FontAtlas* GetFontAtlas(const std::string& filepath)
   {
-    std::string key_name = filepath.string();
+    const std::filesystem::path font_path = system::SearchForResourcePath(filepath);
+    const std::string key_name = font_path.string();
+    FontAtlasList::const_iterator it = atlas_cache.find(key_name);
+    
+    if (it != atlas_cache.end())
+    {
+      return it->second.get();
+    }
+    else
+    {
+      FontAtlasPtr atlas = std::make_unique<FontAtlas>(font_path);
 
-    atlas_cache_.emplace(key_name, std::make_shared<FontAtlas>(filepath));
-
-    return atlas_cache_.at(key_name);
+      if (atlas->IsLoaded())
+      {
+        return atlas_cache.insert_or_assign(key_name, std::move(atlas)).first->second.get();
+      }
+      else
+      {
+        atlas.reset(nullptr);
+        
+        return nullptr;
+      }
+    }
   }
 
-  void FontAtlas::CleanUpFontAtlas()
+  void CleanUpFontAtlas()
   {
-    for (std::pair<std::string, FontAtlasPtr> pair : atlas_cache_)
-    {
-      pair.second.reset();
-    }
-
-    atlas_cache_.clear();
+    atlas_cache.clear();
   }
 
   CharacterBB FontAtlas::CreateCharTexture(uint64_t character, uint32_t size)
@@ -201,7 +216,7 @@ namespace term_engine::rendering {
 
       utility::logger->debug("Created character, \'{}\' with dimensions {},{} at pos {},{} and added to cache.", (char)character, character_size.x, character_size.y, character_pos.x, character_pos.y);
 
-      auto new_character = atlas_.insert_or_assign(character, bbox);
+      auto new_character = atlas_.insert_or_assign(std::pair<uint64_t, uint32_t>(character, size), bbox);
 
       texture_dirty_ = true;
       character_count_++;
@@ -216,40 +231,52 @@ namespace term_engine::rendering {
     }
   }
 
-  void FontAtlas::SetFontSize(uint32_t size)
+  FontSizeList::iterator FontAtlas::AddSize(uint32_t size)
   {
-    FontSizeList::const_iterator findSize = size_list_.find(size);
+    FT_Size new_size;
 
-    if (findSize != size_list_.end())
+    if (utility::FTLog(FT_New_Size(face_, &new_size)) != FT_Err_Ok)
     {
-      if (utility::FTLog(FT_Activate_Size(findSize->second)) != FT_Err_Ok)
-      {
-        utility::logger->error("Failed to activate existing font size for font \"{}\".", filepath_.string());
-      }
+      utility::logger->error("Failed to create font size for font \"{}\".", filepath_.string());
     }
-    else
+
+    if (utility::FTLog(FT_Activate_Size(new_size)) != FT_Err_Ok)
     {
-      FT_Size new_size;
-
-      if (utility::FTLog(FT_New_Size(face_, &new_size)) != FT_Err_Ok)
-      {
-        utility::logger->error("Failed to create font size for font \"{}\".", filepath_.string());
-      }
-
-      if (utility::FTLog(FT_Activate_Size(new_size)) != FT_Err_Ok)
-      {
-        utility::logger->error("Failed to activate new font size for font \"{}\".", filepath_.string());
-      }
-
-      size_list_.insert(FontSizeList::value_type(size, new_size));
+      utility::logger->error("Failed to activate font size for font \"{}\".", filepath_.string());
     }
 
     if (utility::FTLog(FT_Set_Pixel_Sizes(face_, 0, size)) != FT_Err_Ok)
     {
       utility::logger->error("Failed to set font size for font \"{}\".", filepath_.string());
     }
+
+    return size_list_.insert(FontSizeList::value_type(size, new_size)).first;
   }
 
-  uint32_t FontAtlas::active_font_ = 0;
-  FontAtlasList FontAtlas::atlas_cache_;
+  void FontAtlas::SetSize(uint32_t size)
+  {
+    FontSizeList::const_iterator findSize = size_list_.find(size);
+
+    if (findSize == size_list_.end())
+    {
+      AddSize(size);
+    }
+    else
+    {
+      if (utility::FTLog(FT_Activate_Size(findSize->second)) != FT_Err_Ok)
+      {
+        utility::logger->error("Failed to activate font size for font \"{}\".", filepath_.string());
+      }
+    }
+  }
+
+  std::string GetDefaultFont()
+  {
+    return std::string(DEFAULT_FONT);
+  }
+
+  uint32_t GetDefaultFontSize()
+  {
+    return DEFAULT_FONT_SIZE;
+  }
 }

@@ -1,4 +1,5 @@
 #include "Background.h"
+#include "../system/FileFunctions.h"
 #include "../utility/DebugUtils.h"
 #include "../utility/SpdlogUtils.h"
 
@@ -89,9 +90,16 @@ namespace term_engine::rendering {
     colour_ = glm::vec4(255.0);
   }
 
-  void Background::Load(const std::filesystem::path& filepath)
+  void Background::Load(const std::string& filepath)
   {
-    TextureData new_texture = CreateTextureFromImage(filepath, 1);
+    std::filesystem::path find_path = system::SearchForResourcePath(filepath);
+
+    if (find_path == "")
+    {
+      return;
+    }
+
+    TextureData new_texture = CreateTextureFromImage(find_path, 1);
 
     if (new_texture.texture_id_ > 0)
     {
@@ -117,17 +125,15 @@ namespace term_engine::rendering {
   {
     if (is_loaded_)
     {
-      const glm::vec4 normalised_colour = colour_ / 255.0f;
-
       /* Draw order:
       * 1
       * |\
       * | \
       * 3--2
       */
-      buffer.data.push_back(rendering::BufferData(glm::vec2(position_), glm::vec2(), normalised_colour));
-      buffer.data.push_back(rendering::BufferData(glm::vec2(position_ + size_), glm::vec2(1.0f), normalised_colour));
-      buffer.data.push_back(rendering::BufferData(glm::vec2(position_.x, position_.y + size_.y), glm::vec2(0.0f, 1.0f), normalised_colour));
+      buffer.data.push_back(rendering::BufferData(glm::vec2(position_), glm::vec2(), colour_));
+      buffer.data.push_back(rendering::BufferData(glm::vec2(position_ + size_), glm::vec2(1.0f), colour_));
+      buffer.data.push_back(rendering::BufferData(glm::vec2(position_.x, position_.y + size_.y), glm::vec2(0.0f, 1.0f), colour_));
 
       /* Draw order:
       * 1--2
@@ -135,9 +141,9 @@ namespace term_engine::rendering {
       *   \|
       *    3
       */
-      buffer.data.push_back(rendering::BufferData(glm::vec2(position_), glm::vec2(), normalised_colour));
-      buffer.data.push_back(rendering::BufferData(glm::vec2(position_.x + size_.x, position_.y), glm::vec2(1.0f, 0.0f), normalised_colour));
-      buffer.data.push_back(rendering::BufferData(glm::vec2(position_ + size_), glm::vec2(1.0f), normalised_colour));
+      buffer.data.push_back(rendering::BufferData(glm::vec2(position_), glm::vec2(), colour_));
+      buffer.data.push_back(rendering::BufferData(glm::vec2(position_.x + size_.x, position_.y), glm::vec2(1.0f, 0.0f), colour_));
+      buffer.data.push_back(rendering::BufferData(glm::vec2(position_ + size_), glm::vec2(1.0f), colour_));
     }
   }
 

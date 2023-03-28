@@ -29,7 +29,7 @@ namespace term_engine::scripting {
   {
     // Add the root & vendor to the Lua path, so that projects can "require()" files relative to these folders.
     std::string packagePath = (*lua_state)["package"]["path"];
-    const std::string rootDirectory = system::GetRootPath() / "lua";
+    const std::string rootDirectory = std::filesystem::current_path() / "lua";
 
     packagePath += ";" +
                    rootDirectory + "/vendor/?.lua;" + 

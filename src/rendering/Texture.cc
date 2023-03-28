@@ -7,15 +7,6 @@ namespace term_engine::rendering {
   {
     uint32_t texture_id = 0;
     int width, height, channels;
-
-    glGenTextures(1, &texture_id);
-    glActiveTexture(GL_TEXTURE0 + index);
-    glBindTexture(GL_TEXTURE_2D, texture_id);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
     uint8_t* data = stbi_load(filepath.c_str(), &width, &height, &channels, 0);
 
     if (data != nullptr) {
@@ -25,6 +16,14 @@ namespace term_engine::rendering {
       {
         mode = GL_RGBA;
       }
+
+      glGenTextures(1, &texture_id);
+      glActiveTexture(GL_TEXTURE0 + index);
+      glBindTexture(GL_TEXTURE_2D, texture_id);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
       glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
       glPixelStorei(GL_UNPACK_ROW_LENGTH, width);

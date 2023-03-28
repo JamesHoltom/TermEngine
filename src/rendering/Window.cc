@@ -140,8 +140,6 @@ namespace term_engine::rendering {
     SDL_SetWindowSize(window_, size.x, size.y);
 
     glViewport(0, 0, size.x, size.y);
-
-    
   }
 
   void GameWindow::SetTitle(const std::string& title) const

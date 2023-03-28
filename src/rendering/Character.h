@@ -28,7 +28,7 @@ namespace term_engine::rendering {
      * @param[in] foreground_colour The foreground colour, used for the text.
      * @param[in] background_colour The background colour.
      */
-    CharacterParams(const char& character = NO_CHARACTER, const glm::vec4& foreground_colour = DEFAULT_FOREGROUND_COLOUR, const glm::vec4& background_colour = DEFAULT_BACKGROUND_COLOUR) :
+    CharacterParams(char character = NO_CHARACTER, const glm::vec4& foreground_colour = DEFAULT_FOREGROUND_COLOUR, const glm::vec4& background_colour = DEFAULT_BACKGROUND_COLOUR) :
       character_(character),
       foreground_colour_(foreground_colour),
       background_colour_(background_colour) {};

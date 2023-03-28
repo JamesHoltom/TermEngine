@@ -6,6 +6,7 @@
 #include "utility/DebugUtils.h"
 
 namespace term_engine {
+  /// @brief Stores debugging information on the application level.
   extern utility::ObjectDebugInfoPtr app_debug_info;
 
   /// @brief Performs setup of the application and all its sub-systems.

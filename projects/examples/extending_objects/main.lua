@@ -4,11 +4,12 @@
   ||
   || "_pos" takes an _ivec2_ with the position of the object.
   || "_text" is the text to render to the object. For this tutorial, it'll be read-only.
+  || "_game_scene" is the game scene to render this object to.
 --]]
-function ExampleObject(_pos, _text)
+function ExampleObject(_pos, _text, _game_scene)
   local self = {
-    obj = Object(_pos, Values.IVEC2_ONE), -- Handle to the base Object.
-    text = _text                          -- The text to render.
+    obj = GameObject(_pos, Values.IVEC2_ONE, _game_scene or "default"), -- Handle to the base Object.
+    text = _text                                                        -- The text to render.
   }
 
   -- Prints the text property to the console.
@@ -41,7 +42,7 @@ function ExampleObject(_pos, _text)
 
   -- Set the text in the base Object.
   self.obj.size = ivec2(#self.text, 1)
-  self.obj:set(function(data, index, _) data[index] = Character(self.text:sub(index, index), Colours.WHITE, Colours.BLACK) end)
+  self.obj:set(function(_, index) return Character(self.text:sub(index, index), Colours.WHITE, Colours.BLACK) end)
   
   -- Return the object with the methods and metatable set.
   return setmetatable({

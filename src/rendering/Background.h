@@ -86,11 +86,11 @@ namespace term_engine::rendering {
 
     /**
      * @brief Loads the given image file as a background texture.
-     * @note If the load fails, the old texture is retained.
+     * @note If the load fails, the old texture is retained.s
      * 
      * @param[in] filepath The image file to load.
      */
-    void Load(const std::filesystem::path& filepath);
+    void Load(const std::string& filepath);
 
     /// @brief Unloads the current background texture, if one is loaded.
     void Unload();

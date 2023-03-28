@@ -4,8 +4,10 @@
 #define UTILITY_BINDINGS_H
 
 #include <cmath>
+#include "../IndexFunctions.h"
 #include "../../events/InputManager.h"
 #include "../../rendering/Character.h"
+#include "../../rendering/FontAtlas.h"
 #include "../../rendering/Window.h"
 #include "../../system/AudioFunctions.h"
 #include "../../system/FileFunctions.h"
@@ -42,6 +44,11 @@ namespace term_engine::scripting::bindings {
       "target", sol::overload(&timing::GetTargetFPS, &timing::SetTargetFPS),
       "getFrames", &timing::GetFrameCount);
 
+    state.create_named_table("font",
+      "load", &rendering::GetFontAtlas,
+      "getDefault", &rendering::GetDefaultFont,
+      "getDefaultSize", &rendering::GetDefaultFontSize);
+
     state.create_named_table("fs",
       "read", &system::ReadFile,
       "write", &system::WriteFile,
@@ -66,14 +73,24 @@ namespace term_engine::scripting::bindings {
 
     state.set_function("round", lroundf);
 
-    /* TODO: Fix these, taking into account the Lua-style index.
-    state.set_function("getIndexFromPosition", &utility::GetIndexFromPosition,
-    state.set_function("getRowColFromPosition", utility::GetRowColFromPosition);
-    state.set_function("getPositionFromIndex", utility::GetPositionFromIndex);
-    state.set_function("getRowColFromIndex", utility::GetRowColFromIndex);
-    state.set_function("getIndexFromRowCol", utility::GetIndexFromRowCol);
-    state.set_function("getPositionFromRowCol", utility::GetPositionFromRowCol);
-    */
+    state.set_function("getIndexFromPosition", sol::overload(
+      sol::resolve<uint32_t(objects::GameObject*, const glm::ivec2&)>(&scripting::GetIndexFromPosition),
+      sol::resolve<uint32_t(objects::GameScene*, const glm::ivec2&)>(&scripting::GetIndexFromPosition)));
+    state.set_function("getPositionFromIndex", sol::overload(
+      sol::resolve<glm::ivec2(objects::GameObject*, uint32_t)>(&scripting::GetPositionFromIndex),
+      sol::resolve<glm::ivec2(objects::GameScene*, uint32_t)>(&scripting::GetPositionFromIndex)));
+    state.set_function("getRowColFromPosition", sol::overload(
+      sol::resolve<glm::ivec2(objects::GameObject*, const glm::ivec2&)>(&utility::GetRowColFromPosition),
+      sol::resolve<glm::ivec2(objects::GameScene*, const glm::ivec2&)>(&utility::GetRowColFromPosition)));
+    state.set_function("getPositionFromRowCol", sol::overload(
+      sol::resolve<glm::ivec2(objects::GameObject*, const glm::ivec2&)>(&utility::GetPositionFromRowCol),
+      sol::resolve<glm::ivec2(objects::GameScene*, const glm::ivec2&)>(&utility::GetPositionFromRowCol)));
+    state.set_function("getRowColFromIndex", sol::overload(
+      sol::resolve<glm::ivec2(objects::GameObject*, uint32_t)>(&scripting::GetRowColFromIndex),
+      sol::resolve<glm::ivec2(objects::GameScene*, uint32_t)>(&scripting::GetRowColFromIndex)));
+    state.set_function("getIndexFromRowCol", sol::overload(
+      sol::resolve<uint32_t(objects::GameObject*, const glm::ivec2&)>(&utility::GetIndexFromRowCol),
+      sol::resolve<uint32_t(objects::GameScene*, const glm::ivec2&)>(&utility::GetIndexFromRowCol)));
 
     state.create_named_table("window",
       "vsync", sol::overload(&rendering::GameWindow::IsVsyncEnabled, &rendering::GameWindow::SetVsync));

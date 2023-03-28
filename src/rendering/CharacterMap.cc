@@ -7,7 +7,8 @@
 namespace term_engine::rendering {
   CharacterMap::CharacterMap() :
     position_(glm::vec2()),
-    size_(DEFAULT_CHARACTER_MAP_SIZE)
+    size_(DEFAULT_CHARACTER_MAP_SIZE),
+    empty_character_bg_colour_(glm::vec4())
   {
     const uint64_t size = size_.x * size_.y;
 
@@ -25,6 +26,11 @@ namespace term_engine::rendering {
     return size_;
   }
 
+  bool CharacterMap::ShouldEmptyCharactersHaveBackground() const
+  {
+    return empty_character_bg_colour_.a == 0.0;
+  }
+
   void CharacterMap::SetPosition(const glm::vec2& position)
   {
     position_ = position;
@@ -38,6 +44,11 @@ namespace term_engine::rendering {
     data_.resize(data_size);
 
     size_ = size;
+  }
+
+  void CharacterMap::SetEmptyCharacterBackground(bool flag)
+  {
+    empty_character_bg_colour_.a = flag ? 0.0 : 255.0;
   }
 
   void CharacterMap::Clear()
@@ -78,20 +89,20 @@ namespace term_engine::rendering {
     }
   }
 
-  void CopyCharacterMapToBuffer(const CharacterMap& character_map, Buffer& buffer, const FontAtlasPtr& font_atlas, uint32_t font_size)
+  void CopyCharacterMapToBuffer(const CharacterMap& character_map, Buffer& buffer, FontAtlas* font_atlas, uint32_t font_size)
   {
     uint64_t index = 0;
 
     for (const CharacterParams& character : character_map.data_)
     {
       const CharacterBB textBbox = font_atlas->GetCharacter(character.character_, font_size);
-      const CharacterBB bgBbox = font_atlas->GetWhitespace();
       const glm::vec2 charSize = glm::vec2(font_atlas->GetCharacterSize(font_size));
       const glm::vec2 charOffset = glm::vec2(utility::GetRowColFromIndex(character_map.size_, index++) * font_atlas->GetCharacterSize(font_size));
       const glm::vec2 textOffset = glm::vec2((charSize.x - textBbox.character_size_.x) / 2, textBbox.baseline_);
       const glm::vec2 textTexPos = glm::vec2(textBbox.position_) / (float)TEXTURE_SIZE;
       const glm::vec2 textTexSize = glm::vec2(textBbox.character_size_) / (float)TEXTURE_SIZE;
-      const glm::vec2 bgTexSize = glm::vec2(bgBbox.character_size_) / (float)TEXTURE_SIZE;
+      const glm::vec2 bgTexSize = glm::vec2(whitespace_bbox.character_size_) / (float)TEXTURE_SIZE;
+      const glm::vec4 bgColour = character.character_ == 0 ? character_map.empty_character_bg_colour_ : character.background_colour_;
 
       // Draw the background.
       /* Draw order:
@@ -100,9 +111,9 @@ namespace term_engine::rendering {
        * | \
        * 3--2
        */
-      buffer.data.push_back(BufferData(character_map.position_ + charOffset, glm::vec2(), character.background_colour_));
-      buffer.data.push_back(BufferData(character_map.position_ + charOffset + charSize, bgTexSize, character.background_colour_));
-      buffer.data.push_back(BufferData(character_map.position_ + charOffset + glm::vec2(0.0f, charSize.y), glm::vec2(0.0f, bgTexSize.y), character.background_colour_));
+      buffer.data.push_back(BufferData(character_map.position_ + charOffset, glm::vec2(), bgColour));
+      buffer.data.push_back(BufferData(character_map.position_ + charOffset + charSize, bgTexSize, bgColour));
+      buffer.data.push_back(BufferData(character_map.position_ + charOffset + glm::vec2(0.0f, charSize.y), glm::vec2(0.0f, bgTexSize.y), bgColour));
 
       /* Draw order:
        * 1--2
@@ -110,9 +121,9 @@ namespace term_engine::rendering {
        *   \|
        *    3
        */
-      buffer.data.push_back(BufferData(character_map.position_ + charOffset, glm::vec2(), character.background_colour_));
-      buffer.data.push_back(BufferData(character_map.position_ + charOffset + glm::vec2(charSize.x, 0), glm::vec2(bgTexSize.x, 0.0f), character.background_colour_));
-      buffer.data.push_back(BufferData(character_map.position_ + charOffset + charSize, bgTexSize, character.background_colour_));
+      buffer.data.push_back(BufferData(character_map.position_ + charOffset, glm::vec2(), bgColour));
+      buffer.data.push_back(BufferData(character_map.position_ + charOffset + glm::vec2(charSize.x, 0), glm::vec2(bgTexSize.x, 0.0f), bgColour));
+      buffer.data.push_back(BufferData(character_map.position_ + charOffset + charSize, bgTexSize, bgColour));
 
       // Draw the foreground.
       /* Draw order:

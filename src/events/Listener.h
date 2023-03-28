@@ -45,7 +45,11 @@ namespace term_engine::events {
   /// @brief Clears the event list.
   void CleanUpList();
 
-  /// @brief Executes all listeners for event types relating to SDL.
+  /**
+   * @brief Executes all listeners for event types relating to SDL.
+   * 
+   * @param[in] event The event to check and broadcast.
+   */
   void DoSDLEvents(const SDL_Event& event);
 }
 

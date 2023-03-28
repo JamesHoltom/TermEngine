@@ -3,26 +3,26 @@ local labelObject, valueObject
 
 function SetColour(colour)
   if colour == "green" then
-    { "Green", Colours.WHITE, Colours.GREEN }
+    return "Green", Colours.WHITE, Colours.GREEN
   elseif colour == "blue" then
-    { "Blue", Colours.WHITE, Colours.BLUE }
+    return "Blue", Colours.WHITE, Colours.BLUE
   elseif colour == "yellow" then
-    { "Yellow", Colours.BLACK, Colours.YELLOW }
+    return "Yellow", Colours.BLACK, Colours.YELLOW
   else
-    { "Red", Colours.WHITE, Colours.RED }
+    return "Red", Colours.WHITE, Colours.RED
   end
 end
 
 function SetValue()
-  local valueColours = SetColour(fileText)
-  valueObject.text = "Value: " .. valueColours[1]
-  valueObject.fg_colour = valueColours[2]
-  valueObject.bg_colour = valueColours[3]
+  local colourText, fgColour, bgColour = SetColour(fileText)
+  valueObject.text = "Value: " .. colourText
+  valueObject.fg_colour = fgColour
+  valueObject.bg_colour = bgColour
 end
 
 function Init()
-  view.setSize(ivec2(16, 8))
-  window.fitToView()
+  defaultScene.charmap.size = ivec2(16, 8)
+  defaultScene:resizeToFit()
 
   if fs.exists("resources/myFile.txt") then
     fileText = fs.read("resources/myFile.txt")
