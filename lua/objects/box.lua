@@ -6,23 +6,25 @@ local empty_character = Character(characters.NO_CHARACTER, characters.DEFAULT_FO
 
 --[[
 -- @brief Extends the Object usertype to make drawing boxes simpler.
--- @param _position The position of the box.
--- @param _size The size of the box.
+-- @param _position 	The position of the box.
+-- @param _size 			The size of the box.
+-- @param _game_scene The game scene to add the object to.
 --]]
-function BoxObject(_position, _size)
+function BoxObject(_position, _size, _game_scene)
 	local self = {
-		obj = Object(_position, _size),	-- @brief Handle to the Object.
-		fill = empty_character,					-- @brief The Character to use for the fill.
-		outline = empty_character,			-- @brief The Character to use for the outline.
-		has_outline = false							-- @brief Has an outline been set?
+		obj = GameObject(_position, _size, _game_scene or "default"),	-- @brief Handle to the Object.
+		fill = empty_character,																				-- @brief The Character to use for the fill.
+		outline = empty_character,																		-- @brief The Character to use for the outline.
+		has_outline = false																						-- @brief Has an outline been set?
 	}
 	
 	-- @brief Refreshes the object data with the updated settings.
 	local _setData = function()
-		local w = self.obj.size.x
+		local minW = self.obj.size.x
+		local maxW = (self.obj.size.x * self.obj.size.y) - minW
 		
-		self.obj:set(function(data, index, _)
-			if self.has_outline and (index < w or index > (#self.obj.data - w) or math.fmod(index, w) <= 1) then
+		self.obj:set(function(_, index)
+			if self.has_outline and (index < minW or index > maxW or math.fmod(index, minW) <= 1) then
 				return self.outline
 			else
 				return self.fill

@@ -12,9 +12,5 @@ function Init()
     windowresized=EventListener("window_resized", function(_, event) print("Resized window to "..tostring(event.size)) end)
   }
 
-  for k, v in ipairs(event.getListenerTypes()) do
-    print(v..": "..event.countListeners(v))
-  end
-
   return true
 end

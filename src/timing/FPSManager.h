@@ -7,9 +7,9 @@
 
 namespace term_engine::timing {
   /// @brief Denotes how many frames to wait before updating the average frame rate.
-  constexpr int FPS_FRAME_MULTIPLE = 5;
+  constexpr uint32_t FPS_FRAME_MULTIPLE = 5;
   /// @brief Represents the default FPS when starting the program.
-  constexpr int DEFAULT_FPS = 60;
+  constexpr uint32_t DEFAULT_FPS = 60;
 
   /// @brief The timer used to delay the program for the rest of the current frame.
   extern Timer delay_timer_;
@@ -18,7 +18,7 @@ namespace term_engine::timing {
   /// @brief The average frame rate while running the program.
   extern float average_fps_;
   /// @brief The target frame rate the program can run up to, if it set.
-  extern int target_fps_;
+  extern uint32_t target_fps_;
   /// @brief The number of frames that have run since the program was started.
   extern uint64_t frame_count_;
   /// @brief If a target frame rate is set, this is the amount of time between frames. E.g. A target of 10FPS means that _frame_duration_ is 0.1, or 100ms.
@@ -27,8 +27,8 @@ namespace term_engine::timing {
   /// @brief Prepares the timers ready for calculating/capping the frame rate.
   void InitFPS();
 
-  /// @brief Tells the program to wait for however
-  void Delay();
+  /// @brief Tells the program to wait until the next frame starts (if a target framerate is set).
+  uint64_t Delay();
 
   /// @brief Calculates the average frame rate.
   void CalculateFPS();
@@ -62,14 +62,14 @@ namespace term_engine::timing {
    * 
    * @returns The target frame rate, or 0 if it is disabled.
    */
-  int GetTargetFPS();
+  uint32_t GetTargetFPS();
 
   /**
    * @brief Sets the target frame rate. Setting this to 0 will disable the target framerate.
    * 
    * @param[in] target The target frame rate to set.
    */
-  void SetTargetFPS(const int& target);
+  void SetTargetFPS(uint32_t target);
 
   /// @brief Logs the average and target frame rates.
   void PrintFPS();

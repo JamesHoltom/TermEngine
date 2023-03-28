@@ -9,8 +9,7 @@ You can clone TermEngine by running:
 TermEngine requires at least the following libraries to build:
 
 * SDL2 2.0.22
-* OpenGL 4.4
-* OpenGL Extension Wrangler (GLEW) 2.2.0
+* OpenGL 4.6
 * OpenGL Mathematics (GLM) 0.9.9
 * FreeType 2.12.1
 * sol2 3.3.0

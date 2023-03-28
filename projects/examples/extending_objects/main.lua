@@ -4,11 +4,12 @@
   ||
   || "_pos" takes an _ivec2_ with the position of the object.
   || "_text" is the text to render to the object. For this tutorial, it'll be read-only.
+  || "_game_scene" is the game scene to render this object to.
 --]]
-function ExampleObject(_pos, _text)
+function ExampleObject(_pos, _text, _game_scene)
   local self = {
-    obj = Object(_pos, Values.IVEC2_ONE), -- Handle to the base Object.
-    text = _text                          -- The text to render.
+    obj = GameObject(_pos, Values.IVEC2_ONE, _game_scene or "default"), -- Handle to the base Object.
+    text = _text                                                        -- The text to render.
   }
 
   -- Prints the text property to the console.

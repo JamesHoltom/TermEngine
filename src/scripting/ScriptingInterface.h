@@ -24,7 +24,7 @@ namespace term_engine::scripting {
   void InitInterface();
 
   /// @brief Selects the project script to execute, or the "No Program" script if one is not set.
-  bool InitScript();
+  void InitScript();
 
   /// @brief Does garbage collection and closes the scripting interface.
   void CleanUp();
@@ -33,9 +33,8 @@ namespace term_engine::scripting {
    * @brief Loads the contents of a Lua file into the state, allowing subsequent scripts to use the contents.
    * 
    * @param[in] filename The file name/path of the Lua script to load.
-   * @returns If the Lua file was successfully loaded.
    */
-  bool Load(const std::string& filename);
+  void Load(const std::string& filename);
 
   /**
    * @brief Runs the "Init" Lua function, which is used to execute game code on startup.
@@ -47,9 +46,9 @@ namespace term_engine::scripting {
   /**
    * @brief Runs the "Loop" Lua function, which is used to execute game code every frame.
    * 
-   * @param[in] timestep The timestep for this frame, i.e. the amount of time since the last frame ticked.
+   * @param[in] timestep The timestep for this frame, i.e. the amount of time in milliseconds (ms) since the last frame ticked.
    */
-  void OnLoop(const float& timestep);
+  void OnLoop(uint64_t timestep);
 
   /**
    * @brief Runs the "Quit" Lua function, which runs game code before closing TermEngine.

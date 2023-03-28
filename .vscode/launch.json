@@ -9,7 +9,7 @@
       "type": "cppdbg",
       "request": "launch",
       "program": "${workspaceRoot}/TermEngine",
-      "args": [  ],
+      "args": [],
       "environment": [{
         "name": "config",
         "value": "Debug"

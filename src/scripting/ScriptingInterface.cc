@@ -1,16 +1,12 @@
 #include <filesystem>
 #include "ScriptingInterface.h"
 #include "bindings/glmBindings.h"
-#include "bindings/EventBindings.h"
-#include "bindings/FileBindings.h"
+#include "bindings/CoreBindings.h"
 #include "bindings/ObjectBindings.h"
-#include "bindings/ResourceBindings.h"
-#include "bindings/TimingBindings.h"
 #include "bindings/UtilityBindings.h"
-#include "bindings/ViewBindings.h"
-#include "../logging/Logger.h"
 #include "../system/CLArguments.h"
 #include "../system/FileFunctions.h"
+#include "../utility/SpdlogUtils.h"
 
 
 namespace term_engine::scripting {
@@ -24,20 +20,16 @@ namespace term_engine::scripting {
 
     // Create bindings for C++ functions.
     bindings::BindGlmToState(*lua_state);
-    bindings::BindEventToState(*lua_state);
-    bindings::BindFileToState(*lua_state);
-    bindings::BindObjectToState(*lua_state);
-    bindings::BindResourcesToState(*lua_state);
-    bindings::BindTimingToState(*lua_state);
+    bindings::BindCoreToState(*lua_state);
+    bindings::BindObjectsToState(*lua_state);
     bindings::BindUtilitiesToState(*lua_state);
-    bindings::BindViewToState(*lua_state);
   }
 
-  bool InitScript()
+  void InitScript()
   {
     // Add the root & vendor to the Lua path, so that projects can "require()" files relative to these folders.
     std::string packagePath = (*lua_state)["package"]["path"];
-    const std::string rootDirectory = system::GetRootPath() / "lua";
+    const std::string rootDirectory = std::filesystem::current_path() / "lua";
 
     packagePath += ";" +
                    rootDirectory + "/vendor/?.lua;" + 
@@ -60,25 +52,20 @@ namespace term_engine::scripting {
     }
 
     (*lua_state)["package"]["path"] = packagePath;
-    logging::logger->debug("Lua path: {}", std::string((*lua_state)["package"]["path"]));
+    utility::logger->debug("Lua path: {}", std::string((*lua_state)["package"]["path"]));
 
-    bool load_result = Load(rootDirectory + "/" + LOADER_SCRIPT_PATH);
+    Load(rootDirectory + "/" + LOADER_SCRIPT_PATH);
 
-    if (load_result)
+    if (project_file != "")
     {
-      if (project_file != "")
-      {
-        logging::logger->info("Loading project...");
-        load_result = Load(project_file.string());
-      }
-      else
-      {
-        logging::logger->info("No project to load!");
-        load_result = Load(rootDirectory + "/" + DEFAULT_SCRIPT_PATH);
-      }
+      utility::logger->info("Loading project...");
+      Load(project_file.string());
     }
-
-    return load_result;
+    else
+    {
+      utility::logger->info("No project to load!");
+      Load(rootDirectory + "/" + DEFAULT_SCRIPT_PATH);
+    }
   }
 
   void CleanUp()
@@ -89,30 +76,25 @@ namespace term_engine::scripting {
     lua_state.reset();
   }
 
-  bool Load(const std::string& filename)
+  void Load(const std::string& filename)
   {
-    bool loaded = false;
-
     try {
       sol::protected_function_result result = lua_state->script_file(filename);
 
       if (result.valid())
       {
         lua_file = filename;
-        loaded = true;
-        logging::logger->debug("Loaded Lua script {}.", filename);
+        utility::logger->debug("Loaded Lua script {}.", filename);
       }
       else
       {
         sol::error err = result;
-        logging::logger->error("Failed to load Lua file {}\nError: {}. ", filename, err.what());
+        utility::logger->error("Failed to load Lua script {}\nError: {}. ", filename, err.what());
       }
     }
     catch (const std::exception& err) {
-      logging::logger->error("A loading error occurred!\nFile: {}\nError: {}", lua_file, err.what());
+      utility::logger->error("A loading error occurred!\nFile: {}\nError: {}", lua_file, err.what());
     }
-
-    return loaded;
   }
 
   bool OnInit()
@@ -129,17 +111,17 @@ namespace term_engine::scripting {
       else
       {
         sol::error err = result;
-        logging::logger->error("Received Lua error on init: {}", err.what());
+        utility::logger->error("Received Lua error on init: {}", err.what());
       }
     }
     catch (const std::exception& err) {
-      logging::logger->error("A scripting error occurred!\nFile: {}\nError: {}", lua_file, err.what());
+      utility::logger->error("A scripting error occurred!\nFile: {}\nError: {}", lua_file, err.what());
     }
 
     return return_value;
   }
 
-  void OnLoop(const float& timestep)
+  void OnLoop(uint64_t timestep)
   {
     try {
       sol::protected_function_result result = (*lua_state)["Loop"](timestep);
@@ -147,11 +129,11 @@ namespace term_engine::scripting {
       if (!result.valid())
       {
         sol::error err = result;
-        logging::logger->error("Received Lua error on loop: {}", err.what());
+        utility::logger->error("Received Lua error on loop: {}", err.what());
       }
     }
     catch (const std::exception& err) {
-      logging::logger->error("A scripting error occurred!\nFile: {}\nError: {}", lua_file, err.what());
+      utility::logger->error("A scripting error occurred!\nFile: {}\nError: {}", lua_file, err.what());
     }
   }
 
@@ -169,11 +151,11 @@ namespace term_engine::scripting {
       else
       {
         sol::error err = result;
-        logging::logger->error("Received Lua error on quit: {}", err.what());
+        utility::logger->error("Received Lua error on quit: {}", err.what());
       }
     }
     catch (const std::exception& err) {
-      logging::logger->error("A scripting error occurred!\nFile: {}\nError: {}", lua_file, err.what());
+      utility::logger->error("A scripting error occurred!\nFile: {}\nError: {}", lua_file, err.what());
     }
 
     return return_value;

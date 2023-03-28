@@ -6,7 +6,6 @@
 #include <array>
 #include <string>
 #include <glm/glm.hpp>
-
 #include "../utility/SDLUtils.h"
 
 namespace term_engine::events {
@@ -51,7 +50,7 @@ namespace term_engine::events {
    * @param[in] button Which mouse button to check. This is normally `SDL_BUTTON_LEFT`, `SDL_BUTTON_MIDDLE` or `SDL_BUTTON_RIGHT`.
    * @returns If the mouse button is being pressed.
    */
-  bool MouseIsDown(const int& button);
+  bool MouseIsDown(int button);
 
   /** 
    * @brief Checks if a mouse button has just been pressed, i.e. it was pressed this frame, but not in the previous frame.
@@ -59,7 +58,7 @@ namespace term_engine::events {
    * @param[in] button Which mouse button to check. This is normally `SDL_BUTTON_LEFT`, `SDL_BUTTON_MIDDLE` or `SDL_BUTTON_RIGHT`.
    * @returns If the mouse button has just been pressed this frame.
    */
-  bool MouseIsPressed(const int& button);
+  bool MouseIsPressed(int button);
 
   /** 
    * @brief Checks if a mouse button has just been released, i.e. it was pressed in the previous frame, and released this frame.
@@ -67,7 +66,7 @@ namespace term_engine::events {
    * @param[in] button Which mouse button to check. This is normally `SDL_BUTTON_LEFT`, `SDL_BUTTON_MIDDLE` or `SDL_BUTTON_RIGHT`.
    * @returns If the mouse button has just been released this frame.
    */
-  bool MouseIsReleased(const int& button);
+  bool MouseIsReleased(int button);
 
   /**
    * @brief Returns the position of the mouse on the screen.
@@ -99,7 +98,7 @@ namespace term_engine::events {
    * @see [SDL scancodes](https://wiki.libsdl.org/SDL_Scancode)
    * @returns If the key is being pressed.
    */
-  bool ScancodeIsDown(const SDL_Scancode& code);
+  bool ScancodeIsDown(SDL_Scancode code);
 
   /**
    * @brief Checks if a key has just been pressed, i.e. it was pressed this frame, but not in the previous frame.
@@ -117,7 +116,7 @@ namespace term_engine::events {
    * @see [SDL scancodes](https://wiki.libsdl.org/SDL_Scancode)
    * @returns If the key has just been pressed this frame.
    */
-  bool ScancodeIsPressed(const SDL_Scancode& code);
+  bool ScancodeIsPressed(SDL_Scancode code);
 
   /**
    * @brief Checks if a key has just been released, i.e. it was pressed in the previous frame, and released this frame.
@@ -135,7 +134,7 @@ namespace term_engine::events {
    * @see [SDL scancodes](https://wiki.libsdl.org/SDL_Scancode)
    * @returns If the key has just been released this frame.
    */
-  bool ScancodeIsReleased(const SDL_Scancode& code);
+  bool ScancodeIsReleased(SDL_Scancode code);
 }
 
 #endif // ! INPUT_MANAGER_H

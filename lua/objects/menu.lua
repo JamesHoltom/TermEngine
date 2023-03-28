@@ -4,9 +4,10 @@
 
 --[[
 -- @brief Extends the Object usertype to make menus simpler to setup.
--- @param _position The position of the menu.
+-- @param _position 	The position of the menu.
+-- @param _game_scene The game scene to add the object to.
 --]]
-function MenuObject(_position)
+function MenuObject(_position, _game_scene)
 	--[[
 	-- @brief Represents an option in a MenuObject.
 	-- @param _title		The title of the option.
@@ -65,17 +66,17 @@ function MenuObject(_position)
 	end
 
 	local self = {
-		obj = Object(_position, Values.IVEC2_ONE),	-- @brief 
-		events = {},																-- @brief The list of event listeners.
-		options = {},																-- @brief The list of options.
-		option_width = 0,														-- @brief The maximum width of the options.
-		active_index = 1														-- @brief The index of the option currently selected.
+		obj = GameObject(_position, Values.IVEC2_ONE, _game_scene or "default"),	-- @brief Handle to the Object.
+		events = {},																															-- @brief The list of event listeners.
+		options = {},																															-- @brief The list of options.
+		option_width = 0,																													-- @brief The maximum width of the options.
+		active_index = 1																													-- @brief The index of the option currently selected.
 	}
 
 	-- @brief Refreshes the object data with the updated list of options.
 	local _refreshOptions = function()
 		local columns = #self.options
-		self.obj.size = ivec2(self.option_width, columns)
+		self.obj:size(ivec2(self.option_width, columns))
 		
 		for index, option in ipairs(self.options) do
 			option.hovering = self.active_index == index
@@ -91,16 +92,14 @@ function MenuObject(_position)
 			end
 			
 			for c in title:gmatch(".") do
-				self.obj.data[(self.option_width * (index - 1)) + c_index] = Character(c, fg, bg)
+				self.obj:data()[(self.option_width * (index - 1)) + c_index] = Character(c, fg, bg)
 				c_index = c_index + 1
 			end
 
 			for i = c_index, self.option_width do
-				self.obj.data[(self.option_width * (index - 1)) + i] = Character(" ", fg, bg)
+				self.obj:data()[(self.option_width * (index - 1)) + i] = Character(" ", fg, bg)
 			end
 		end
-		
-		objects.dirty()
 	end
 	
 	--[[
@@ -210,7 +209,7 @@ function MenuObject(_position)
 		end
 	end
 
-	self.events.keydown = EventListener("key_down", function(this, event)
+	self.events.keydown = EventListener(defaultScene(), "key_down", function(_, event)
 		_doKeyInput(event.key)
 	end)
 

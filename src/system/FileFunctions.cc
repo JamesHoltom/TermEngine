@@ -8,29 +8,10 @@
 #include <windows.h>
 #endif
 #include "FileFunctions.h"
-#include "../logging/Logger.h"
+#include "../utility/SpdlogUtils.h"
 
 namespace term_engine::system {
   std::filesystem::path project_path;
-
-  std::filesystem::path GetRootPath()
-  {
-#ifdef linux
-    char szPath[PATH_MAX];
-    ssize_t count = readlink( "/proc/self/exe", szPath, PATH_MAX );
-
-    if( count < 0 || count >= PATH_MAX )
-    {
-        return "";
-    }
-    szPath[count] = '\0';
-#elif defined(_WIN32) || defined (WIN32)
-    wchar_t szPath[MAX_PATH];
-    GetModuleFileNameW( NULL, szPath, MAX_PATH );
-#endif
-
-    return std::filesystem::path{ szPath }.parent_path() / "";
-  }
 
   std::filesystem::path SearchForProjectPath(const std::filesystem::path& filename)
   {
@@ -39,7 +20,7 @@ namespace term_engine::system {
       return filename;
     }
 
-    const std::filesystem::path rootPath = GetRootPath();
+    const std::filesystem::path rootPath = std::filesystem::current_path();
     const std::filesystem::path locations[] = {
       rootPath,
       rootPath / "projects",
@@ -50,24 +31,24 @@ namespace term_engine::system {
     {
       const std::filesystem::path fullPath = location / filename;
 
-      logging::logger->debug("Testing location {}...", fullPath);
+      utility::logger->debug("Testing location {}...", fullPath);
 
       if (std::filesystem::exists(fullPath))
       {
-        logging::logger->debug("Found project path at {}.", fullPath);
+        utility::logger->debug("Found project path at {}.", fullPath);
 
         return fullPath;
       }
     }
 
-    logging::logger->warn("Could not find project directory {}!", filename);
+    utility::logger->warn("Could not find project directory {}!", filename);
 
     return "";
   }
 
   std::filesystem::path SearchForResourcePath(const std::string& filename)
   {
-    const std::filesystem::path rootPath = GetRootPath();
+    const std::filesystem::path rootPath = std::filesystem::current_path();
     const std::filesystem::path locations[] = {
 #ifdef linux
       "/usr/share/fonts/",
@@ -77,7 +58,6 @@ namespace term_engine::system {
 #endif
       rootPath,
       rootPath / "resources",
-      // TODO: Make the project path available here. Perhaps finish project-related code and make it available there?
       project_path,
       project_path / "resources"
     };
@@ -86,28 +66,28 @@ namespace term_engine::system {
     {
       const std::filesystem::path fullPath = location / filename;
 
-      logging::logger->debug("Testing resource path at {}.", fullPath);
+      utility::logger->debug("Testing resource path at {}.", fullPath);
 
       if (std::filesystem::exists(fullPath))
       {
-        logging::logger->debug("Found resource path at {}.", fullPath);
+        utility::logger->debug("Found resource path at {}.", fullPath);
 
         return fullPath;
       }
     }
 
-    logging::logger->warn("Could not find resource \"{}\"!", filename);
+    utility::logger->warn("Could not find resource \"{}\"!", filename);
 
     return "";
   }
 
   std::string ReadFile(const std::string& filename)
   {
-    std::filesystem::path filepath = system::SearchForResourcePath(filename);
+    std::filesystem::path filepath = SearchForResourcePath(filename);
 
     if (filepath == "")
     {
-      logging::logger->warn("Could not find file to read data from!");
+      utility::logger->warn("Could not find file to read data from!");
       
       return "";
     }
@@ -126,17 +106,17 @@ namespace term_engine::system {
     }
     else
     {
-      logging::logger->error("Failed to read from file {}.", filepath);
+      utility::logger->error("Failed to read from file {}.", filepath);
 
       return "";
     }
   }
 
-  void WriteFile(const std::string& filename, const std::string& data, const bool& append)
+  void WriteFile(const std::string& filename, const std::string& data, bool append)
   {
     if (filename == "")
     {
-      logging::logger->warn("No file has been selected to write/append data to!");
+      utility::logger->warn("No file has been selected to write/append data to!");
       
       return;
     }
@@ -154,13 +134,13 @@ namespace term_engine::system {
     }
     else
     {
-      logging::logger->error("Failed to write to file {}.", filepath);
+      utility::logger->error("Failed to write to file {}.", filepath);
     }
   }
 
   bool FileExists(const std::string& filename)
   {
-    return system::SearchForResourcePath(filename) != "";
+    return SearchForResourcePath(filename) != "";
   }
 
   FileList GetFileList(const std::string& directory)

@@ -1,7 +1,7 @@
 #include <string>
 #include <cxxopts.hpp>
 #include "CLArguments.h"
-#include "../logging/Logger.h"
+#include "../utility/SpdlogUtils.h"
 
 namespace term_engine::system {
   std::filesystem::path scriptPath;
@@ -21,11 +21,11 @@ namespace term_engine::system {
     }
     catch (cxxopts::OptionParseException& ex)
     {
-      logging::logger->error("Failed to parse command-line arguments. Error: {}", std::string(ex.what()));
+      utility::logger->error("Failed to parse command-line arguments. Error: {}", std::string(ex.what()));
     }
     catch (cxxopts::OptionSpecException& ex)
     {
-      logging::logger->error("Failed to define command-line arguments. Error: {}", std::string(ex.what()));
+      utility::logger->error("Failed to define command-line arguments. Error: {}", std::string(ex.what()));
     }
   }
 }

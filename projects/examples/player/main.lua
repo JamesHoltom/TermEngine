@@ -1,7 +1,7 @@
 -- External scripts can be loaded in locally.
 require("player")
 
-local player, outline, helloText, fpsText
+local player, outline, helloText
 
 --[[
   || The Init() function runs when a project is loaded.
@@ -24,8 +24,6 @@ function Init()
 	helloText = TextObject(ivec2(1, 14), ivec2(30, 1))
 	helloText.text = "Welcome to TermEngine!"
 
-	fpsText = TextObject(ivec2(24, 1), ivec2(7, 1))
-	
 	return true
 end
 
@@ -37,19 +35,5 @@ end
   || The function takes a timestep, with the length of time since the last frame.
 --]]
 function Loop(timestep)
-	player.doInput(timestep)
-	fpsText.text = fps.getAverage()
-end
-
---[[
-  || The Quit() function runs whenever the user tries to exit TermEngine.
-  ||
-  || This is where you would tear down assets, save game data, etc.
-  ||
-  || Like Init(), this function must return a true/false value.
-  || If you want the user to confirm they want to exit (e.g. A "Would you like to save?" dialog),
-  || you can pass false to prevent TermEngine from automatically closing.
---]]
-function Quit()
-	return true
+	player:update(timestep)
 end

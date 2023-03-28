@@ -7,7 +7,7 @@ function Player(_pos)
 	
 	self.box.fill = Character("o", Colours.RED, Colours.BLACK)
 	
-	local doInput = function(_timestep)
+	local _update = function(_, timestep)
 		if mouse.isPressed(mouse.LEFT) then
 			if self.box.fill.character == "o" then
 				self.box.fill = Character("x", Colours.BLUE, Colours.BLACK)
@@ -24,33 +24,33 @@ function Player(_pos)
 			end
 		end
 		
-		local has_moved = false
+		local hasMoved = false
 		
-		if keyboard.isDown("left") then
-			self.pos.x = self.pos.x - (self.speed * _timestep)
-			has_moved = true
+		if keyboard.isDown("Left") then
+			self.pos.x = self.pos.x - (self.speed * timestep / 1000)
+			hasMoved = true
 		end
 		
-		if keyboard.isDown("right") then
-			self.pos.x = self.pos.x + (self.speed * _timestep)
-			has_moved = true
+		if keyboard.isDown("Right") then
+			self.pos.x = self.pos.x + (self.speed * timestep / 1000)
+			hasMoved = true
 		end
 		
-		if keyboard.isDown("up") then
-			self.pos.y = self.pos.y - (self.speed * _timestep)
-			has_moved = true
+		if keyboard.isDown("Up") then
+			self.pos.y = self.pos.y - (self.speed * timestep / 1000)
+			hasMoved = true
 		end
 		
-		if keyboard.isDown("down") then
-			self.pos.y = self.pos.y + (self.speed * _timestep)
-			has_moved = true
+		if keyboard.isDown("Down") then
+			self.pos.y = self.pos.y + (self.speed * timestep / 1000)
+			hasMoved = true
 		end
 		
-		if has_moved then
+		if hasMoved then
 			self.box.position = ivec2(self.pos)
 		end
 		
-		if keyboard.isPressed("space") then
+		if keyboard.isPressed("Space") then
 			if self.box.size == ivec2(2) then
 				self.box.size = ivec2(1)
 			else
@@ -60,6 +60,6 @@ function Player(_pos)
 	end
 	
 	return {
-		doInput = doInput
+		update = _update
 	}
 end

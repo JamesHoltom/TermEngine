@@ -15,13 +15,6 @@ namespace term_engine::system {
   extern std::filesystem::path project_path;
 
   /**
-   * @brief Gets the directory that the TermEngine executable is located in.
-   * 
-   * @returns The root directory.
-   */
-  std::filesystem::path GetRootPath();
-
-  /**
    * @brief Finds the "main.lua" file at the given project directory in the system's default location, or in the projects folder.
    * @details If the file isn't found anywhere, a blank string is returned.
    * 
@@ -56,7 +49,7 @@ namespace term_engine::system {
    * @param[in] data      The data to write.
    * @param[in] append    Should the data be appended to any existing contents in the file?
    */
-  void WriteFile(const std::string& filename, const std::string& data, const bool& append);
+  void WriteFile(const std::string& filename, const std::string& data, bool append);
 
   /**
    * @brief Returns if a file with the given path exists.

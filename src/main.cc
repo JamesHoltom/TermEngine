@@ -1,4 +1,4 @@
-#include "application/Application.h"
+#include "Application.h"
 #include "system/CLArguments.h"
 
 /**
@@ -11,11 +11,11 @@
 int main(int argc, char** argv) {
   term_engine::system::GetCLArguments(argc, argv);
   
-  term_engine::application::Init();
+  term_engine::Init();
 
-  term_engine::application::Run();
+  term_engine::Run();
 
-  term_engine::application::CleanUp();
+  term_engine::CleanUp();
 
   return 0;
 }
