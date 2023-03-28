@@ -27,7 +27,7 @@ function LineObject(_start, _end, _char, _game_scene)
     if size == Values.IVEC2_ZERO then
       return
     elseif size == Values.IVEC2_ONE then
-      self.obj:data()[1] = self.character
+      self.obj.data[1] = self.character
       return
     end
 
@@ -66,7 +66,7 @@ function LineObject(_start, _end, _char, _game_scene)
       local iterDiff = vec2(i/iterLimit) * diff
       local index = getIndexFromRowCol(self.obj.size, startPos + ivec2(iterDiff:round()))
 
-      self.obj:data()[index] = self.character
+      self.obj.data[index] = self.character
     end
 
     objects.dirty()

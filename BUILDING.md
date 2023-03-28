@@ -19,10 +19,6 @@ TermEngine requires at least the following libraries to build:
 
 The instructions below assume you have installed these libraries through vcpkg.
 
-## Visual Studio 2019
-
-Open `termengine.sln` in Visual Studio and build the project.
-
 ## VSCode
 
 This project requires that the _CMake_ and _CMake Tools_ extensions for VSCode are installed.
