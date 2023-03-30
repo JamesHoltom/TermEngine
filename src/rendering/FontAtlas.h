@@ -66,6 +66,10 @@ namespace term_engine::rendering {
   
   /// @brief Stores a list of loaded fonts.
   extern FontAtlasList atlas_cache;
+  /// @brief The bounding box for a blank character, to be used for rendering character backgrounds.
+  extern CharacterBB whitespace_bbox;
+  /// @brief The number of spaces in a tab.
+  extern uint32_t tab_size;
   
   /// @brief Represents a cache of character textures.
   class FontAtlas {
@@ -199,8 +203,19 @@ namespace term_engine::rendering {
    */
   uint32_t GetDefaultFontSize();
 
-  /// @brief The bounding box for a blank character, to be used for rendering character backgrounds.
-  extern CharacterBB whitespace_bbox;
+  /**
+   * @brief Returns the number of spaces in a tab.
+   * 
+   * @returns The tab size.
+   */
+  uint32_t GetTabSize();
+
+  /**
+   * @brief Sets the number of spaces in a tab.
+   * 
+   * @param[in] tab_size The tab size.
+   */
+  void SetTabSize(uint32_t size);
 }
 
 #endif // ! FONT_ATLAS_H

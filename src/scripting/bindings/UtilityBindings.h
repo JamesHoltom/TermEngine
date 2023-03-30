@@ -47,7 +47,8 @@ namespace term_engine::scripting::bindings {
     state.create_named_table("font",
       "load", &rendering::GetFontAtlas,
       "getDefault", &rendering::GetDefaultFont,
-      "getDefaultSize", &rendering::GetDefaultFontSize);
+      "getDefaultSize", &rendering::GetDefaultFontSize,
+      "tabSize", sol::overload(&rendering::GetTabSize, &rendering::SetTabSize));
 
     state.create_named_table("fs",
       "read", &system::ReadFile,

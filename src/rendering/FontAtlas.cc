@@ -8,6 +8,7 @@
 
 namespace term_engine::rendering {
   CharacterBB whitespace_bbox = { glm::ivec2(0), glm::ivec2(32), 0, 0 };
+  uint32_t tab_size = 2;
   FontAtlasList atlas_cache;
   uint32_t FontAtlas::active_font_id_ = 0;
 
@@ -278,5 +279,15 @@ namespace term_engine::rendering {
   uint32_t GetDefaultFontSize()
   {
     return DEFAULT_FONT_SIZE;
+  }
+
+  uint32_t GetTabSize()
+  {
+    return tab_size;
+  }
+
+  void SetTabSize(uint32_t size)
+  {
+    tab_size = size;
   }
 }
