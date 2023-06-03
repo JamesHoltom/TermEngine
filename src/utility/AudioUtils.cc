@@ -3,8 +3,26 @@
 #include "../system/FileFunctions.h"
 
 namespace term_engine::utility {
-  uint32_t device_id;
-  ma_engine engine;
+  ma_result MALog(ma_result result)
+  {
+    if (result != MA_SUCCESS)
+    {
+      logger->error("MiniAudio error #{}: {}", result, ma_result_description(result));
+    }
+
+    return result;
+  }
+
+  ma_format ConvertFromSDLFormat(SDL_AudioFormat format)
+  {
+    switch (format) {
+      case AUDIO_F32: return ma_format::ma_format_f32;      break;
+      case AUDIO_S16: return ma_format::ma_format_s16;      break;
+      case AUDIO_S32: return ma_format::ma_format_s32;      break;
+      case AUDIO_U8:  return ma_format::ma_format_u8;       break;
+      default:        return ma_format::ma_format_unknown;  break;
+    }
+  }
 
   bool InitAudio()
   {
@@ -12,53 +30,51 @@ namespace term_engine::utility {
     config.channels = 2;
     config.sampleRate = 48000;
     config.noDevice = true;
-    ma_result result = ma_engine_init(&config, &engine);
 
-    if (result != MA_SUCCESS)
+    if (MALog(ma_engine_init(&config, &audio_engine)) != MA_SUCCESS)
     {
-      utility::logger->error("Failed to initialise audio engine.");
+      logger->error("Failed to initialise audio engine.");
 
       return false;
     }
 
     SDL_AudioSpec desired;
-    SDL_AudioSpec actual;
 
     desired.callback = data_callback;
-    desired.channels = ma_engine_get_channels(&engine);
+    desired.channels = ma_engine_get_channels(&audio_engine);
     desired.format = AUDIO_F32;
-    desired.freq = ma_engine_get_sample_rate(&engine);
+    desired.freq = ma_engine_get_sample_rate(&audio_engine);
     desired.samples = 512;
     desired.userdata = NULL;
 
-    device_id = SDL_OpenAudioDevice(nullptr, 0, &desired, &actual, SDL_AUDIO_ALLOW_ANY_CHANGE);
+    audio_device_id = SDL_OpenAudioDevice(nullptr, 0, &desired, &loaded_audio_engine_config, SDL_AUDIO_ALLOW_ANY_CHANGE);
 
-    if (device_id == 0)
+    if (audio_device_id == 0)
     {
-      utility::logger->error("Failed to open audio device. {}", SDL_GetError());
+      logger->error("Failed to open audio device. {}", SDL_GetError());
 
       return false;
     }
 
-    SDL_PauseAudioDevice(device_id, SDL_FALSE);
+    SDL_PauseAudioDevice(audio_device_id, SDL_FALSE);
 
-    utility::logger->debug("Initialised miniaudio.");
+    logger->debug("Initialised miniaudio.");
 
     return true;
   }
 
-  void CleanUp()
+  void CleanUpAudio()
   {
-    SDL_CloseAudioDevice(device_id);
-    ma_engine_uninit(&engine);
+    SDL_CloseAudioDevice(audio_device_id);
+    ma_engine_uninit(&audio_engine);
 
-    utility::logger->debug("Shut down miniaudio.");
+    logger->debug("Shut down miniaudio.");
   }
 
   void data_callback(void* userdata, uint8_t* buffer, int bufferSizeInBytes)
   {
     /* Reading is just a matter of reading straight from the engine. */
-    uint32_t bufferSizeInFrames = (uint32_t)bufferSizeInBytes / ma_get_bytes_per_frame(ma_format_f32, ma_engine_get_channels(&engine));
-    ma_engine_read_pcm_frames(&engine, buffer, bufferSizeInFrames, NULL);
+    uint32_t bufferSizeInFrames = (uint32_t)bufferSizeInBytes / ma_get_bytes_per_frame(ma_format_f32, ma_engine_get_channels(&audio_engine));
+    ma_engine_read_pcm_frames(&audio_engine, buffer, bufferSizeInFrames, NULL);
   }
 }

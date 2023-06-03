@@ -1,5 +1,5 @@
 #include "Buffer.h"
-#include "../utility/DebugUtils.h"
+#include "../utility/LogUtils.h"
 
 namespace term_engine::rendering {
   Buffer::Buffer() :
@@ -36,8 +36,10 @@ namespace term_engine::rendering {
 
   Buffer::~Buffer()
   {
-    glDeleteVertexArrays(1, &vao_id_);
+    data.clear();
+    glBindVertexArray(vao_id_);
     glDeleteBuffers(1, &vbo_id_);
+    glDeleteVertexArrays(1, &vao_id_);
   }
 
   void Buffer::PushToGL()

@@ -9,9 +9,34 @@
 
 namespace term_engine::utility {
   /// @brief The ID of the audio device in SDL.
-  extern uint32_t device_id;
+  inline uint32_t audio_device_id;
   /// @brief Handler to the audio engine.
-  extern ma_engine engine;
+  inline ma_engine audio_engine;
+  
+  inline SDL_AudioSpec loaded_audio_engine_config;
+
+  struct ma_soundDeleter {
+    void operator()(ma_sound* ptr)
+    {
+      ma_sound_uninit(ptr);
+    }
+  };
+
+  /**
+   * @brief Logs any errors that occur when calling a miniaudio function.
+   * 
+   * @param[in] result The result of the miniaudio call to check.
+   * @returns The result that was passed in.
+   */
+  ma_result MALog(ma_result result);
+
+  /**
+   * @brief Converts an SDL-style audio format value to it's miniaudio-style equivalent.
+   * 
+   * @param[in] format The SDL-style audio format value.
+   * @returns The miniaudio-style audio format value.
+   */
+  ma_format ConvertFromSDLFormat(SDL_AudioFormat format);
 
   /**
    * @brief Initialises the audio engine.
@@ -21,7 +46,7 @@ namespace term_engine::utility {
   bool InitAudio();
 
   /// @brief Destroys the audio engine and does cleanup.
-  void CleanUp();
+  void CleanUpAudio();
 
   /**
    * @brief A callback for the audio engine to capture incoming audio and read it to the engine.

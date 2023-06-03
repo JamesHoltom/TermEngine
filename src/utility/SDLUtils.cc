@@ -6,7 +6,7 @@ namespace term_engine::utility {
   {
     if (SDL_Init(SDL_INIT_FLAGS) != 0)
     {
-      utility::logger->error("Failed to fully initialise SDL!\nError: {}", SDL_GetError());
+      logger->error("Failed to fully initialise SDL!\nError: {}", SDL_GetError());
 
       return false;
     }
@@ -14,19 +14,18 @@ namespace term_engine::utility {
     for (int i = 0; i < SDL_GetNumAudioDrivers(); ++i)
     {
       const char* driver_name = SDL_GetAudioDriver(i);
-      utility::logger->debug("Audio driver #{}: {}", i, driver_name);
     }
 
     if (SDL_InitSubSystem(SDL_INIT_AUDIO) != 0)
     {
-      utility::logger->error("Failed to initialise audio!\nError: {}", SDL_GetError());
+      logger->error("Failed to initialise audio!\nError: {}", SDL_GetError());
 
       return false;
     }
 
     srand(SDL_GetTicks());
 
-    utility::logger->debug("Initialised SDL.");
+    logger->debug("Initialised SDL.");
 
     return true;
   }
@@ -35,6 +34,6 @@ namespace term_engine::utility {
   {
     SDL_Quit();
 
-    utility::logger->debug("Shut down SDL.");
+    logger->debug("Shut down SDL.");
   }
 }

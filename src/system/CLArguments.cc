@@ -4,8 +4,6 @@
 #include "../utility/SpdlogUtils.h"
 
 namespace term_engine::system {
-  std::filesystem::path scriptPath;
-
   void GetCLArguments(int& argc, char**& argv)
   {
     cxxopts::Options options("TermEngine", "Test.");

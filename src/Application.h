@@ -3,12 +3,9 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
-#include "utility/DebugUtils.h"
+#include "utility/LogUtils.h"
 
 namespace term_engine {
-  /// @brief Stores debugging information on the application level.
-  extern utility::ObjectDebugInfoPtr app_debug_info;
-
   /// @brief Performs setup of the application and all its sub-systems.
   void Init();
 

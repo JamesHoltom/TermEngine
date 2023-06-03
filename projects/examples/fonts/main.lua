@@ -6,15 +6,17 @@
     Open Font License: https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL
   ]]
 
-local currentPath, currentSize
+local otherFont
 local line1Text, line2Text, box
 
 function Init()
-  currentPath = font.getDefault()
-  currentSize = font.getDefaultSize()
+  otherFont = Font("fonts/SpaceMono-Regular.ttf")
+
+  print(defaultFont.filepath)
+  print(otherFont.filepath)
 
   defaultScene.charmap.size = ivec2(40, 4)
-  defaultScene:resizeToFit()
+  defaultScene:resizeToCharacterMap()
 
   box = BoxObject(Values.IVEC2_ZERO, ivec2(40, 4))
   box.outline = Character("^", Colours.WHITE, Colours.RED)
@@ -30,34 +32,21 @@ function Init()
 end
 
 function Loop(timestep)
-  local hasChanged = false
-
   if keyboard.isPressed("f") then
-    if currentPath == font.getDefault() then
-      currentPath = "fonts/SpaceMono-Regular.ttf"
+    if defaultScene.font == defaultFont then
+      defaultScene.font = otherFont
     else
-      currentPath = font.getDefault()
+      defaultScene.font = defaultFont
     end
 
-    print("Font Path: " .. currentPath)
-
-    hasChanged = true
+    print("Font Path: " .. defaultScene.font.filepath)
   elseif keyboard.isPressed("s") then
-    if currentSize == font.getDefaultSize() then
-      currentSize = 48
+    if defaultScene.fontSize == 32 then
+      defaultScene.fontSize = 48
     else
-      currentSize = font.getDefaultSize()
+      defaultScene.fontSize = 32
     end
 
-    print("Font Size: " .. currentSize)
-
-    hasChanged = true
-  end
-
-  if hasChanged then
-    local newFont = font.load(currentPath)
-
-    defaultScene.font = newFont
-    defaultScene.fontSize = currentSize
+    print("Font Size: " .. defaultScene.fontSize)
   end
 end

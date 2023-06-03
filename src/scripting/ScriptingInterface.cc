@@ -16,12 +16,12 @@ namespace term_engine::scripting {
   void InitInterface()
   {
     lua_state = std::make_unique<sol::state>();
-    lua_state->open_libraries(sol::lib::base, sol::lib::package, sol::lib::math, sol::lib::string, sol::lib::table);
+    lua_state->open_libraries(sol::lib::base, sol::lib::package, sol::lib::math, sol::lib::string, sol::lib::table, sol::lib::utf8);
 
     // Create bindings for C++ functions.
     bindings::BindGlmToState(*lua_state);
     bindings::BindCoreToState(*lua_state);
-    bindings::BindObjectsToState(*lua_state);
+    bindings::BindUsertypesToState(*lua_state);
     bindings::BindUtilitiesToState(*lua_state);
   }
 

@@ -12,7 +12,7 @@ namespace term_engine::system {
   typedef std::vector<std::string> FileList;
 
   /// @brief Stores the filepath to the current project.
-  extern std::filesystem::path project_path;
+  inline std::filesystem::path project_path;
 
   /**
    * @brief Finds the "main.lua" file at the given project directory in the system's default location, or in the projects folder.

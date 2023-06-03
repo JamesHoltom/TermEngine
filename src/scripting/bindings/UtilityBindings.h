@@ -4,16 +4,14 @@
 #define UTILITY_BINDINGS_H
 
 #include <cmath>
-#include "../IndexFunctions.h"
 #include "../../events/InputManager.h"
-#include "../../rendering/Character.h"
-#include "../../rendering/FontAtlas.h"
-#include "../../rendering/Window.h"
-#include "../../system/AudioFunctions.h"
 #include "../../system/FileFunctions.h"
-#include "../../timing/FPSManager.h"
-#include "../../utility/DebugUtils.h"
-#include "../../utility/IndexUtils.h"
+#include "../../system/FPSManager.h"
+#include "../../usertypes/Character.h"
+#include "../../usertypes/Window.h"
+#include "../../usertypes/resources/Font.h"
+#include "../../utility/ConversionUtils.h"
+#include "../../utility/LogUtils.h"
 #include "../../utility/SolUtils.h"
 
 namespace term_engine::scripting::bindings {
@@ -24,31 +22,17 @@ namespace term_engine::scripting::bindings {
    */
   void BindUtilitiesToState(sol::state& state)
   {
-    state.create_named_table("audio",
-      "trigger", &system::PlaySound);
-
     state.create_named_table("characters",
-      "NO_CHARACTER", sol::var(rendering::NO_CHARACTER),
-      "DEFAULT_FOREGROUND_COLOUR", sol::var(rendering::DEFAULT_FOREGROUND_COLOUR),
-      "DEFAULT_BACKGROUND_COLOUR", sol::var(rendering::DEFAULT_BACKGROUND_COLOUR));
-    
-    state.create_named_table("debug_info",
-      "get", &utility::GetDebugInfo,
-      "getCount", &utility::GetDebugInfoCount,
-      "getLineCount", &utility::GetDebugInfoLines);
+      "NO_CHARACTER", sol::var(usertypes::NO_CHARACTER),
+      "DEFAULT_FOREGROUND_COLOUR", sol::var(usertypes::DEFAULT_FOREGROUND_COLOUR),
+      "DEFAULT_BACKGROUND_COLOUR", sol::var(usertypes::DEFAULT_BACKGROUND_COLOUR));
     
     state.create_named_table("fps",
-      "print", &timing::PrintFPS,
-      "getAverage", &timing::GetAverageFPS,
-      "usingTarget", &timing::IsUsingTargetFPS,
-      "target", sol::overload(&timing::GetTargetFPS, &timing::SetTargetFPS),
-      "getFrames", &timing::GetFrameCount);
-
-    state.create_named_table("font",
-      "load", &rendering::GetFontAtlas,
-      "getDefault", &rendering::GetDefaultFont,
-      "getDefaultSize", &rendering::GetDefaultFontSize,
-      "tabSize", sol::overload(&rendering::GetTabSize, &rendering::SetTabSize));
+      "print", &system::PrintFPS,
+      "getAverage", &system::GetAverageFPS,
+      "usingTarget", &system::IsUsingTargetFPS,
+      "target", sol::overload(&system::GetTargetFPS, &system::SetTargetFPS),
+      "getFrames", &system::GetFrameCount);
 
     state.create_named_table("fs",
       "read", &system::ReadFile,
@@ -75,26 +59,26 @@ namespace term_engine::scripting::bindings {
     state.set_function("round", lroundf);
 
     state.set_function("getIndexFromPosition", sol::overload(
-      sol::resolve<uint32_t(objects::GameObject*, const glm::ivec2&)>(&scripting::GetIndexFromPosition),
-      sol::resolve<uint32_t(objects::GameScene*, const glm::ivec2&)>(&scripting::GetIndexFromPosition)));
+      sol::resolve<uint32_t(usertypes::GameObject*, const glm::ivec2&)>(&utility::GetIndexFromPosition),
+      sol::resolve<uint32_t(usertypes::GameScene*, const glm::ivec2&)>(&utility::GetIndexFromPosition)));
     state.set_function("getPositionFromIndex", sol::overload(
-      sol::resolve<glm::ivec2(objects::GameObject*, uint32_t)>(&scripting::GetPositionFromIndex),
-      sol::resolve<glm::ivec2(objects::GameScene*, uint32_t)>(&scripting::GetPositionFromIndex)));
+      sol::resolve<glm::ivec2(usertypes::GameObject*, uint32_t)>(&utility::GetPositionFromIndex),
+      sol::resolve<glm::ivec2(usertypes::GameScene*, uint32_t)>(&utility::GetPositionFromIndex)));
     state.set_function("getRowColFromPosition", sol::overload(
-      sol::resolve<glm::ivec2(objects::GameObject*, const glm::ivec2&)>(&utility::GetRowColFromPosition),
-      sol::resolve<glm::ivec2(objects::GameScene*, const glm::ivec2&)>(&utility::GetRowColFromPosition)));
+      sol::resolve<glm::ivec2(usertypes::GameObject*, const glm::ivec2&)>(&utility::GetRowColFromPosition),
+      sol::resolve<glm::ivec2(usertypes::GameScene*, const glm::ivec2&)>(&utility::GetRowColFromPosition)));
     state.set_function("getPositionFromRowCol", sol::overload(
-      sol::resolve<glm::ivec2(objects::GameObject*, const glm::ivec2&)>(&utility::GetPositionFromRowCol),
-      sol::resolve<glm::ivec2(objects::GameScene*, const glm::ivec2&)>(&utility::GetPositionFromRowCol)));
+      sol::resolve<glm::ivec2(usertypes::GameObject*, const glm::ivec2&)>(&utility::GetPositionFromRowCol),
+      sol::resolve<glm::ivec2(usertypes::GameScene*, const glm::ivec2&)>(&utility::GetPositionFromRowCol)));
     state.set_function("getRowColFromIndex", sol::overload(
-      sol::resolve<glm::ivec2(objects::GameObject*, uint32_t)>(&scripting::GetRowColFromIndex),
-      sol::resolve<glm::ivec2(objects::GameScene*, uint32_t)>(&scripting::GetRowColFromIndex)));
+      sol::resolve<glm::ivec2(usertypes::GameObject*, uint32_t)>(&utility::GetRowColFromIndex),
+      sol::resolve<glm::ivec2(usertypes::GameScene*, uint32_t)>(&utility::GetRowColFromIndex)));
     state.set_function("getIndexFromRowCol", sol::overload(
-      sol::resolve<uint32_t(objects::GameObject*, const glm::ivec2&)>(&utility::GetIndexFromRowCol),
-      sol::resolve<uint32_t(objects::GameScene*, const glm::ivec2&)>(&utility::GetIndexFromRowCol)));
+      sol::resolve<uint32_t(usertypes::GameObject*, const glm::ivec2&)>(&utility::GetIndexFromRowCol),
+      sol::resolve<uint32_t(usertypes::GameScene*, const glm::ivec2&)>(&utility::GetIndexFromRowCol)));
 
     state.create_named_table("window",
-      "vsync", sol::overload(&rendering::GameWindow::IsVsyncEnabled, &rendering::GameWindow::SetVsync));
+      "vsync", sol::overload(&usertypes::Window::IsVsyncEnabled, &usertypes::Window::SetVsync));
   }
 }
 

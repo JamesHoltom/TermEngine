@@ -18,19 +18,19 @@ namespace term_engine::events {
   }};
 
   /// @brief A pointer to SDL's internal array of key states, for the current frame.
-  extern const Uint8* current_key_state;
+  inline const Uint8* current_key_state = nullptr;
   /// @brief A pointer to a copy of SDL's internal array of key states, for the previous frame.
-  extern Uint8* previous_key_state;
+  inline Uint8* previous_key_state = nullptr;
   /// @brief Holds the size of SDL's internal array of key states.
-  extern int key_state_size;
+  inline int key_state_size = 0;
   /// @brief Holds a bitfield representing the mouse button states, for the current frame.
-  extern Uint32 current_mouse_state;
+  inline Uint32 current_mouse_state = 0;
   /// @brief Holds a bitfield representing the mouse button states, for the previous frame.
-  extern Uint32 previous_mouse_state;
+  inline Uint32 previous_mouse_state = 0;
   /// @brief Represents the location of the mouse, in relation to the window.
-  extern glm::ivec2 mouse_position;
+  inline glm::ivec2 mouse_position;
   /// @brief Represents how far the mouse has moved within the window.
-  extern glm::ivec2 mouse_position_delta;
+  inline glm::ivec2 mouse_position_delta;
 
   /// @brief Prepares the keyboard states for use.
   void Init();
@@ -39,10 +39,10 @@ namespace term_engine::events {
   void CleanUp();
 
   /// @brief Updates the keyboard and mouse states for the current frame.
-  void UpdateEvents();
+  void UpdateInputState();
 
   /// @brief Stores the current frame's keyboard/mouse states, ready for the next frame's update.
-  void UpdatePrevEvents();
+  void UpdatePrevInputState();
 
   /**
    * @brief Checks if a mouse button is being pressed.

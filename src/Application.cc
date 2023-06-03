@@ -2,20 +2,20 @@
 #include "Application.h"
 #include "events/InputManager.h"
 #include "events/Listener.h"
-#include "objects/BaseObject.h"
-#include "objects/GameScene.h"
-#include "rendering/FontAtlas.h"
+#include "usertypes/game_objects/BaseObject.h"
+#include "usertypes/resources/BaseResource.h"
+#include "usertypes/resources/ShaderProgram.h"
+#include "usertypes/GameScene.h"
 #include "scripting/ScriptingInterface.h"
-#include "timing/FPSManager.h"
+#include "system/FPSManager.h"
 #include "utility/AudioUtils.h"
 #include "utility/FTUtils.h"
 #include "utility/GLUtils.h"
+#include "utility/ImGuiUtils.h"
 #include "utility/SDLUtils.h"
 #include "utility/SpdlogUtils.h"
 
 namespace term_engine {
-  utility::ObjectDebugInfoPtr app_debug_info;
-
   void Init()
   {
     utility::InitLogger();
@@ -29,38 +29,45 @@ namespace term_engine {
     utility::InitGL();
     events::Init();
     events::InitList();
-    timing::InitFPS();
+    system::InitFPS();
 
+    utility::InitContext();
+    usertypes::InitDefaultShaders();
     scripting::InitInterface();
     scripting::InitScript();
 
-    (*scripting::lua_state)["defaultScene"] = objects::AddGameScene(std::string(objects::DEFAULT_GAME_SCENE_NAME));
+    (*scripting::lua_state)["defaultScene"] = usertypes::AddGameScene(std::string(usertypes::DEFAULT_GAME_SCENE_NAME));
+    (*scripting::lua_state)["defaultFont"] = usertypes::LoadFont(std::string(usertypes::DEFAULT_FONT));
+    (*scripting::lua_state)["defaultTextShader"] = usertypes::GetShader(std::string(usertypes::DEFAULT_TEXT_SHADER));
+    (*scripting::lua_state)["defaultBGShader"] = usertypes::GetShader(std::string(usertypes::DEFAULT_BG_SHADER));
 
-    app_debug_info = utility::AddDebugInfo("[Main Loop]");
-    app_debug_info->AddSubItem("Events", 1);
-    app_debug_info->AddSubItem("Script", 1);
-    app_debug_info->AddSubItem("Update", 1);
-    app_debug_info->AddSubItem("Flagging", 1);
-    app_debug_info->AddSubItem("Loop", 1);
-    app_debug_info->AddSubItem("Remaining", 1);
+    /* TODO: Set debug timing intervals as below:
+     *  - Events
+     *  - Script
+     *  - Update Objects
+     *  - Update Scenes
+     *  - Flagging
+     *  - Loop
+     *  - Remaining
+     */
 
     utility::logger->debug("Finished init!");
   }
 
   void CleanUp()
   {
-    app_debug_info.reset();
-
-    objects::CleanUpObjects();
     events::CleanUpList();
     scripting::CleanUp();
-    rendering::CleanUpFontAtlas();
+    usertypes::CleanUpObjects();
+    usertypes::ClearAllGameScenes();
+    usertypes::CleanUpResources();
     events::CleanUp();
 
-    rendering::GameWindow::CleanUpContext();
-
+    utility::CleanUpAudio();
     utility::CleanUpFreeType();
     utility::CleanUpSDL();
+    utility::CleanUpImGui();
+    utility::CleanUpContext();
 
     utility::logger->debug("Cleaned up!");
   }
@@ -68,12 +75,13 @@ namespace term_engine {
   void Run()
   {
     bool quit = false;
-    timing::Timer debug_timer;
-    timing::Timer timestep;
+    uint64_t timestep = 0;
+    usertypes::Timer debug_timer;
+    usertypes::Timer timestep_timer;
     debug_timer.Start();
-    timestep.Start();
+    timestep_timer.Start();
 
-    timing::SetTargetFPS(timing::DEFAULT_FPS);
+    system::SetTargetFPS(system::DEFAULT_FPS);
 
     if (!scripting::OnInit())
     {
@@ -82,10 +90,10 @@ namespace term_engine {
 
     while (!quit)
     {
-      app_debug_info->Start();
+      // TODO: Figure out how to get execution time here.
 
       // Using the side-effect of SDL_QuitRequested() calling SDL_PumpEvents() to omit it from the below code.
-      if (SDL_QuitRequested() || objects::GameScene::quit_flag_)
+      if (SDL_QuitRequested() || usertypes::quit_flag)
       {
         if (scripting::OnQuit())
         {
@@ -94,11 +102,11 @@ namespace term_engine {
         }
         else
         {
-          objects::GameScene::quit_flag_ = false;
+          usertypes::quit_flag = false;
         }
       }
 
-      events::UpdateEvents();
+      events::UpdateInputState();
       events::CleanUpList();
 
       SDL_Event event;
@@ -106,39 +114,63 @@ namespace term_engine {
       while (SDL_PollEvent(&event) != 0) {
         utility::LogKeyboardEvents(event);
         utility::LogWindowEvents(event);
-        events::DoSDLEvents(event);
 
-        if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE)
-        {
-          objects::FlagGameSceneForRemoval(event.window.windowID);
-        }
+        ImGui_ImplSDL2_ProcessEvent(&event);
+
+        utility::ImGui_DoEvents(event);
+        usertypes::DoGameSceneEvents(event);
+        events::DoSDLEvents(event);
       }
 
-      app_debug_info->Interval();
+      utility::ImGui_StartFrame();
 
-      scripting::OnLoop(timestep.GetIntervalElapsed());
+      if (utility::test_mode)
+      {
+        ImGui::ShowDemoWindow();
+      }
 
-      app_debug_info->Interval();
+      // TODO: See above.
 
-      objects::SortObjects();
-      objects::UpdateObjects();
+      timestep = timestep_timer.GetIntervalElapsed();
 
-      app_debug_info->Interval();
+      scripting::OnLoop(timestep);
 
-      objects::FlagGameObjectsWithFlaggedGameScenes();
-      objects::ClearFlaggedObjects();
+      // TODO: See above.
 
-      app_debug_info->Interval();
+      if (!utility::test_mode)
+      {
+        ImGui::BeginTabBar("Lists");
+      }
 
-      timing::NextFrame();
+      usertypes::SortObjects();
+      usertypes::UpdateObjects(timestep);
+      usertypes::UpdateGameScenes();
+      usertypes::UpdateResources();
 
-      events::UpdatePrevEvents();
+      if (!utility::test_mode)
+      {
+        ImGui::EndTabBar();
+      }
 
-      timing::CalculateFPS();
-      app_debug_info->Interval();
+      utility::ImGui_EndFrame();
 
-      timing::Delay();
-      app_debug_info->Interval();
+      // TODO: See above.
+
+      usertypes::FlagGameObjectsWithFlaggedGameScenes();
+      usertypes::ClearFlaggedObjects();
+      usertypes::ClearFlaggedResources();
+
+      // TODO: See above.
+
+      system::NextFrame();
+
+      events::UpdatePrevInputState();
+
+      system::CalculateFPS();
+      // TODO: See above.
+
+      system::Delay();
+      // TODO: See above.
     }
   }
 }

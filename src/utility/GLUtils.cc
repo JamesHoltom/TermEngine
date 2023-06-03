@@ -2,6 +2,7 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/ostr.h>
 #include "GLUtils.h"
+#include "ImGuiUtils.h"
 #include "SDLUtils.h"
 #include "SpdlogUtils.h"
 
@@ -62,16 +63,16 @@ namespace term_engine::utility {
     SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &major_ver);
     SDL_GL_GetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, &minor_ver);
 
-    utility::logger->debug("Running OpenGL version {}.{}", major_ver, minor_ver);
-    utility::logger->debug("Initialised OpenGL.");
+    logger->debug("Running OpenGL version {}.{}", major_ver, minor_ver);
+    logger->debug("Initialised OpenGL.");
   }
 
-  bool InitGLEW()
+  bool PostWindowInitGL()
   {
     glewExperimental = GL_TRUE;
 
     if (glewInit() != GLEW_OK) {
-      utility::logger->error("Failed to initialise GLEW!");
+      logger->error("Failed to initialise GLEW!");
 
       return false;
     }
@@ -81,12 +82,52 @@ namespace term_engine::utility {
 
     glEnable(GL_DEBUG_OUTPUT);
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+    glEnable(GL_PROGRAM_POINT_SIZE);
     glDebugMessageCallback(glDebugOutput, 0);
     glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
 
-    utility::logger->debug("Initialised GLEW.");
+    logger->debug("Initialised GLEW.");
 
     return true;
+  }
+
+  bool InitContext()
+  {
+    if (!InitImGui())
+    {
+      return false;
+    }
+
+    context = SDL_GL_CreateContext(imgui_debug_window);
+
+    if (context == nullptr)
+    {
+      utility::logger->error("An error occurred whilst creating the context: {}", SDL_GetError());
+
+      return false;
+    }
+
+    // GLEW needs to be initialised as soon as a GL context is created.
+    if (!utility::PostWindowInitGL())
+    {
+      utility::logger->error("Failed to set up OpenGL context!");
+      
+      return false;
+    }
+
+    PostWindowInitImGui();
+    
+    is_context_created = true;
+
+    return true;
+  }
+
+  void CleanUpContext()
+  {
+    if (context != NULL)
+    {
+      SDL_GL_DeleteContext(&context);
+    }
   }
 
   void PrintProgramLog(uint32_t program_id)
@@ -160,7 +201,11 @@ namespace term_engine::utility {
 
     PrintProgramLog(program_id);
 
-    if (program_linked == GL_FALSE)
+    if (program_linked == GL_TRUE)
+    {
+      logger->debug("Linked program with ID {}", program_id);
+    }
+    else
     {
       logger->error("Failed to link shader program for ID {}.", program_id);
     }
@@ -180,12 +225,47 @@ namespace term_engine::utility {
 
     PrintStageLog(shader_id);
 
-    if (shader_compiled == GL_FALSE)
+    if (shader_compiled == GL_TRUE)
+    {
+      logger->debug("Compiled {} shader stage with ID {}", GetShaderTypeName(type), shader_id);
+    }
+    else
     {
       logger->error("Failed to compile GLSL shader for ID {}.", shader_id);
     }
 
     return ShaderProcessResult(shader_id, shader_compiled);
+  }
+
+  UniformList GetUniforms(uint32_t program_id)
+  {
+    int count, max_len;
+    UniformList uniforms;
+
+    glGetProgramiv(program_id, GL_ACTIVE_UNIFORMS, &count);
+    glGetProgramiv(program_id, GL_ACTIVE_UNIFORM_MAX_LENGTH, &max_len);
+
+    uniforms.reserve(count);
+
+    for (int i = 0; i < count; ++i)
+    {
+      Uniform uniform;
+      char* uniform_name = new char[max_len];
+      int name_len;
+
+      glGetActiveUniform(program_id, i, max_len, &name_len, &uniform.count_, &uniform.type_, uniform_name);
+
+      uniform.location_ = i;
+      uniform.name_ = std::string(uniform_name, name_len);
+
+      delete[] uniform_name;
+
+      uniforms.push_back(uniform);
+
+      utility::logger->debug("Found uniform #{} for program {} with name: \"{}\", count: {}, type: {}", uniform.location_, program_id, uniform.name_, uniform.count_, uniform.type_);
+    }
+
+    return uniforms;
   }
 
   std::string GetShaderTypeName(uint32_t type)
@@ -197,6 +277,41 @@ namespace term_engine::utility {
       case GL_FRAGMENT_SHADER:  result = "fragment";  break;
       case GL_VERTEX_SHADER:    result = "vertex";    break;
       case GL_GEOMETRY_SHADER:  result = "geometry";  break;
+    }
+
+    return result;
+  }
+
+  std::string GetUniformTypeName(uint32_t type)
+  {
+    std::string result = "unknown";
+
+    switch (type)
+    {
+      case GL_FLOAT: result = "float"; break;
+      case GL_INT: result = "int"; break;
+      case GL_UNSIGNED_INT: result = "uint"; break;
+      case GL_FLOAT_VEC2: result = "vec2"; break;
+      case GL_FLOAT_VEC3: result = "vec3"; break;
+      case GL_FLOAT_VEC4: result = "vec4"; break;
+      case GL_INT_VEC2: result = "ivec2"; break;
+      case GL_INT_VEC3: result = "ivec3"; break;
+      case GL_INT_VEC4: result = "ivec4"; break;
+      case GL_UNSIGNED_INT_VEC2: result = "uvec2"; break;
+      case GL_UNSIGNED_INT_VEC3: result = "uvec3"; break;
+      case GL_UNSIGNED_INT_VEC4: result = "uvec4"; break;
+      case GL_FLOAT_MAT2: result = "mat2"; break;
+      case GL_FLOAT_MAT3: result = "mat3"; break;
+      case GL_FLOAT_MAT4: result = "mat4"; break;
+      case GL_FLOAT_MAT2x3: result = "mat2x3"; break;
+      case GL_FLOAT_MAT2x4: result = "mat2x4"; break;
+      case GL_FLOAT_MAT3x2: result = "mat3x2"; break;
+      case GL_FLOAT_MAT3x4: result = "mat3x4"; break;
+      case GL_FLOAT_MAT4x2: result = "mat4x2"; break;
+      case GL_FLOAT_MAT4x3: result = "mat4x3"; break;
+      case GL_SAMPLER_1D: result = "sampler1D"; break;
+      case GL_SAMPLER_2D: result = "sampler2D"; break;
+      case GL_SAMPLER_3D: result = "sampler3D"; break;
     }
 
     return result;

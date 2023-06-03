@@ -11,8 +11,6 @@
 #include "../utility/SpdlogUtils.h"
 
 namespace term_engine::system {
-  std::filesystem::path project_path;
-
   std::filesystem::path SearchForProjectPath(const std::filesystem::path& filename)
   {
     if (std::filesystem::exists(filename))

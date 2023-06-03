@@ -13,7 +13,7 @@ namespace term_engine::system {
    */
 
   /// @brief The path to the script to execute from the command line.
-  extern std::filesystem::path scriptPath;
+  inline std::filesystem::path scriptPath;
 
   /**
    * @brief Gets the command-line arguments passed to the program.

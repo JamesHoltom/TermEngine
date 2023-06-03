@@ -16,6 +16,7 @@ function TextObject(_position, _size, _text, _game_scene)
 		obj = GameObject(_position, _size, _game_scene or "default"),			-- @brief Handle to the Object.
 		text = tostring(_text or ""),																			-- @brief The text to render.
 		fit_text = false,																									-- @brief Should the background colour fit the text, or the Object bounds?
+		tab_size = 2,
 		fg_colour = characters.DEFAULT_FOREGROUND_COLOUR,									-- @brief The text colour.
 		bg_colour = characters.DEFAULT_BACKGROUND_COLOUR									-- @brief The background colour.
 	}
@@ -23,29 +24,32 @@ function TextObject(_position, _size, _text, _game_scene)
 	-- @brief Refreshes the object data with the updated settings.
 	local _setData = function()
 		local text_pos = 1
+		local byte_pos = 1
 		local tabs_left = 0
 		local newline = false
 
-		self.obj:set(function(_, index)
+		local setFunc = function(_, index)
 			if newline and math.fmod(index, self.obj.size.x) == 1 then
 				newline = false
 			end
 			
-			if text_pos <= #self.text and not newline and tabs_left == 0 then
-				local chr = self.text:sub(text_pos, text_pos)
+			if text_pos <= utf8.len(self.text) and not newline and tabs_left == 0 then
+				local code = utf8.codepoint(self.text, byte_pos)
+				local chr = utf8.char(code)
 				local ret = nil
 
 				if chr == '\n' then
 					newline = true
 					ret = Character(" ", self.fg_colour, self.bg_colour)
 				elseif chr == '\t' then
-					tabs_left = font.tabSize - 1
+					tabs_left = self.tab_size - 1
 					ret = Character(" ", self.fg_colour, self.bg_colour)
 				else
 					ret = Character(chr, self.fg_colour, self.bg_colour)
 				end
 
 				text_pos = text_pos + 1
+				byte_pos = utf8.offset(self.text, text_pos)
 
 				return ret
 			else
@@ -60,7 +64,9 @@ function TextObject(_position, _size, _text, _game_scene)
 					return Character(" ", self.fg_colour, self.bg_colour)
 				end
 			end
-		end)
+		end
+
+		self.obj:set(setFunc)
 	end
 
 	-- @brief Cleans up the object after use.
@@ -76,7 +82,7 @@ function TextObject(_position, _size, _text, _game_scene)
 	local mtIndex = function(_, key)
 		if key == "position" or key == "size" or key == "active" then
 			return self.obj[key]
-		elseif key == "text" or key == "fit_text" or key == "fg_colour" or key == "bg_colour" then
+		elseif key == "text" or key == "fit_text" or key == "tab_size" or key == "fg_colour" or key == "bg_colour" then
 			return self[key]
 		else
 			return nil
@@ -101,6 +107,9 @@ function TextObject(_position, _size, _text, _game_scene)
 			_setData()
 		elseif key == "fit_text" then
 			self.fit_text = value
+			_setData()
+		elseif key == "tab_size" then
+			self.tab_size = value
 			_setData()
 		elseif key == "fg_colour" or key == "bg_colour" then
 			self[key] = vec4(value)

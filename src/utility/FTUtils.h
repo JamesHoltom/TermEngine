@@ -7,10 +7,11 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
+#include FT_SIZES_H
 
 namespace term_engine::utility {
   /// @brief The FreeType library instance used to manage and render fonts.
-  extern FT_Library font_library;
+  inline FT_Library font_library;
 
   /**
    * @brief Logs any errors that occur when calling a FreeType function.

@@ -2,14 +2,6 @@
 #include "../utility/SpdlogUtils.h"
 
 namespace term_engine::events {
-  const Uint8* current_key_state = nullptr;
-  Uint8* previous_key_state = nullptr;
-  int key_state_size;
-  Uint32 current_mouse_state;
-  Uint32 previous_mouse_state;
-  glm::ivec2 mouse_position;
-  glm::ivec2 mouse_position_delta;
-
   void Init()
   {
     // Setting a parameter in SDL_GetKeyboardState will return the size of SDL's internal array, which will be required for initialising the previous frame's pointer.
@@ -26,14 +18,14 @@ namespace term_engine::events {
     current_key_state = nullptr;
   }
 
-  void UpdateEvents()
+  void UpdateInputState()
   {
     current_mouse_state = SDL_GetMouseState(&mouse_position.x, &mouse_position.y);
     SDL_GetRelativeMouseState(&mouse_position_delta.x, &mouse_position_delta.y);
     current_key_state = SDL_GetKeyboardState(nullptr);
   }
 
-  void UpdatePrevEvents()
+  void UpdatePrevInputState()
   {
     previous_mouse_state = current_mouse_state;
     std::copy(current_key_state, current_key_state + key_state_size, previous_key_state);

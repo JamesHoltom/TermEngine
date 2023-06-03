@@ -4,12 +4,14 @@
 #define GL_UTILS_H
 
 #include <string>
+#include <vector>
 #include <GL/glew.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
 
 #ifndef _WIN32
@@ -18,13 +20,34 @@
 #endif
 
 namespace term_engine::utility {
+  struct Uniform;
+
   /// @brief The major version of OpenGL to request.
   constexpr int MAJOR_VERSION = 4;
   /// @brief The minor version of OpenGL to request.
   constexpr int MINOR_VERSION = 6;
 
+  /// @brief Flag used to indicate if an OpenGL context has been created. This is used to initialise GLEW/ImGui when one is available.
+  inline bool is_context_created = false;
+  /// @brief The OpenGL context to bind windows to.
+  inline SDL_GLContext context = nullptr;
+
   /// @brief Used to return the results of compiling a shader stage/program.
   typedef std::pair<uint32_t, uint8_t> ShaderProcessResult;
+  /// @brief Used to store a list of uniforms for a shader.
+  typedef std::vector<Uniform> UniformList;
+
+  /// @brief Defines an OpenGL shader uniform, and is created when a shader is compiled.
+  struct Uniform {
+    /// @brief The location index of the uniform.
+    int location_;
+    /// @brief The name of the uniform.
+    std::string name_;
+    /// @brief The number of values this uniform holds.
+    int count_;
+    /// @brief The data type of the uniform.
+    uint32_t type_;
+  };
 
   /**
    * @brief Allows OpenGL to log any errors that occur.
@@ -43,12 +66,21 @@ namespace term_engine::utility {
   void InitGL();
 
   /**
-   * @brief Initialises GLEW.
-   * @details GLEW needs to be called *after* the window has been initialised.
+   * @brief Initialises GLEW, after the window has been initialised.
    *
    * @returns Was GLEW successfully initialised?
    */
-  bool InitGLEW();
+  bool PostWindowInitGL();
+
+  /**
+   * @brief Initialises the OpenGL context, after a window has been created.
+   * 
+   * @returns If the context was successfully created.
+   */
+  bool InitContext();
+
+  /// @brief Removes the OpenGL context for the window.
+  void CleanUpContext();
 
   /**
    * @brief Logs the build log of the GLSL program.
@@ -82,6 +114,8 @@ namespace term_engine::utility {
    */
   ShaderProcessResult CompileShaderStage(const std::string& glsl_code, uint32_t type);
 
+  UniformList GetUniforms(uint32_t program_id);
+
   /**
    * @brief Returns the string name for the given shader stage type.
    * 
@@ -89,6 +123,8 @@ namespace term_engine::utility {
    * @returns The string name.
    */
   std::string GetShaderTypeName(uint32_t type);
+
+  std::string GetUniformTypeName(uint32_t type);
 }
 
 #endif // ! GL_UTILS_H

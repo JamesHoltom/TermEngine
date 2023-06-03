@@ -11,7 +11,7 @@ local audioText, cursorText, settingsText, audioMusic, audioSeek, audioLength
 
 function Init()
   defaultScene.charmap.size = ivec2(42, 7)
-  defaultScene:resizeToFit()
+  defaultScene:resizeToCharacterMap()
 
   audioText = TextObject(Values.IVEC2_ZERO, ivec2(26, 6))
   audioText.text = "Press 'n' to play sound" ..

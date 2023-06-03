@@ -15,7 +15,7 @@ namespace term_engine::utility {
   typedef std::unique_ptr<spdlog::logger> LoggerPtr;
 
   /// @brief The instance of the logger.
-  extern LoggerPtr logger;
+  inline LoggerPtr logger;
 
   /// @brief Initialises the logger instance with file and console logging.
   void InitLogger();
