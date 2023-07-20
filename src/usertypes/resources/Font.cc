@@ -13,7 +13,7 @@ namespace term_engine::usertypes {
     size_list_(),
     packer_(glm::ivec2(TEXTURE_SIZE))
   {
-    texture_ = rendering::AllocateTexture(glm::ivec2(TEXTURE_SIZE), GL_R8, 0);
+    texture_ = rendering::TexturePtr(rendering::AllocateTexture(glm::ivec2(TEXTURE_SIZE), GL_R8, 0));
 
     const uint64_t textureSize = 32 * 32 * sizeof(uint8_t);
     std::array<uint8_t, textureSize> whiteTexture;
@@ -23,7 +23,7 @@ namespace term_engine::usertypes {
 
     SetSize(DEFAULT_FONT_SIZE);
 
-    utility::logger->debug("Loaded font resource with filepath {}.", filepath.string());
+    utility::logger->debug("Loaded font resource with filepath \"{}\".", filepath.string());
   }
 
   Font::~Font()
@@ -39,7 +39,9 @@ namespace term_engine::usertypes {
       utility::logger->debug("Removed font \"{}\".", name_);
     }
 
-    utility::logger->debug("Destroyed font resource with filepath {}.", name_);
+    texture_.reset();
+
+    utility::logger->debug("Destroyed font resource with filepath \"{}\".", name_);
   }
 
   std::string Font::GetResourceType() const
@@ -49,6 +51,13 @@ namespace term_engine::usertypes {
 
   glm::ivec2 Font::GetCharacterSize(uint32_t size)
   {
+    if (size == 0)
+    {
+      utility::logger->warn("Cannot get character size for a font size of 0!");
+
+      return glm::ivec2();
+    }
+
     FontSizeList::iterator findSize = size_list_.find(size);
 
     if (findSize == size_list_.end())
@@ -61,6 +70,13 @@ namespace term_engine::usertypes {
 
   CharacterBB Font::GetCharacter(char16_t character, uint32_t size)
   {
+    if (size == 0)
+    {
+      utility::logger->warn("Cannot get character with a font size of 0!");
+
+      return EMPTY_CHARACTER;
+    }
+
     SetSize(size);
 
     CharacterList::iterator found_char = atlas_.find(std::pair<wchar_t, uint32_t>(character, size));
@@ -81,9 +97,11 @@ namespace term_engine::usertypes {
 
   void Font::UpdateTexture()
   {
+    assert(texture_);
+
     if (texture_dirty_)
     {
-      glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texture_.size_.x, texture_.size_.y, GL_RED, GL_UNSIGNED_BYTE, packer_.GetTextureData());
+      glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, texture_->size_.x, texture_->size_.y, GL_RED, GL_UNSIGNED_BYTE, packer_.GetTextureData());
 
       texture_dirty_ = false;
     }
@@ -91,12 +109,16 @@ namespace term_engine::usertypes {
 
   void Font::Use()
   {
-    glActiveTexture(GL_TEXTURE0 + texture_.texture_index_);
-    glBindTexture(GL_TEXTURE_2D, texture_.texture_id_);
+    assert(texture_);
+
+    glActiveTexture(GL_TEXTURE0 + texture_->texture_unit_);
+    glBindTexture(GL_TEXTURE_2D, texture_->texture_id_);
   }
 
   CharacterBB Font::CreateCharTexture(uint64_t character, uint32_t size)
   {
+    assert(size > 0);
+
     Use();
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
@@ -129,6 +151,8 @@ namespace term_engine::usertypes {
 
   FontSizeList::iterator Font::AddSize(uint32_t size)
   {
+    assert(size > 0);
+
     FT_Size new_size;
 
     if (utility::FTLog(FT_New_Size(face_, &new_size)) != FT_Err_Ok)
@@ -151,6 +175,8 @@ namespace term_engine::usertypes {
 
   void Font::SetSize(uint32_t size)
   {
+    assert(size > 0);
+
     FontSizeList::const_iterator findSize = size_list_.find(size);
 
     if (findSize == size_list_.end())
@@ -173,15 +199,17 @@ namespace term_engine::usertypes {
 
   void Font::UpdateDebugInfo() const
   {
+    assert(texture_);
+
     if (ImGui::TreeNode((void*)this, "%s (%s)", GetResourceType().c_str(), name_.c_str()))
     {
       ImGui::Text("Filepath: %s", name_.c_str());
       ImGui::Text("Character Count: %i", character_count_);
       
       ImGui::SeparatorText("Texture");
-      ImGui::Text("ID: %i", texture_.texture_id_);
-      ImGui::Text("Index: %i", texture_.texture_index_);
-      ImGui::Text("Size: %i, %i", texture_.size_.x, texture_.size_.y);
+      ImGui::Text("ID: %i", texture_->texture_id_);
+      ImGui::Text("Index: %i", texture_->texture_unit_);
+      ImGui::Text("Size: %i, %i", texture_->size_.x, texture_->size_.y);
       
       ImGui::TreePop();
     }
@@ -200,7 +228,11 @@ namespace term_engine::usertypes {
 
     ResourceList::iterator it = resource_list.find(find_path.string());
 
-    if (it == resource_list.end())
+    if (it != resource_list.end() && it->second->GetResourceType() != std::string(FONT_TYPE))
+    {
+      utility::logger->warn("\"{}\" is the name of a(n) {} resource.", find_path.string(), it->second->GetResourceType());
+    }
+    else if (it == resource_list.end())
     {
       FT_Face new_face = nullptr;
 

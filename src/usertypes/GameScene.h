@@ -6,9 +6,9 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
+#include "Background.h"
 #include "CharacterMap.h"
 #include "Window.h"
-#include "resources/Background.h"
 #include "resources/Font.h"
 #include "resources/ShaderProgram.h"
 #include "../rendering/Buffer.h"
@@ -103,21 +103,24 @@ namespace term_engine::usertypes {
     Window* GetWindow();
 
     /**
-     * @brief Sets the background used by the game scene.
-     * 
-     * @param[in] background A raw pointer to the background.
-     */
-    void SetBackground(Background* background);
-
-    /**
      * @brief Sets the font used by the game scene.
      * 
-     * @param[in] font A raw pointer to the font.
+     * @param[in] font A raw pointer to the font resource.
      */
     void SetFont(Font* font);
 
+    /**
+     * @brief Sets the shader used to render backgrounds to the game scene.
+     * 
+     * @param[in] shader A raw pointer to the shader program.
+     */
     void SetBackgroundShader(ShaderProgram* shader);
 
+    /**
+     * @brief Sets the shader program used to render characters to the game scene.
+     * 
+     * @param[in] shader A raw pointer to the shader program.
+     */
     void SetTextShader(ShaderProgram* shader);
 
     /**
@@ -155,7 +158,7 @@ namespace term_engine::usertypes {
     /// @brief A handle to the window the game scene renders to.
     Window window_;
     /// @brief The background texture rendered behind the game scene.
-    Background* background_;
+    Background background_;
     /// @brief The list of characters to render to the game scene.
     CharacterMap character_map_;
     /// @brief The buffer containing vertex data for characters.
@@ -164,9 +167,9 @@ namespace term_engine::usertypes {
     rendering::Buffer background_buffer_;
     /// @brief The font used to render characters to the game scene.
     Font* font_;
-    /// @brief The shader program used to render background elements to the game scene.
+    /// @brief The shader program used to render backgrounds to the game scene.
     ShaderProgram* background_shader_program_;
-    /// @brief The shader program used to render text elements to the game scene.
+    /// @brief The shader program used to render characters to the game scene.
     ShaderProgram* text_shader_program_;
     /// @brief The font size to render characters at, in pixels (px).
     uint32_t font_size_;
@@ -193,6 +196,15 @@ namespace term_engine::usertypes {
    */
   GameScene* GetGameSceneByName(const std::string& name);
 
+  /**
+   * @brief Returns the game scene with the given window ID.
+   * 
+   * @param[in] window_id The window ID the game scene belongs to.
+   * @returns A raw pointer to the object, or a null pointer if not found.
+   */
+  GameScene* GetGameSceneByWindowId(uint32_t window_id);
+
+  /// @brief Updates each game scene in the list.
   void UpdateGameScenes();
 
   /**
@@ -205,11 +217,11 @@ namespace term_engine::usertypes {
    */
   void DoGameSceneEvents(const SDL_Event& event);
 
-  /// @brief Flags game objects that are related to game scenes that have been flagged for removal.
-  void FlagGameObjectsWithFlaggedGameScenes();
-
   /// @brief Clears all game scenes from the object list.
   void ClearAllGameScenes();
+
+  /// @brief Clears all game scenes that are flagged for removal from the list.
+  void ClearFlaggedGameScenes();
 }
 
 #endif // ! GAME_SCENE_H

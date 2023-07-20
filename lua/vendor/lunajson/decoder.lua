@@ -31,12 +31,14 @@ end
 
 local _Character = Character
 local _GameObject = GameObject
-local _vec2 = vec2
-local _ivec2 = ivec2
-local _vec3 = vec3
-local _ivec3 = ivec3
-local _vec4 = vec4
-local _ivec4 = ivec4
+local _Animation = Animation
+local _AnimationFrame = AnimationFrame
+local _vec2 = Vec2
+local _ivec2 = Ivec2
+local _vec3 = Vec3
+local _ivec3 = Ivec3
+local _vec4 = Vec4
+local _ivec4 = Ivec4
 
 --[[ @JamesHoltom - TermEngine-specific constructors to be carried into the context end here. ]]
 
@@ -383,37 +385,45 @@ local function newdecoder()
 
 	local function check_for_userdata(obj)
 		if obj.__type and obj.__data then
-			if obj.__type == "term_engine::rendering::CharacterParams" then
-				return _Character(
-					obj.__data.character,
-					_vec4(tonumber(obj.__data.foregroundColour.x), tonumber(obj.__data.foregroundColour.y), tonumber(obj.__data.foregroundColour.z), tonumber(obj.__data.foregroundColour.w)),
-					_vec4(tonumber(obj.__data.backgroundColour.x), tonumber(obj.__data.backgroundColour.y), tonumber(obj.__data.backgroundColour.z), tonumber(obj.__data.backgroundColour.w)))
-			elseif obj.__type == "term_engine::objects::GameObject" then
-				local tmp = _GameObject(
-					_ivec2(tonumber(obj.__data.position.x), tonumber(obj.__data.position.y)),
-					_ivec2(tonumber(obj.__data.size.x), tonumber(obj.__data.size.y)))
+			if obj.__type == "Character" then
+				return _Character(obj.__data.character, check_for_userdata(obj.__data.foregroundColour), check_for_userdata(obj.__data.backgroundColour))
+			elseif obj.__type == "GameObject" then
+				local tmp = _GameObject(check_for_userdata(obj.__data.position), check_for_userdata(obj.__data.size))
 				
 				tmp.active = obj.__data.active
 
 				for k,v in ipairs(obj.__data.data) do
-					tmp.data[k] = _Character(
-						v.character,
-						_vec4(tonumber(v.foregroundColour.x), tonumber(v.foregroundColour.y), tonumber(v.foregroundColour.z), tonumber(v.foregroundColour.w)),
-						_vec4(tonumber(v.backgroundColour.x), tonumber(v.backgroundColour.y), tonumber(v.backgroundColour.z), tonumber(v.backgroundColour.w)))
+					tmp.data[k] = check_for_userdata(v)
 				end
 
 				return tmp
-			elseif obj.__type == "glm::vec<2, int, glm::packed_highp>" then
+			elseif obj.__type == "Animation" then
+				local tmp = _Animation(obj.__data.name)
+
+				for k, v in ipairs(obj.__data.frames) do
+					tmp.frames[k] = check_for_userdata(v)
+				end
+
+				return tmp
+			elseif obj.__type == "AnimationFrame" then
+				local tmp = _AnimationFrame({}, check_for_userdata(obj.__data.size), check_for_userdata(obj.__data.offset), obj.__data.addedDuration)
+
+				for k, v in ipairs(obj.__data.data) do
+					tmp.data[k] = check_for_userdata(v)
+				end
+
+				return tmp
+			elseif obj.__type == "Ivec2" then
 				return _ivec2(tonumber(obj.__data.x), tonumber(obj.__data.y))
-			elseif obj.__type == "glm::vec<2, float, glm::packed_highp>" then
+			elseif obj.__type == "Vec2" then
 				return _vec2(tonumber(obj.__data.x), tonumber(obj.__data.y))
-			elseif obj.__type == "glm::vec<3, int, glm::packed_highp>" then
+			elseif obj.__type == "Ivec3" then
 				return _ivec3(tonumber(obj.__data.x), tonumber(obj.__data.y), tonumber(obj.__data.z))
-			elseif obj.__type == "glm::vec<3, float, glm::packed_highp>" then
+			elseif obj.__type == "Vec3" then
 				return _vec3(tonumber(obj.__data.x), tonumber(obj.__data.y), tonumber(obj.__data.z))
-			elseif obj.__type == "glm::vec<4, int, glm::packed_highp>" then
+			elseif obj.__type == "Ivec4" then
 				return _ivec4(tonumber(obj.__data.x), tonumber(obj.__data.y), tonumber(obj.__data.z), tonumber(obj.__data.w))
-			elseif obj.__type == "glm::vec<4, float, glm::packed_highp>" then
+			elseif obj.__type == "Vec4" then
 				return _vec4(tonumber(obj.__data.x), tonumber(obj.__data.y), tonumber(obj.__data.z), tonumber(obj.__data.w))
 			else
 				return nil

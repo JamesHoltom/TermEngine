@@ -12,15 +12,8 @@ namespace term_engine::utility {
   inline uint32_t audio_device_id;
   /// @brief Handler to the audio engine.
   inline ma_engine audio_engine;
-  
+  /// @brief The audio config loaded by miniaudio/SDL2.
   inline SDL_AudioSpec loaded_audio_engine_config;
-
-  struct ma_soundDeleter {
-    void operator()(ma_sound* ptr)
-    {
-      ma_sound_uninit(ptr);
-    }
-  };
 
   /**
    * @brief Logs any errors that occur when calling a miniaudio function.

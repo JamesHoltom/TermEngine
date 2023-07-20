@@ -7,10 +7,10 @@
 #include "../utility/GLUtils.h"
 
 namespace term_engine::usertypes {
-  struct CharacterParams;
+  struct Character;
 
   /// @brief Used to store a collection of character parameters, which represents an object.
-  typedef std::vector<CharacterParams> CharacterData;
+  typedef std::vector<Character> CharacterData;
 
   /// @brief Used to indicate no character is set.
   constexpr char16_t NO_CHARACTER = U'\0';
@@ -20,7 +20,7 @@ namespace term_engine::usertypes {
   constexpr glm::vec4 DEFAULT_BACKGROUND_COLOUR = glm::vec4(0.0f, 0.0f, 0.0f, 255.0f);
 
   /// @brief Used to construct _BufferData_ objects, and to pass data between scripts and the program.
-  struct CharacterParams {
+  struct Character {
     /**
      * @brief Constructs the character parameters.
      * 
@@ -28,7 +28,7 @@ namespace term_engine::usertypes {
      * @param[in] foreground_colour The foreground colour, used for the text.
      * @param[in] background_colour The background colour.
      */
-    CharacterParams(char16_t character = NO_CHARACTER, const glm::vec4& foreground_colour = DEFAULT_FOREGROUND_COLOUR, const glm::vec4& background_colour = DEFAULT_BACKGROUND_COLOUR) :
+    Character(char16_t character = NO_CHARACTER, const glm::vec4& foreground_colour = DEFAULT_FOREGROUND_COLOUR, const glm::vec4& background_colour = DEFAULT_BACKGROUND_COLOUR) :
       character_(character),
       foreground_colour_(foreground_colour),
       background_colour_(background_colour) {};
@@ -38,7 +38,7 @@ namespace term_engine::usertypes {
      * 
      * @param[in] character The character to copy from.
      */
-    CharacterParams(const CharacterParams& character) :
+    Character(const Character& character) :
       character_(character.character_),
       foreground_colour_(character.foreground_colour_),
       background_colour_(character.background_colour_) {}
@@ -50,7 +50,7 @@ namespace term_engine::usertypes {
      * @param[in] rhs The right-hand side object.
      * @returns If the 2 objects have equal values.
      */
-    friend bool operator== (const CharacterParams& lhs, const CharacterParams& rhs)
+    friend bool operator== (const Character& lhs, const Character& rhs)
     {
       return (lhs.character_ == rhs.character_) && (lhs.foreground_colour_ == rhs.foreground_colour_) && (lhs.background_colour_ == rhs.background_colour_);
     }
@@ -63,7 +63,12 @@ namespace term_engine::usertypes {
     glm::vec4 background_colour_;
   };
 
-  void UpdateCharacterDataDebugInfo(const CharacterData& data);
+  /**
+   * @brief Updates the debugging information for the given character map.
+   * 
+   * @param[in] data  The data to update debugging information for.
+   */
+  void UpdateCharacterDataDebugInfo(const CharacterData& data, const glm::ivec2& size);
 }
 
 #endif // ! CHARACTER_H

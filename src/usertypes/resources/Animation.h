@@ -18,60 +18,92 @@ namespace term_engine::usertypes {
   struct AnimationQueueItem;
   class Animation;
 
+  /// @brief Used to store a list of animation frames within an animation.
   typedef std::vector<AnimationFrame> AnimationFrameList;
+  /// @brief Used to queue animations to be rendered to an object.
   typedef std::queue<AnimationQueueItem> AnimationQueue;
 
   /// @brief The type name for Animation.
   constexpr char ANIMATION_TYPE[] = "Animation";
+  /// @brief The default frame rate for animations, set to 24 frames per second (or 113ms).
+  constexpr uint32_t DEFAULT_ANIMATION_FRAME_RATE = 24;
 
-  constexpr uint32_t DEFAULT_ANIMATION_FRAME_RATE = 1000 / 60;
-
+  /// @brief Stores a map of characters that represents a frame of animation.
   struct AnimationFrame {
+    /// @brief The character data to store.
     CharacterData data_;
+    /// @brief The size of the frame data.
     glm::ivec2 size_;
+    /// @brief The position of the frame, relative to the object.
     glm::ivec2 offset_;
-    uint32_t added_duration_;
+    /// @brief Additional delay added to the frame rate, in milliseconds (ms).
+    int32_t added_duration_;
 
-    AnimationFrame() :
-      data_(),
-      size_(glm::ivec2()),
-      offset_(glm::ivec2()),
-      added_duration_(0) {}
+    /// @brief Constructs the animation frame.
+    AnimationFrame();
 
-    AnimationFrame(const sol::table& data, const glm::ivec2& size, const glm::ivec2& offset, uint32_t duration) :
-      size_(size),
-      offset_(offset),
-      added_duration_(duration)
-    {
-        for (auto item : data)
-        {
-          if (item.second.is<CharacterParams>())
-          {
-            data_.push_back(item.second.as<CharacterParams>());
-          }
-        }
-    };
+    /**
+     * @brief Constructs the animation frame with the given parameters.
+     * 
+     * @param[in] data The of the frame.
+     * @param[in] size The size of the frame.
+     * @param[in] offset The position of the frame, relative to the object.
+     * @param[in] duration The additional delay to add to the frame rate, when rendering the frame.
+     */
+    AnimationFrame(const sol::table& data, const glm::ivec2& size, const glm::ivec2& offset, int32_t duration);
 
-    AnimationFrame(const sol::table& data, const glm::ivec2& size, const glm::ivec2& offset) :
-      AnimationFrame(data, size, offset, 0) {};
+    /**
+     * @brief Constructs the animation frame with the given parameters.
+     * 
+     * @param[in] data The of the frame.
+     * @param[in] size The size of the frame.
+     * @param[in] offset The position of the frame, relative to the object.
+     */
+    AnimationFrame(const sol::table& data, const glm::ivec2& size, const glm::ivec2& offset);
 
-    AnimationFrame(const sol::table& data, const glm::ivec2& size) :
-      AnimationFrame(data, size, glm::ivec2(), 0) {};
+    /**
+     * @brief Constructs the animation frame with the given parameters.
+     * 
+     * @param[in] data The of the frame.
+     * @param[in] size The size of the frame.
+     */
+    AnimationFrame(const sol::table& data, const glm::ivec2& size);
+
+    /// @brief Updates the debugging information for this resource.
+    void UpdateDebugInfo();
   };
 
+  /// @brief Represents an animation queued into an object.
   struct AnimationQueueItem {
+    /// @brief A raw pointer to the animation.
     Animation* animation_;
+    /// @brief Should the animation start when queued?
+    bool start_;
+    /// @brief Should the animation loop?
     bool loop_;
+    /// @brief Should the animation yoyo (i.e. alternate between playing forwards/reverse)?
     bool yoyo_;
-    uint32_t delay_;
+    /// @brief The frame rate to render the animation at, in milliseconds (ms).
+    uint32_t frame_duration_;
 
-    AnimationQueueItem(Animation* animation, bool loop, bool yoyo, uint32_t delay) :
+    /**
+     * @brief Construct a new Animation Queue Item object
+     * 
+     * @param[in] animation A raw pointer to the animation resource.
+     * @param[in] start     Should the animation start when queued?
+     * @param[in] loop      Should the animation loop?
+     * @param[in] yoyo      Should the animation yoyo?
+     * @param[in] delay     The frame rate to render the animation at.
+     */
+    AnimationQueueItem(Animation* animation, bool start, bool loop, bool yoyo, uint32_t delay) :
       animation_(animation),
+      start_(start),
       loop_(loop),
       yoyo_(yoyo),
-      delay_(delay) {};
+      frame_duration_(delay) {};
   };
 
+  /// @brief Stores a series of animation frames.
   class Animation : public BaseResource {
   public:
     /**
@@ -91,17 +123,64 @@ namespace term_engine::usertypes {
      */
     std::string GetResourceType() const;
 
+    /**
+     * @brief Returns if the animation has frames to render.
+     * 
+     * @returns If the animation has frames to render.
+     */
     bool HasFrames() const;
 
-    AnimationFrame& GetFrame(uint32_t index);
+    /**
+     * @brief Returns the frame data at the given index.
+     * 
+     * @param[in] index The index of the frame data to retrieve.
+     * @returns The frame data.
+     */
+    AnimationFrame* GetFrame(uint32_t index);
 
+    /**
+     * @brief Returns the number of frames in the animation.
+     * 
+     * @returns The number of animation frames.
+     */
     uint32_t GetFrameCount() const;
 
+    /**
+     * @brief Pushes a new frame to the end of the animation.
+     * 
+     * @param[in] frame The frame data to add.
+     */
     void PushFrame(const AnimationFrame& frame);
 
+    /**
+     * @brief Adds a new frame to the animation at the given index.
+     * 
+     * @param[in] frame The frame data to add.
+     * @param[in] index The index to insert the frame at.
+     */
     void AddFrame(const AnimationFrame& frame, uint32_t index);
 
+    /**
+     * @brief Sets the frame data at the given index.
+     * 
+     * @param[in] frame The new frame data.
+     * @param[in] index The index of the frame to set.
+     */
+    void SetFrame(const AnimationFrame& frame, uint32_t index);
+
+    /**
+     * @brief Removes the frame at the given index.
+     * 
+     * @param[in] index The index of the frame to remove.
+     */
     void RemoveFrame(uint32_t index);
+
+    /**
+     * @brief Returns the list of animation frames.
+     * 
+     * @returns The list of animation frames. 
+     */
+    AnimationFrameList& GetFrames();
 
     /// @brief Updates the debugging information for this animation.
     void UpdateDebugInfo() const;
@@ -119,81 +198,191 @@ namespace term_engine::usertypes {
     }
     
   private:
+    /// @brief The list of animation frames.
     AnimationFrameList frames_;
   };
 
+  /// @brief Used to queue and manage animations to be rendered to an object.
   class AnimationState {
   public:
+    /// @brief Constructs the animation state.
     AnimationState();
 
+    /**
+     * @brief Updates the animation state.
+     * 
+     * @param[in] timestep The time since the last update, in milliseconds (ms).
+     */
     void Update(uint32_t timestep);
 
+    /**
+     * @brief Returns the list of queued animations.
+     * 
+     * @returns The list of animations in the queue.
+     */
     AnimationQueue& GetQueue();
 
+    /**
+     * @brief Returns if there are animations queued in the state.
+     * 
+     * @returns If animations are queued in the state.
+     */
     bool HasAnimationsQueued() const;
 
+    /**
+     * @brief Returns if an animation is currently playing.
+     * 
+     * @returns If an animation is currently playing.
+     */
     bool IsPlaying() const;
 
+    /**
+     * @brief Returns if the current animation is set to loop.
+     * 
+     * @returns If the current animation is looping.
+     */
     bool IsLooping() const;
 
+    /**
+     * @brief Returns if the current animation is set to yoyo (i.e. alternate between playing forwards/reverse).
+     * 
+     * @returns If the current animation is yoyo-ing.
+     */
     bool IsYoyoing() const;
 
+    /**
+     * @brief Returns if the animation is set to play in reverse.
+     * 
+     * @returns If the animation is playing in reverse.
+     */
     bool IsReversing() const;
 
+    /**
+     * @brief Returns how long each frame of the animation plays for.
+     * 
+     * @returns How long each frame plays for, in milliseconds (ms).
+     */
+    uint32_t GetFrameDuration() const;
+
+    /**
+     * @brief Returns the frame rate for playing the current animation.
+     * 
+     * @returns The frame rate.
+     */
     uint32_t GetFrameRate() const;
 
+    /**
+     * @brief Returns the currently queued animation.
+     * 
+     * @returns A raw pointer to the animation, or a null pointer if the queue is empty.
+     */
     Animation* GetCurrentAnimation();
 
+    /**
+     * @brief Returns the current frame data for the currently queued animation.
+     * 
+     * @returns A raw pointer to the frame data, or a null pointer if the queue is empty.
+     */
     AnimationFrame* GetCurrentFrame();
 
+    /**
+     * @brief Returns the current frame index.
+     * 
+     * @returns The frame index.
+     */
     uint32_t GetFrameNumber() const;
 
+    /// @brief Starts playing the currently queued animation.
     void Play();
 
+    /// @brief Stops playing the currently queued animation.
     void Stop();
 
+    /**
+     * @brief Seeks to the frame in the currently queued animation, at the given index.
+     * 
+     * @param[in] frame The index of the frame to move to.
+     */
     void Seek(uint32_t frame);
 
+    /**
+     * @brief Sets if the currently queued animation will loop.
+     * 
+     * @param[in] flag Flag to enable/disable looping.
+     */
     void SetLooping(bool flag);
 
+    /**
+     * @brief Sets if the currently queued animation will yoyo (i.e. alternate between playing forwards/reverse).
+     * 
+     * @param[in] flag Flag to enable/disable yoyo-ing.
+     */
     void SetYoyoing(bool flag);
 
+    /**
+     * @brief Sets if the currently queued animation will play in reverse.
+     * 
+     * @param[in] flag Flag to enable/disable reverse play.
+     */
     void SetReversing(bool flag);
 
+    /**
+     * @brief Sets how long each frame of the current animation plays for.
+     * 
+     * @param[in] frame_duration How long each frame plays for, in milliseconds (ms).
+     */
+    void SetFrameDuration(uint32_t frame_duration);
+
+    /**
+     * @brief Sets the frame rate for playing the current animation.
+     * 
+     * @param[in] frame_rate The frame rate.
+     */
     void SetFrameRate(uint32_t frame_rate);
 
-    void AddToQueue(sol::variadic_args items);
+    /**
+     * @brief Adds 1 or more animations to the queue.
+     * 
+     * @param[in] items The list of animations to queue.
+     */
+    void AddToQueue(const sol::variadic_args& items);
 
+    /// @brief Clears the queue of all animations.
     void ClearQueue();
 
     /// @brief Updates the debugging information for this animation.
     void UpdateDebugInfo() const;
 
   private:
+    /// @brief The list of queued animations.
     AnimationQueue animations_;
-
+    /// @brief Is an animation playing?
     bool is_playing_;
-
+    /// @brief Is the current animation looping?
     bool is_looping_;
-
+    /// @brief Is the current animation yoyo-ing (i.e. alternate between playing forwards/reverse)?
     bool is_yoyoing_;
-
+    /// @brief Has the queue changed, and the state needs to be updated?
     bool has_queue_changed_;
-
+    /// @brief Is the current animation set to play in reverse?
     bool is_reversing_;
-
+    /// @brief Has the animation reached the end of play?
     bool end_of_animation_;
-
+    /// @brief The amount of time the current frame has been rendered for.
     uint32_t animation_accumulator_;
-
+    /// @brief The index of the current frame of animation.
     uint32_t current_animation_frame_;
-
-    uint32_t frame_rate_;
+    /// @brief How long each frame plays for, in milliseconds (ms).
+    uint32_t frame_duration_;
   };
 
+  /**
+   * @brief Retrieves the animation resource with the given name. If it's not in the list, it will be created.
+   * 
+   * @param[in] name The name of the animation resource.
+   * @returns A raw pointer to the resource, or a null pointer if given an empty name.
+   */
   Animation* LoadAnimation(const std::string& name);
-
-  void ImportAnimationsFromFile(const std::string& filepath);
 }
 
 #endif // ! ANIMATION_H

@@ -13,6 +13,9 @@ namespace term_engine::usertypes {
   /// @brief The type name for Audios.
   constexpr char AUDIO_TYPE[] = "Audio";
 
+  /// @brief The master volume for the audio engine.
+  inline float master_volume = 1.0f;
+
   /// @brief Stores an audio resource, used to play music/sounds.
   class Audio : public BaseResource {
   public:
@@ -170,12 +173,37 @@ namespace term_engine::usertypes {
   };
 
   /**
-   * @brief Adds an audio resource to the list of resources.
+   * @brief Plays the sound at the given filepath directly.
+   * @details Sounds played with function cannot be paused/stopped, nor have their properties updated.
+   * 
+   * @param[in] filepath The filepath to the sound resource.
+   */
+  void PlaySound(const std::string& filepath);
+
+  /// @brief Stops all audio resources from playing.
+  void StopAllSounds();
+
+  /**
+   * @brief Returns the master volume for the audio engine.
+   * 
+   * @returns The master volume.
+   */
+  float GetMasterVolume();
+
+  /**
+   * @brief Sets the master volume for the audio engine.
+   * 
+   * @param[in] volume The new value for the master volume.
+   */
+  void SetMasterVolume(float volume);
+
+  /**
+   * @brief Retrives the audio resource with the given filepath. If it's not in the list, it will be loaded.
    * 
    * @param[in] filepath The filepath to the audio resource.
    * @param[in] type     Set to "static" to load audio directly into memory, or "stream" to stream a portion of audio at a time.
    * @remarks Streaming audio with the "stream" type is recommended for large music files. Loading entire audio resources with the "static" type is recommended for small sound files.
-   * @returns A raw pointer to the resource.
+   * @returns A raw pointer to the resource, or a null pointer if not found.
    */
   Audio* LoadAudio(const std::string& filepath, const std::string& type);
 }

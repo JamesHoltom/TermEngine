@@ -135,6 +135,42 @@ namespace term_engine::events {
    * @returns If the key has just been released this frame.
    */
   bool ScancodeIsReleased(SDL_Scancode code);
+
+  /**
+   * @brief Returns if SDL's "Text Input" mode is enabled.
+   * @details SDL uses an API for typing characters that require multiple key presses.
+   * 
+   * @see https://wiki.libsdl.org/SDL2/Tutorials-TextInput
+   * @returns If "Text Input" mode is enabled.
+   */
+  bool IsTextInputModeActive();
+
+  /// @brief Enables SDL's "Text Input" mode.
+  void StartTextInputMode();
+
+  /// @brief Disables SDL's "Text Input" mode.
+  void StopTextInputMode();
+
+  /**
+   * @brief Returns if the clipboard contains text.
+   * 
+   * @returns If the clipboard is filled.
+   */
+  bool IsClipboardFilled();
+
+  /**
+   * @brief Returns the contents of the clipboard.
+   * 
+   * @returns The clipboard contents.
+   */
+  std::string GetClipboard();
+
+  /**
+   * @brief Sets the contents of the clipboard.
+   * 
+   * @param[in] text The text to set.
+   */
+  void SetClipboard(const std::string& text);
 }
 
 #endif // ! INPUT_MANAGER_H

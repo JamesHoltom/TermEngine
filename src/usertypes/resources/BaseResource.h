@@ -66,12 +66,10 @@ namespace term_engine::usertypes {
     bool marked_for_removal_;
   };
 
-  void UpdateResources();
-
   /// @brief Removes all resources in the list.
   void CleanUpResources();
 
-  /// @brief Clears all resources that are flagged for removal from the resource list.
+  /// @brief Clears all resources that are flagged for removal from the list.
   void ClearFlaggedResources();
 }
 

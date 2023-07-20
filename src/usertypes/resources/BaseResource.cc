@@ -33,29 +33,6 @@ namespace term_engine::usertypes {
     marked_for_removal_ = false;
   }
 
-  void UpdateResources()
-  {
-    bool created = false;
-    
-    if (!utility::test_mode)
-    {
-      created = ImGui::BeginTabItem("Resources");
-    }
-
-    for (auto& [ _, resource ] : resource_list)
-    {
-      if (created)
-      {
-        resource->UpdateDebugInfo();
-      }
-    }
-
-    if (created)
-    {
-      ImGui::EndTabItem();
-    }
-  }
-
   void CleanUpResources()
   {
     resource_list.clear();

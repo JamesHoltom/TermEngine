@@ -28,7 +28,11 @@ namespace term_engine::usertypes {
     /// @brief Destroys the timed function.
     ~TimedFunction();
 
-    /// @brief Updates the timed function.
+    /**
+     * @brief Updates the timed function.
+     * 
+     * @param[in] timestep The time since the last update, in milliseconds (ms).
+     */
     void Update(uint64_t timestep);
 
     /**
@@ -67,10 +71,17 @@ namespace term_engine::usertypes {
      */
     uint32_t GetTimesCalled() const;
 
+    /// @brief Starts the timer for the function, allowing it to trigger.
     void Start();
 
+    /// @brief Stops the timer for the function, preventing it from triggering.
     void Stop();
 
+    /**
+     * @brief Sets if the function will repeat after triggering.
+     * 
+     * @param[in] flag Whether the function is repeatable.
+     */
     void SetRepeatable(bool flag);
 
     /// @brief Updates the debugging information for this object.
@@ -84,7 +95,7 @@ namespace term_engine::usertypes {
     /// @brief Whether the callback is triggered repeatedly or not.
     bool repeat_;
     /// @brief The amount of times the callback has been triggered.
-    uint32_t times_called_;
+    uint32_t times_fired_;
     /// @brief The callback function to call when the delay has finished.
     sol::function callback_;
   };
@@ -99,8 +110,13 @@ namespace term_engine::usertypes {
    */
   TimedFunction* AddTimedFunction(uint64_t delay, bool started, bool repeat, const sol::function callback);
 
-  /// @brief Clears all timed functions from the object list.
-  void ClearAllTimedFunctions();
+  /**
+   * @brief Returns the game object with the given ID.
+   * 
+   * @param[in] id The ID of the game object.
+   * @returns A raw pointer to the game object, or a null pointer if not found.
+   */
+  TimedFunction* GetTimedFunctionById(uint64_t id);
 }
 
 #endif // ! TIMED_FUNCTION_H

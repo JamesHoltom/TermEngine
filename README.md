@@ -1,17 +1,14 @@
 # TermEngine
 
-TermEngine is a game engine that focuses on creating text-based games, with additional options for graphical features.
-
-This project is currently a work-in-progress, with intermittent updates.
+TermEngine is a game engine that focuses on creating text-based games.
 
 ## Example
 
-```
+```lua
 local hello_world
 
 function Init()
-  hello_world = TextObject(Values.IVEC2_ONE, ivec2(12, 1))
-  hello_world.text = "Hello World!"
+  hello_world = TextObject("Hello World!", Values.IVEC2_ONE, Ivec2(12, 1))
   
   return true
 end
@@ -22,11 +19,11 @@ Additional examples can be found in __projects/example__.
 
 ## Building
 
-TermEngine can currently be been built on Windows and Linux.
+TermEngine can currently be been built on Windows, Mac and Linux.
 
 Instructions can be found in __BUILDING__.
 
-# Documentation
+## Documentation
 
 Source code documentation can be built with [Doxygen](https://www.doxygen.org/index.html).
 

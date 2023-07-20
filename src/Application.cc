@@ -2,12 +2,13 @@
 #include "Application.h"
 #include "events/InputManager.h"
 #include "events/Listener.h"
+#include "scripting/ScriptingInterface.h"
+#include "system/CLArguments.h"
+#include "system/FPSManager.h"
+#include "usertypes/EventListener.h"
+#include "usertypes/GameScene.h"
 #include "usertypes/game_objects/BaseObject.h"
 #include "usertypes/resources/BaseResource.h"
-#include "usertypes/resources/ShaderProgram.h"
-#include "usertypes/GameScene.h"
-#include "scripting/ScriptingInterface.h"
-#include "system/FPSManager.h"
 #include "utility/AudioUtils.h"
 #include "utility/FTUtils.h"
 #include "utility/GLUtils.h"
@@ -23,53 +24,55 @@ namespace term_engine {
     if (!utility::InitSDL() || !utility::InitFreeType() || !utility::InitAudio())
     {
       utility::logger->critical("Failed to initialise SDL/FT/MA!");
+
       exit(2);
     }
 
+    SDL_StopTextInput();
+
     utility::InitGL();
-    events::Init();
+
+    if (!utility::InitImGui())
+    {
+      exit(3);
+    }
+
     events::InitList();
     system::InitFPS();
 
-    utility::InitContext();
-    usertypes::InitDefaultShaders();
-    scripting::InitInterface();
-    scripting::InitScript();
-
-    (*scripting::lua_state)["defaultScene"] = usertypes::AddGameScene(std::string(usertypes::DEFAULT_GAME_SCENE_NAME));
-    (*scripting::lua_state)["defaultFont"] = usertypes::LoadFont(std::string(usertypes::DEFAULT_FONT));
-    (*scripting::lua_state)["defaultTextShader"] = usertypes::GetShader(std::string(usertypes::DEFAULT_TEXT_SHADER));
-    (*scripting::lua_state)["defaultBGShader"] = usertypes::GetShader(std::string(usertypes::DEFAULT_BG_SHADER));
-
-    /* TODO: Set debug timing intervals as below:
-     *  - Events
-     *  - Script
-     *  - Update Objects
-     *  - Update Scenes
-     *  - Flagging
-     *  - Loop
-     *  - Remaining
-     */
+    scripting::SetNextProject(system::scriptPath.string());
+    InitProject();
 
     utility::logger->debug("Finished init!");
   }
 
+  void InitProject()
+  {
+    events::Init();
+    scripting::Setup();
+  }
+
   void CleanUp()
   {
-    events::CleanUpList();
-    scripting::CleanUp();
-    usertypes::CleanUpObjects();
-    usertypes::ClearAllGameScenes();
-    usertypes::CleanUpResources();
-    events::CleanUp();
+    CleanUpProject();
 
     utility::CleanUpAudio();
     utility::CleanUpFreeType();
     utility::CleanUpSDL();
     utility::CleanUpImGui();
-    utility::CleanUpContext();
 
     utility::logger->debug("Cleaned up!");
+  }
+
+  void CleanUpProject()
+  {
+    events::CleanUpList();
+    usertypes::ClearAllEventListeners();
+    usertypes::ClearAllObjects();
+    scripting::Shutdown();
+    usertypes::ClearAllGameScenes();
+    usertypes::CleanUpResources();
+    events::CleanUp();
   }
 
   void Run()
@@ -90,7 +93,17 @@ namespace term_engine {
 
     while (!quit)
     {
-      // TODO: Figure out how to get execution time here.
+      if (!scripting::next_project_path.empty())
+      {
+        CleanUpProject();
+        InitProject();
+
+        if (!scripting::OnInit())
+        {
+          quit = true;
+          break;
+        }
+      }
 
       // Using the side-effect of SDL_QuitRequested() calling SDL_PumpEvents() to omit it from the below code.
       if (SDL_QuitRequested() || usertypes::quit_flag)
@@ -107,70 +120,52 @@ namespace term_engine {
       }
 
       events::UpdateInputState();
-      events::CleanUpList();
 
       SDL_Event event;
 
       while (SDL_PollEvent(&event) != 0) {
+        utility::ImGui_DoEvents(event);
         utility::LogKeyboardEvents(event);
+        utility::LogTextInputEvents(event);
         utility::LogWindowEvents(event);
 
-        ImGui_ImplSDL2_ProcessEvent(&event);
-
-        utility::ImGui_DoEvents(event);
         usertypes::DoGameSceneEvents(event);
         events::DoSDLEvents(event);
       }
 
-      utility::ImGui_StartFrame();
-
-      if (utility::test_mode)
+      for (const events::Event& event : events::event_list)
       {
-        ImGui::ShowDemoWindow();
+        for (usertypes::EventListenerPtr& listener : usertypes::listener_list)
+        {
+          listener->DoEvents(event);
+        }
       }
 
-      // TODO: See above.
+      events::CleanUpList();
 
       timestep = timestep_timer.GetIntervalElapsed();
 
       scripting::OnLoop(timestep);
 
-      // TODO: See above.
-
-      if (!utility::test_mode)
-      {
-        ImGui::BeginTabBar("Lists");
-      }
-
       usertypes::SortObjects();
       usertypes::UpdateObjects(timestep);
       usertypes::UpdateGameScenes();
-      usertypes::UpdateResources();
 
-      if (!utility::test_mode)
-      {
-        ImGui::EndTabBar();
-      }
-
-      utility::ImGui_EndFrame();
-
-      // TODO: See above.
-
-      usertypes::FlagGameObjectsWithFlaggedGameScenes();
+      usertypes::ClearFlaggedGameScenes();
+      usertypes::ClearFlaggedEventListeners();
       usertypes::ClearFlaggedObjects();
       usertypes::ClearFlaggedResources();
 
-      // TODO: See above.
+      utility::ImGui_StartFrame();
+      utility::ImGui_UpdateInfo();
+      utility::ImGui_EndFrame();
 
       system::NextFrame();
 
       events::UpdatePrevInputState();
 
       system::CalculateFPS();
-      // TODO: See above.
-
       system::Delay();
-      // TODO: See above.
     }
   }
 }

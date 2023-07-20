@@ -81,6 +81,13 @@ namespace term_engine::usertypes {
     CloseLogic GetCloseBehaviour() const;
 
     /**
+     * @brief Returns if the window is borderless.
+     * 
+     * @returns If the window is borderless.
+     */
+    bool IsBorderless() const;
+
+    /**
      * @brief Returns if the window can be resized by the player.
      * 
      * @returns If the window is resizable.
@@ -102,6 +109,13 @@ namespace term_engine::usertypes {
     bool IsMaximised() const;
 
     /**
+     * @brief Returns if the window has mouse focus.
+     * 
+     * @returns If the window has mouse focus.
+     */
+    bool IsInFocus() const;
+
+    /**
      * @brief Returns if the window is grabbing the mouse, preventing it from moving outside the window.
      * 
      * @returns If the mouse has been grabbed.
@@ -116,17 +130,35 @@ namespace term_engine::usertypes {
     bool IsWireframeEnabled() const;
 
     /**
-     * @brief Set the position of the window.
+     * @brief Repositions the window.
+     * @note Calling this function also calls SetPosition().
      * 
      * @param[in] position The new position of the window.
      */
-    void SetPosition(const glm::ivec2& position);
+    void Reposition(const glm::ivec2& position);
     
     /// @brief Centers the window to the desktop.
     void CenterPosition();
     
     /**
-     * @brief Sets the size of the window.
+     * @brief Resizes of the window.
+     * @note Calling this function also calls SetSize().
+     * 
+     * @param[in] size The new size of the window.
+     */
+    void Resize(const glm::ivec2& size);
+    
+    /**
+     * @brief Sets the position member of the window.
+     * @details This function exists to update the position member, if the window moves due to an event. Call Reposition() to move the window.
+     * 
+     * @param[in] position The new position of the window.
+     */
+    void SetPosition(const glm::ivec2& position);
+
+    /**
+     * @brief Sets the size member of the window.
+     * @details This function exists to update the size member, if the window changes size due to an event. Call Resize() to resize the window.
      * 
      * @param[in] size The new size of the window.
      */
@@ -152,6 +184,13 @@ namespace term_engine::usertypes {
      * @param[in] behaviour A value defining the window behaviour.
      */
     void SetCloseBehaviour(CloseLogic behaviour);
+
+    /**
+     * @brief Sets if the window is borderless.
+     * 
+     * @param[in] flag The value to set.
+     */
+    void SetBorderless(bool flag) const;
 
     /**
      * @brief Sets if the window can be resized by the player.
@@ -194,10 +233,6 @@ namespace term_engine::usertypes {
     /// @brief Flips the window buffers, rendering the current frame's buffer to the screen.
     void Refresh() const;
 
-    void _SetPosition(const glm::ivec2& position);
-
-    void _SetSize(const glm::ivec2& size);
-    
     /// @brief Updates the debugging information for this window.
     void UpdateDebugInfo() const;
 

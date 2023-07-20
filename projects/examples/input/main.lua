@@ -1,10 +1,10 @@
 local inputText, inputBox
 
 function Init()
-  inputText = TextObject(Values.IVEC2_ONE, ivec2(12, 1))
+  inputText = TextObject(Values.IVEC2_ONE, Ivec2(12, 1))
   inputText.text = "Press W & S!"
 
-  inputBox = BoxObject(Values.IVEC2_ZERO, ivec2(14, 3))
+  inputBox = BoxObject(Values.IVEC2_ZERO, Ivec2(14, 3))
   inputBox.outline = Character("#", Colours.WHITE, Colours.BLACK)
 
   return true

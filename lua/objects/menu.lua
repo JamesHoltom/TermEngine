@@ -3,40 +3,96 @@
 --]]
 
 --[[
--- @brief Extends the Object usertype to make menus simpler to setup.
+-- @brief Extends the GameObject usertype to make menus simpler to setup.
 -- @param _position 	The position of the menu.
--- @param _game_scene The game scene to add the object to.
+-- @param _game_scene The game scene to add options to.
 --]]
 function MenuObject(_position, _game_scene)
+	local menu_self = {
+		position = _position,										-- @brief The position of the object.
+		size = Values.IVEC2_ZERO,								-- @brief The size of the object.
+		use_keys = false,												-- @brief Are keyboard controls enabled for the menu?
+		selected_option = 1,										-- @brief The index of the option currently selected.
+		active = true,													-- @brief Is the menu (and all of its options) active?
+		next_y_position = 0,										-- @brief The Y position for the next option.
+		options = {},														-- @brief The list of options.
+		key_handler = nil,											-- @brief The listener for "key_down" events.
+		game_scene = _game_scene or "default"		-- @brief The game scene to add options to.
+	}
+
 	--[[
 	-- @brief Represents an option in a MenuObject.
 	-- @param _title		The title of the option.
+	-- @param _position The position of the option.
+	-- @param _size 		The size of the option.
 	-- @param _callback	The function to call when the option is triggered.
 	--]]
-	local MenuOption = function(_title, _callback)
-		local self = {
-			title = _title,										-- @brief The title of the option.
-			callback = _callback,							-- @brief The function to call when the option is triggered.
-			hovering = false,									-- @brief Is this option being selected/hovered over?
-			fg_colour = Colours.WHITE,				-- @brief The text colour for the option.
-			bg_colour = Colours.BLACK,				-- @brief The background colour for the option.
-			fg_colour_hover = Colours.BLACK,	-- @brief The text colour when hovering over the option.
-			bg_colour_hover = Colours.WHITE		-- @brief The background colour when hovering over the option.
+	local MenuOption = function(_title, _position, _size, _callback)
+		local opt_self = {
+			object = GameObject(_position, _size, menu_self.game_scene),	-- @brief Handle to the GameObject.
+			title = _title,																								-- @brief The title of the option.
+			callback = _callback,																					-- @brief The function to call when the option is triggered.
 		}
 		
 		-- @brief Triggers the option's callback function.
 		local _fire = function()
-			self.callback()
+			opt_self.callback()
+		end
+
+		-- @brief Refreshes the object data with the updated settings.
+		local _setData = function()
+			if opt_self.object.active == true then
+				local fg_colour = characters.DEFAULT_FOREGROUND_COLOUR
+				local bg_colour = characters.DEFAULT_BACKGROUND_COLOUR
+
+				if opt_self.object.id == GetSelectedObject() then
+					fg_colour = characters.DEFAULT_BACKGROUND_COLOUR
+					bg_colour = characters.DEFAULT_FOREGROUND_COLOUR
+				elseif opt_self.object.hovering == true or (menu_self.use_keys == true and opt_self.object.id == menu_self.options[menu_self.selected_option]) then
+					bg_colour = Colours.DARK_GREY
+				end
+
+				opt_self.object:set(SetText(opt_self.object, tostring(opt_self.title), fg_colour, bg_colour, false, 2))
+			end
 		end
 		
+		--[[
+		-- @brief Updates the object with data from `object_hover` events.
+		-- @param _event The event data.
+		--]]
+		local _doHoverEvent = function(_event)
+			_setData()
+		end
+
+		--[[
+		-- @brief Updates the object with data from `mouse_down` events.
+		-- @param _event The event data.
+		--]]
+		local _doClickEvent = function(_event)
+			if opt_self.object.hovering == true then
+				_fire()
+			end
+			
+			_setData()
+		end
+
+		-- @brief Cleans up the object after use.
+		local _release = function()
+			UnsetInteractive(opt_self)
+			opt_self.object.active = false
+			opt_self.object:release()
+		end
+
 		--[[
 		-- @brief Configures the metatable for getting properties.
 		-- @param key The name of the property to retrieve.
 		-- @returns The value of the property.
 		--]]
 		local mtIndex = function(_, key)
-			if key == "title" or key == "hovering" or key == "fg_colour" or key == "bg_colour" or key == "fg_colour_hover" or key == "bg_colour_hover" then
-				return self[key]
+			if key == "id" or key == "position" or key == "size" or key == "hovering" or key == "active" then
+				return opt_self.object[key]
+			elseif key == "title" then
+				return opt_self[key]
 			else
 				return nil
 			end
@@ -49,74 +105,80 @@ function MenuObject(_position, _game_scene)
 		--]]
 		local mtNewIndex = function(_, key, value)
 			if key == "title" then
-				self.title = tostring(value)
+				opt_self.title = tostring(value)
 			elseif key == "hovering" then
-				self.hovering = value
-			elseif key == "fg_colour" or key == "bg_colour" or key == "fg_colour_hover" or key == "bg_colour_hover" then
-				self[key] = vec4(value)
+				opt_self.hovering = value
+			elseif key == "active" then
+				opt_self.object.active = value == true
 			end
+
+			_setData()
 		end
-	
-		return setmetatable({
-			fire = _fire
-		}, {
-			__index = mtIndex,
-			__newindex = mtNewIndex
-		})
-	end
-
-	local self = {
-		obj = GameObject(_position, Values.IVEC2_ONE, _game_scene or "default"),	-- @brief Handle to the Object.
-		events = {},																															-- @brief The list of event listeners.
-		options = {},																															-- @brief The list of options.
-		option_width = 0,																													-- @brief The maximum width of the options.
-		active_index = 1																													-- @brief The index of the option currently selected.
-	}
-
-	-- @brief Refreshes the object data with the updated list of options.
-	local _refreshOptions = function()
-		local columns = #self.options
-		self.obj:size(ivec2(self.option_width, columns))
 		
-		for index, option in ipairs(self.options) do
-			option.hovering = self.active_index == index
-			
-			local title = option.title
-			local fg = option.fg_colour
-			local bg = option.bg_colour
-			local c_index = 1
-
-			if option.hovering then
-				fg = option.fg_colour_hover
-				bg = option.bg_colour_hover
-			end
-			
-			for c in title:gmatch(".") do
-				self.obj:data()[(self.option_width * (index - 1)) + c_index] = Character(c, fg, bg)
-				c_index = c_index + 1
-			end
-
-			for i = c_index, self.option_width do
-				self.obj:data()[(self.option_width * (index - 1)) + i] = Character(" ", fg, bg)
-			end
-		end
-	end
+		_setData()	
 	
+		return SetInteractive(setmetatable({
+			fire 						= _fire,
+			doHoverEvent 		= _doHoverEvent,
+			doClickEvent 		= _doClickEvent,
+			setData 				= _setData,
+			release 				= _release
+		}, {
+			__index 				= mtIndex,
+			__newindex 			= mtNewIndex,
+			__type					= { name= "MenuOption" }
+		}))
+	end
+
 	--[[
 	-- @brief Adds an option to the menu.
 	-- @param _index    The index of the new option.
 	-- @param _title    The title of the new option.
 	-- @param _callback The function to call when the new option is selected.
 	--]]
-	local _addOption = function(_index, _title, _callback)
-		if _index >= 1 and _index <= #self.options + 1 then
-			table.insert(self.options, _index, MenuOption(_title, _callback))
+	local _addOptions = function(...)
+		local arg = {...}
+		local title
+		local position
+		local size
+		local callback
+		local object
 
-			self.option_width = math.max(#_title, self.option_width)
+		if type(arg[1]) == "string" then
+			title = arg[1]
+			position = Ivec2(arg[2], menu_self.next_y_position)
+			size = arg[3]
+			callback = arg[4]
 
-			_refreshOptions()
+			local newOpt = MenuOption(title, menu_self.position + position, size, callback)
+
+			table.insert(menu_self.options, newOpt.id)
+			menu_self.size = menu_self.size:max(position + size)
+			menu_self.next_y_position = menu_self.next_y_position + size.y
+		elseif type(arg[1]) == "table" then
+			for _, v in ipairs(arg) do
+				title = v.title or ""
+				position = Ivec2(v.offset or 0, menu_self.next_y_position)
+				callback = v.callback or nil
+
+				if v.size ~= nil then
+					size = Ivec2(v.size)
+				else
+					size = Ivec2(utf8.len(title), 1)
+				end
+
+				local newOpt = MenuOption(title, menu_self.position + position, size, callback)
+
+				table.insert(menu_self.options, newOpt.id)
+
+				menu_self.size = menu_self.size:max(position + size)
+
+				if v.new_line ~= false then
+					menu_self.next_y_position = menu_self.next_y_position + size.y
+				end
+			end
 		else
-			print("Cannot add option '" .. _title .. "' to index '" .. _index .. "'.")
+			print("Unknown menu option parameters given!")
 		end
 	end
 	
@@ -125,51 +187,66 @@ function MenuObject(_position, _game_scene)
 	-- @param _index The index of the option to remove.
 	--]]
 	local _removeOption = function(_index)
-		if _index >= 1 and _index <= #self.options then
-			table.remove(self.options, _index)
-			
-			_refreshOptions()
+		if _index >= 1 and _index <= #menu_self.options then
+			table.remove(objects, menu_self.options[_index])
+			table.remove(menu_self.options, _index)
+
+			menu_self.selected_option = math.max(menu_self.selected_option, #menu_self.options)
 		else
 			print("Cannot remove option from index '" .. _index .. "'.")
 		end
 	end
-	
-	--[[
-	-- @brief Event callback for handling menu navigation with the keyboard.
-	-- @param _key The key currently being pressed.
-	--]]
-	local _doKeyInput = function(_key)
-		if _key == "Up" then
-			if self.active_index == 1 then
-				self.active_index = #self.options
-			else
-				self.active_index = self.active_index - 1
+
+	-- @brief Refreshes the object data with the updated settings.
+	local _refreshOptions = function()
+		for k, _ in ipairs(menu_self.options) do
+			local object = GetObject(menu_self.options[k])
+
+			if object ~= nil then
+				object:setData()
 			end
-			
-			_refreshOptions()
-		end
-		
-		if _key == "Down" then
-			if self.active_index == #self.options then
-				self.active_index = 1
-			else
-				self.active_index = self.active_index + 1
-			end
-			
-			_refreshOptions()
-		end
-		
-		if _key == "Space" then
-			self.options[self.active_index].fire()
 		end
 	end
+	
+	menu_self.key_handler = SetInteractive({
+		position = Values.IVEC2_ZERO,
+		size = Values.IVEC2_ZERO,
+		doKeyEvent = function(_event)
+			if menu_self.use_keys ~= true then
+				return
+			end
 
-	-- @brief Cleans up the object and event listeners after use.
+			if _event.key == "Up" then
+				if menu_self.selected_option == 1 then
+					menu_self.selected_option = #menu_self.options
+				else
+					menu_self.selected_option = menu_self.selected_option - 1
+				end
+			elseif _event.key == "Down" then
+				if menu_self.selected_option == #menu_self.options then
+					menu_self.selected_option = 1
+				else
+					menu_self.selected_option = menu_self.selected_option + 1
+				end
+			elseif _event.key == "Space" or _event.key == "Enter" then
+				SetSelectedObject(menu_self.options[menu_self.selected_option])
+				local object = GetObject(menu_self.options[menu_self.selected_option])
+				
+				if object ~= nil then
+					object:fire()
+				end
+			end
+
+			_refreshOptions()
+		end
+	})
+
+	-- @brief Cleans up the object after use.
 	local _release = function(_)
-		self.obj:release()
+		UnsetInteractive(menu_self.key_handler)
 
-		for _, v in pairs(self.events) do
-			v:release()
+		for k, _ in ipairs(menu_self.options) do
+			menu_self.options[k]:release()
 		end
 	end
 
@@ -179,12 +256,10 @@ function MenuObject(_position, _game_scene)
 	-- @returns The value of the property.
 	--]]
 	local mtIndex = function(_, key)
-		if key == "position" or key == "size" or key == "active" then
-			return self.obj[key]
-		elseif key == "option_width" or key == "options" or key == "active_index" then
-			return self[key]
-		elseif key == "active_option" then
-			return self.options[self.active_index]
+		if key == "position" or key == "size" or key == "active" or key == "options" or key == "use_keys" then
+			return menu_self[key]
+		elseif key == "selected_option" then
+			return menu_self.options[menu_self.selected_option]
 		else
 			return nil
 		end
@@ -197,28 +272,43 @@ function MenuObject(_position, _game_scene)
 	--]]
 	local mtNewIndex = function(_, key, value)
 		if key == "position" then
-			self.obj.position = ivec2(value)
+			menu_self.position = Ivec2(value)
+			for k, v in ipairs(menu_self.options) do
+				menu_self.options[k].position = v.position + menu_self.position
+			end
 		elseif key == "active" then
-			self.obj.active = value
-			self.events.keydown.active = _flag
-		elseif key == "option_width" then
-			self.option_width = tonumber(value)
-			_refreshOptions()
-		elseif key == "active_index" then
-			self.active_index = tonumber(value)
+			local flag = (value == true)
+
+			menu_self.active = flag
+
+			for k, _ in ipairs(menu_self.options) do
+				menu_self.options[k].active = flag
+			end
+		elseif key == "use_keys" then
+			local flag = (value == true)
+
+			if menu_self.use_keys ~= flag then
+				menu_self.selected_option = 1
+			end
+
+			menu_self.use_keys = flag
+		elseif key == "selected_option" then
+			if type(value) == "number" and value >= 1 and value <= #menu_self.options then
+				menu_self.selected_option = value
+			end
 		end
+
+		_refreshOptions()
 	end
 
-	self.events.keydown = EventListener(defaultScene(), "key_down", function(_, event)
-		_doKeyInput(event.key)
-	end)
-
 	return setmetatable({
-		addOption = _addOption,
-		removeOption = _removeOption,
-		release = _release
+		addOptions 		= _addOptions,
+		removeOption 	= _removeOption,
+		doKeyEvent		= _doKeyEvent,
+		release 			= _release
 	}, {
-		__index    = mtIndex,
-		__newindex = mtNewIndex
+		__index    		= mtIndex,
+		__newindex 		= mtNewIndex,
+		__type				= { name = "MenuObject" }
 	})
 end

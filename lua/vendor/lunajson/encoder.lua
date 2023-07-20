@@ -159,26 +159,24 @@ local function newencoder()
 
 	--[[ @JamesHoltom - Add engine-specific types start here. ]]
 
-	local function f_vec(v, cnt, new_data)
+	local function f_vec(v, cnt)
 		-- Start the object.
 		builder[i] = '{'
 		i = i + 1
 
-		if new_data == true then
-			-- Set the type.
-			f_string("__type")
-			builder[i] = ':'
-			i = i + 1
-			f_string(v.__type.name)
-			builder[i] = ','
-			i = i + 1
+		-- Set the type.
+		f_string("__type")
+		builder[i] = ':'
+		i = i + 1
+		f_string(v.__type.name)
+		builder[i] = ','
+		i = i + 1
 
-			-- Set the data.
-			f_string("__data")
-			builder[i] = ":"
-			builder[i + 1] = "{"
-			i = i + 2
-		end
+		-- Set the data.
+		f_string("__data")
+		builder[i] = ":"
+		builder[i + 1] = "{"
+		i = i + 2
 
 		-- Set the X component.
 		f_string("x")
@@ -217,13 +215,9 @@ local function newencoder()
 		end
 
 		-- End the object.
-		if new_data == true then
-			builder[i] = '}'
-			i = i + 1
-		end
-
 		builder[i] = '}'
-		i = i + 1
+		builder[i + 1] = '}'
+		i = i + 2
 	end
 
 	local function f_character(g)
@@ -258,7 +252,7 @@ local function newencoder()
 		f_string("foregroundColour")
 		builder[i] = ":"
 		i = i + 1
-		f_vec(g.foregroundColour, 4, false)
+		f_vec(g.foregroundColour, 4)
 		builder[i] = ","
 		i = i + 1
 
@@ -266,7 +260,7 @@ local function newencoder()
 		f_string("backgroundColour")
 		builder[i] = ":"
 		i = i + 1
-		f_vec(g.backgroundColour, 4, false)
+		f_vec(g.backgroundColour, 4)
 
 		-- End the object.
 		builder[i] = '}'
@@ -274,7 +268,7 @@ local function newencoder()
 		i = i + 2
 	end
 
-	local function f_object(obj)
+	local function f_gameobject(obj)
 		-- Start the object.
 		builder[i] = '{'
 		i = i + 1
@@ -298,7 +292,7 @@ local function newencoder()
 		f_string("position")
 		builder[i] = ":"
 		i = i + 1
-		f_vec(obj.position, 2, false)
+		f_vec(obj.position, 2)
 		builder[i] = ','
 		i = i + 1
 		
@@ -306,7 +300,7 @@ local function newencoder()
 		f_string("size")
 		builder[i] = ":"
 		i = i + 1
-		f_vec(obj.size, 2, false)
+		f_vec(obj.size, 2)
 		builder[i] = ','
 		i = i + 1
 		
@@ -340,17 +334,137 @@ local function newencoder()
 		i = i + 3
 	end
 
+	local function f_anim_frame(frame)
+		-- Start the object.
+		builder[i] = '{'
+		i = i + 1
+
+		-- Set the type.
+		f_string("__type")
+		builder[i] = ':'
+		i = i + 1
+
+		f_string(frame.__type.name)
+		builder[i] = ','
+		i = i + 1
+
+		-- Set the data.
+		f_string("__data")
+		builder[i] = ":"
+		builder[i + 1] = "{"
+		i = i + 2
+
+		-- Set the size.
+		f_string("size")
+		builder[i] = ":"
+		i = i + 1
+		f_vec(frame.size, 2)
+		builder[i] = ','
+		i = i + 1
+
+		-- Set the offset.
+		f_string("offset")
+		builder[i] = ":"
+		i = i + 1
+		f_vec(frame.offset, 2)
+		builder[i] = ','
+		i = i + 1
+
+		-- Set the added duration.
+		f_string("addedDuration")
+		builder[i] = ":"
+		i = i + 1
+		f_number(frame.addedDuration)
+		builder[i] = ','
+		i = i + 1
+
+		-- Set the data.
+		f_string("data")
+		builder[i] = ":"
+		builder[i + 1] = "["
+		i = i + 2
+		
+		for j = 1, #frame.data do
+			if j > 1 then
+				builder[i] = ","
+				i = i + 1
+			end
+
+			f_character(frame.data[j])
+		end
+
+		-- End the object.
+		builder[i] = ']'
+		builder[i + 1] = '}'
+		builder[i + 2] = '}'
+		i = i + 3
+	end
+
+	local function f_animation(anim)
+		-- Start the object.
+		builder[i] = '{'
+		i = i + 1
+
+		-- Set the type.
+		f_string("__type")
+		builder[i] = ':'
+		i = i + 1
+
+		f_string(anim.__type.name)
+		builder[i] = ','
+		i = i + 1
+
+		-- Set the data.
+		f_string("__data")
+		builder[i] = ":"
+		builder[i + 1] = "{"
+		i = i + 2
+
+		-- Set the name.
+		f_string("name")
+		builder[i] = ":"
+		i = i + 1
+		f_string(anim.name)
+		builder[i] = ","
+		i = i + 1
+
+		-- Set the frame list.
+		f_string("frames")
+		builder[i] = ":"
+		builder[i + 1] = "["
+		i = i + 2
+		
+		for j = 1, #anim.frames do
+			if j > 1 then
+				builder[i] = ","
+				i = i + 1
+			end
+
+			f_anim_frame(anim.frames[j])
+		end
+
+		-- End the object.
+		builder[i] = ']'
+		builder[i + 1] = '}'
+		builder[i + 2] = '}'
+		i = i + 3
+	end
+
 	local function f_userdata(ud)
-		if ud.__type.name == "term_engine::rendering::CharacterParams" then
+		if ud.__type.name == "Character" then
 			f_character(ud)
-		elseif ud.__type.name == "term_engine::objects::GameObject" then
-			f_object(ud)
-		elseif ud.__type.name == "glm::vec<2, int, glm::packed_highp>" or ud.__type.name == "glm::vec<2, float, glm::packed_highp>" then
-			f_vec(ud, 2, true)
-		elseif ud.__type.name == "glm::vec<3, int, glm::packed_highp>" or ud.__type.name == "glm::vec<3, float, glm::packed_highp>" then
-			f_vec(ud, 3, true)
-		elseif ud.__type.name == "glm::vec<4, int, glm::packed_highp>" or ud.__type.name == "glm::vec<4, float, glm::packed_highp>" then
-			f_vec(ud, 4, true)
+		elseif ud.__type.name == "GameObject" then
+			f_gameobject(ud)
+		elseif ud.__type.name == "Animation" then
+			f_animation(ud)
+		elseif ud.__type.name == "AnimationFrame" then
+			f_anim_frame(ud)
+		elseif ud.__type.name == "Ivec2" or ud.__type.name == "Vec2" then
+			f_vec(ud, 2)
+		elseif ud.__type.name == "Ivec3" or ud.__type.name == "Vec3" then
+			f_vec(ud, 3)
+		elseif ud.__type.name == "Ivec4" or ud.__type.name == "Vec4" then
+			f_vec(ud, 4)
 		end
 	end
 

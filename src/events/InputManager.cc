@@ -122,4 +122,41 @@ namespace term_engine::events {
       return false;
     }
   }
+
+  bool IsTextInputModeActive()
+  {
+    return SDL_IsTextInputActive() == SDL_TRUE;
+  }
+
+  void StartTextInputMode()
+  {
+    SDL_StartTextInput();
+  }
+
+  void StopTextInputMode()
+  {
+    SDL_StopTextInput();
+  }
+
+  bool IsClipboardFilled()
+  {
+    return SDL_HasClipboardText() == SDL_TRUE;
+  }
+
+  std::string GetClipboard()
+  {
+    return std::string(SDL_GetClipboardText());
+  }
+
+  void SetClipboard(const std::string& text)
+  {
+    if (SDL_SetClipboardText(text.c_str()) == 0)
+    {
+      utility::logger->debug("Set clipboard to \"{}\"", text);
+    }
+    else
+    {
+      utility::logger->error("Failed to set clipboard text! Error: {}", SDL_GetError());
+    }
+  }
 }

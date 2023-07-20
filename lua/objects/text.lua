@@ -2,10 +2,8 @@
 -- @author James Holtom
 --]]
 
-local empty_character = Character(characters.NO_CHARACTER, characters.DEFAULT_FOREGROUND_COLOUR, characters.DEFAULT_BACKGROUND_COLOUR)
-
 --[[
--- @brief Extends the Object usertype to make writing text simpler.
+-- @brief Extends the GameObject usertype to make writing text simpler.
 -- @param _position 	The position of the textbox.
 -- @param _size 			The size of the textbox.
 -- @param _text 			The text to write.
@@ -13,65 +11,22 @@ local empty_character = Character(characters.NO_CHARACTER, characters.DEFAULT_FO
 --]]
 function TextObject(_position, _size, _text, _game_scene)
 	local self = {
-		obj = GameObject(_position, _size, _game_scene or "default"),			-- @brief Handle to the Object.
+		object = GameObject(_position, _size, _game_scene or "default"),	-- @brief Handle to the Object.
 		text = tostring(_text or ""),																			-- @brief The text to render.
 		fit_text = false,																									-- @brief Should the background colour fit the text, or the Object bounds?
-		tab_size = 2,
+		tab_size = 2,																											-- @brief The size of tab characters (i.e. '\t').
 		fg_colour = characters.DEFAULT_FOREGROUND_COLOUR,									-- @brief The text colour.
 		bg_colour = characters.DEFAULT_BACKGROUND_COLOUR									-- @brief The background colour.
 	}
 
 	-- @brief Refreshes the object data with the updated settings.
 	local _setData = function()
-		local text_pos = 1
-		local byte_pos = 1
-		local tabs_left = 0
-		local newline = false
-
-		local setFunc = function(_, index)
-			if newline and math.fmod(index, self.obj.size.x) == 1 then
-				newline = false
-			end
-			
-			if text_pos <= utf8.len(self.text) and not newline and tabs_left == 0 then
-				local code = utf8.codepoint(self.text, byte_pos)
-				local chr = utf8.char(code)
-				local ret = nil
-
-				if chr == '\n' then
-					newline = true
-					ret = Character(" ", self.fg_colour, self.bg_colour)
-				elseif chr == '\t' then
-					tabs_left = self.tab_size - 1
-					ret = Character(" ", self.fg_colour, self.bg_colour)
-				else
-					ret = Character(chr, self.fg_colour, self.bg_colour)
-				end
-
-				text_pos = text_pos + 1
-				byte_pos = utf8.offset(self.text, text_pos)
-
-				return ret
-			else
-				if self.fit_text then
-					return empty_character
-				else
-					return Character(" ", self.fg_colour, self.bg_colour)
-				end
-
-				if tabs_left > 0 then
-					tabs_left = tabs_left - 1
-					return Character(" ", self.fg_colour, self.bg_colour)
-				end
-			end
-		end
-
-		self.obj:set(setFunc)
+		self.object:set(SetText(self.object, self.text, self.fg_colour, self.bg_colour, self.fit_text, self.tab_size))
 	end
 
 	-- @brief Cleans up the object after use.
 	local _release = function(_)
-		self.obj:release()
+		self.object:release()
 	end
 
 	--[[
@@ -80,8 +35,8 @@ function TextObject(_position, _size, _text, _game_scene)
 	-- @returns The value of the property.
 	--]]
 	local mtIndex = function(_, key)
-		if key == "position" or key == "size" or key == "active" then
-			return self.obj[key]
+		if key == "id" or key == "position" or key == "size" or key == "active" then
+			return self.object[key]
 		elseif key == "text" or key == "fit_text" or key == "tab_size" or key == "fg_colour" or key == "bg_colour" then
 			return self[key]
 		else
@@ -96,23 +51,27 @@ function TextObject(_position, _size, _text, _game_scene)
 	--]]
 	local mtNewIndex = function(_, key, value)
 		if key == "position" then
-			self.obj.position = ivec2(value)
+			if value.__type.name == "Ivec2" then
+				self.object.position = Ivec2(value)
+			end
 		elseif key == "size" then
-			self.obj.size = ivec2(value)
-			_setData()
+			if value.__type.name == "Ivec2" and value >= Values.IVEC2_ONE then
+				self.object.size = value
+				_setData()
+			end
 		elseif key == "active" then
-			self.obj.active = value
+			self.object.active = value == true
 		elseif key == "text" then
 			self.text = tostring(value)
 			_setData()
 		elseif key == "fit_text" then
-			self.fit_text = value
+			self.fit_text = value == true
 			_setData()
 		elseif key == "tab_size" then
 			self.tab_size = value
 			_setData()
 		elseif key == "fg_colour" or key == "bg_colour" then
-			self[key] = vec4(value)
+			self[key] = Vec4(value)
 			_setData()
 		end
 	end

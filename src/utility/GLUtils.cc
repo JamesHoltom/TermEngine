@@ -67,8 +67,17 @@ namespace term_engine::utility {
     logger->debug("Initialised OpenGL.");
   }
 
-  bool PostWindowInitGL()
+  bool InitContext(SDL_Window* window)
   {
+    context = SDL_GL_CreateContext(window);
+
+    if (context == nullptr)
+    {
+      utility::logger->error("An error occurred whilst creating the context: {}", SDL_GetError());
+
+      return false;
+    }
+
     glewExperimental = GL_TRUE;
 
     if (glewInit() != GLEW_OK) {
@@ -87,37 +96,6 @@ namespace term_engine::utility {
     glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
 
     logger->debug("Initialised GLEW.");
-
-    return true;
-  }
-
-  bool InitContext()
-  {
-    if (!InitImGui())
-    {
-      return false;
-    }
-
-    context = SDL_GL_CreateContext(imgui_debug_window);
-
-    if (context == nullptr)
-    {
-      utility::logger->error("An error occurred whilst creating the context: {}", SDL_GetError());
-
-      return false;
-    }
-
-    // GLEW needs to be initialised as soon as a GL context is created.
-    if (!utility::PostWindowInitGL())
-    {
-      utility::logger->error("Failed to set up OpenGL context!");
-      
-      return false;
-    }
-
-    PostWindowInitImGui();
-    
-    is_context_created = true;
 
     return true;
   }

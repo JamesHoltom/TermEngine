@@ -27,8 +27,6 @@ namespace term_engine::utility {
   /// @brief The minor version of OpenGL to request.
   constexpr int MINOR_VERSION = 6;
 
-  /// @brief Flag used to indicate if an OpenGL context has been created. This is used to initialise GLEW/ImGui when one is available.
-  inline bool is_context_created = false;
   /// @brief The OpenGL context to bind windows to.
   inline SDL_GLContext context = nullptr;
 
@@ -66,18 +64,11 @@ namespace term_engine::utility {
   void InitGL();
 
   /**
-   * @brief Initialises GLEW, after the window has been initialised.
-   *
-   * @returns Was GLEW successfully initialised?
-   */
-  bool PostWindowInitGL();
-
-  /**
-   * @brief Initialises the OpenGL context, after a window has been created.
+   * @brief Initialises the OpenGL context and GLEW, after a window has been created.
    * 
    * @returns If the context was successfully created.
    */
-  bool InitContext();
+  bool InitContext(SDL_Window* window);
 
   /// @brief Removes the OpenGL context for the window.
   void CleanUpContext();
@@ -114,6 +105,12 @@ namespace term_engine::utility {
    */
   ShaderProcessResult CompileShaderStage(const std::string& glsl_code, uint32_t type);
 
+  /**
+   * @brief Returns the list of uniforms available from this shader.
+   * 
+   * @param[in] program_id The ID of the shader program to get uniforms for.
+   * @return The list of uniforms.
+   */
   UniformList GetUniforms(uint32_t program_id);
 
   /**
@@ -124,6 +121,12 @@ namespace term_engine::utility {
    */
   std::string GetShaderTypeName(uint32_t type);
 
+  /**
+   * @brief Returns the string name for the given uniform type.
+   * 
+   * @param[in] type The uniform type.
+   * @returns The string name.
+   */
   std::string GetUniformTypeName(uint32_t type);
 }
 

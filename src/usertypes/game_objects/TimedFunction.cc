@@ -9,9 +9,11 @@ namespace term_engine::usertypes {
     accumulator_(0),
     delay_(delay),
     repeat_(repeat),
-    times_called_(0),
+    times_fired_(0),
     callback_(sol::make_reference<sol::function>((*scripting::lua_state), callback))
   {
+    is_active_ = started;
+    
     utility::logger->debug("Created {} timed function with ID {} and delay of {}ms.", repeat ? "repeatable" : "non-repeatable", object_id_, delay_);
   }
 
@@ -24,15 +26,13 @@ namespace term_engine::usertypes {
 
   void TimedFunction::Update(uint64_t timestep)
   {
-    // TODO: Figure out how to get execution time here.
-
     if (is_active_)
     {
       accumulator_ += timestep;
 
       if (accumulator_ >= delay_)
       {
-        times_called_++;
+        times_fired_++;
 
         try
         {
@@ -41,12 +41,12 @@ namespace term_engine::usertypes {
           if (!result.valid())
           {
             sol::error err = result;
-            utility::logger->error("An error was thrown!\nFile: {}\n Error: {}", scripting::lua_file, err.what());
+            utility::logger->error("An error was thrown!\nProject: {}\n Error: {}", scripting::project_path.string(), err.what());
           }
         }
         catch (const std::exception& err)
         {
-          utility::logger->error("A scripting error occurred!\nFile: {}\nError: {}", scripting::lua_file, err.what());
+          utility::logger->error("A scripting error occurred!\nProject: {}\nError: {}", scripting::project_path.string(), err.what());
         }
 
         if (repeat_)
@@ -59,8 +59,6 @@ namespace term_engine::usertypes {
         }
       }
     }
-
-    // TODO: See above.
   }
 
   std::string TimedFunction::GetObjectType() const
@@ -85,13 +83,13 @@ namespace term_engine::usertypes {
 
   uint32_t TimedFunction::GetTimesCalled() const
   {
-    return times_called_;
+    return times_fired_;
   }
 
   void TimedFunction::Start()
   {
     accumulator_ = 0;
-    times_called_ = 0;
+    times_fired_ = 0;
     is_active_ = true;
   }
 
@@ -112,10 +110,17 @@ namespace term_engine::usertypes {
     {
       ImGui::Text("ID: %lu", object_id_);
       ImGui::Text("Active?: %s", is_active_ ? "Yes" : "No");
-      ImGui::Text("Delay: %li", delay_);
+      ImGui::Text("Repeat?: %s", repeat_ ? "Yes" : "No");
+      ImGui::Text("Delay: %lu", delay_);
+      ImGui::Text("Times Fired: %u", times_fired_);
       
-      ImGui::ProgressBar((float)accumulator_ / (float)delay_);
-      
+      ImGui::Text("Progress:");
+      ImGui::SameLine();
+
+      char buf[32];
+      sprintf(buf, "%li/%li", accumulator_, delay_);
+      ImGui::ProgressBar((float)accumulator_ / (float)delay_, ImVec2(0.0f, 0.0f), buf);
+
       ImGui::TreePop();
     }
   }
@@ -131,20 +136,32 @@ namespace term_engine::usertypes {
       set_delay = 0;
     }
 
-    is_object_list_dirty_ = true;
+    is_object_list_dirty = true;
 
-    object_list_.emplace_front(std::make_shared<TimedFunction>(set_delay, started, repeat, callback));
+    object_list.emplace_front(std::make_shared<TimedFunction>(set_delay, started, repeat, callback));
 
-    return static_cast<TimedFunction*>(object_list_.front().get());
+    return static_cast<TimedFunction*>(object_list.front().get());
   }
 
-  void ClearAllTimedFunctions()
+  TimedFunction* GetTimedFunctionById(uint64_t id)
   {
-    object_list_.remove_if([](const ObjectPtr& object)
+    for (auto& object : object_list)
     {
-      return object->GetObjectType() == std::string(TIMED_FUNCTION_TYPE);
-    });
+      if (object->GetObjectId() == id)
+      {
+        if (object->GetObjectType() == std::string(TIMED_FUNCTION_TYPE))
+        {
+          return static_cast<TimedFunction*>(object.get());
+        }
+      }
+      else
+      {
+        utility::logger->warn("Object with ID {} is the name of a(n) {}.", id, object->GetObjectType());
 
-    utility::logger->debug("Cleared all timed functions from the list.");
+        return nullptr;
+      }
+    }
+
+    return nullptr;
   }
 }

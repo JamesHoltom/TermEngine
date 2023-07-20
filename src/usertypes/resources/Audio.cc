@@ -14,14 +14,14 @@ namespace term_engine::usertypes {
     position_(glm::vec2(0.0f)),
     volume_(1.0f)
   {
-    utility::logger->debug("Loaded audio resource with filepath {}.", name_);
+    utility::logger->debug("Loaded audio resource with filepath \"{}\".", name_);
   }
 
   Audio::~Audio()
   {
     ma_sound_uninit(sound_);
 
-    utility::logger->debug("Destroyed audio resource with filepath {}.", name_);
+    utility::logger->debug("Destroyed audio resource with filepath \"{}\".", name_);
   }
 
   std::string Audio::GetResourceType() const
@@ -102,7 +102,7 @@ namespace term_engine::usertypes {
 
     if (utility::MALog(ma_data_source_get_cursor_in_seconds(sound_->pDataSource, &cursor)) != MA_SUCCESS)
     {
-      utility::logger->warn("Failed to get cursor of audio resource \'{}\'.", name_);
+      utility::logger->warn("Failed to get cursor of audio resource \"{}\".", name_);
     }
 
     return (double)cursor;
@@ -114,7 +114,7 @@ namespace term_engine::usertypes {
 
     if (utility::MALog(ma_data_source_get_length_in_seconds(sound_->pDataSource, &length)) != MA_SUCCESS)
     {
-      utility::logger->warn("Failed to get length of audio resource \'{}\'.", name_);
+      utility::logger->warn("Failed to get length of audio resource \"{}\".", name_);
     }
 
     return (double)length;
@@ -127,6 +127,13 @@ namespace term_engine::usertypes {
 
   void Audio::SetPan(double pan)
   {
+    if (pan < -1.0f || pan > 1.0f)
+    {
+      utility::logger->warn("Cannot set audio panning to values outside of -1.0 and 1.0!");
+
+      return;
+    }
+    
     pan_ = pan;
 
     ma_sound_set_pan(sound_, (float)pan);
@@ -134,6 +141,13 @@ namespace term_engine::usertypes {
 
   void Audio::SetPitch(double pitch)
   {
+    if (pitch < 0.0f)
+    {
+      utility::logger->warn("Cannot set audio pitch to negative value!");
+
+      return;
+    }
+
     pitch_ = pitch;
 
     ma_sound_set_pitch(sound_, (float)pitch);
@@ -148,6 +162,13 @@ namespace term_engine::usertypes {
   
   void Audio::SetVolume(double volume)
   {
+    if (volume < 0.0f)
+    {
+      utility::logger->warn("Cannot set audio volume to negative value!");
+
+      return;
+    }
+
     volume_ = volume;
     
     ma_sound_set_volume(sound_, (float)volume);
@@ -166,9 +187,51 @@ namespace term_engine::usertypes {
       ImGui::Text("Position: %f, %f", position_.x, position_.y);
       ImGui::Text("Volume: %f", GetVolume());
       ImGui::ProgressBar(GetCursor() / GetLength());
-      
+
       ImGui::TreePop();
     }
+  }
+
+  void PlaySound(const std::string& filepath)
+  {
+    const std::filesystem::path fullPath = system::SearchForResourcePath(filepath);
+
+    if (fullPath != "")
+    {
+      ma_engine_play_sound(&utility::audio_engine, fullPath.c_str(), nullptr);
+    }
+  }
+
+  void StopAllSounds()
+  {
+    for (const auto& [ _, resource ] : resource_list)
+    {
+      if (resource->GetResourceType() == std::string(AUDIO_TYPE))
+      {
+        Audio* audio_ptr = static_cast<Audio*>(resource.get());
+
+        audio_ptr->Stop();
+      }
+    }
+  }
+
+  float GetMasterVolume()
+  {
+    return master_volume;
+  }
+
+  void SetMasterVolume(float volume)
+  {
+    if (volume < 0.0f || volume > 1.0f)
+    {
+      utility::logger->warn("Cannot set master volume to values outside of 0.0 and 1.0!");
+
+      return;
+    }
+
+    master_volume = volume;
+    
+    ma_engine_set_volume(&utility::audio_engine, volume);
   }
 
   Audio* LoadAudio(const std::string& filepath, const std::string& type)
@@ -181,7 +244,7 @@ namespace term_engine::usertypes {
     }
     else if (type != "static")
     {
-      utility::logger->warn("Unknown audio flag \'{}\' given. Defaulting to \'static\'.", type);
+      utility::logger->warn("Unknown audio flag \"{}\" given. Defaulting to \"static\".", type);
     }
 
     const std::filesystem::path find_path = system::SearchForResourcePath(filepath);
@@ -195,7 +258,11 @@ namespace term_engine::usertypes {
 
     ResourceList::iterator it = resource_list.find(find_path.string());
 
-    if (it == resource_list.end())
+    if (it != resource_list.end() && it->second->GetResourceType() != std::string(AUDIO_TYPE))
+    {
+      utility::logger->warn("\"{}\" is the name of a(n) {} resource.", find_path.string(), it->second->GetResourceType());
+    }
+    else if (it == resource_list.end())
     {
       ma_sound* new_sound = new ma_sound();
 

@@ -10,10 +10,10 @@
 local audioText, cursorText, settingsText, audioMusic, audioSeek, audioLength
 
 function Init()
-  defaultScene.charmap.size = ivec2(42, 7)
+  defaultScene.charmap.size = Ivec2(42, 7)
   defaultScene:resizeToCharacterMap()
 
-  audioText = TextObject(Values.IVEC2_ZERO, ivec2(26, 6))
+  audioText = TextObject(Values.IVEC2_ZERO, Ivec2(26, 6))
   audioText.text = "Press 'n' to play sound" ..
                  "\nPress 'm' to play music" ..
                  "\nPress 'p' to pause" ..
@@ -21,8 +21,8 @@ function Init()
                  "\nPress 'r' to rewind" ..
                  "\nPress 't' to seek to time"
 
-  cursorText = TextObject(ivec2(0, 6), ivec2(28, 1))
-  settingsText = TextObject(ivec2(28, 0), ivec2(14, 5))
+  cursorText = TextObject(ivec2(0, 6), Ivec2(28, 1))
+  settingsText = TextObject(ivec2(28, 0), Ivec2(14, 5))
 
   audioMusic = Audio("resources/audio/Map.wav", "stream")
 

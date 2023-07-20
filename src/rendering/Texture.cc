@@ -3,7 +3,7 @@
 #include "../utility/SpdlogUtils.h"
 
 namespace term_engine::rendering {
-  TextureData CreateTextureFromImage(const std::filesystem::path& filepath, uint32_t index)
+  TextureData* CreateTextureFromImage(const std::filesystem::path& filepath, uint32_t unit)
   {
     uint32_t texture_id = 0;
     int width, height, channels;
@@ -18,7 +18,7 @@ namespace term_engine::rendering {
       }
 
       glGenTextures(1, &texture_id);
-      glActiveTexture(GL_TEXTURE0 + index);
+      glActiveTexture(GL_TEXTURE0 + unit);
       glBindTexture(GL_TEXTURE_2D, texture_id);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -34,21 +34,23 @@ namespace term_engine::rendering {
 
       stbi_image_free(data);
 
-      return TextureData(texture_id, glm::ivec2(width, height), index);
+      return new TextureData(texture_id, glm::ivec2(width, height), unit);
     }
     else {
       utility::logger->error("Failed to load image \'{}\'.\nError: {}", filepath.string(), stbi_failure_reason());
 
-      return TextureData();
+      return nullptr;
     }
   }
 
-  TextureData AllocateTexture(const glm::ivec2& size, uint32_t format, uint32_t index)
+  TextureData* AllocateTexture(const glm::ivec2& size, uint32_t format, uint32_t unit)
   {
+    assert(size.x > 0 && size.y > 0);
+    
     uint32_t texture_id = 0;
 
     glGenTextures(1, &texture_id);
-    glActiveTexture(GL_TEXTURE0 + index);
+    glActiveTexture(GL_TEXTURE0 + unit);
     glBindTexture(GL_TEXTURE_2D, texture_id);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -63,31 +65,35 @@ namespace term_engine::rendering {
 
     utility::logger->debug("Allocated texture with size {},{}.", size.x, size.y);
 
-    return TextureData(texture_id, size, index);
+    return new TextureData(texture_id, size, unit);
   }
 
-  void ClearTexture(TextureData& texture, const glm::vec4& colour)
+  void ClearTexture(TextureData* texture, const glm::vec4& colour)
   {
-    uint8_t clear_colour[4] = { static_cast<uint8_t>(colour.r), static_cast<uint8_t>(colour.g), static_cast<uint8_t>(colour.b), static_cast<uint8_t>(colour.a) };
-
-    glActiveTexture(GL_TEXTURE0 + texture.texture_index_);
-    glBindTexture(GL_TEXTURE_2D, texture.texture_id_);
-    glClearTexImage(texture.texture_id_, 0, GL_RED, GL_UNSIGNED_BYTE, &clear_colour);
-  }
-
-  void DeleteTexture(const TextureData& texture)
-  {
-    if (texture.texture_id_ > -1)
+    if (texture != nullptr)
     {
-      utility::logger->debug("Removed texture \'{}\'.", texture.texture_id_);
+      glm::vec4 clamped_colour = glm::clamp(colour, glm::vec4(0.0f), glm::vec4(255.0f));
+      uint8_t clear_colour[4] = { static_cast<uint8_t>(clamped_colour.r), static_cast<uint8_t>(clamped_colour.g), static_cast<uint8_t>(clamped_colour.b), static_cast<uint8_t>(clamped_colour.a) };
 
-      glDeleteTextures(1, &texture.texture_id_);
+      glActiveTexture(GL_TEXTURE0 + texture->texture_unit_);
+      glBindTexture(GL_TEXTURE_2D, texture->texture_id_);
+      glClearTexImage(texture->texture_id_, 0, GL_RED, GL_UNSIGNED_BYTE, &clear_colour);
     }
   }
 
-  void UnuseTexture(uint32_t index)
+  void DeleteTexture(TextureData* texture)
   {
-    glActiveTexture(GL_TEXTURE0 + index);
+    if (texture != nullptr && texture->texture_id_ > -1)
+    {
+      utility::logger->debug("Removed texture \'{}\'.", texture->texture_id_);
+
+      glDeleteTextures(1, &texture->texture_id_);
+    }
+  }
+
+  void UnuseTexture(uint32_t unit)
+  {
+    glActiveTexture(GL_TEXTURE0 + unit);
     glBindTexture(GL_TEXTURE_2D, 0);
   }
 }

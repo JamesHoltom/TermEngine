@@ -5,25 +5,25 @@
 local empty_character = Character(characters.NO_CHARACTER, characters.DEFAULT_FOREGROUND_COLOUR, characters.DEFAULT_BACKGROUND_COLOUR)
 
 --[[
--- @brief Extends the Object usertype to make drawing boxes simpler.
+-- @brief Extends the GameObject usertype to make drawing boxes simpler.
 -- @param _position 	The position of the box.
 -- @param _size 			The size of the box.
--- @param _game_scene The game scene to add the object to.
+-- @param _game_scene The game scene to add the box to.
 --]]
 function BoxObject(_position, _size, _game_scene)
 	local self = {
-		obj = GameObject(_position, _size, _game_scene or "default"),	-- @brief Handle to the Object.
-		fill = empty_character,																				-- @brief The Character to use for the fill.
-		outline = empty_character,																		-- @brief The Character to use for the outline.
-		has_outline = false																						-- @brief Has an outline been set?
+		object = GameObject(_position, _size, _game_scene or "default"),	-- @brief Handle to the Object.
+		fill = empty_character,																						-- @brief The Character to use for the fill.
+		outline = empty_character,																				-- @brief The Character to use for the outline.
+		has_outline = false																								-- @brief Has an outline been set?
 	}
 	
 	-- @brief Refreshes the object data with the updated settings.
 	local _setData = function()
-		local minW = self.obj.size.x
-		local maxW = (self.obj.size.x * self.obj.size.y) - minW
+		local minW = self.object.size.x
+		local maxW = (self.object.size.x * self.object.size.y) - minW
 		
-		self.obj:set(function(_, index)
+		self.object:set(function(_, index)
 			if self.has_outline and (index < minW or index > maxW or math.fmod(index, minW) <= 1) then
 				return self.outline
 			else
@@ -50,7 +50,7 @@ function BoxObject(_position, _size, _game_scene)
 
 	-- @brief Cleans up the object after use.
 	local _release = function(_)
-		self.obj:release()
+		self.object:release()
 	end
 
 	--[[
@@ -59,8 +59,8 @@ function BoxObject(_position, _size, _game_scene)
 	-- @returns The value of the property.
 	--]]
 	local mtIndex = function(_, key)
-		if key == "position" or key == "size" or key == "active" then
-			return self.obj[key]
+		if key == "id" or key == "position" or key == "size" or key == "active" then
+			return self.object[key]
 		elseif key == "fill" or key == "outline" then
 			return self[key]
 		else
@@ -75,12 +75,12 @@ function BoxObject(_position, _size, _game_scene)
 	--]]
 	local mtNewIndex = function(_, key, value)
 		if key == "position" then
-			self.obj.position = ivec2(value)
+			self.object.position = Ivec2(value)
 		elseif key == "size" then
-			self.obj.size = ivec2(value)
+			self.object.size = Ivec2(value)
 			_setData()
 		elseif key == "active" then
-			self.obj.active = value
+			self.object.active = value
 		elseif key == "fill" then
 			self[key] = Character(value)
 			
@@ -99,11 +99,12 @@ function BoxObject(_position, _size, _game_scene)
 	end
 	
 	return setmetatable({
-		hasOutline   = _hasOutline,
-		unsetOutline = _unsetOutline,
-		release      = _release
+		hasOutline   	= _hasOutline,
+		unsetOutline 	= _unsetOutline,
+		release      	= _release
 	}, {
-		__index    = mtIndex,
-		__newindex = mtNewIndex
+		__index    		= mtIndex,
+		__newindex 		= mtNewIndex,
+    __type      	= { name = "LineObject" }
 	})
 end

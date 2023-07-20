@@ -21,7 +21,7 @@ function SetValue()
 end
 
 function Init()
-  defaultScene.charmap.size = ivec2(16, 8)
+  defaultScene.charmap.size = Ivec2(16, 8)
   defaultScene:resizeToFit()
 
   if fs.exists("resources/myFile.txt") then
@@ -30,10 +30,10 @@ function Init()
     fileText = "red"
   end
 
-  labelObject = TextObject(Values.IVEC2_ONE, ivec2(14, 3))
+  labelObject = TextObject(Values.IVEC2_ONE, Ivec2(14, 3))
   labelObject.text = "Press 't' to\nchange the\nvalue!"
 
-  valueObject = TextObject(ivec2(1, 5), ivec2(14, 1))
+  valueObject = TextObject(Ivec2(1, 5), Ivec2(14, 1))
   SetValue()
 
   return true

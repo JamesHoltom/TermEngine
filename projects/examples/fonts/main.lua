@@ -15,16 +15,16 @@ function Init()
   print(defaultFont.filepath)
   print(otherFont.filepath)
 
-  defaultScene.charmap.size = ivec2(40, 4)
+  defaultScene.charmap.size = Ivec2(40, 4)
   defaultScene:resizeToCharacterMap()
 
-  box = BoxObject(Values.IVEC2_ZERO, ivec2(40, 4))
+  box = BoxObject(Values.IVEC2_ZERO, Ivec2(40, 4))
   box.outline = Character("^", Colours.WHITE, Colours.RED)
 
-  line1Text = TextObject(Values.IVEC2_ONE, ivec2(38, 1))
+  line1Text = TextObject(Values.IVEC2_ONE, Ivec2(38, 1))
   line1Text.text = "Press 'f' to change the font"
 
-  line2Text = TextObject(ivec2(1, 2), ivec2(38, 1))
+  line2Text = TextObject(Ivec2(1, 2), Ivec2(38, 1))
   line2Text.text = "Press 's' to change the font size"
   line2Text.bg_colour = Colours.DARK_GREY
 

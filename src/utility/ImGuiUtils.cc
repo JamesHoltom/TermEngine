@@ -1,4 +1,12 @@
 #include "../events/InputManager.h"
+#include "../system/CLArguments.h"
+#include "../system/FileFunctions.h"
+#include "../system/FPSManager.h"
+#include "../usertypes/EventListener.h"
+#include "../usertypes/GameScene.h"
+#include "../usertypes/game_objects/BaseObject.h"
+#include "../usertypes/resources/BaseResource.h"
+#include "../usertypes/resources/Font.h"
 #include "ImGuiUtils.h"
 #include "GLUtils.h"
 #include "SpdlogUtils.h"
@@ -6,9 +14,16 @@
 namespace term_engine::utility {
   bool InitImGui()
   {
-    IMGUI_CHECKVERSION();
+    uint32_t flags = SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN;
 
-    imgui_debug_window = SDL_CreateWindow("TermEngine Debug Window", 0, 0, (int)DEBUG_WINDOW_SIZE.x, (int)DEBUG_WINDOW_SIZE.y, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN);
+    if (system::debug_mode)
+    {
+      flags |= SDL_WINDOW_RESIZABLE;
+
+      IMGUI_CHECKVERSION();
+    }
+
+    imgui_debug_window = SDL_CreateWindow("TermEngine Debug Window", 0, 0, (int)DEBUG_WINDOW_SIZE.x, (int)DEBUG_WINDOW_SIZE.y, flags);
 
     if (imgui_debug_window == nullptr)
     {
@@ -17,37 +32,63 @@ namespace term_engine::utility {
       return false;
     }
 
-    return true;
-  }
+    // GLEW needs to be initialised as soon as a GL context is created.
+    if (!InitContext(imgui_debug_window))
+    {
+      logger->error("Failed to set up OpenGL context!");
+      
+      return false;
+    }
 
-  void PostWindowInitImGui()
-  {
+    if (!system::debug_mode)
+    {
+      return true;
+    }
+
     ImGui::CreateContext();
     ImGui::StyleColorsDark();
 
-    ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    ImGuiIO& io = ImGui::GetIO();
+    io.IniFilename = nullptr;
 
-    SDL_SetWindowSize(imgui_debug_window, (int)DEBUG_WINDOW_SIZE.x, (int)DEBUG_WINDOW_SIZE.y);
+    const std::filesystem::path fontPath = system::SearchForResourcePath(std::string(usertypes::DEFAULT_FONT));
+
+    if (fontPath != "")
+    {
+      io.Fonts->AddFontFromFileTTF(fontPath.c_str(), 16.0f, nullptr, io.Fonts->GetGlyphRangesCyrillic());
+      io.Fonts->Build();
+    }
 
     ImGui_ImplSDL2_InitForOpenGL(imgui_debug_window, context);
     ImGui_ImplOpenGL3_Init(IMGUI_GL_VERSION);
+
+    return true;
   }
 
   void CleanUpImGui()
   {
-    if (is_context_created)
+    if (system::debug_mode)
     {
       ImGui_ImplOpenGL3_Shutdown();
       ImGui_ImplSDL2_Shutdown();
+
+      ImGui::DestroyContext();
     }
-
-    ImGui::DestroyContext();
-
+    
     SDL_DestroyWindow(imgui_debug_window);
+    
+    CleanUpContext();
   }
 
   void ImGui_StartFrame()
   {
+    if (!system::debug_mode)
+    {
+      return;
+    }
+    
+    ImGuiIO& io = ImGui::GetIO();
+
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL2_NewFrame();
 
@@ -55,26 +96,27 @@ namespace term_engine::utility {
     ImGui::Begin("TermEngine - Debug Window", &utility::imgui_open, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar);
 
     ImGui::SetWindowPos(ImVec2(0.0f, 0.0f));
+    ImGui::SetWindowSize(imgui_window_size);
 
-    if (test_mode)
-    {
-      ImGui::SetWindowSize(TEST_WINDOW_SIZE);
-    }
-    else
-    {
-      ImGui::SetWindowSize(imgui_window_size);
-    }
+    ImGui::Text("FPS (Average): %.3f", system::GetAverageFPS());
+    ImGui::Text("FPS (Target): %i", system::GetTargetFPS());
+    ImGui::Text("Project: %s", system::scriptPath.c_str());
+
+    ImGui::BeginTabBar("Lists");
   }
 
   void ImGui_EndFrame()
   {
+    if (!system::debug_mode)
+    {
+      return;
+    }
+    
+    ImGui::EndTabBar();
     ImGui::End();
 
     SDL_GL_MakeCurrent(imgui_debug_window, context);
     SDL_GL_SetSwapInterval(0);
-
-    ImGuiIO& io = ImGui::GetIO();
-    io.IniFilename = nullptr;
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glViewport(0, 0, (int)imgui_window_size.x, (int)imgui_window_size.y);
@@ -89,6 +131,11 @@ namespace term_engine::utility {
 
   void ImGui_DoEvents(const SDL_Event& event)
   {
+    if (!system::debug_mode)
+    {
+      return;
+    }
+
     if (events::KeyIsPressed("F3"))
     {
       if (!imgui_open)
@@ -97,37 +144,77 @@ namespace term_engine::utility {
         imgui_open = true;
       }
 
-      test_mode = false;
-
       SDL_SetWindowSize(imgui_debug_window, (int)imgui_window_size.x, (int)imgui_window_size.y);
-      SDL_SetWindowResizable(imgui_debug_window, SDL_TRUE);
     }
 
-    if (events::KeyIsPressed("F4"))
+    ImGuiIO& io = ImGui::GetIO();
+
+    if (imgui_open && event.window.windowID == SDL_GetWindowID(imgui_debug_window))
     {
-      if (!imgui_open)
+      ImGui_ImplSDL2_ProcessEvent(&event);
+
+      if (event.type == SDL_WINDOWEVENT)
       {
-        SDL_ShowWindow(imgui_debug_window);
-        imgui_open = true;
+        if (event.window.event == SDL_WINDOWEVENT_RESIZED)
+        {
+          imgui_window_size = ImVec2(event.window.data1, event.window.data2);
+        }
+        else if (event.window.event == SDL_WINDOWEVENT_CLOSE)
+        {
+          SDL_HideWindow(imgui_debug_window);
+          imgui_open = false;
+        }
       }
+    }
+  }
 
-      test_mode = true;
-
-      SDL_SetWindowSize(imgui_debug_window, (int)TEST_WINDOW_SIZE.x, (int)TEST_WINDOW_SIZE.y);
-      SDL_SetWindowResizable(imgui_debug_window, SDL_FALSE);
+  void ImGui_UpdateInfo()
+  {
+    if (!system::debug_mode)
+    {
+      return;
     }
 
-    if (event.type == SDL_WINDOWEVENT && event.window.windowID == SDL_GetWindowID(imgui_debug_window))
+    if (ImGui::BeginTabItem("Game Scenes"))
     {
-      if (event.window.event == SDL_WINDOWEVENT_RESIZED)
+      for (auto& [ _, game_scene ] : usertypes::game_scene_list)
       {
-        imgui_window_size = ImVec2(event.window.data1, event.window.data2);
+        game_scene->UpdateDebugInfo();
       }
-      else if (event.window.event == SDL_WINDOWEVENT_CLOSE)
+
+      ImGui::EndTabItem();
+    }
+
+    if (ImGui::BeginTabItem("Event Listeners"))
+    {
+      for (usertypes::EventListenerPtr& listener : usertypes::listener_list)
       {
-        SDL_HideWindow(imgui_debug_window);
-        imgui_open = false;
+        listener->UpdateDebugInfo();
       }
+
+      ImGui::EndTabItem();
+    }
+
+    if (ImGui::BeginTabItem("Game Objects"))
+    {
+      ImGui::Text("Next ID: %lu", usertypes::BaseObject::GetNextId());
+
+      for (usertypes::ObjectPtr& object : usertypes::object_list)
+      {
+          object->UpdateDebugInfo();
+      }
+
+      ImGui::EndTabItem();
+    }
+
+    if (ImGui::BeginTabItem("Resources"))
+    {
+      for (auto& [ _, resource ] : usertypes::resource_list)
+      {
+        resource->UpdateDebugInfo();
+      }
+
+      ImGui::EndTabItem();
     }
   }
 }

@@ -1,5 +1,5 @@
+#include "EventListener.h"
 #include "GameScene.h"
-#include "game_objects/EventListener.h"
 #include "game_objects/GameObject.h"
 #include "../system/FileFunctions.h"
 #include "../utility/ImGuiUtils.h"
@@ -8,7 +8,7 @@
 namespace term_engine::usertypes {
   GameScene::GameScene(const std::string& name) :
     name_(name),
-    background_(nullptr),
+    background_(),
     font_(nullptr),
     window_(DEFAULT_WINDOW_POSITION, DEFAULT_WINDOW_SIZE, std::string(DEFAULT_WINDOW_TITLE), 0),
     font_size_(DEFAULT_FONT_SIZE),
@@ -18,7 +18,7 @@ namespace term_engine::usertypes {
   {
     font_ = LoadFont(std::string(DEFAULT_FONT));
 
-    window_.SetSize(font_->GetCharacterSize(font_size_) * character_map_.GetSize());
+    window_.Resize(font_->GetCharacterSize(font_size_) * character_map_.GetSize());
 
     background_shader_program_ = GetShader(std::string(DEFAULT_BG_SHADER));
     background_shader_program_->SetUniform("fragment_texture", 1);
@@ -27,17 +27,6 @@ namespace term_engine::usertypes {
     text_shader_program_->SetUniform("fragment_texture", 0);
 
     ResetProjection();
-
-    /* TODO: Set debug timing intervals as below:
-     *  - Reset Resources
-     *  - Window Clear
-     *  - Font Update
-     *  - BG Update
-     *  - BG Draw
-     *  - Text Update
-     *  - Text Draw
-     *  - Window Draw
-    */
 
     utility::logger->debug("Created game scene with name \"{}\".", name_);
   }
@@ -49,8 +38,6 @@ namespace term_engine::usertypes {
 
   void GameScene::Update()
   {
-    // TODO: Figure out how to get execution time here.
-
     if (font_->FlaggedForRemoval())
     {
       font_ = LoadFont(std::string(DEFAULT_FONT));
@@ -66,44 +53,26 @@ namespace term_engine::usertypes {
       background_shader_program_ = GetShader(std::string(DEFAULT_BG_SHADER));
     }
 
-    if (background_ != nullptr && background_->FlaggedForRemoval())
-    {
-      background_ = nullptr;
-    }
-
     window_.Use();
     window_.Clear();
 
     glm::ivec2 size = window_.GetSize();
     glViewport(0, 0, size.x, size.y);
 
-    // TODO: See above.
-
-    if (background_ != nullptr)
+    if (background_.IsLoaded())
     {
       background_buffer_.data.clear();
-      background_->CopyToBuffer(background_buffer_);
-
-      // TODO: See above.
-
+      background_.CopyToBuffer(background_buffer_);
       background_buffer_.PushToGL();
       background_buffer_.Use();
-      background_->Use();
+      background_.Use();
       background_shader_program_->Use();
 
       glDrawArrays(GL_TRIANGLES, 0, background_buffer_.data.size());
-
-      // TODO: See above.
-    }
-    else
-    {
-      // TODO: See above.
     }
 
     text_buffer_.data.clear();
     CopyCharacterMapToBuffer(character_map_, text_buffer_, font_, font_size_);
-
-    // TODO: See above.
 
     text_buffer_.PushToGL();
     text_buffer_.Use();
@@ -113,12 +82,8 @@ namespace term_engine::usertypes {
 
     glDrawArrays(GL_TRIANGLES, 0, text_buffer_.data.size());
 
-    // TODO: See above.
-
     window_.Refresh();
     character_map_.Clear();
-
-    // TODO: See above.
   }
 
   std::string GameScene::GetName() const
@@ -133,7 +98,7 @@ namespace term_engine::usertypes {
 
   Background* GameScene::GetBackground()
   {
-    return background_;
+    return &background_;
   }
 
   CharacterMap* GameScene::GetCharacterMap()
@@ -161,11 +126,6 @@ namespace term_engine::usertypes {
     return &window_;
   }
 
-  void GameScene::SetBackground(Background* background)
-  {
-    background_ = background;
-  }
-
   void GameScene::SetFont(Font* font)
   {
     if (font != nullptr)
@@ -186,7 +146,7 @@ namespace term_engine::usertypes {
 
   void GameScene::SetTextShader(ShaderProgram* shader)
   {
-    if (text_shader_program_)
+    if (text_shader_program_ != nullptr)
     {
       text_shader_program_ = shader;
     }
@@ -203,7 +163,7 @@ namespace term_engine::usertypes {
   {
     const glm::ivec2 character_size = font_->GetCharacterSize(font_size_);
 
-    window_.SetSize(character_size * character_map_.GetSize());
+    window_.Resize(character_size * character_map_.GetSize());
 
     ResetProjection();
   }
@@ -241,10 +201,11 @@ namespace term_engine::usertypes {
 
       character_map_.UpdateDebugInfo();
 
-      ImGui::SeparatorText("Resources");
+      ImGui::SeparatorText("Font");
 
       ImGui::Text("Font: %s", font_->GetName().c_str());
-      ImGui::Text("Background: %s", background_ != nullptr ? background_->GetName().c_str() : "Not set");
+
+      background_.UpdateDebugInfo();
 
       ImGui::SeparatorText("Shaders");
 
@@ -293,28 +254,24 @@ namespace term_engine::usertypes {
     return nullptr;
   }
 
-  void UpdateGameScenes()
+  GameScene* GetGameSceneByWindowId(uint32_t window_id)
   {
-    bool created = false;
-    
-    if (!utility::test_mode)
+    for (auto& [ _, game_scene ] : game_scene_list)
     {
-      created = ImGui::BeginTabItem("Game Scenes");
-    }
-
-    for (auto& [ name, game_scene ] : game_scene_list)
-    {
-      game_scene->Update();
-
-      if (created)
+      if (game_scene->GetWindow()->GetId() == window_id)
       {
-        game_scene->UpdateDebugInfo();
+        return game_scene.get();
       }
     }
 
-    if (created)
+    return nullptr;
+  }
+
+  void UpdateGameScenes()
+  {
+    for (auto& [ _, game_scene ] : game_scene_list)
     {
-      ImGui::EndTabItem();
+      game_scene->Update();
     }
   }
 
@@ -328,11 +285,11 @@ namespace term_engine::usertypes {
       {
         if (event.window.event == SDL_WINDOWEVENT_MOVED)
         {
-          window->_SetPosition(glm::ivec2(event.window.data1, event.window.data2));
+          window->SetPosition(glm::ivec2(event.window.data1, event.window.data2));
         }
         else if (event.window.event == SDL_WINDOWEVENT_RESIZED)
         {
-          window->_SetSize(glm::ivec2(event.window.data1, event.window.data2));
+          window->SetSize(glm::ivec2(event.window.data1, event.window.data2));
         }
         else if (event.window.event == SDL_WINDOWEVENT_CLOSE)
         {
@@ -371,31 +328,28 @@ namespace term_engine::usertypes {
     }
   }
 
-  void FlagGameObjectsWithFlaggedGameScenes()
-  {
-    for (ObjectPtr& object : object_list_)
-    {
-      if (object->GetObjectType() == std::string(GAME_OBJECT_TYPE))
-      {
-        if (dynamic_cast<GameObject*>(object.get())->GetGameScene()->FlaggedForRemoval())
-        {
-          object->FlagForRemoval();
-        }
-      }
-      else if (object->GetObjectType() == std::string(EVENT_LISTENER_TYPE))
-      {
-        if (dynamic_cast<EventListener*>(object.get())->GetGameScene()->FlaggedForRemoval())
-        {
-          object->FlagForRemoval();
-        }
-      }
-    }
-  }
-
   void ClearAllGameScenes()
   {
     game_scene_list.clear();
 
     utility::logger->debug("Cleared all game scenes from the list.");
+  }
+
+  void ClearFlaggedGameScenes()
+  {
+    for (auto it = game_scene_list.cbegin(); it != game_scene_list.cend();)
+    {
+      if (it->second->FlaggedForRemoval())
+      {
+        ClearGameObjectsByGameScene(it->first);
+        ClearEventListenersByGameScene(it->first);
+
+        game_scene_list.erase(it++);
+      }
+      else
+      {
+        ++it;
+      }
+    }
   }
 }

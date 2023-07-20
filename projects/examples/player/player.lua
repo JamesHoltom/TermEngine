@@ -1,7 +1,7 @@
 function Player(_pos)
 	local self = {
-		box = BoxObject(_pos, ivec2(2)),
-		pos = vec2(_pos),
+		box = BoxObject(_pos, Ivec2(2)),
+		pos = Vec2(_pos),
 		speed = 9
 	}
 	
@@ -47,14 +47,14 @@ function Player(_pos)
 		end
 		
 		if hasMoved then
-			self.box.position = ivec2(self.pos)
+			self.box.position = Ivec2(self.pos)
 		end
 		
 		if keyboard.isPressed("Space") then
-			if self.box.size == ivec2(2) then
-				self.box.size = ivec2(1)
+			if self.box.size == Ivec2(2) then
+				self.box.size = Ivec2(1)
 			else
-				self.box.size = ivec2(2)
+				self.box.size = Ivec2(2)
 			end
 		end
 	end

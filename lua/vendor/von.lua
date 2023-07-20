@@ -49,15 +49,17 @@
 		-	nil
 
 	The TermEngine-specific types that are supported are:
-		- Character (referred to as term_engine::rendering::CharacterParams)
-		- GameObject (referred to as term_engine::objects::GameObject)
+		- Character
+		- GameObject
+		- Animation
+		- AnimationFrame
 		+ Vectors
-			- ivec2
-			- vec2
-			- ivec3
-			- vec3
-			- ivec4
-			- vec4
+			- Ivec2
+			- Vec2
+			- Ivec3
+			- Vec3
+			- Ivec4
+			- Vec4
 
 	These are the types one would normally serialize.
 
@@ -67,12 +69,8 @@
 		-	Fixed addition of extra entity types. I messed up really badly.
 --]]
 
-
-
 local _deserialize, _serialize, _d_meta, _s_meta, d_findVariable, s_anyVariable
 local sub, gsub, find, insert, concat, error, tonumber, tostring, type, next = string.sub, string.gsub, string.find, table.insert, table.concat, error, tonumber, tostring, type, next
-
-
 
 --[[    This section contains localized functions which (de)serialize
         variables according to the types found.                          ]]
@@ -144,42 +142,52 @@ function d_findVariable(s, i, len, lastType, jobstate)
 
 	  -- "g" precedes a Character.
     elseif c == "g" then
-			lastType = "term_engine::rendering::CharacterParams"
+			lastType = "Character"
 			typeRead = true
 
 	  -- "O" precedes a GameObject.
 		elseif c == "O" then
-			lastType = "term_engine::objects::GameObject"
+			lastType = "GameObject"
 			typeRead = true
 
-	  -- "p" precedes a 2D integer vector (ivec2).
+		-- "A" precedes an Animation.
+		elseif c == "A" then
+			lastType = "Animation"
+			typeRead = true
+
+		-- "F" precedes an AnimationFrame.
+		elseif c == "F" then
+			lastType = "AnimationFrame"
+			typeRead = true
+
+	  -- "p" precedes a 2D integer vector (Ivec2).
 		elseif c == "p" then
-			lastType = "glm::vec<2, int, glm::packed_highp>"
+			lastType = "Ivec2"
 			typeRead = true
 
-	  -- "P" precedes a 2D floating-point vector (vec2).
+	  -- "P" precedes a 2D floating-point vector (Vec2).
 		elseif c == "P" then
-			lastType = "glm::vec<2, float, glm::packed_highp>"
+			lastType = "Vec2"
 			typeRead = true
 
-	  -- "v" precedes a 3D integer vector (ivec3).
+	  -- "v" precedes a 3D integer vector (Ivec3).
 		elseif c == "v" then
-			lastType = "glm::vec<3, int, glm::packed_highp>"
+			lastType = "Ivec3"
 			typeRead = true
 
-	  -- "V" precedes a 3D floating-point vector (vec3).
+	  -- "V" precedes a 3D floating-point vector (Vec3).
 		elseif c == "V" then
-			lastType = "glm::vec<3, float, glm::packed_highp>"
+			lastType = "Vec3"
 			typeRead = true
 
-	  -- "q" precedes a 4D integer vector (ivec4).
+	  -- "q" precedes a 4D integer vector (Ivec4).
 		elseif c == "q" then
-			lastType = "glm::vec<4, int, glm::packed_highp>"
+			lastType = "Ivec4"
 			typeRead = true
 
-	  -- "Q" precedes a 4D floating-point vector (vec4).
+	  -- "Q" precedes a 4D floating-point vector (Vec4).
 		elseif c == "Q" then
-			lastType = "glm::vec<4, float, glm::packed_highp>"
+			lastType = "Vec4"
 			typeRead = true
 
 --[[ @JamesHoltom - TermEngine types end here ]]
@@ -590,9 +598,9 @@ _serialize = {
 
 local extra_deserialize = {
 	-- A Character, consisting of the character, foreground and background colours.
-	["term_engine::rendering::CharacterParams"] = function(s, i, len, unnecessaryEnd, jobstate)
+	["Character"] = function(s, i, len, unnecessaryEnd, jobstate)
 		local i, a = i or 1
-		local c, fg, bg = "", vec4(), vec4()
+		local c, fg, bg = "", Vec4(), Vec4()
 		
 		a = find(s, ",", i)
 
@@ -601,99 +609,25 @@ local extra_deserialize = {
 			i = a + 1
 		end
 
-		a = find(s, ",", i)
-
-		if a then
-			fg.r = tonumber(sub(s, i, a - 1))
-			i = a + 1
-		end
-
-		a = find(s, ",", i)
-
-		if a then
-			fg.g = tonumber(sub(s, i, a - 1))
-			i = a + 1
-		end
-
-		a = find(s, ",", i)
-
-		if a then
-			fg.b = tonumber(sub(s, i, a - 1))
-			i = a + 1
-		end
-
-		a = find(s, ",", i)
-
-		if a then
-			fg.a = tonumber(sub(s, i, a - 1))
-			i = a + 1
-		end
-
-		a = find(s, ",", i)
-
-		if a then
-			bg.r = tonumber(sub(s, i, a - 1))
-			i = a + 1
-		end
-
-		a = find(s, ",", i)
-
-		if a then
-			bg.g = tonumber(sub(s, i, a - 1))
-			i = a + 1
-		end
-
-		a = find(s, ",", i)
-
-		if a then
-			bg.b = tonumber(sub(s, i, a - 1))
-			i = a + 1
-		end
-
-		a = find(s, "[;:}~]", i)
-
-		if a then
-			bg.a = tonumber(sub(s, i, a - 1))
-		end
+		fg, i = _deserialize["Vec4"](s, i, len, unnecessaryEnd, jobstate)
+		i = i + 2
+		bg, i = _deserialize["Vec4"](s, i, len, unnecessaryEnd, jobstate)
 
 		if c and fg and bg then
-			return Character(c, fg, bg), a - 1
+			return Character(c, fg, bg), i
 		end
 
 		error("vON: CharacterParams definition started... Found no end.")
 	end,
 	-- A GameObject, consisting of the data, position and size.
-	["term_engine::objects::GameObject"] = function(s, i, len, unnecessaryEnd, jobstate)
+	["GameObject"] = function(s, i, len, unnecessaryEnd, jobstate)
 		local i, a = i or 1
-		local pos, size, active, data = ivec2(), ivec2(), true, {}
+		local pos, size, active = Ivec2(), Ivec2(), true
 
-		a = find(s, ",", i)
-
-		if a then
-			pos.x = tonumber(sub(s, i, a - 1))
-			i = a + 1
-		end
-
-		a = find(s, ",", i)
-
-		if a then
-			pos.y = tonumber(sub(s, i, a - 1))
-			i = a + 1
-		end
-
-		a = find(s, ",", i)
-
-		if a then
-			size.x = tonumber(sub(s, i, a - 1))
-			i = a + 1
-		end
-
-		a = find(s, ",", i)
-
-		if a then
-			size.y = tonumber(sub(s, i, a - 1))
-			i = a + 1
-		end
+		pos, i = _deserialize["Ivec2"](s, i, len, unnecessaryEnd, jobstate)
+		i = i + 2
+		size, i = _deserialize["Ivec2"](s, i, len, unnecessaryEnd, jobstate)
+		i = i + 2
 
 		a = find(s, "{", i)
 
@@ -703,47 +637,94 @@ local extra_deserialize = {
 		end
 
 		local obj = GameObject(pos, size)
+		local gChr, gIndex, hitEnd = nil, 1, false
+		
 		obj.active = active
 
-		local endOfArray = find(s, "}", i)
-		local gIndex, gLastIndex, gState, gChr, gForeground, gBackground = 1, obj.size.x * obj.size.y, 0, "", vec4(), vec4()
-		a = find(s, "[,}]", i)
+		repeat
+			gChr, i = _deserialize["Character"](s, i, len, unnecessaryEnd, jobstate)
+			obj.data[gIndex] = gChr
+
+			if s:sub(i + 1, i + 1) == "}" then
+				hitEnd = true
+			else
+				i = i + 2
+				gIndex = gIndex + 1
+			end
+		until i >= len or hitEnd
+
+		i = i + 1
+
+		return obj, i
+	end,
+	-- An Animation, consisting of the name and it's frames.
+	["Animation"] = function(s, i, len, unnecessaryEnd, jobstate)
+		local i, a = i or 1
+		local name, frames = "", {}
+
+		a = find(s, "{", i)
+
+		if a then
+			name = sub(s, i, a - 1)
+			i = a + 1
+		end
+
+		local anim = Animation(name)
+		local gFrame, hitEnd = nil, false
 
 		repeat
-			if a then
-				if gState == 0 then
-					gChr = sub(s, i, a - 1)
-				elseif gState == 1 then
-					gForeground.r = tonumber(sub(s, i, a - 1))
-				elseif gState == 2 then
-					gForeground.g = tonumber(sub(s, i, a - 1))
-				elseif gState == 3 then
-					gForeground.b = tonumber(sub(s, i, a - 1))
-				elseif gState == 4 then
-					gForeground.a = tonumber(sub(s, i, a - 1))
-				elseif gState == 5 then
-					gBackground.r = tonumber(sub(s, i, a - 1))
-				elseif gState == 6 then
-					gBackground.g = tonumber(sub(s, i, a - 1))
-				elseif gState == 7 then
-					gBackground.b = tonumber(sub(s, i, a - 1))
-				elseif gState == 8 then
-					gBackground.a = tonumber(sub(s, i, a - 1))
-					obj.data[gIndex] = Character(gChr, gForeground, gBackground)
-					gIndex = gIndex + 1
-				end
+			gFrame, i = _deserialize["AnimationFrame"](s, i, len, unnecessaryEnd, jobstate)
+			anim:addFrame(gFrame)
 
-				gState = math.fmod(gState + 1, 9)
-				i = a + 1
+			if s:sub(i + 1, i + 1) == "}" then
+				hitEnd = true
+			else
+				i = i + 2
 			end
+		until i >= len or hitEnd
 
-			a = find(s, "[,;}]", i)
-		until i == endOfArray + 1
+		i = i + 1
 
-		return obj, a - 1
+		return anim, i
+	end,
+	-- An Animation, consisting of the size, offset, additional duration and data.
+	["AnimationFrame"] = function(s, i, len, unnecessaryEnd, jobstate)
+		local i, a = i or 1
+		local size, offset, addedDuration = Ivec2(), Ivec2(), 0
+
+		size, i = _deserialize["Ivec2"](s, i, len, unnecessaryEnd, jobstate)
+		i = i + 2
+		offset, i = _deserialize["Ivec2"](s, i, len, unnecessaryEnd, jobstate)
+		i = i + 2
+
+		a = find(s, "{", i)
+
+		if a then
+			addedDuration = tonumber(sub(s, i, a - 1))
+			i = a + 1
+		end
+
+		local frame = AnimationFrame({}, size, offset, addedDuration)
+		local gChr, gIndex, hitEnd = nil, 1, false
+
+		repeat
+			gChr, i = _deserialize["Character"](s, i, len, unnecessaryEnd, jobstate)
+			frame.data[gIndex] = gChr
+
+			if s:sub(i + 1, i + 1) == "}" then
+				hitEnd = true
+			else
+				i = i + 2
+				gIndex = gIndex + 1
+			end
+		until i >= len or hitEnd
+
+		i = i + 1
+
+		return frame, i
 	end,
 	-- A pair of integer numbers separated by a comma (,).
-	["glm::vec<2, int, glm::packed_highp>"] = function(s, i, len, unnecessaryEnd, jobstate)
+	["Ivec2"] = function(s, i, len, unnecessaryEnd, jobstate)
 		local i, a, x, y = i or 1
 
 		a = find(s, ",", i)
@@ -753,20 +734,21 @@ local extra_deserialize = {
 			i = a + 1
 		end
 
-		a = find(s, "[;:}~]", i)
+		a = find(s, "[|;:}~]", i)
 
 		if a then
 			y = tonumber(sub(s, i, a - 1))
 		end
 
 		if x and y then
-			return ivec2(x, y), a - 1
+			i = a - 1
+			return Ivec2(x, y), i
 		end
 
-		error("vON: ivec2 definition started... Found no end.")
+		error("vON: Ivec2 definition started... Found no end.")
 	end,
 	-- A pair of floating-point numbers separated by a comma (,).
-	["glm::vec<2, float, glm::packed_highp>"] = function(s, i, len, unnecessaryEnd, jobstate)
+	["Vec2"] = function(s, i, len, unnecessaryEnd, jobstate)
 		local i, a, x, y = i or 1
 
 		a = find(s, ",", i)
@@ -776,20 +758,21 @@ local extra_deserialize = {
 			i = a + 1
 		end
 
-		a = find(s, "[;:}~]", i)
+		a = find(s, "[|;:}~]", i)
 
 		if a then
 			y = tonumber(sub(s, i, a - 1))
 		end
 
 		if x and y then
-			return vec2(x, y), a - 1
+			i = a - 1
+			return Vec2(x, y), i
 		end
 
-		error("vON: vec2 definition started... Found no end.")
+		error("vON: Vec2 definition started... Found no end.")
 	end,
 	-- A set of 3 integer numbers separated by a comma (,).
-	["glm::vec<3, int, glm::packed_highp>"] = function(s, i, len, unnecessaryEnd, jobstate)
+	["Ivec3"] = function(s, i, len, unnecessaryEnd, jobstate)
 		local i, a, x, y, z = i or 1
 
 		a = find(s, ",", i)
@@ -806,20 +789,21 @@ local extra_deserialize = {
 			i = a + 1
 		end
 
-		a = find(s, "[;:}~]", i)
+		a = find(s, "[|;:}~]", i)
 
 		if a then
 			z = tonumber(sub(s, i, a - 1))
 		end
 
 		if x and y and z then
-			return ivec3(x, y, z), a - 1
+			i = a - 1
+			return Ivec3(x, y, z), i
 		end
 
-		error("vON: ivec3 definition started... Found no end.")
+		error("vON: Ivec3 definition started... Found no end.")
 	end,
 	-- A set of 3 floating-point numbers separated by a comma (,).
-	["glm::vec<3, float, glm::packed_highp>"] = function(s, i, len, unnecessaryEnd, jobstate)
+	["Vec3"] = function(s, i, len, unnecessaryEnd, jobstate)
 		local i, a, x, y, z = i or 1
 
 		a = find(s, ",", i)
@@ -836,20 +820,21 @@ local extra_deserialize = {
 			i = a + 1
 		end
 
-		a = find(s, "[;:}~]", i)
+		a = find(s, "[|;:}~]", i)
 
 		if a then
 			z = tonumber(sub(s, i, a - 1))
 		end
 
 		if x and y and z then
-			return vec3(x, y, z), a - 1
+			i = a - 1
+			return Vec3(x, y, z), i
 		end
 
-		error("vON: vec3 definition started... Found no end.")
+		error("vON: Vec3 definition started... Found no end.")
 	end,
 	-- A set of 4 integer numbers separated by a comma (,).
-	["glm::vec<4, int, glm::packed_highp>"] = function(s, i, len, unnecessaryEnd, jobstate)
+	["Ivec4"] = function(s, i, len, unnecessaryEnd, jobstate)
 		local i, a, x, y, z, w = i or 1
 
 		a = find(s, ",", i)
@@ -873,24 +858,25 @@ local extra_deserialize = {
 			i = a + 1
 		end
 
-		a = find(s, "[;:}~]", i)
+		a = find(s, "[|;:}~]", i)
 
 		if a then
 			w = tonumber(sub(s, i, a - 1))
 		end
 
 		if x and y and z and w then
-			return ivec4(x, y, z, w), a - 1
+			i = a - 1
+			return Ivec4(x, y, z, w), i
 		end
 
-		error("vON: ivec4 definition started... Found no end.")
+		error("vON: Ivec4 definition started... Found no end.")
 	end,
 	-- A set of 4 floating-point numbers separated by a comma (,).
-	["glm::vec<4, float, glm::packed_highp>"] = function(s, i, len, unnecessaryEnd, jobstate)
+	["Vec4"] = function(s, i, len, unnecessaryEnd, jobstate)
 		local i, a, x, y, z, w = i or 1
 
 		a = find(s, ",", i)
-
+		
 		if a then
 			x = tonumber(sub(s, i, a - 1))
 			i = a + 1
@@ -910,23 +896,24 @@ local extra_deserialize = {
 			i = a + 1
 		end
 
-		a = find(s, "[;:}~]", i)
+		a = find(s, "[|;:}~]", i)
 
 		if a then
 			w = tonumber(sub(s, i, a - 1))
 		end
 
 		if x and y and z and w then
-			return vec4(x, y, z, w), a - 1
+			i = a - 1
+			return Vec4(x, y, z, w), i
 		end
 
-		error("vON: vec4 definition started... Found no end.")
+		error("vON: Vec4 definition started... Found no end.")
 	end
 }
 
 local extra_serialize = {
-	["term_engine::rendering::CharacterParams"] = function(data, mustInitiate, isNumeric, isKey, isLast, first, jobstate)
-		local tmp = data.character .. "," .. tostring(data.foregroundColour) .. "," .. tostring(data.backgroundColour)
+	["Character"] = function(data, mustInitiate, isNumeric, isKey, isLast, first, jobstate)
+		local tmp = data.character .. "," .. tostring(data.foregroundColour) .. "|" .. tostring(data.backgroundColour)
 
 		if mustInitiate then
 			tmp = "g" .. tmp
@@ -938,14 +925,18 @@ local extra_serialize = {
 			return tmp .. ";"
 		end
 	end,
-	["term_engine::objects::GameObject"] = function(data, mustInitiate, isNumeric, isKey, isLast, first, jobstate)
+	["GameObject"] = function(data, mustInitiate, isNumeric, isKey, isLast, first, jobstate)
 		local active = 0
 		if data.active then active = 1 end
-		local tmp = "O" .. tostring(data.position) .. "," .. tostring(data.size) .. "," .. active .. "{"
+		local tmp = tostring(data.position) .. "|" .. tostring(data.size) .. "|" .. active .. "{"
 		local len = #data.data
 
+		if mustInitiate then
+			tmp = "O" .. tmp
+		end
+
 		for i = 1, len do
-			tmp = tmp .. _serialize["term_engine::rendering::CharacterParams"](data.data[i], false, nil, nil, i == len, nil, {false})
+			tmp = tmp .. _serialize["Character"](data.data[i], false, false, false, i == len, false, jobstate)
 		end
 		
 		tmp = tmp .. "}"
@@ -956,46 +947,122 @@ local extra_serialize = {
 			return tmp .. ";"
 		end
 	end,
-	["glm::vec<2, int, glm::packed_highp>"] = function(data, mustInitiate, isNumeric, isKey, isLast, first, jobstate)
+	["Animation"] = function(data, mustInitiate, isNumeric, isKey, isLast, first, jobstate)
+		local tmp = tostring(data.name) .. "{"
+		local len = #data.frames
+
+		if mustInitiate then
+			tmp = "A" .. tmp
+		end
+
+		for i = 1, len do
+			tmp = tmp .. _serialize["AnimationFrame"](data.frames[i], false, false, false, i == len, false, jobstate)
+		end
+
+		tmp = tmp .. "}"
+
 		if isKey or isLast then
-			return "p" .. tostring(data)
+			return tmp
 		else
-			return "p" .. tostring(data) .. ";"
+			return tmp .. ";"
 		end
 	end,
-	["glm::vec<2, float, glm::packed_highp>"] = function(data, mustInitiate, isNumeric, isKey, isLast, first, jobstate)
+	["AnimationFrame"] = function(data, mustInitiate, isNumeric, isKey, isLast, first, jobstate)
+		local tmp = tostring(data.size) .. "|" .. tostring(data.offset) .. "|" .. data.addedDuration .. "{"
+		local len = #data.data
+
+		if mustInitiate then
+			tmp = "F" .. tmp
+		end
+
+		for i = 1, len do
+			tmp = tmp .. _serialize["Character"](data.data[i], false, false, false, i == len, false, jobstate)
+		end
+
+		tmp = tmp .. "}"
+
 		if isKey or isLast then
-			return "P" .. tostring(data)
+			return tmp
 		else
-			return "P" .. tostring(data) .. ";"
+			return tmp .. ";"
 		end
 	end,
-	["glm::vec<3, int, glm::packed_highp>"] = function(data, mustInitiate, isNumeric, isKey, isLast, first, jobstate)
+	["Ivec2"] = function(data, mustInitiate, isNumeric, isKey, isLast, first, jobstate)
+		local tmp = tostring(data)
+
+		if mustInitiate then
+			tmp = "p" .. tmp
+		end
+
 		if isKey or isLast then
-			return "v" .. tostring(data)
+			return tmp
 		else
-			return "v" .. tostring(data) .. ";"
+			return tmp .. ";"
 		end
 	end,
-	["glm::vec<3, float, glm::packed_highp>"] = function(data, mustInitiate, isNumeric, isKey, isLast, first, jobstate)
+	["Vec2"] = function(data, mustInitiate, isNumeric, isKey, isLast, first, jobstate)
+		local tmp = tostring(data)
+
+		if mustInitiate then
+			tmp = "P" .. tmp
+		end
+
 		if isKey or isLast then
-			return "V" .. tostring(data)
+			return tmp
 		else
-			return "V" .. tostring(data) .. ";"
+			return tmp .. ";"
 		end
 	end,
-	["glm::vec<4, int, glm::packed_highp>"] = function(data, mustInitiate, isNumeric, isKey, isLast, first, jobstate)
+	["Ivec3"] = function(data, mustInitiate, isNumeric, isKey, isLast, first, jobstate)
+		local tmp = tostring(data)
+
+		if mustInitiate then
+			tmp = "v" .. tmp
+		end
+
 		if isKey or isLast then
-			return "q" .. tostring(data)
+			return tmp
 		else
-			return "q" .. tostring(data) .. ";"
+			return tmp .. ";"
 		end
 	end,
-	["glm::vec<4, float, glm::packed_highp>"] = function(data, mustInitiate, isNumeric, isKey, isLast, first, jobstate)
+	["Vec3"] = function(data, mustInitiate, isNumeric, isKey, isLast, first, jobstate)
+		local tmp = tostring(data)
+
+		if mustInitiate then
+			tmp = "V" .. tmp
+		end
+
 		if isKey or isLast then
-			return "Q" .. tostring(data)
+			return tmp
 		else
-			return "Q" .. tostring(data) .. ";"
+			return tmp .. ";"
+		end
+	end,
+	["Ivec4"] = function(data, mustInitiate, isNumeric, isKey, isLast, first, jobstate)
+		local tmp = tostring(data)
+
+		if mustInitiate then
+			tmp = "q" .. tmp
+		end
+
+		if isKey or isLast then
+			return tmp
+		else
+			return tmp .. ";"
+		end
+	end,
+	["Vec4"] = function(data, mustInitiate, isNumeric, isKey, isLast, first, jobstate)
+		local tmp = tostring(data)
+
+		if mustInitiate then
+			tmp = "Q" .. tmp
+		end
+
+		if isKey or isLast then
+			return tmp
+		else
+			return tmp .. ";"
 		end
 	end
 }

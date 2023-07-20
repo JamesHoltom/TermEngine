@@ -29,7 +29,7 @@ namespace term_engine::usertypes {
 
   bool CharacterMap::ShouldEmptyCharactersHaveBackground() const
   {
-    return empty_character_bg_colour_.a == 0.0;
+    return empty_character_bg_colour_.a == 0.0f;
   }
 
   void CharacterMap::SetPosition(const glm::vec2& position)
@@ -39,6 +39,13 @@ namespace term_engine::usertypes {
 
   void CharacterMap::SetSize(const glm::ivec2& size)
   {
+    if (size.x <= 0 || size.y <= 0)
+    {
+      utility::logger->warn("Cannot set character map size to 0 or less!");
+
+      return;
+    }
+
     const uint64_t data_size = size.x * size.y;
     data_.clear();
     data_.reserve(data_size);
@@ -54,11 +61,13 @@ namespace term_engine::usertypes {
 
   void CharacterMap::Clear()
   {
-    std::fill(data_.begin(), data_.end(), CharacterParams());
+    std::fill(data_.begin(), data_.end(), Character());
   }
 
   void CharacterMap::PushCharacters(const glm::ivec2& position, const glm::ivec2& size, const CharacterData& data)
   {
+    assert(size.x > 0 && size.y > 0);
+
     // Do not render the object if it is obscured from view.
     // i.e. If the top-left corner of the object is beyond the right/bottom edges of the view, or if the bottom-right corner of the object is beyond the top/left edges of the view.
     if (glm::any(glm::lessThan(position + size, glm::ivec2(0))) || glm::any(glm::greaterThanEqual(position, size_)))
@@ -69,13 +78,13 @@ namespace term_engine::usertypes {
     uint64_t column_pos = 0;
     uint64_t index = utility::GetIndexFromRowCol(size_, position);
 
-    for (const CharacterParams& character : data)
+    for (const Character& character : data)
     {
       // Do not render the character if it is invisible.
-      if (character.character_ != NO_CHARACTER) {
+      if (character.character_ != NO_CHARACTER && position.x + column_pos >= 0 && position.x + column_pos < size_.x) {
         // Do not render the character if it is obscured from view.
         if (index >= 0 && index < size_.x * size_.y) {
-          data_[index] = CharacterParams(character);
+          data_[index] = Character(character);
         }
       }
 
@@ -84,7 +93,7 @@ namespace term_engine::usertypes {
 
       if (column_pos == size.x)
       {
-        index += size_.x - size.x;
+        index += size_.x - column_pos;
         column_pos = 0;
       }
     }
@@ -100,7 +109,7 @@ namespace term_engine::usertypes {
       ImGui::SameLine();
       ImGui::TextColored(ImVec4(empty_character_bg_colour_.r, empty_character_bg_colour_.g, empty_character_bg_colour_.b, empty_character_bg_colour_.a), "%f, %f, %f, %f", empty_character_bg_colour_.r, empty_character_bg_colour_.g, empty_character_bg_colour_.b, empty_character_bg_colour_.a);
 
-      UpdateCharacterDataDebugInfo(data_);
+      UpdateCharacterDataDebugInfo(data_, size_);
       
       ImGui::TreePop();
     }
@@ -110,7 +119,7 @@ namespace term_engine::usertypes {
   {
     uint64_t index = 0;
 
-    for (const CharacterParams& character : character_map.data_)
+    for (const Character& character : character_map.data_)
     {
       const CharacterBB textBbox = font_->GetCharacter(character.character_, font_size);
       const glm::vec2 charSize = glm::vec2(font_->GetCharacterSize(font_size));

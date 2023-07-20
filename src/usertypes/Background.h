@@ -4,35 +4,20 @@
 #define BACKGROUND_H
 
 #include <filesystem>
-#include "BaseResource.h"
-#include "../../rendering/Buffer.h"
-#include "../../rendering/Texture.h"
-#include "../../utility/GLUtils.h"
+#include <memory>
+#include "../rendering/Buffer.h"
+#include "../rendering/Texture.h"
+#include "../utility/GLUtils.h"
 
 namespace term_engine::usertypes {
-  /// @brief The type name for Backgrounds.
-  constexpr char BACKGROUND_TYPE[] = "Background";
-
   /// @brief Stores a background image, that can be rendered to a game scene.
-  class Background : public BaseResource {
+  class Background {
   public:
-    /**
-     * @brief Constructs the resource with the given filepath.
-     * 
-     * @param[in] filepath  The filepath to the resource.
-     * @param[in] texture   The texture data for the resource.
-     */
-    Background(const std::filesystem::path& filepath, const rendering::TextureData& texture);
-
-    /// @brief Destroys the resource.
+    /// @brief Constructs the background.
+    Background();
+    
+    /// @brief Destroys the background.
     ~Background();
-
-    /**
-     * @brief Returns the type of resource.
-     * 
-     * @returns The resource type.
-     */
-    std::string GetResourceType() const;
 
     /**
      * @brief Returns the position of the background in the game scene.
@@ -53,7 +38,7 @@ namespace term_engine::usertypes {
      * 
      * @returns The texture size, in pixels (px).
      */
-    glm::ivec2& GetTextureSize();
+    glm::ivec2 GetTextureSize() const;
 
     /**
      * @brief Returns the colour of the background.
@@ -61,6 +46,13 @@ namespace term_engine::usertypes {
      * @returns The background colour.
      */
     glm::vec4& GetColour();
+
+    /**
+     * @brief Returns the filepath of the background texture.
+     * 
+     * @returns The filepath of the background texture.
+     */
+    std::string GetSource() const;
 
     /**
      * @brief Sets the position of the background in the game scene.
@@ -83,6 +75,20 @@ namespace term_engine::usertypes {
      */
     void SetColour(const glm::vec4& colour);
 
+    /**
+     * @brief Loads a new background texture with the given filepath.
+     * 
+     * @param[in] filepath The filepath to the new texture.
+     */
+    void SetSource(const std::string& filepath);
+
+    /**
+     * @brief Returns if a background texture is loaded.
+     * 
+     * @returns If a texture is loaded.
+     */
+    bool IsLoaded() const;
+
     /// @brief Resets the position, size and colour of the background.
     void Reset();
 
@@ -100,8 +106,10 @@ namespace term_engine::usertypes {
     void UpdateDebugInfo() const;
 
   protected:
-    /// @brief The texture ID and size.
-    rendering::TextureData texture_;
+    /// @brief Smart pointer to the texture to render.
+    rendering::TexturePtr texture_;
+    /// @brief The filepath to the background texture.
+    std::filesystem::path filepath_;
     /// @brief The position of the background in the game scene, in pixels (px).
     glm::ivec2 position_;
     /// @brief The size of the background in the game scene, in pixels (px).
@@ -109,14 +117,6 @@ namespace term_engine::usertypes {
     /// @brief The colour of the background.
     glm::vec4 colour_;
   };
-
-  /**
-   * @brief Adds a background resource to the list of resources.
-   * 
-   * @param[in] filepath  The filepath to the background resource.
-   * @returns A raw pointer to the resource.
-   */
-  Background* LoadBackground(const std::string& filepath);
 }
 
 #endif // ! BACKGROUND_H

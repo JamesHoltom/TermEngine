@@ -29,8 +29,6 @@ namespace term_engine::system {
     {
       const std::filesystem::path fullPath = location / filename;
 
-      utility::logger->debug("Testing location {}...", fullPath);
-
       if (std::filesystem::exists(fullPath))
       {
         utility::logger->debug("Found project path at {}.", fullPath);
@@ -48,11 +46,13 @@ namespace term_engine::system {
   {
     const std::filesystem::path rootPath = std::filesystem::current_path();
     const std::filesystem::path locations[] = {
-#ifdef linux
+#if defined(__linux__)
       "/usr/share/fonts/",
       "/usr/local/share/fonts/",
-#elif defined(_WIN32) || defined (WIN32)
+#elif defined(_WIN32) || defined (_WIN64)
       "C:/Windows/Fonts/",
+#elif defined(__APPLE__) && defined(__MACH__)
+      "/System/Library/Fonts/"
 #endif
       rootPath,
       rootPath / "resources",

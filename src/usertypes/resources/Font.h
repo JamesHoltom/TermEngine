@@ -17,6 +17,14 @@ namespace term_engine::usertypes {
 
   /// @brief The type name for Fonts.
   constexpr char FONT_TYPE[] = "Font";
+  /// @brief The default font path to use when running the engine.
+#if defined(__linux__)
+  constexpr char DEFAULT_FONT[] = "truetype/ubuntu/UbuntuMono-R.ttf";
+#elif defined(_WIN32) || defined (_WIN64)
+  constexpr char DEFAULT_FONT[] = "arial.ttf";
+#elif defined(__APPLE__) && defined(__MACH__)
+  constexpr char DEFAULT_FONT[] = "Geneva.ttf";
+#endif
 
     /// @brief Used to store a list of loaded font sizes, and their associated character sizes.
   typedef std::map<uint32_t, FT_Size> FontSizeList;
@@ -52,12 +60,6 @@ namespace term_engine::usertypes {
     {}
   };
 
-  /// @brief The default font path to use when running the engine.
-#ifdef linux
-  constexpr char DEFAULT_FONT[] = "truetype/ubuntu/UbuntuMono-R.ttf";
-#elif defined(_WIN32) || defined (WIN32)
-  constexpr char DEFAULT_FONT[] = "arial.ttf";
-#endif
   /// @brief The default font size to use when running the engine.
   constexpr uint32_t DEFAULT_FONT_SIZE = 32;
   /// @brief The size of the texture to store font characters in.
@@ -120,7 +122,7 @@ namespace term_engine::usertypes {
     /// @brief The list containing all characters loaded from the font.
     CharacterList atlas_;
     /// @brief The texture ID for OpenGL to use when rendering.
-    rendering::TextureData texture_;
+    rendering::TexturePtr texture_;
     /// @brief The amount of characters currently stored in the font atlas.
     uint32_t character_count_;
     /// @brief Flag to check if the texture needs refreshing after the atlas has updated.
@@ -156,10 +158,10 @@ namespace term_engine::usertypes {
   };
 
   /**
-   * @brief Adds a font resource to the list of resources.
+   * @brief Retrives the font resource with the given filepath. If it's not in the list, it will be loaded.
    * 
    * @param[in] filepath The filepath to the font resource.
-   * @returns A raw pointer to the resource.
+   * @returns A raw pointer to the resource, or a null pointer if not found.
    */
   Font* LoadFont(const std::string& filepath);
 }

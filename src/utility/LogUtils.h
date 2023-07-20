@@ -15,6 +15,13 @@ namespace term_engine::utility {
   void LogKeyboardEvents(const SDL_Event& event);
 
   /**
+   * @brief Logs any text input-related events in an _SDL_Event_ object.
+   * 
+   * @param[in] event The _SDL_Event_ object to check for text input-related events.
+   */
+  void LogTextInputEvents(const SDL_Event& event);
+
+  /**
    * @brief Logs any window-related events in an _SDL_Event_ object.
    * 
    * @param[in] event The _SDL_Event_ object to check for window-related events.
@@ -26,8 +33,6 @@ namespace term_engine::utility {
 
   /// @brief Logs information about the currently bound VBO.
   void LogVBOData();
-
-
 }
 
 #endif // ! LOG_FUNCTIONS_H

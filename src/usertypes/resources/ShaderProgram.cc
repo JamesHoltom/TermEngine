@@ -1,6 +1,5 @@
 #include <filesystem>
 #include "ShaderProgram.h"
-#include "../../shaders/default.h"
 #include "../../system/FileFunctions.h"
 #include "../../utility/GLUtils.h"
 #include "../../utility/ImGuiUtils.h"
@@ -12,12 +11,12 @@ namespace term_engine::usertypes {
     program_id_(program_id),
     uniforms_(uniforms)
   {
-    utility::logger->debug("Created shader program resource with ID {}.", program_id_);
+    utility::logger->debug("Created shader program resource with ID {} and name \"{}\".", program_id_, name_);
   }
 
   ShaderProgram::~ShaderProgram()
   {
-    utility::logger->debug("Destroyed shader program resource with ID {}.", program_id_);
+    utility::logger->debug("Destroyed shader program resource with ID {} and name \"{}\".", program_id_, name_);
 
     glDeleteProgram(program_id_);
   }
@@ -411,16 +410,28 @@ namespace term_engine::usertypes {
     }
   }
 
-  void InitDefaultShaders()
-  {
-    AddShader(std::string(DEFAULT_BG_SHADER), shaders::DEFAULT_VERT_GLSL, shaders::BACKGROUND_FRAG_GLSL, "");
-    AddShader(std::string(DEFAULT_TEXT_SHADER), shaders::DEFAULT_VERT_GLSL, shaders::TEXT_FRAG_GLSL, "");
-  }
-
   ShaderProgram* AddShader(const std::string& name, const std::string& vert_code, const std::string& frag_code, const std::string& geom_code)
   {
     if (name.empty())
     {
+      utility::logger->warn("Cannot create shader program with empty name!");
+      
+      return nullptr;
+    }
+
+    ResourceList::iterator it = resource_list.find(name);
+
+    if (it != resource_list.end())
+    {
+      if (it->second->GetResourceType() == std::string(SHADER_PROGRAM_TYPE))
+      {
+        utility::logger->warn("\"{}\" already exists.", name);
+      }
+      else
+      {
+        utility::logger->warn("\"{}\" is the name of a(n) {} resource.", name, it->second->GetResourceType());
+      }
+
       return nullptr;
     }
     
@@ -509,7 +520,13 @@ namespace term_engine::usertypes {
   {
     ResourceList::iterator it = resource_list.find(name);
 
-    if (it != resource_list.end())
+    if (it != resource_list.end() && it->second->GetResourceType() != std::string(SHADER_PROGRAM_TYPE))
+    {
+      utility::logger->warn("\"{}\" is the name of a(n) {} resource.", name, it->second->GetResourceType());
+
+      return nullptr;
+    }
+    else if (it != resource_list.end())
     {
       return static_cast<ShaderProgram*>(it->second.get());
     }

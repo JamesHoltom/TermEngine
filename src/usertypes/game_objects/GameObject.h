@@ -38,7 +38,11 @@ namespace term_engine::usertypes {
     /// @brief Destroys the object.
     ~GameObject();
 
-    /// @brief Updates the object.
+    /**
+     * @brief Updates the object.
+     * 
+     * @param[in] timestep The time since the last update, in milliseconds (ms).
+     */
     void Update(uint64_t timestep);
 
     /**
@@ -62,6 +66,20 @@ namespace term_engine::usertypes {
      * @returns The raw pointer to the game scene.
      */
     GameScene* GetGameScene() const;
+
+    /**
+     * @brief Returns the Z-layer this object occupies.
+     * 
+     * @returns The Z-layer this object occupies.
+     */
+    int32_t GetLayer() const;
+
+    /**
+     * @brief Returns if the mouse is currently hovering over the object.
+     * 
+     * @returns If the mouse is hovering over the object.
+     */
+    bool IsHoveringOver() const;
 
     /**
      * @brief Returns the position of the object.
@@ -90,6 +108,13 @@ namespace term_engine::usertypes {
      * @returns The animation state for the object.
      */
     AnimationState& GetAnimation();
+
+    /**
+     * @brief Sets the Z-layer this object occupies.
+     * 
+     * @param[in] layer The Z-layer to set.
+     */
+    void SetLayer(int32_t layer);
 
     /**
      * @brief Sets the position of the object.
@@ -131,6 +156,10 @@ namespace term_engine::usertypes {
     void UpdateDebugInfo() const;
 
   protected:
+    /// @brief The Z-layer this object occupies.
+    int32_t layer_;
+    /// @brief Is the mouse hovering over the object?
+    bool is_hovering_;
     /// @brief The top-left position of the object.
     glm::ivec2 position_;
     /// @brief The size of the object, in rows & columns.
@@ -162,8 +191,20 @@ namespace term_engine::usertypes {
    */
   GameObject* AddGameObject(const glm::ivec2& position, const glm::ivec2& size);
 
-  /// @brief Clears all game objects from the object list.
-  void ClearAllGameObjects();
+  /**
+   * @brief Clears all game objects belonging to a game scene.
+   * 
+   * @param[in] name The name of the game scene.
+   */
+  void ClearGameObjectsByGameScene(const std::string& name);
+
+  /**
+   * @brief Returns the game object with the given ID.
+   * 
+   * @param[in] id The ID of the game object.
+   * @returns A raw pointer to the game object, or a null pointer if not found.
+   */
+  GameObject* GetGameObjectById(uint64_t id);
 }
 
 #endif // ! GAME_OBJECT_H

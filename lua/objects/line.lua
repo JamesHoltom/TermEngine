@@ -5,7 +5,7 @@
 local empty_character = Character(characters.NO_CHARACTER, characters.DEFAULT_FOREGROUND_COLOUR, characters.DEFAULT_BACKGROUND_COLOUR)
 
 --[[
--- @brief Extends the Object usertype to make drawing lines of characters simpler.
+-- @brief Extends the GameObject usertype to make drawing lines of characters simpler.
 -- @param _start      The start position of the line.
 -- @param _end        The end position of the line.
 -- @param _char       The character to render the line with.
@@ -13,10 +13,10 @@ local empty_character = Character(characters.NO_CHARACTER, characters.DEFAULT_FO
 --]]
 function LineObject(_start, _end, _char, _game_scene)
   local self = {
-    obj = GameObject(Values.IVEC2_ZERO, Values.IVEC2_ONE, _game_scene or "default"),  -- @brief Handle to the Object.
-    startPosition = _start,                                                           -- @brief The starting position of the line.
-    endPosition = _end,                                                               -- @brief The ending position of the line.
-    character = _char                                                                 -- @brief The Character to use for the line.
+    object = GameObject(Values.IVEC2_ZERO, Values.IVEC2_ONE, _game_scene or "default"), -- @brief Handle to the Object.
+    startPosition = _start,                                                             -- @brief The starting position of the line.
+    endPosition = _end,                                                                 -- @brief The ending position of the line.
+    character = _char                                                                   -- @brief The Character to use for the line.
   }
 
   -- @brief Refreshes the object data with the updated settings.
@@ -27,7 +27,7 @@ function LineObject(_start, _end, _char, _game_scene)
     if size == Values.IVEC2_ZERO then
       return
     elseif size == Values.IVEC2_ONE then
-      self.obj.data[1] = self.character
+      self.object.data[1] = self.character
       return
     end
 
@@ -36,22 +36,22 @@ function LineObject(_start, _end, _char, _game_scene)
       pos = self.startPosition
     -- Case 2: start is in the top-right, end is in the bottom-left
     elseif self.startPosition.x > self.endPosition.x and self.startPosition.y <= self.endPosition.y then
-      pos = ivec2(self.endPosition.x, self.startPosition.y)
+      pos = Ivec2(self.endPosition.x, self.startPosition.y)
     -- Case 3: start is in the bottom-left, end is in the top-right
     elseif self.startPosition.x <= self.endPosition.x and self.startPosition.y > self.endPosition.y then
-      pos = ivec2(self.startPosition.x, self.endPosition.y)
+      pos = Ivec2(self.startPosition.x, self.endPosition.y)
     -- Case 4: start is in the bottom-right, end is in the top-left
     else
       pos = self.endPosition
     end
 
-    self.obj.position = pos
-    self.obj.size = size
-    self.obj:set(function(_, _) return empty_character end)
+    self.object.position = pos
+    self.object.size = size
+    self.object:set(function(_, _) return empty_character end)
 
-    local startPos = self.startPosition - self.obj.position
-    local endPos = self.endPosition - self.obj.position
-    local diff = vec2(self.endPosition - self.startPosition)
+    local startPos = self.startPosition - self.object.position
+    local endPos = self.endPosition - self.object.position
+    local diff = Vec2(self.endPosition - self.startPosition)
     local iterLimit
 
     -- When the line is taller, iterate on the y-axis to ensure every row has a character.
@@ -63,18 +63,16 @@ function LineObject(_start, _end, _char, _game_scene)
     end
 
     for i = 0, iterLimit do
-      local iterDiff = vec2(i/iterLimit) * diff
-      local index = getIndexFromRowCol(self.obj.size, startPos + ivec2(iterDiff:round()))
+      local iterDiff = Vec2(i/iterLimit) * diff
+      local index = getIndexFromRowCol(self.object.size, startPos + Ivec2(iterDiff:round()))
 
-      self.obj.data[index] = self.character
+      self.object.data[index] = self.character
     end
-
-    objects.dirty()
   end
 
   -- @brief Cleans up the object after use.
   local _release = function(_)
-    self.obj:release()
+    self.object:release()
   end
 
   --[[
@@ -83,8 +81,8 @@ function LineObject(_start, _end, _char, _game_scene)
 	-- @returns The value of the property.
 	--]]
 	local mtIndex = function(_, key)
-    if key == "position" or key == "size" then
-      return self.obj[key]
+    if key == "id" or key == "position" or key == "size" or key == "active" then
+      return self.object[key]
     elseif key == "startPosition" or key == "endPosition" or key == "character" then
       return self[key]
     else
@@ -102,15 +100,18 @@ function LineObject(_start, _end, _char, _game_scene)
       self[key] = value
 			
 			_setData()
+    elseif key == "active" then
+      self.object.active = value == true
     end
   end
 			
   _setData()
 
   return setmetatable({
-    release = _release
+    release     = _release
   }, {
-    __index    = mtIndex,
-		__newindex = mtNewIndex
+    __index     = mtIndex,
+		__newindex  = mtNewIndex,
+    __type      = { name = "LineObject" }
   })
 end

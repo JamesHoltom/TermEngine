@@ -3,38 +3,46 @@
 #ifndef SCRIPTING_INTERFACE_H
 #define SCRIPTING_INTERFACE_H
 
+#include <filesystem>
 #include <memory.h>
 #include <string>
 #include "../utility/SolUtils.h"
 
 namespace term_engine::scripting {
-  /// @brief The location of the "No Program" script to run, only if a project was not loaded.
-  constexpr char DEFAULT_SCRIPT_PATH[] = "noprogram.lua";
   /// @brief The location of Lua file loader that's used to load core scripts to be used.
-  constexpr char LOADER_SCRIPT_PATH[] = "load.lua";
+  constexpr char LOADER_SCRIPT_PATH[] = "/load.lua";
   /// @brief The entry file that is run when a project is loaded.
   constexpr char PROJECT_ENTRYPOINT[] = "main.lua";
 
   /// @brief The Lua state that stores all of the loaded script functions, variables, etc.
-  extern std::unique_ptr<sol::state> lua_state;
+  inline std::unique_ptr<sol::state> lua_state = nullptr;
   /// @brief The filepath of the currently loaded project.
-  extern std::string lua_file;
-
-  /// @brief Creates the Lua functions and usertypes that interface with TermEngine.
-  void InitInterface();
-
-  /// @brief Selects the project script to execute, or the "No Program" script if one is not set.
-  void InitScript();
-
-  /// @brief Does garbage collection and closes the scripting interface.
-  void CleanUp();
+  inline std::filesystem::path project_path = "";
+  /// @brief If set, will cause the engine to unload the current project and load the next one.
+  inline std::filesystem::path next_project_path = "";
 
   /**
-   * @brief Loads the contents of a Lua file into the state, allowing subsequent scripts to use the contents.
+   * @brief Loads the contents of a project's "main.lua" file into the state.
    * 
-   * @param[in] filename The file name/path of the Lua script to load.
+   * @param[in] filepath The filepath of the Lua script to load.
    */
-  void Load(const std::string& filename);
+  void SetNextProject(const std::string& filepath);
+
+  /// @brief Reloads the current project's "main.lua" file.
+  void ReloadProject();
+
+  /**
+   * @brief Loads and executes the contents of the Lua script at the given filepath.
+   * 
+   * @param[in] filepath The file path to the Lua script.
+   */
+  void LoadFile(const std::filesystem::path& filepath);
+
+  /// @brief Sets up the Lua state and prepares it for use.
+  void Setup();
+
+  /// @brief Does garbage collection and closes the scripting interface.
+  void Shutdown();
 
   /**
    * @brief Runs the "Init" Lua function, which is used to execute game code on startup.

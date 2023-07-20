@@ -13,15 +13,15 @@ local player, outline, helloText
   || stop TermEngine.
 --]]
 function Init()
-	player = Player(ivec2(4))
+	player = Player(Ivec2(4))
 	
 	--[[
 		BoxObjects 
 	]]--
-	outline = BoxObject(ivec2(0, 0), ivec2(32, 16))
+	outline = BoxObject(Ivec2(0, 0), Ivec2(32, 16))
 	outline.outline = Character("+", characters.DEFAULT_FOREGROUND_COLOUR, characters.DEFAULT_BACKGROUND_COLOUR)
 	
-	helloText = TextObject(ivec2(1, 14), ivec2(30, 1))
+	helloText = TextObject(Ivec2(1, 14), Ivec2(30, 1))
 	helloText.text = "Welcome to TermEngine!"
 
 	return true

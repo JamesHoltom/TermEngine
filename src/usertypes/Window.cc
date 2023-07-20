@@ -1,4 +1,5 @@
 #include "Window.h"
+#include "../utility/GLUtils.h"
 #include "../utility/ImGuiUtils.h"
 #include "../utility/SpdlogUtils.h"
 
@@ -70,6 +71,11 @@ namespace term_engine::usertypes {
     return close_logic_;
   }
 
+  bool Window::IsBorderless() const
+  {
+    return SDL_GetWindowFlags(window_) & SDL_WINDOW_BORDERLESS;
+  }
+
   bool Window::IsResizable() const
   {
     return SDL_GetWindowFlags(window_) & SDL_WINDOW_RESIZABLE;
@@ -85,6 +91,11 @@ namespace term_engine::usertypes {
     return SDL_GetWindowFlags(window_) & SDL_WINDOW_MAXIMIZED;
   }
 
+  bool Window::IsInFocus() const
+  {
+    return window_ == SDL_GetMouseFocus();
+  }
+
   bool Window::IsMouseGrabbed() const
   {
     return SDL_GetWindowMouseGrab(window_);
@@ -95,23 +106,42 @@ namespace term_engine::usertypes {
     return render_mode_ == GL_LINE;
   }
 
-  void Window::SetPosition(const glm::ivec2& position)
+  void Window::Reposition(const glm::ivec2& position)
   {
     SDL_SetWindowPosition(window_, position.x, position.y);
     
-    _SetPosition(position);
+    SetPosition(position);
   }
 
   void Window::CenterPosition()
   {
-    SetPosition(glm::ivec2(SDL_WINDOWPOS_CENTERED));
+    Reposition(glm::ivec2(SDL_WINDOWPOS_CENTERED));
+  }
+
+  void Window::Resize(const glm::ivec2& size)
+  {
+    if (size.x <= 0 || size.y <= 0)
+    {
+      utility::logger->warn("Cannot set window size to 0 or less!");
+
+      return;
+    }
+
+    SDL_SetWindowSize(window_, size.x, size.y);
+
+    SetSize(size);
+  }
+
+  void Window::SetPosition(const glm::ivec2& position)
+  {
+    position_ = position;
   }
 
   void Window::SetSize(const glm::ivec2& size)
   {
-    SDL_SetWindowSize(window_, size.x, size.y);
-
-    _SetSize(size);
+    assert(size.x > 0 && size.y > 0);
+    
+    size_ = size;
   }
 
   void Window::SetTitle(const std::string& title) const
@@ -127,6 +157,11 @@ namespace term_engine::usertypes {
   void Window::SetCloseBehaviour(CloseLogic behaviour)
   {
     close_logic_ = behaviour;
+  }
+
+  void Window::SetBorderless(bool flag) const
+  {
+    SDL_SetWindowBordered(window_, flag ? SDL_TRUE : SDL_FALSE);
   }
 
   void Window::SetResizable(bool flag) const
@@ -188,23 +223,16 @@ namespace term_engine::usertypes {
     SDL_GL_SwapWindow(window_);
   }
 
-  void Window::_SetPosition(const glm::ivec2& position)
-  {
-    position_ = position;
-  }
-
-  void Window::_SetSize(const glm::ivec2& size)
-  {
-    size_ = size;
-  }
-
   void Window::UpdateDebugInfo() const
   {
     ImGui::SeparatorText("Window");
 
-    ImGui::Text("ID: %i", SDL_GetWindowID(window_));
+    ImGui::Text("ID: %u", SDL_GetWindowID(window_));
+    ImGui::Text("Title: %s", SDL_GetWindowTitle(window_));
     ImGui::Text("Position: %i, %i", position_.x, position_.y);
     ImGui::Text("Size: %i, %i", size_.x, size_.y);
+    ImGui::Text("Clear Colour: %f, %f, %f, %f", clear_colour_.r, clear_colour_.g, clear_colour_.b, clear_colour_.a);
+    ImGui::Text("Focussed: %s", IsInFocus() ? "Yes" : "No");
   }
 
   bool Window::IsVsyncEnabled()

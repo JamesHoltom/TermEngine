@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <string>
+#include "../usertypes/GameScene.h"
 #include "../utility/SDLUtils.h"
 #include "../utility/SolUtils.h"
 
@@ -20,18 +21,22 @@ namespace term_engine::events {
   /// @brief Represents an event fired by SDL, and emitted to the EventListeners.
   struct Event {
     /**
-     * @brief Constructs the event.
+     * @brief Constructs the event with the given parameters.
      * 
-     * @param[in] type  The type of event.
-     * @param[in] data  The data to pass to EventListeners.
+     * @param[in] type        The type of event.
+     * @param[in] game_scene  The game scene this listener is bound to.
+     * @param[in] data        The data to pass to EventListeners.
      */
-    Event(const std::string& type, const sol::table& data) :
+    Event(const std::string& type, usertypes::GameScene* game_scene, const sol::table& data) :
       type_(type),
+      game_scene_(game_scene),
       data_(data)
     {}
 
     /// @brief The type of event.
     std::string type_;
+    /// @brief The game scene this listener is bound to.
+    usertypes::GameScene* game_scene_;
     /// @brief The data to pass to EventListeners.
     sol::table data_;
   };

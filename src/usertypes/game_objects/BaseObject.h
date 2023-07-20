@@ -13,18 +13,16 @@ namespace term_engine::usertypes {
 
   /// @brief Shared pointer to an object.
   typedef std::shared_ptr<BaseObject> ObjectPtr;
-  /// @brief Weak pointer to an object.
-  typedef std::weak_ptr<BaseObject> ObjectWeakPtr;
   /// @brief Used to store a list of objects.
   typedef std::forward_list<ObjectPtr> ObjectList;
 
   /// @brief Defines the sorting priorities for each type of object in the list.
-  enum ObjectSortPriority { EVENT_LISTENER = 0, TIMED_FUNCTION = 1, OBJECT = 2, AUDIO = 3 };
+  enum ObjectSortPriority { TIMED_FUNCTION = 0, OBJECT = 1 };
 
   /// @brief Has an object been added to the list, which needs to be sorted?
-  inline bool is_object_list_dirty_ = false;
+  inline bool is_object_list_dirty = false;
   /// @brief The list of objects.
-  inline ObjectList object_list_;
+  inline ObjectList object_list;
 
   /// @brief The base object, on which other game objects are derived from.
   class BaseObject {
@@ -33,13 +31,24 @@ namespace term_engine::usertypes {
     BaseObject();
 
     /**
+     * @brief Copy-constructs the base object from an existing object.
+     * 
+     * @param[in] object The object to copy from.
+     */
+    BaseObject(BaseObject* object);
+
+    /**
      * @brief Returns the type of object.
      * 
      * @returns The object type.
      */
     virtual std::string GetObjectType() const = 0;
 
-    /// @brief Updates the object every frame.
+    /**
+     * @brief Updates the object every frame.
+     * 
+     * @param[in] timestep The time since the last update, in milliseconds (ms).
+     */
     virtual void Update(uint64_t timestep) = 0;
 
     /**
@@ -87,6 +96,11 @@ namespace term_engine::usertypes {
     /// @brief Updates the debugging information for this object.
     virtual void UpdateDebugInfo() const = 0;
 
+    /**
+     * @brief Returns the next ID to use when creating an object.
+     * 
+     * @returns The next object ID.
+     */
     static uint64_t GetNextId();
 
   protected:
@@ -106,13 +120,13 @@ namespace term_engine::usertypes {
    */
   void SortObjects();
 
-  /// @brief Runs the `Update()` function for each object in the list.
+  /// @brief Updates each object in the list.
   void UpdateObjects(uint64_t timestep);
 
   /// @brief Removes all objects in the list.
-  void CleanUpObjects();
+  void ClearAllObjects();
 
-  /// @brief Clears all objects that are flagged for removal from the object list.
+  /// @brief Clears all objects that are flagged for removal from the list.
   void ClearFlaggedObjects();
 }
 

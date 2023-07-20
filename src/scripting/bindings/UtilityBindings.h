@@ -8,7 +8,12 @@
 #include "../../system/FileFunctions.h"
 #include "../../system/FPSManager.h"
 #include "../../usertypes/Character.h"
+#include "../../usertypes/EventListener.h"
+#include "../../usertypes/GameScene.h"
 #include "../../usertypes/Window.h"
+#include "../../usertypes/game_objects/GameObject.h"
+#include "../../usertypes/game_objects/TimedFunction.h"
+#include "../../usertypes/resources/Audio.h"
 #include "../../usertypes/resources/Font.h"
 #include "../../utility/ConversionUtils.h"
 #include "../../utility/LogUtils.h"
@@ -22,10 +27,20 @@ namespace term_engine::scripting::bindings {
    */
   void BindUtilitiesToState(sol::state& state)
   {
+    state.create_named_table("audio", 
+      "play", &usertypes::PlaySound,
+      "stopAll", &usertypes::StopAllSounds,
+      "masterVolume", sol::overload(&usertypes::GetMasterVolume, &usertypes::SetMasterVolume));
+    
     state.create_named_table("characters",
       "NO_CHARACTER", sol::var(usertypes::NO_CHARACTER),
       "DEFAULT_FOREGROUND_COLOUR", sol::var(usertypes::DEFAULT_FOREGROUND_COLOUR),
       "DEFAULT_BACKGROUND_COLOUR", sol::var(usertypes::DEFAULT_BACKGROUND_COLOUR));
+
+    state.create_named_table("clipboard",
+      "isFilled", &events::IsClipboardFilled,
+      "get", &events::GetClipboard,
+      "set", &events::SetClipboard);
     
     state.create_named_table("fps",
       "print", &system::PrintFPS,
@@ -34,7 +49,7 @@ namespace term_engine::scripting::bindings {
       "target", sol::overload(&system::GetTargetFPS, &system::SetTargetFPS),
       "getFrames", &system::GetFrameCount);
 
-    state.create_named_table("fs",
+    state.create_named_table("filesystem",
       "read", &system::ReadFile,
       "write", &system::WriteFile,
       "exists", &system::FileExists,
@@ -56,7 +71,22 @@ namespace term_engine::scripting::bindings {
       "getPosition", &events::GetMousePosition,
       "getMovement", &events::GetMouseMovement);
 
-    state.set_function("round", lroundf);
+    state.set_function("getEventListenerById", &usertypes::GetEventListenerById);
+    state.set_function("getGameObjectById", &usertypes::GetGameObjectById);
+    state.set_function("getTimedFunctionById", &usertypes::GetTimedFunctionById);
+    state.set_function("getGameSceneByName", &usertypes::GetGameSceneByName);
+
+    state.create_named_table("project",
+      "load", &SetNextProject,
+      "reload", &ReloadProject);
+
+    state.create_named_table("textInput",
+      "isActive", &events::IsTextInputModeActive,
+      "start", &events::StartTextInputMode,
+      "stop", &events::StopTextInputMode);
+
+    state.create_named_table("window",
+      "vsync", sol::overload(&usertypes::Window::IsVsyncEnabled, &usertypes::Window::SetVsync));
 
     state.set_function("getIndexFromPosition", sol::overload(
       sol::resolve<uint32_t(usertypes::GameObject*, const glm::ivec2&)>(&utility::GetIndexFromPosition),
@@ -76,9 +106,6 @@ namespace term_engine::scripting::bindings {
     state.set_function("getIndexFromRowCol", sol::overload(
       sol::resolve<uint32_t(usertypes::GameObject*, const glm::ivec2&)>(&utility::GetIndexFromRowCol),
       sol::resolve<uint32_t(usertypes::GameScene*, const glm::ivec2&)>(&utility::GetIndexFromRowCol)));
-
-    state.create_named_table("window",
-      "vsync", sol::overload(&usertypes::Window::IsVsyncEnabled, &usertypes::Window::SetVsync));
   }
 }
 

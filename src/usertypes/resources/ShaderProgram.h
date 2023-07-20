@@ -16,7 +16,9 @@ namespace term_engine::usertypes {
 
   /// @brief The type name for ShaderProgram.
   constexpr char SHADER_PROGRAM_TYPE[] = "ShaderProgram";
+  /// @brief The default text shader resource name.
   constexpr char DEFAULT_TEXT_SHADER[] = "text_default";
+  /// @brief The default background shader resource name.
   constexpr char DEFAULT_BG_SHADER[] = "bg_default";
 
   /// @brief Wraps around OpenGL shaders and uniforms to draw content to a window.
@@ -79,9 +81,6 @@ namespace term_engine::usertypes {
      */
     template <typename T> void SetUniformMatrix(const std::string& name, const T& data, uint8_t transpose = GL_FALSE) const;
 
-    /// @todo Add the option to set array uniforms.
-    //template <typename T> void SetUniformArray(const std::string& name, const GLsizei& count, const T* data) const;
-
     /// @brief Updates the debugging information for this shader.
     void UpdateDebugInfo() const;
 
@@ -92,10 +91,23 @@ namespace term_engine::usertypes {
     utility::UniformList uniforms_;
   };
 
-  void InitDefaultShaders();
-
+  /**
+   * @brief Creates a shader program with the given GLSL code and adds it to the list.
+   * 
+   * @param[in] name      The name of the shader.
+   * @param[in] vert_code The GLSL code for the vertex stage of the shader.
+   * @param[in] frag_code The GLSL code for the fragment stage of the shader.
+   * @param[in] geom_code The GLSL code for the geometry stage of the shader.
+   * @returns A raw pointer to the resource.
+   */
   ShaderProgram* AddShader(const std::string& name, const std::string& vert_code, const std::string& frag_code, const std::string& geom_code);
 
+  /**
+   * @brief Returns the shader program with the given name.
+   * 
+   * @param[in] name The name of the shader program.
+   * @returns A raw pointer to the resource, or a null pointer if not found.
+   */
   ShaderProgram* GetShader(const std::string& name);
 }
 

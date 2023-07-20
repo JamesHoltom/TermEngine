@@ -81,7 +81,7 @@ namespace term_engine::utility {
   glm::ivec2 GetPositionFromRowCol(usertypes::GameScene* game_scene, const glm::ivec2& rowcol);
 
   /**
-   * @brief Returns the row/column for the given data index, based on the game scene passed.
+   * @brief Returns the row/column for the given data index, based on the game object passed.
    * 
    * @param[in] game_object The game object to derive the row/column from.
    * @param[in] index       The data index to retrieve the row/column for.
@@ -99,11 +99,11 @@ namespace term_engine::utility {
   glm::ivec2 GetRowColFromIndex(usertypes::GameScene* game_scene, uint32_t index);
 
   /**
-   * @brief Returns the row/column for the given data index.
+   * @brief Returns the row/column for the given data index, based on a generic size parameter.
    * @note This is an overload for internal use within the CharacterMap class.
    * 
-   * @param[in] character_map The character map to derive the row/column from.
-   * @param[in] index         The data index to retrieve the row/column for.
+   * @param[in] size  The size of the container to derive the row/column from.
+   * @param[in] index The data index to retrieve the row/column for.
    * @returns The row/column.
    */
   glm::ivec2 GetRowColFromIndex(const glm::ivec2& size, uint32_t index);
@@ -127,11 +127,11 @@ namespace term_engine::utility {
   uint32_t GetIndexFromRowCol(usertypes::GameScene* game_scene, const glm::ivec2& rowcol);
 
   /**
-   * @brief Returns the data index for the given row/column.
+   * @brief Returns the data index for the given row/column, based on a generic size parameter.
    * @note This is an overload for internal use within the CharacterMap class.
    * 
-   * @param[in] character_map The character map to derive the data index from.
-   * @param[in] rowcol        The row/column to retrieve the data index for.
+   * @param[in] size    The size of the container to derive the data index from.
+   * @param[in] rowcol  The row/column to retrieve the data index for.
    * @returns The data index.
    */
   uint32_t GetIndexFromRowCol(const glm::ivec2& size, const glm::ivec2& rowcol);
@@ -151,8 +151,6 @@ namespace term_engine::utility {
    * @returns The converted index.
    */
   uint32_t ToCppIndex(uint32_t index);
-
-  
 }
 
 #endif // ! INDEX_UTILS_H
