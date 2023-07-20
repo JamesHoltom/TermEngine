@@ -12,9 +12,6 @@ local line1Text, line2Text, box
 function Init()
   otherFont = Font("fonts/SpaceMono-Regular.ttf")
 
-  print(defaultFont.filepath)
-  print(otherFont.filepath)
-
   defaultScene.charmap.size = Ivec2(40, 4)
   defaultScene:resizeToCharacterMap()
 

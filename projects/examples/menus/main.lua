@@ -20,6 +20,6 @@ function Loop(_)
 	if keyboard.isPressed("R") then
 		menuObj.use_keys = not menuObj.use_keys
 
-		print("Use keys is "..((menuObj.use_keys and "on") or "off"))
+		print("Keyboard selection is "..((menuObj.use_keys and "on") or "off"))
 	end
 end
