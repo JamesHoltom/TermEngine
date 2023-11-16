@@ -10,35 +10,40 @@
 local audioText, cursorText, settingsText, audioMusic, audioSeek, audioLength
 
 function Init()
-  defaultScene.charmap.size = Ivec2(42, 7)
-  defaultScene:resizeToCharacterMap()
+  defaultGameScene.charmap.size = Ivec2(42, 7)
+  defaultWindow:resizeToCharacterMap()
 
-  audioText = TextObject(Values.IVEC2_ZERO, Ivec2(26, 6))
-  audioText.text = "Press 'n' to play sound" ..
-                 "\nPress 'm' to play music" ..
-                 "\nPress 'p' to pause" ..
-                 "\nPress 'l' to loop" ..
-                 "\nPress 'r' to rewind" ..
-                 "\nPress 't' to seek to time"
-
-  cursorText = TextObject(ivec2(0, 6), Ivec2(28, 1))
-  settingsText = TextObject(ivec2(28, 0), Ivec2(14, 5))
-
-  audioMusic = Audio("resources/audio/Map.wav", "stream")
+  audioMusic = Audio("audio/Map.wav", "stream")
 
   audioSeek = 1000
   audioLength = audioMusic.length * 1000
+
+  audioText = TextObject(Values.IVEC2_ZERO, Ivec2(26, 6), "Press 'n' to play sound" ..
+  "\nPress 'm' to play music" ..
+  "\nPress 'p' to pause" ..
+  "\nPress 'l' to loop" ..
+  "\nPress 'r' to rewind" ..
+  "\nPress 't' to seek to time")
+  cursorText = TextObject(Ivec2(0, 6), Ivec2(28, 1), "Stopped")
+  settingsText = TextObject(Ivec2(28, 0), Ivec2(14, 5), "Volume:  " .. string.format("%.1f", audioMusic.volume) ..
+  "\nPan:    " .. string.format("% .1f", audioMusic.pan) ..
+  "\nPitch:   " .. string.format("%.1f", audioMusic.pitch) ..
+  "\nLooping: N" ..
+  "\nSeek:    " .. audioSeek)
 
   return true
 end
 
 function Loop(timestep)
-  local settingsChanged = true
+  local settingsChanged = false
 
-  if keyboard.isPressed("m") then
+  if keyboard.isPressed("n") then
+    audio.play("audio/1.wav")
+  elseif keyboard.isPressed("m") then
     if audioMusic.playing then
       print("Stop")
       audioMusic:stop()
+      cursorText.text = "Stopped"
     else
       print("Play")
       audioMusic:play()
@@ -50,6 +55,7 @@ function Loop(timestep)
     elseif audioMusic.playing then
       print("Pause")
       audioMusic:pause()
+      cursorText.text = "Paused: " .. math.floor(audioMusic.cursor) .. "/" .. math.floor(audioMusic.length)
     end
   elseif keyboard.isPressed("t") then
     print("Seek")
@@ -103,7 +109,7 @@ function Loop(timestep)
     settingsChanged = true
   end
 
-  if settingsChanged then
+  if settingsChanged == true then
     settingsChanged = false
 
     local isLooping = "N"
@@ -121,9 +127,5 @@ function Loop(timestep)
 
   if audioMusic.playing then
     cursorText.text = "Playing: " .. math.floor(audioMusic.cursor) .. "/" .. math.floor(audioMusic.length)
-  elseif audioMusic.paused then
-    cursorText.text = "Paused: " .. math.floor(audioMusic.cursor) .. "/" .. math.floor(audioMusic.length)
-  else
-    cursorText.text = "Stopped"
   end
 end

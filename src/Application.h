@@ -7,7 +7,7 @@
 
 namespace term_engine {
   /// @brief Performs setup of the application and all its sub-systems.
-  void Init();
+  void Init(int argc, char** argv);
 
   /// @brief Performs setup, ready for a new project.
   void InitProject();

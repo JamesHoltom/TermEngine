@@ -6,6 +6,7 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
+#include <variant>
 #include <vector>
 #include "BaseResource.h"
 #include "../../utility/GLUtils.h"
@@ -13,6 +14,9 @@
 
 namespace term_engine::usertypes {
   class ShaderProgram;
+
+  /// @brief Used to pass either a ShaderProgram object or it's string index to functions.
+  typedef std::variant<ShaderProgram*, std::string> ShaderProgramVariant;
 
   /// @brief The type name for ShaderProgram.
   constexpr char SHADER_PROGRAM_TYPE[] = "ShaderProgram";

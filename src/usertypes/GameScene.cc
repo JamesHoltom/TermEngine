@@ -7,83 +7,24 @@
 
 namespace term_engine::usertypes {
   GameScene::GameScene(const std::string& name) :
+    Flaggable(),
     name_(name),
-    background_(),
-    font_(nullptr),
-    window_(DEFAULT_WINDOW_POSITION, DEFAULT_WINDOW_SIZE, std::string(DEFAULT_WINDOW_TITLE), 0),
-    font_size_(DEFAULT_FONT_SIZE),
     character_map_(),
-    text_buffer_(),
-    marked_for_removal_(false)
+    game_window_(nullptr),
+    on_init_(sol::nil),
+    on_loop_(sol::nil),
+    on_quit_(sol::nil)
   {
-    font_ = LoadFont(std::string(DEFAULT_FONT));
-
-    window_.Resize(font_->GetCharacterSize(font_size_) * character_map_.GetSize());
-
-    background_shader_program_ = GetShader(std::string(DEFAULT_BG_SHADER));
-    background_shader_program_->SetUniform("fragment_texture", 1);
-
-    text_shader_program_ = GetShader(std::string(DEFAULT_TEXT_SHADER));
-    text_shader_program_->SetUniform("fragment_texture", 0);
-
-    ResetProjection();
-
     utility::logger->debug("Created game scene with name \"{}\".", name_);
   }
 
   GameScene::~GameScene()
   {
+    on_init_ = sol::nil;
+    on_loop_ = sol::nil;
+    on_quit_ = sol::nil;
+
     utility::logger->debug("Destroyed game scene \"{}\".", name_);
-  }
-
-  void GameScene::Update()
-  {
-    if (font_->FlaggedForRemoval())
-    {
-      font_ = LoadFont(std::string(DEFAULT_FONT));
-    }
-
-    if (text_shader_program_->FlaggedForRemoval())
-    {
-      text_shader_program_ = GetShader(std::string(DEFAULT_TEXT_SHADER));
-    }
-
-    if (background_shader_program_->FlaggedForRemoval())
-    {
-      background_shader_program_ = GetShader(std::string(DEFAULT_BG_SHADER));
-    }
-
-    window_.Use();
-    window_.Clear();
-
-    glm::ivec2 size = window_.GetSize();
-    glViewport(0, 0, size.x, size.y);
-
-    if (background_.IsLoaded())
-    {
-      background_buffer_.data.clear();
-      background_.CopyToBuffer(background_buffer_);
-      background_buffer_.PushToGL();
-      background_buffer_.Use();
-      background_.Use();
-      background_shader_program_->Use();
-
-      glDrawArrays(GL_TRIANGLES, 0, background_buffer_.data.size());
-    }
-
-    text_buffer_.data.clear();
-    CopyCharacterMapToBuffer(character_map_, text_buffer_, font_, font_size_);
-
-    text_buffer_.PushToGL();
-    text_buffer_.Use();
-    font_->Use();
-    font_->UpdateTexture();
-    text_shader_program_->Use();
-
-    glDrawArrays(GL_TRIANGLES, 0, text_buffer_.data.size());
-
-    window_.Refresh();
-    character_map_.Clear();
   }
 
   std::string GameScene::GetName() const
@@ -91,103 +32,98 @@ namespace term_engine::usertypes {
     return name_;
   }
 
-  uint32_t GameScene::GetFontSize() const
-  {
-    return font_size_;
-  }
-
-  Background* GameScene::GetBackground()
-  {
-    return &background_;
-  }
-
   CharacterMap* GameScene::GetCharacterMap()
   {
     return &character_map_;
   }
 
-  Font* GameScene::GetFont()
+  GameWindow* GameScene::GetGameWindow()
   {
-    return font_;
+    return game_window_;
   }
 
-  ShaderProgram* GameScene::GetBackgroundShader()
+  void GameScene::SetGameWindow(GameWindow* game_window)
   {
-    return background_shader_program_;
-  }
-
-  ShaderProgram* GameScene::GetTextShader()
-  {
-    return text_shader_program_;
-  }
-
-  Window* GameScene::GetWindow()
-  {
-    return &window_;
-  }
-
-  void GameScene::SetFont(Font* font)
-  {
-    if (font != nullptr)
+    if (game_window != nullptr)
     {
-      font_ = font;
-    }
-
-    ResizeToFitCharacterMap();
-  }
-
-  void GameScene::SetBackgroundShader(ShaderProgram* shader)
-  {
-    if (background_shader_program_ != nullptr)
-    {
-      background_shader_program_ = shader;
+      game_window->SetGameScene(this);
     }
   }
 
-  void GameScene::SetTextShader(ShaderProgram* shader)
+  void GameScene::UpdateGameWindow(GameWindow* game_window)
   {
-    if (text_shader_program_ != nullptr)
+    game_window_ = game_window;
+  }
+
+  sol::function* GameScene::GetOnInit()
+  {
+    return &on_init_;
+  }
+
+  sol::function* GameScene::GetOnLoop()
+  {
+    return &on_loop_;
+  }
+
+  sol::function* GameScene::GetOnQuit()
+  {
+    return &on_quit_;
+  }
+
+  void GameScene::SetOnInit(const sol::function& func)
+  {
+    on_init_ = func;
+  }
+
+  void GameScene::SetOnLoop(const sol::function& func)
+  {
+    on_loop_ = func;
+  }
+
+  void GameScene::SetOnQuit(const sol::function& func)
+  {
+    on_quit_ = func;
+  }
+
+  bool GameScene::CallInit()
+  {
+    utility::logger->debug("Calling init for game scene \"{}\"...", name_);
+
+    if (!on_init_.valid())
     {
-      text_shader_program_ = shader;
+      utility::logger->debug("No init found for game scene \"{}\".", name_);
+
+      return true;
+    }
+    
+    return utility::CallWithResult(on_init_);
+  }
+
+  void GameScene::CallLoop(float timestep)
+  {
+    if (on_loop_.valid())
+    {
+      utility::CallWithTimestep(on_loop_, timestep);
     }
   }
 
-  void GameScene::SetFontSize(uint32_t font_size)
+  void GameScene::CallQuit()
   {
-    font_size_ = font_size;
+    utility::logger->debug("Calling quit for game scene \"{}\"...", name_);
 
-    ResizeToFitCharacterMap();
+    if (on_quit_.valid())
+    {
+      utility::Call(on_quit_);
+    }
+    else
+    {
+      utility::logger->debug("No quit found for game scene \"{}\".", name_);
+    }
   }
 
-  void GameScene::ResizeToFitCharacterMap()
+  void GameScene::ClearMap()
   {
-    const glm::ivec2 character_size = font_->GetCharacterSize(font_size_);
-
-    window_.Resize(character_size * character_map_.GetSize());
-
-    ResetProjection();
-  }
-
-  void GameScene::ResizeToFitWindow()
-  {
-    const glm::ivec2 character_size = font_->GetCharacterSize(font_size_);
-
-    ResetProjection();
-  }
-
-  bool GameScene::FlaggedForRemoval() const
-  {
-    return marked_for_removal_;
-  }
-
-  void GameScene::FlagForRemoval()
-  {
-    marked_for_removal_ = true;
-  }
-
-  void GameScene::UnflagForRemoval()
-  {
-    marked_for_removal_ = false;
+    character_map_.Clear();
   }
 
   void GameScene::UpdateDebugInfo()
@@ -195,34 +131,11 @@ namespace term_engine::usertypes {
     if (ImGui::TreeNode(name_.c_str()))
     {
       ImGui::Text("Name: %s", name_.c_str());
-      ImGui::Text("Font Size: %i", font_size_);
-
-      window_.UpdateDebugInfo();
 
       character_map_.UpdateDebugInfo();
 
-      ImGui::SeparatorText("Font");
-
-      ImGui::Text("Font: %s", font_->GetName().c_str());
-
-      background_.UpdateDebugInfo();
-
-      ImGui::SeparatorText("Shaders");
-
-      ImGui::Text("Text: %s", text_shader_program_->GetName().c_str());
-      ImGui::Text("Background: %s", background_shader_program_->GetName().c_str());
-
       ImGui::TreePop();
     }
-  }
-
-  void GameScene::ResetProjection()
-  {
-    glm::ivec2 window_size = window_.GetSize();
-    const glm::mat4 projection = glm::ortho(0.0f, (float)window_size.x, (float)window_size.y, 0.0f);
-    
-    background_shader_program_->SetUniformMatrix("projection", projection, GL_FALSE);
-    text_shader_program_->SetUniformMatrix("projection", projection, GL_FALSE);
   }
 
   GameScene* AddGameScene(const std::string& name)
@@ -254,76 +167,15 @@ namespace term_engine::usertypes {
     return nullptr;
   }
 
-  GameScene* GetGameSceneByWindowId(uint32_t window_id)
+  void ClearFlaggedGameScenes()
   {
-    for (auto& [ _, game_scene ] : game_scene_list)
+    for (auto it = game_scene_list.cbegin(); it != game_scene_list.cend(); it++)
     {
-      if (game_scene->GetWindow()->GetId() == window_id)
+      if (it->second->FlaggedForRemoval())
       {
-        return game_scene.get();
-      }
-    }
+        ClearGameObjectsByGameScene(it->first);
 
-    return nullptr;
-  }
-
-  void UpdateGameScenes()
-  {
-    for (auto& [ _, game_scene ] : game_scene_list)
-    {
-      game_scene->Update();
-    }
-  }
-
-  void DoGameSceneEvents(const SDL_Event& event)
-  {
-    for (auto& [ name, game_scene ] : game_scene_list)
-    {
-      Window* window = game_scene->GetWindow();
-
-      if (event.type == SDL_WINDOWEVENT && event.window.windowID == window->GetId())
-      {
-        if (event.window.event == SDL_WINDOWEVENT_MOVED)
-        {
-          window->SetPosition(glm::ivec2(event.window.data1, event.window.data2));
-        }
-        else if (event.window.event == SDL_WINDOWEVENT_RESIZED)
-        {
-          window->SetSize(glm::ivec2(event.window.data1, event.window.data2));
-        }
-        else if (event.window.event == SDL_WINDOWEVENT_CLOSE)
-        {
-          if (name == std::string(DEFAULT_GAME_SCENE_NAME))
-          {
-            quit_flag = true;
-          }
-          else
-          {
-            switch (window->GetCloseBehaviour())
-            {
-              case CloseLogic::HIDE:
-                window->Hide();
-
-                utility::logger->debug("Hidden game scene \"{}\".", game_scene->GetName());
-
-                break;
-              case CloseLogic::CLOSE:
-                game_scene->FlagForRemoval();
-
-                utility::logger->debug("Flagged game scene \"{}\" for removal.", game_scene->GetName());
-
-                break;
-              case CloseLogic::QUIT:
-                quit_flag = true;
-
-                utility::logger->debug("Call to quit game from game scene \"{}\".", game_scene->GetName());
-
-                break;
-            }
-          }
-        }
-
-        break;
+        game_scene_list.erase(it);
       }
     }
   }
@@ -333,23 +185,5 @@ namespace term_engine::usertypes {
     game_scene_list.clear();
 
     utility::logger->debug("Cleared all game scenes from the list.");
-  }
-
-  void ClearFlaggedGameScenes()
-  {
-    for (auto it = game_scene_list.cbegin(); it != game_scene_list.cend();)
-    {
-      if (it->second->FlaggedForRemoval())
-      {
-        ClearGameObjectsByGameScene(it->first);
-        ClearEventListenersByGameScene(it->first);
-
-        game_scene_list.erase(it++);
-      }
-      else
-      {
-        ++it;
-      }
-    }
   }
 }

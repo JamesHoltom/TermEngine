@@ -166,7 +166,7 @@ namespace term_engine::utility {
     }
     else
     {
-      logger->warn("Shader with an ID of {} has not been built.", shader_id);
+      logger->warn("Shader with an ID of {} has not been built. Error #{}", shader_id, glGetError());
     }
   }
 
@@ -196,6 +196,11 @@ namespace term_engine::utility {
     int shader_compiled = GL_FALSE;
     uint32_t shader_id = glCreateShader(type);
     const char* source_c_string = { glsl_code.c_str() };
+
+    if (shader_id == 0)
+    {
+      utility::logger->error("Failed to create shader stage! Error #{}", glGetError());
+    }
 
     glShaderSource(shader_id, 1, &source_c_string, nullptr);
     glCompileShader(shader_id);

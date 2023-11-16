@@ -21,11 +21,11 @@ function SetValue()
 end
 
 function Init()
-  defaultScene.charmap.size = Ivec2(16, 8)
-  defaultScene:resizeToFit()
+  defaultGameScene.charmap.size = Ivec2(16, 8)
+  defaultWindow:resizeToCharacterMap()
 
-  if fs.exists("resources/myFile.txt") then
-    fileText = fs.read("resources/myFile.txt")
+  if filesystem.exists("resources/myFile.txt") then
+    fileText = filesystem.read("resources/myFile.txt")
   else
     fileText = "red"
   end
@@ -56,7 +56,5 @@ function Loop(timestep)
 end
 
 function Quit()
-  fs.write("resources/myFile.txt", fileText, false)
-
-  return true
+  filesystem.write("resources/myFile.txt", fileText, false)
 end

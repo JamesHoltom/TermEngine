@@ -438,6 +438,13 @@ namespace term_engine::usertypes {
     uint32_t program_id = glCreateProgram();
     utility::ShaderProcessResult vert_results, frag_results, geom_results;
 
+    if (program_id == 0)
+    {
+      utility::logger->error("Failed to create shader program! Error #{}", glGetError());
+
+      return nullptr;
+    }
+
     if (!vert_code.empty())
     {
       vert_results = utility::CompileShaderStage(vert_code, GL_VERTEX_SHADER);

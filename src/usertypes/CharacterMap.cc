@@ -7,19 +7,16 @@
 
 namespace term_engine::usertypes {
   CharacterMap::CharacterMap() :
-    position_(glm::vec2()),
-    size_(DEFAULT_CHARACTER_MAP_SIZE),
-    empty_character_bg_colour_(glm::vec4())
+    hide_empty_characters_(true)
   {
-    const uint64_t size = size_.x * size_.y;
-
-    data_.reserve(size);
-    data_.resize(size);
+    SetSize(DEFAULT_CHARACTER_MAP_SIZE);
   }
 
-  glm::vec2& CharacterMap::GetPosition()
+  CharacterMap::CharacterMap(const glm::ivec2& size, const sol::table& data) :
+    hide_empty_characters_(true)
   {
-    return position_;
+    SetSize(size);
+    SetData(data);
   }
 
   glm::ivec2& CharacterMap::GetSize()
@@ -27,14 +24,14 @@ namespace term_engine::usertypes {
     return size_;
   }
 
-  bool CharacterMap::ShouldEmptyCharactersHaveBackground() const
+  CharacterData& CharacterMap::GetData()
   {
-    return empty_character_bg_colour_.a == 0.0f;
+    return sol::as_container(data_);
   }
 
-  void CharacterMap::SetPosition(const glm::vec2& position)
+  bool& CharacterMap::AreEmptyCharactersHidden()
   {
-    position_ = position;
+    return hide_empty_characters_;
   }
 
   void CharacterMap::SetSize(const glm::ivec2& size)
@@ -50,13 +47,47 @@ namespace term_engine::usertypes {
     data_.clear();
     data_.reserve(data_size);
     data_.resize(data_size);
+    data_.shrink_to_fit();
 
     size_ = size;
   }
 
-  void CharacterMap::SetEmptyCharacterBackground(bool flag)
+  void CharacterMap::SetData(const sol::table& data)
   {
-    empty_character_bg_colour_.a = flag ? 0.0 : 255.0;
+    try
+    {
+      CharacterData characters = data.as<CharacterData>();
+
+      const int in_size = characters.size();
+      const int size = data_.size();
+
+      if (in_size < size) {
+        utility::logger->debug("Character data of smaller than character map. Old data will be blanked.");
+        Clear();
+      }
+      else if (in_size > size) {
+        utility::logger->debug("Character data is larger than character map. Some data will be omitted.");
+      }
+
+      for (int i = 0; i < size; ++i)
+      {
+        if (i >= in_size)
+        {
+          break;
+        }
+
+        data_[i] = characters[i];
+      }
+    }
+    catch (const std::exception& err)
+    {
+      utility::logger->warn("Invalid data given to animation frame!");
+    }
+  }
+
+  void CharacterMap::SetHideEmptyCharacters(bool flag)
+  {
+    hide_empty_characters_ = flag;
   }
 
   void CharacterMap::Clear()
@@ -64,13 +95,22 @@ namespace term_engine::usertypes {
     std::fill(data_.begin(), data_.end(), Character());
   }
 
-  void CharacterMap::PushCharacters(const glm::ivec2& position, const glm::ivec2& size, const CharacterData& data)
+  void CharacterMap::SetFunction(const sol::function& func)
   {
-    assert(size.x > 0 && size.y > 0);
+    int index = 1;
 
-    // Do not render the object if it is obscured from view.
-    // i.e. If the top-left corner of the object is beyond the right/bottom edges of the view, or if the bottom-right corner of the object is beyond the top/left edges of the view.
-    if (glm::any(glm::lessThan(position + size, glm::ivec2(0))) || glm::any(glm::greaterThanEqual(position, size_)))
+    for (Character& character : data_)
+    {
+      character = func.call<Character>(data_, index++);
+    }
+  }
+
+  void CharacterMap::PushCharacters(const glm::ivec2& position, const CharacterMap& data)
+  {
+    // Do not push the character map if it is outside the target character map.
+    // I.e. If the top-left corner of the source character map is beyond the right/bottom edges of the target character map,
+    // or if the bottom-right corner of the source character map is beyond the top/left edges of the target character map.
+    if (glm::any(glm::lessThan(position + data.size_, glm::ivec2(0))) || glm::any(glm::greaterThanEqual(position, size_)))
     {
       return;
     }
@@ -78,11 +118,13 @@ namespace term_engine::usertypes {
     uint64_t column_pos = 0;
     uint64_t index = utility::GetIndexFromRowCol(size_, position);
 
-    for (const Character& character : data)
+    for (const Character& character : data.data_)
     {
-      // Do not render the character if it is invisible.
-      if (character.character_ != NO_CHARACTER && position.x + column_pos >= 0 && position.x + column_pos < size_.x) {
-        // Do not render the character if it is obscured from view.
+      bool omitEmptyChars = (character.character_ == NO_CHARACTER && data.hide_empty_characters_);
+
+      // Do not push the character if it is an empty character.
+      if (!omitEmptyChars && position.x + column_pos >= 0 && position.x + column_pos < size_.x) {
+        // Do not push the character if it is outside the target character map.
         if (index >= 0 && index < size_.x * size_.y) {
           data_[index] = Character(character);
         }
@@ -91,7 +133,7 @@ namespace term_engine::usertypes {
       ++column_pos;
       ++index;
 
-      if (column_pos == size.x)
+      if (column_pos == data.size_.x)
       {
         index += size_.x - column_pos;
         column_pos = 0;
@@ -103,11 +145,7 @@ namespace term_engine::usertypes {
   {
     if (ImGui::TreeNode("Character Map"))
     {
-      ImGui::Text("Position: %f, %f", position_.x, position_.y);
       ImGui::Text("Size: %i, %i", size_.x, size_.y);
-      ImGui::Text("Colour: ");
-      ImGui::SameLine();
-      ImGui::TextColored(ImVec4(empty_character_bg_colour_.r, empty_character_bg_colour_.g, empty_character_bg_colour_.b, empty_character_bg_colour_.a), "%f, %f, %f, %f", empty_character_bg_colour_.r, empty_character_bg_colour_.g, empty_character_bg_colour_.b, empty_character_bg_colour_.a);
 
       UpdateCharacterDataDebugInfo(data_, size_);
       
@@ -115,20 +153,20 @@ namespace term_engine::usertypes {
     }
   }
 
-  void CopyCharacterMapToBuffer(const CharacterMap& character_map, rendering::Buffer& buffer, Font* font_, uint32_t font_size)
+  void CharacterMap::CopyToBuffer(CharacterMap* character_map, const glm::ivec2& position, rendering::Buffer& buffer, Font* font_, uint32_t font_size)
   {
     uint64_t index = 0;
 
-    for (const Character& character : character_map.data_)
+    for (const Character& character : character_map->data_)
     {
       const CharacterBB textBbox = font_->GetCharacter(character.character_, font_size);
       const glm::vec2 charSize = glm::vec2(font_->GetCharacterSize(font_size));
-      const glm::vec2 charOffset = glm::vec2(utility::GetRowColFromIndex(character_map.size_, index++) * font_->GetCharacterSize(font_size));
+      const glm::vec2 charOffset = glm::vec2(position + utility::GetRowColFromIndex(character_map->size_, index++) * font_->GetCharacterSize(font_size));
       const glm::vec2 textOffset = glm::vec2((charSize.x - textBbox.character_size_.x) / 2, textBbox.baseline_);
       const glm::vec2 textTexPos = glm::vec2(textBbox.position_) / (float)TEXTURE_SIZE;
       const glm::vec2 textTexSize = glm::vec2(textBbox.character_size_) / (float)TEXTURE_SIZE;
       const glm::vec2 bgTexSize = glm::vec2(whitespace_bbox.character_size_) / (float)TEXTURE_SIZE;
-      const glm::vec4 bgColour = character.character_ == 0 ? character_map.empty_character_bg_colour_ : character.background_colour_;
+      const glm::vec4 bgColour = (character.character_ == NO_CHARACTER && character_map->hide_empty_characters_) ? glm::vec4(0.0f) : character.background_colour_;
 
       // Draw the background.
       /* Draw order:
@@ -137,9 +175,9 @@ namespace term_engine::usertypes {
        * | \
        * 3--2
        */
-      buffer.data.push_back(rendering::BufferData(character_map.position_ + charOffset, glm::vec2(), bgColour));
-      buffer.data.push_back(rendering::BufferData(character_map.position_ + charOffset + charSize, bgTexSize, bgColour));
-      buffer.data.push_back(rendering::BufferData(character_map.position_ + charOffset + glm::vec2(0.0f, charSize.y), glm::vec2(0.0f, bgTexSize.y), bgColour));
+      buffer.data.push_back(rendering::BufferData(charOffset, glm::vec2(), bgColour));
+      buffer.data.push_back(rendering::BufferData(charOffset + charSize, bgTexSize, bgColour));
+      buffer.data.push_back(rendering::BufferData(charOffset + glm::vec2(0.0f, charSize.y), glm::vec2(0.0f, bgTexSize.y), bgColour));
 
       /* Draw order:
        * 1--2
@@ -147,9 +185,9 @@ namespace term_engine::usertypes {
        *   \|
        *    3
        */
-      buffer.data.push_back(rendering::BufferData(character_map.position_ + charOffset, glm::vec2(), bgColour));
-      buffer.data.push_back(rendering::BufferData(character_map.position_ + charOffset + glm::vec2(charSize.x, 0), glm::vec2(bgTexSize.x, 0.0f), bgColour));
-      buffer.data.push_back(rendering::BufferData(character_map.position_ + charOffset + charSize, bgTexSize, bgColour));
+      buffer.data.push_back(rendering::BufferData(charOffset, glm::vec2(), bgColour));
+      buffer.data.push_back(rendering::BufferData(charOffset + glm::vec2(charSize.x, 0), glm::vec2(bgTexSize.x, 0.0f), bgColour));
+      buffer.data.push_back(rendering::BufferData(charOffset + charSize, bgTexSize, bgColour));
 
       // Draw the foreground.
       /* Draw order:
@@ -158,9 +196,9 @@ namespace term_engine::usertypes {
        * | \
        * 3--2
        */
-      buffer.data.push_back(rendering::BufferData(character_map.position_ + charOffset + textOffset, textTexPos, character.foreground_colour_));
-      buffer.data.push_back(rendering::BufferData(character_map.position_ + charOffset + glm::vec2(textBbox.character_size_) + textOffset, textTexPos + textTexSize, character.foreground_colour_));
-      buffer.data.push_back(rendering::BufferData(character_map.position_ + charOffset + glm::vec2(0, textBbox.character_size_.y) + textOffset, glm::vec2(textTexPos.x, textTexPos.y + textTexSize.y), character.foreground_colour_));
+      buffer.data.push_back(rendering::BufferData(charOffset + textOffset, textTexPos, character.foreground_colour_));
+      buffer.data.push_back(rendering::BufferData(charOffset + glm::vec2(textBbox.character_size_) + textOffset, textTexPos + textTexSize, character.foreground_colour_));
+      buffer.data.push_back(rendering::BufferData(charOffset + glm::vec2(0, textBbox.character_size_.y) + textOffset, glm::vec2(textTexPos.x, textTexPos.y + textTexSize.y), character.foreground_colour_));
 
       /* Draw order:
        * 1--2
@@ -168,9 +206,9 @@ namespace term_engine::usertypes {
        *   \|
        *    3
        */
-      buffer.data.push_back(rendering::BufferData(character_map.position_ + charOffset + textOffset, textTexPos, character.foreground_colour_));
-      buffer.data.push_back(rendering::BufferData(character_map.position_ + charOffset + glm::vec2(textBbox.character_size_.x, 0) + textOffset, glm::vec2(textTexPos.x + textTexSize.x, textTexPos.y), character.foreground_colour_));
-      buffer.data.push_back(rendering::BufferData(character_map.position_ + charOffset + glm::vec2(textBbox.character_size_) + textOffset, textTexPos + textTexSize, character.foreground_colour_));
+      buffer.data.push_back(rendering::BufferData(charOffset + textOffset, textTexPos, character.foreground_colour_));
+      buffer.data.push_back(rendering::BufferData(charOffset + glm::vec2(textBbox.character_size_.x, 0) + textOffset, glm::vec2(textTexPos.x + textTexSize.x, textTexPos.y), character.foreground_colour_));
+      buffer.data.push_back(rendering::BufferData(charOffset + glm::vec2(textBbox.character_size_) + textOffset, textTexPos + textTexSize, character.foreground_colour_));
     }
   }
 }

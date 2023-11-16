@@ -7,6 +7,14 @@
 #include "../utility/SpdlogUtils.h"
 
 namespace term_engine::scripting {
+  int Print(lua_State* L)
+  {
+    std::string str = lua_tostring(L, 1);
+    utility::logger->info(str);
+
+    return 1;
+  }
+
   void SetNextProject(const std::string& filepath)
   {
     std::filesystem::path project_path = system::SearchForProjectPath(filepath);
@@ -59,6 +67,9 @@ namespace term_engine::scripting {
       return;
     }
 
+    project_path = next_project_path;
+    next_project_path.clear();
+
     lua_state = std::make_unique<sol::state>();
     lua_state->open_libraries(sol::lib::base, sol::lib::package, sol::lib::math, sol::lib::string, sol::lib::table, sol::lib::utf8);
 
@@ -71,9 +82,9 @@ namespace term_engine::scripting {
       rootDirectory + "/vendor/lunajson/?.lua;" + 
       rootDirectory + "/vendor/lunajson/?/init.lua;" + 
       rootDirectory + "/?.lua;" +
-      rootDirectory + "/?/init.lua" +
-      next_project_path.string() + "/?.lua;" +
-      next_project_path.string() + "/?/init.lua";
+      rootDirectory + "/?/init.lua;" +
+      project_path.string() + "/?.lua;" +
+      project_path.string() + "/?/init.lua";
     (*lua_state)["package"]["path"] = package_path;
 
     utility::logger->debug("Lua path: {}", std::string((*lua_state)["package"]["path"]));
@@ -84,16 +95,16 @@ namespace term_engine::scripting {
     bindings::BindUsertypesToState(*lua_state);
     bindings::BindUtilitiesToState(*lua_state);
 
+    lua_state->set_function("print", Print);
+
     (*lua_state)["defaultFont"] = usertypes::LoadFont(std::string(usertypes::DEFAULT_FONT));
     (*lua_state)["defaultTextShader"] = usertypes::AddShader(std::string(usertypes::DEFAULT_TEXT_SHADER), shaders::DEFAULT_VERT_GLSL, shaders::TEXT_FRAG_GLSL, "");
     (*lua_state)["defaultBGShader"] = usertypes::AddShader(std::string(usertypes::DEFAULT_BG_SHADER), shaders::DEFAULT_VERT_GLSL, shaders::BACKGROUND_FRAG_GLSL, "");
-    (*lua_state)["defaultScene"] = usertypes::AddGameScene(std::string(usertypes::DEFAULT_GAME_SCENE_NAME));
+    (*lua_state)["defaultGameScene"] = usertypes::AddGameScene(std::string(usertypes::DEFAULT_GAME_SCENE_NAME));
+    (*lua_state)["defaultWindow"] = usertypes::AddDefaultGameWindow();
 
     LoadFile(rootDirectory + std::string(LOADER_SCRIPT_PATH));
-    LoadFile(next_project_path / std::string(PROJECT_ENTRYPOINT));
-
-    project_path = next_project_path;
-    next_project_path.clear();
+    LoadFile(project_path / std::string(PROJECT_ENTRYPOINT));
 
     utility::logger->info("Loaded project.");
   }
@@ -151,18 +162,12 @@ namespace term_engine::scripting {
     }
   }
 
-  bool OnQuit()
+  void OnQuit()
   {
-    bool return_value = true;
-
     try {
       sol::protected_function_result result = (*lua_state)["Quit"]();
 
-      if (result.valid())
-      {
-        return_value = (bool)result;
-      }
-      else
+      if (!result.valid())
       {
         sol::error err = result;
         utility::logger->error("Received Lua error on quit: {}", err.what());
@@ -171,7 +176,5 @@ namespace term_engine::scripting {
     catch (const std::exception& err) {
       utility::logger->error("A scripting error occurred!\nProject: {}\nError: {}", project_path.string(), err.what());
     }
-
-    return return_value;
   }
 }

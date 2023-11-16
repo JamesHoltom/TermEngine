@@ -6,6 +6,7 @@
 #include <forward_list>
 #include <memory>
 #include <string>
+#include "../Flaggable.h"
 #include "../../utility/LogUtils.h"
 
 namespace term_engine::usertypes {
@@ -25,7 +26,7 @@ namespace term_engine::usertypes {
   inline ObjectList object_list;
 
   /// @brief The base object, on which other game objects are derived from.
-  class BaseObject {
+  class BaseObject : public Flaggable {
   public:
     /// @brief Constructs the base object.
     BaseObject();
@@ -80,19 +81,6 @@ namespace term_engine::usertypes {
      */
     void SetActive(bool flag);
 
-    /**
-     * @brief Returns if the object is flagged to be removed.
-     * 
-     * @returns If the object is flagged to be removed.
-     */
-    bool FlaggedForRemoval() const;
-
-    /// @brief Flags the object to be removed.
-    void FlagForRemoval();
-
-    /// @brief Unsets the removal flag from the object.
-    void UnflagForRemoval();
-
     /// @brief Updates the debugging information for this object.
     virtual void UpdateDebugInfo() const = 0;
 
@@ -108,8 +96,6 @@ namespace term_engine::usertypes {
     uint64_t object_id_;
     /// @brief Is the object active? (i.e. Is the object being rendered and acted on?)
     bool is_active_;
-    /// @brief A flag to mark this object to be removed.
-    bool marked_for_removal_;
     /// @brief Represents the ID to use for the next object.
     static uint64_t object_next_id_;
   };
@@ -123,11 +109,11 @@ namespace term_engine::usertypes {
   /// @brief Updates each object in the list.
   void UpdateObjects(uint64_t timestep);
 
-  /// @brief Removes all objects in the list.
-  void ClearAllObjects();
-
   /// @brief Clears all objects that are flagged for removal from the list.
   void ClearFlaggedObjects();
+
+  /// @brief Removes all objects in the list.
+  void ClearAllObjects();
 }
 
 #endif // ! BASE_OBJECT_H

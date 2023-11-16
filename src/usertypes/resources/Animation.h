@@ -29,48 +29,90 @@ namespace term_engine::usertypes {
   constexpr uint32_t DEFAULT_ANIMATION_FRAME_RATE = 24;
 
   /// @brief Stores a map of characters that represents a frame of animation.
-  struct AnimationFrame {
-    /// @brief The character data to store.
-    CharacterData data_;
-    /// @brief The size of the frame data.
-    glm::ivec2 size_;
-    /// @brief The position of the frame, relative to the object.
-    glm::ivec2 offset_;
-    /// @brief Additional delay added to the frame rate, in milliseconds (ms).
-    int32_t added_duration_;
-
+  class AnimationFrame {
+  public:
     /// @brief Constructs the animation frame.
     AnimationFrame();
 
     /**
      * @brief Constructs the animation frame with the given parameters.
      * 
-     * @param[in] data The of the frame.
+     * @param[in] data The character data for the frame.
      * @param[in] size The size of the frame.
-     * @param[in] offset The position of the frame, relative to the object.
-     * @param[in] duration The additional delay to add to the frame rate, when rendering the frame.
+     * @param[in] offset The position of the frame, relative to the game object using it.
+     * @param[in] duration The additional delay to add to the frame rate when rendering the frame.
      */
     AnimationFrame(const sol::table& data, const glm::ivec2& size, const glm::ivec2& offset, int32_t duration);
 
     /**
      * @brief Constructs the animation frame with the given parameters.
      * 
-     * @param[in] data The of the frame.
+     * @param[in] data The character data for the frame.
      * @param[in] size The size of the frame.
-     * @param[in] offset The position of the frame, relative to the object.
+     * @param[in] offset The position of the frame, relative to the game object using it.
      */
     AnimationFrame(const sol::table& data, const glm::ivec2& size, const glm::ivec2& offset);
 
     /**
      * @brief Constructs the animation frame with the given parameters.
      * 
-     * @param[in] data The of the frame.
+     * @param[in] data The character data for the frame.
      * @param[in] size The size of the frame.
      */
     AnimationFrame(const sol::table& data, const glm::ivec2& size);
 
+    /**
+     * @brief Returns the frame's character data.
+     * 
+     * @returns The data within the frame.
+     */
+    CharacterMap& GetCharacterMap();
+
+    /**
+     * @brief Returns the position of the frame, relative to the game object using it.
+     * 
+     * @returns The position of the frame, in rows/columns.
+     */
+    glm::ivec2& GetOffset();
+
+    /**
+     * @brief Returns the additional delay to add to the frame rate when rendering the frame.
+     * 
+     * @returns The delay, in milliseconds (ms).
+     */
+    int& GetAddedDuration();
+
+    /**
+     * @brief Sets the character data for the frame.
+     * 
+     * @param[in] data The character data.
+     */
+    void SetCharacterMap(const CharacterMap& data);
+
+    /**
+     * @brief Sets the position of the frame, relative to the game object using it.
+     * 
+     * @param[in] offset The position of the frame, in rows/columns.
+     */
+    void SetOffset(const glm::ivec2& offset);
+
+    /**
+     * @brief Sets the additional delay to add to the frame rate when rendering the frame.
+     * 
+     * @param[in] duration The delay, in milliseconds (ms).
+     */
+    void SetAddedDuration(int duration);
+
     /// @brief Updates the debugging information for this resource.
     void UpdateDebugInfo();
+
+  private:
+    /// @brief The character data to store.
+    CharacterMap data_;
+    /// @brief The position of the frame, relative to the object.
+    glm::ivec2 offset_;
+    /// @brief Additional delay added to the frame rate, in milliseconds (ms).
+    int added_duration_;
   };
 
   /// @brief Represents an animation queued into an object.

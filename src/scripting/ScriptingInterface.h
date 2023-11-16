@@ -22,6 +22,14 @@ namespace term_engine::scripting {
   inline std::filesystem::path next_project_path = "";
 
   /**
+   * @brief Override for Lua's "print()" function, to print text to the console output with formatting.
+   * 
+   * @param[in] L The Lua state.
+   * @returns 0 if successful, or >0 if there was an issue.
+   */
+  int Print(lua_State* L);
+
+  /**
    * @brief Loads the contents of a project's "main.lua" file into the state.
    * 
    * @param[in] filepath The filepath of the Lua script to load.
@@ -63,7 +71,7 @@ namespace term_engine::scripting {
    * 
    * @returns A boolean value, indicating if TermEngine can close. This can be used by scripters to ask the player before closing, or to run clean-up code.
    */
-  bool OnQuit();
+  void OnQuit();
 }
 
 #endif // ! SCRIPTING_INTERFACE_H

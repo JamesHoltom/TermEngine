@@ -26,8 +26,10 @@ function ExampleObject(_pos, _text, _game_scene)
   local __mtIndex = function(_, key)
     if key == "text" then
       return self.text
-    elseif key == "position" or key == "size" then
-      return self.obj[key]
+    elseif key == "position" then
+      return self.obj.position
+    elseif key == "size" then
+      return self.obj.data.size
     else
       return nil
     end
@@ -35,14 +37,20 @@ function ExampleObject(_pos, _text, _game_scene)
 
   -- Configures the metatable for setting properties in an ExampleObject.
   local __mtNewIndex = function(_, key, value)
-    if key == "position" or key == "size" then
-      self.obj[key] = Ivec2(value)
+    if key == "position" then
+      if value.__type.name == "Ivec2" then
+        self.obj.position = Ivec2(value)
+      end
+    elseif key == "size" then
+      if value.__type.name == "Ivec2" and value >= Values.IVEC2_ONE then
+        self.obj.data.size = Ivec2(value)
+      end
     end
   end
 
   -- Set the text in the base Object.
-  self.obj.size = Ivec2(#self.text, 1)
-  self.obj:set(function(_, index) return Character(self.text:sub(index, index), Colours.WHITE, Colours.BLACK) end)
+  self.obj.data.size = Ivec2(#self.text, 1)
+  self.obj.data:set(function(_, index) return Character(self.text:sub(index, index), Colours.WHITE, Colours.BLACK) end)
   
   -- Return the object with the methods and metatable set.
   return setmetatable({

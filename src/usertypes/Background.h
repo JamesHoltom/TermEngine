@@ -5,20 +5,17 @@
 
 #include <filesystem>
 #include <memory>
+#include <glm/glm.hpp>
+#include "resources/Image.h"
 #include "../rendering/Buffer.h"
-#include "../rendering/Texture.h"
-#include "../utility/GLUtils.h"
 
 namespace term_engine::usertypes {
-  /// @brief Stores a background image, that can be rendered to a game scene.
+  /// @brief Handles the rendering of background images to a game scene.
   class Background {
   public:
     /// @brief Constructs the background.
     Background();
     
-    /// @brief Destroys the background.
-    ~Background();
-
     /**
      * @brief Returns the position of the background in the game scene.
      * 
@@ -32,13 +29,6 @@ namespace term_engine::usertypes {
      * @returns The background size, in pixels (px).
      */
     glm::ivec2& GetSize();
-
-    /**
-     * @brief Returns the size of the background texture.
-     * 
-     * @returns The texture size, in pixels (px).
-     */
-    glm::ivec2 GetTextureSize() const;
 
     /**
      * @brief Returns the colour of the background.
@@ -82,6 +72,9 @@ namespace term_engine::usertypes {
      */
     void SetSource(const std::string& filepath);
 
+    /// @brief Unsets the background texture and resets the position/size.
+    void RemoveSource();
+
     /**
      * @brief Returns if a background texture is loaded.
      * 
@@ -106,10 +99,8 @@ namespace term_engine::usertypes {
     void UpdateDebugInfo() const;
 
   protected:
-    /// @brief Smart pointer to the texture to render.
-    rendering::TexturePtr texture_;
-    /// @brief The filepath to the background texture.
-    std::filesystem::path filepath_;
+    /// @brief Raw pointer to the texture to render.
+    Image* image_;
     /// @brief The position of the background in the game scene, in pixels (px).
     glm::ivec2 position_;
     /// @brief The size of the background in the game scene, in pixels (px).

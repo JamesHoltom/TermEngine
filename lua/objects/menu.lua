@@ -89,8 +89,10 @@ function MenuObject(_position, _game_scene)
 		-- @returns The value of the property.
 		--]]
 		local mtIndex = function(_, key)
-			if key == "id" or key == "position" or key == "size" or key == "hovering" or key == "active" then
+			if key == "id" or key == "position" or key == "hovering" or key == "active" then
 				return opt_self.object[key]
+			elseif key == "size" then
+				return opt_self.object.data.size
 			elseif key == "title" then
 				return opt_self[key]
 			else
@@ -107,7 +109,7 @@ function MenuObject(_position, _game_scene)
 			if key == "title" then
 				opt_self.title = tostring(value)
 			elseif key == "hovering" then
-				opt_self.hovering = value
+				opt_self.hovering = value == true
 			elseif key == "active" then
 				opt_self.object.active = value == true
 			end
@@ -272,9 +274,11 @@ function MenuObject(_position, _game_scene)
 	--]]
 	local mtNewIndex = function(_, key, value)
 		if key == "position" then
-			menu_self.position = Ivec2(value)
-			for k, v in ipairs(menu_self.options) do
-				menu_self.options[k].position = v.position + menu_self.position
+			if value.__type.name == "Ivec2" then
+				menu_self.position = value
+				for k, v in ipairs(menu_self.options) do
+					menu_self.options[k].position = v.position + menu_self.position
+				end
 			end
 		elseif key == "active" then
 			local flag = (value == true)

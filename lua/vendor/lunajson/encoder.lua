@@ -268,6 +268,48 @@ local function newencoder()
 		i = i + 2
 	end
 
+	local function f_character_map(charmap)
+		-- Start the object.
+		builder[i] = '{'
+		i = i + 1
+
+		-- Set the size.
+		f_string("size")
+		builder[i] = ":"
+		i = i + 1
+		f_vec(charmap.size, 2)
+		builder[i] = ','
+		i = i + 1
+		
+		-- Set the "Hide Empty Characters" flag.
+		f_string("hideEmptyCharacters")
+		builder[i] = ":"
+		i = i + 1
+		f_tostring(charmap.hideEmptyCharacters)
+		builder[i] = ','
+		i = i + 1
+		
+		-- Set the character data.
+		f_string("data")
+		builder[i] = ":"
+		builder[i + 1] = "["
+		i = i + 2
+		
+		for j = 1, #charmap.data do
+			if j > 1 then
+				builder[i] = ","
+				i = i + 1
+			end
+
+			f_character(charmap.data[j])
+		end
+
+		-- End the object.
+		builder[i] = ']'
+		builder[i + 1] = '}'
+		i = i + 2
+	end
+
 	local function f_gameobject(obj)
 		-- Start the object.
 		builder[i] = '{'
@@ -296,11 +338,11 @@ local function newencoder()
 		builder[i] = ','
 		i = i + 1
 		
-		-- Set the size.
-		f_string("size")
+		-- Set the data.
+		f_string("data")
 		builder[i] = ":"
 		i = i + 1
-		f_vec(obj.size, 2)
+		f_character_map(obj.data)
 		builder[i] = ','
 		i = i + 1
 		
@@ -309,29 +351,11 @@ local function newencoder()
 		builder[i] = ":"
 		i = i + 1
 		f_tostring(obj.active)
-		builder[i] = ','
-		i = i + 1
-
-		-- Set the data.
-		f_string("data")
-		builder[i] = ":"
-		builder[i + 1] = "["
-		i = i + 2
-		
-		for j = 1, obj.size.x * obj.size.y do
-			if j > 1 then
-				builder[i] = ","
-				i = i + 1
-			end
-
-			f_character(obj.data[j])
-		end
 
 		-- End the object.
-		builder[i] = ']'
+		builder[i] = '}'
 		builder[i + 1] = '}'
-		builder[i + 2] = '}'
-		i = i + 3
+		i = i + 2
 	end
 
 	local function f_anim_frame(frame)
@@ -354,11 +378,11 @@ local function newencoder()
 		builder[i + 1] = "{"
 		i = i + 2
 
-		-- Set the size.
-		f_string("size")
+		-- Set the data.
+		f_string("data")
 		builder[i] = ":"
 		i = i + 1
-		f_vec(frame.size, 2)
+		f_character_map(frame.data)
 		builder[i] = ','
 		i = i + 1
 
@@ -375,29 +399,11 @@ local function newencoder()
 		builder[i] = ":"
 		i = i + 1
 		f_number(frame.addedDuration)
-		builder[i] = ','
-		i = i + 1
-
-		-- Set the data.
-		f_string("data")
-		builder[i] = ":"
-		builder[i + 1] = "["
-		i = i + 2
-		
-		for j = 1, #frame.data do
-			if j > 1 then
-				builder[i] = ","
-				i = i + 1
-			end
-
-			f_character(frame.data[j])
-		end
 
 		-- End the object.
-		builder[i] = ']'
+		builder[i] = '}'
 		builder[i + 1] = '}'
-		builder[i + 2] = '}'
-		i = i + 3
+		i = i + 2
 	end
 
 	local function f_animation(anim)

@@ -7,6 +7,8 @@
 #include "system/FPSManager.h"
 #include "usertypes/EventListener.h"
 #include "usertypes/GameScene.h"
+#include "usertypes/GameWindow.h"
+#include "usertypes/Window.h"
 #include "usertypes/game_objects/BaseObject.h"
 #include "usertypes/resources/BaseResource.h"
 #include "utility/AudioUtils.h"
@@ -17,9 +19,10 @@
 #include "utility/SpdlogUtils.h"
 
 namespace term_engine {
-  void Init()
+  void Init(int argc, char** argv)
   {
     utility::InitLogger();
+    system::GetCLArguments(argc, argv);
 
     if (!utility::InitSDL() || !utility::InitFreeType() || !utility::InitAudio())
     {
@@ -28,9 +31,8 @@ namespace term_engine {
       exit(2);
     }
 
-    SDL_StopTextInput();
-
     utility::InitGL();
+    usertypes::InitDefaultWindow();
 
     if (!utility::InitImGui())
     {
@@ -50,6 +52,8 @@ namespace term_engine {
   {
     events::Init();
     scripting::Setup();
+
+    SDL_StopTextInput();
   }
 
   void CleanUp()
@@ -60,6 +64,7 @@ namespace term_engine {
     utility::CleanUpFreeType();
     utility::CleanUpSDL();
     utility::CleanUpImGui();
+    usertypes::CleanUpDefaultWindow();
 
     utility::logger->debug("Cleaned up!");
   }
@@ -67,10 +72,11 @@ namespace term_engine {
   void CleanUpProject()
   {
     events::CleanUpList();
+    usertypes::ClearAllGameWindows();
+    usertypes::ClearAllGameScenes();
     usertypes::ClearAllEventListeners();
     usertypes::ClearAllObjects();
     scripting::Shutdown();
-    usertypes::ClearAllGameScenes();
     usertypes::CleanUpResources();
     events::CleanUp();
   }
@@ -101,22 +107,17 @@ namespace term_engine {
         if (!scripting::OnInit())
         {
           quit = true;
+
           break;
         }
       }
 
       // Using the side-effect of SDL_QuitRequested() calling SDL_PumpEvents() to omit it from the below code.
-      if (SDL_QuitRequested() || usertypes::quit_flag)
+      if (SDL_QuitRequested() || usertypes::GameWindow::IsQuitting())
       {
-        if (scripting::OnQuit())
-        {
-          quit = true;
-          break;
-        }
-        else
-        {
-          usertypes::quit_flag = false;
-        }
+        scripting::OnQuit();
+
+        break;
       }
 
       events::UpdateInputState();
@@ -129,7 +130,7 @@ namespace term_engine {
         utility::LogTextInputEvents(event);
         utility::LogWindowEvents(event);
 
-        usertypes::DoGameSceneEvents(event);
+        usertypes::DoGameWindowEvents(event);
         events::DoSDLEvents(event);
       }
 
@@ -149,11 +150,12 @@ namespace term_engine {
 
       usertypes::SortObjects();
       usertypes::UpdateObjects(timestep);
-      usertypes::UpdateGameScenes();
+      usertypes::UpdateGameWindows(timestep);
 
-      usertypes::ClearFlaggedGameScenes();
       usertypes::ClearFlaggedEventListeners();
       usertypes::ClearFlaggedObjects();
+      usertypes::ClearFlaggedGameScenes();
+      usertypes::ClearFlaggedGameWindows();
       usertypes::ClearFlaggedResources();
 
       utility::ImGui_StartFrame();

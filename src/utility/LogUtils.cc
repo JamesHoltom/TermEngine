@@ -5,6 +5,11 @@
 namespace term_engine::utility {
   void LogKeyboardEvents(const SDL_Event& event)
   {
+    if (event.key.repeat)
+    {
+      return;
+    }
+
     std::string keyboard_type;
     std::string keyboard_modifiers;
 
@@ -63,14 +68,6 @@ namespace term_engine::utility {
 
   void LogTextInputEvents(const SDL_Event& event)
   {
-    std::string input_type;
-
-    switch (event.type) {
-      case SDL_TEXTEDITING: input_type = "Pressed";  break;
-      case SDL_TEXTINPUT:   input_type = "Released"; break;
-      default:          return;
-    }
-
     if (event.type == SDL_TEXTEDITING)
     {
       logger->debug("Text Input Event [Composing]: Text: {}, Cursor Start: {}, Cursor Length: {}", event.edit.text, event.edit.start, event.edit.length);

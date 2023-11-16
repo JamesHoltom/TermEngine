@@ -66,7 +66,8 @@ namespace term_engine::usertypes {
   /**
    * @brief Updates the debugging information for the given character map.
    * 
-   * @param[in] data  The data to update debugging information for.
+   * @param[in] data The data to update debugging information for.
+   * @param[in] size The size of the character list, in rows/columns.
    */
   void UpdateCharacterDataDebugInfo(const CharacterData& data, const glm::ivec2& size);
 }

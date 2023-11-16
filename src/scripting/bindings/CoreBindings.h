@@ -21,10 +21,8 @@ namespace term_engine::scripting::bindings {
       return true;
     };
     state["Loop"] = [&](uint64_t timestep) -> void {};
-    state["Quit"] = [&]() -> bool {
+    state["Quit"] = [&]() -> void {
       utility::logger->info("TermEngine is quitting!");
-
-      return true;
     };
   }
 }

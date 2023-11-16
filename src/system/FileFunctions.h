@@ -11,9 +11,6 @@ namespace term_engine::system {
   /// @brief Used to store a list of file/folder locations.
   typedef std::vector<std::string> FileList;
 
-  /// @brief Stores the filepath to the current project.
-  inline std::filesystem::path project_path;
-
   /**
    * @brief Finds the "main.lua" file at the given project directory in the system's default location, or in the projects folder.
    * @details If the file isn't found anywhere, a blank string is returned.

@@ -26,7 +26,7 @@ namespace term_engine::usertypes {
 
   void TimedFunction::Update(uint64_t timestep)
   {
-    if (is_active_)
+    if (is_active_ && callback_.valid())
     {
       accumulator_ += timestep;
 

@@ -9,9 +9,7 @@
  * @returns A status code indicating how the program ended.
  */
 int main(int argc, char** argv) {
-  term_engine::system::GetCLArguments(argc, argv);
-  
-  term_engine::Init();
+  term_engine::Init(argc, argv);
 
   term_engine::Run();
 

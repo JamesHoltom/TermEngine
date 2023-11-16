@@ -8,12 +8,12 @@ function printCharacter(k, v, depth)
   print(tab .. k .. ": Character - Char(" .. v.character .. "), Foreground(" .. tostring(v.foregroundColour) .. "), Background(" .. tostring(v.backgroundColour) .. ")")
 end
 
-function printGameObject(k, v, depth)
+function printCharacterMap(k, v, depth)
   depth = depth or 1
 
   local tab = string.rep(" ", depth * 2)
 
-  print(tab .. k .. ": GameObject - Pos(" .. tostring(v.position) .. "), Size(" .. tostring(v.size) .. "), Active(" .. tostring(v.active) .. "), Data([")
+  print(tab .. k .. ": CharacterMap - Size(" .. tostring(v.size) .. "), Data([")
 
   for i = 1, #v.data do
     printCharacter(i, v.data[i], depth + 1)
@@ -22,16 +22,26 @@ function printGameObject(k, v, depth)
   print(tab .. "])")
 end
 
+function printGameObject(k, v, depth)
+  depth = depth or 1
+
+  local tab = string.rep(" ", depth * 2)
+
+  print(tab .. k .. ": GameObject - Pos(" .. tostring(v.position) .. "), Size(" .. tostring(v.size) .. "), Active(" .. tostring(v.active) .. "), Data({")
+
+  printCharacterMap("data", v.data, depth + 1)
+
+  print(tab .. "})")
+end
+
 function printAnimationFrame(k, v, depth)
   depth = depth or 1
 
   local tab = string.rep(" ", depth * 2)
 
-  print(tab .. k .. ": AnimationFrame - Size(" .. tostring(v.size) .. "), Offset(" .. tostring(v.offset) .. "), Added Duration(" .. v.addedDuration .. "), Data([")
+  print(tab .. k .. ": AnimationFrame - Size(" .. tostring(v.data.size) .. "), Offset(" .. tostring(v.offset) .. "), Added Duration(" .. v.addedDuration .. "), Data([")
 
-  for i = 1, #v.data do
-    printCharacter(i, v.data[i], depth + 1)
-  end
+  printCharacterMap("data", v.data, depth + 1)
 
   print(tab .. "])")
 end
@@ -82,11 +92,11 @@ function Init()
   -- Set up the data for the vON (de)serialisation.
   local vCharacter = Character("v", Colours.RED, Colours.WHITE)
   local wCharacter = Character("w", Colours.WHITE, Colours.RED)
-  local vObj = GameObject(Values.IVEC2_ONE, Values.IVEC2_ONE)
-  vObj.data[1] = vCharacter
+  local vObj = GameObject(Values.IVEC2_ONE, Ivec2(1, 2))
+  vObj.data.data[1] = vCharacter
   local vAnim = Animation("von_anim")
-  vAnim:addFrame(AnimationFrame({ vCharacter, wCharacter }, Ivec2(1, 2), Values.IVEC2_ZERO, 0))
-  vAnim:addFrame(AnimationFrame({ vCharacter, wCharacter }, Ivec2(2, 1), Values.IVEC2_ZERO, 500))
+  vAnim:addFrame(AnimationFrame({ vCharacter, wCharacter }, Ivec2(1, 2), Ivec2(0, 4), 250))
+  vAnim:addFrame(AnimationFrame({ vCharacter, wCharacter }, Ivec2(2, 1), Ivec2(5, 6), 500))
   local vData = {
     a_number = 1234,
     a_string = "Test string",
@@ -102,10 +112,10 @@ function Init()
   local jCharacter = Character("j", Colours.BLUE, Colours.WHITE)
   local lCharacter = Character("l", Colours.WHITE, Colours.BLUE)
   local jObj = GameObject(Ivec2(1, 3), Values.IVEC2_ONE)
-  jObj.data[1] = jCharacter
+  jObj.data.data[1] = jCharacter
   local jAnim = Animation("json_anim")
-  jAnim:addFrame(AnimationFrame({ jCharacter, lCharacter }, Ivec2(1, 2), Values.IVEC2_ZERO, 0))
-  jAnim:addFrame(AnimationFrame({ jCharacter, lCharacter }, Ivec2(2, 1), Values.IVEC2_ZERO, 500))
+  jAnim:addFrame(AnimationFrame({ jCharacter, lCharacter }, Ivec2(1, 2), Ivec2(3, 4), 250))
+  jAnim:addFrame(AnimationFrame({ jCharacter, lCharacter }, Ivec2(2, 1), Ivec2(5, 6), 500))
   local jData = {
     a_number = 5678,
     a_string = "Example string",
@@ -121,14 +131,14 @@ function Init()
   local vStr = von.serialize(vData)
   local jStr = json.encode(jData)
   
-  -- Destroy the old objects. When the data is deserialised, new objects will be created.
-  vObj:release()
-  jObj:release()
-  
   print("Serialised vON: " .. vStr)
   print("-----------------")
   print("Serialised JSON: " .. jStr)
   print("-----------------")
+  
+  -- Destroy the old objects. When the data is deserialised, new objects will be created.
+  vObj:release()
+  jObj:release()
   
   -- Deserialise the data from vON and JSON.
   vTbl = von.deserialize(vStr)

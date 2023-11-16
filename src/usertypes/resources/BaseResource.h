@@ -7,6 +7,8 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
+#include <variant>
+#include "../Flaggable.h"
 
 namespace term_engine::usertypes {
   class BaseResource;
@@ -15,12 +17,14 @@ namespace term_engine::usertypes {
   typedef std::unique_ptr<BaseResource> ResourcePtr;
   /// @brief Used to store a list of resources.
   typedef std::unordered_map<std::string, ResourcePtr> ResourceList;
+  /// @brief Used to pass either a BaseResource object or it's string index to functions.
+  typedef std::variant<BaseResource*, std::string> BaseResourceVariant;
 
   /// @brief The list of resources.
   inline ResourceList resource_list;
 
   /// @brief The base resource, on which other game resources are derived from.
-  class BaseResource {
+  class BaseResource : public Flaggable {
   public:
     /**
      * @brief Constructs the base resource with the given name/filepath.
@@ -43,28 +47,20 @@ namespace term_engine::usertypes {
      */
     std::string GetName() const;
 
-    /**
-     * @brief Returns if the resource is flagged to be removed.
-     * 
-     * @returns If the resource is flagged to be removed.
-     */
-    bool FlaggedForRemoval() const;
-
-    /// @brief Flags the resource to be removed.
-    void FlagForRemoval();
-
-    /// @brief Unsets the removal flag from the resource.
-    void UnflagForRemoval();
-
     /// @brief Updates the debugging information for this resource.
     virtual void UpdateDebugInfo() const = 0;
 
   protected:
     /// @brief The name/filepath of the resource.
     std::string name_;
-    /// @brief A flag to mark this resource to be removed.
-    bool marked_for_removal_;
   };
+
+  /**
+   * @brief Removes the given resource from the list.
+   * 
+   * @param[in] resource The resource, or it's string index.
+   */
+  void RemoveResource(BaseResourceVariant resource);
 
   /// @brief Removes all resources in the list.
   void CleanUpResources();

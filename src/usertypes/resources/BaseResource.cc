@@ -5,37 +5,50 @@
 
 namespace term_engine::usertypes {
   BaseResource::BaseResource(const std::string& name) :
-    name_(name),
-    marked_for_removal_(false) {}
+    Flaggable(),
+    name_(name)
+  {}
 
   std::string BaseResource::GetName() const
   {
     return name_;
   }
 
-  bool BaseResource::FlaggedForRemoval() const
+  void RemoveResource(BaseResourceVariant resource)
   {
-    return marked_for_removal_;
-  }
-
-  void BaseResource::FlagForRemoval()
-  {
-    if (name_ != std::string(DEFAULT_FONT)
-      && name_ != std::string(DEFAULT_TEXT_SHADER)
-      && name_ != std::string(DEFAULT_BG_SHADER))
+    BaseResource* ptr = nullptr;
+    
+    try
     {
-      marked_for_removal_ = true;
-    }
-  }
+      if (std::holds_alternative<std::string>(resource))
+      {
+        ResourceList::iterator it = resource_list.find(std::get<std::string>(resource));
 
-  void BaseResource::UnflagForRemoval()
-  {
-    marked_for_removal_ = false;
+        if (it != resource_list.end())
+        {
+          ptr = it->second.get();
+        }
+      }
+      else 
+      {
+        ptr = std::get<BaseResource*>(resource);
+      }
+    }
+    catch (const std::bad_variant_access &err)
+    {
+      utility::logger->error("Cannot remove invalid resource!");
+    }
+
+    if (ptr != nullptr) {
+      ptr->FlagForRemoval();
+    }
   }
 
   void CleanUpResources()
   {
     resource_list.clear();
+
+    utility::logger->debug("Cleared all resources from the list.");
   }
 
   void ClearFlaggedResources()

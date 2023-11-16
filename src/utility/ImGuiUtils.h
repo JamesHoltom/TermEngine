@@ -47,6 +47,14 @@ namespace term_engine::utility {
 
   /// @brief Updates the information on the debug window.
   void ImGui_UpdateInfo();
+
+  /**
+   * @brief Checks if the window with the given ID is being used for the debug window.
+   * 
+   * @param[in] window_id The window ID to check.
+   * @returns If the window is being used for debugging.
+   */
+  bool IsImguiWindow(uint32_t window_id);
 }
 
 #endif // ! IMGUI_UTILS_H

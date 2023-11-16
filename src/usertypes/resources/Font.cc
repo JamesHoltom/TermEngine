@@ -117,7 +117,11 @@ namespace term_engine::usertypes {
 
   CharacterBB Font::CreateCharTexture(uint64_t character, uint32_t size)
   {
-    assert(size > 0);
+    if (size == 0) {
+      utility::logger->warn("Cannot use a font size of 0!");
+
+      return;
+    }
 
     Use();
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -151,7 +155,11 @@ namespace term_engine::usertypes {
 
   FontSizeList::iterator Font::AddSize(uint32_t size)
   {
-    assert(size > 0);
+    if (size == 0) {
+      utility::logger->warn("Cannot use a font size of 0!");
+
+      return;
+    }
 
     FT_Size new_size;
 
@@ -175,7 +183,11 @@ namespace term_engine::usertypes {
 
   void Font::SetSize(uint32_t size)
   {
-    assert(size > 0);
+    if (size == 0) {
+      utility::logger->warn("Cannot set a font size of 0!");
+
+      return;
+    }
 
     FontSizeList::const_iterator findSize = size_list_.find(size);
 
@@ -199,8 +211,6 @@ namespace term_engine::usertypes {
 
   void Font::UpdateDebugInfo() const
   {
-    assert(texture_);
-
     if (ImGui::TreeNode((void*)this, "%s (%s)", GetResourceType().c_str(), name_.c_str()))
     {
       ImGui::Text("Filepath: %s", name_.c_str());
@@ -219,9 +229,9 @@ namespace term_engine::usertypes {
   {
     const std::filesystem::path find_path = system::SearchForResourcePath(filepath);
 
-    if (find_path == "")
+    if (find_path.empty())
     {
-      utility::logger->warn("Failed to find font resource at \"{}\".", find_path.string());
+      utility::logger->warn("No font filepath given to load!");
 
       return nullptr;
     }
@@ -243,7 +253,7 @@ namespace term_engine::usertypes {
         return nullptr;
       }
 
-      it = resource_list.emplace(std::make_pair(find_path.string(), std::make_unique<Font>(find_path.string(), new_face))).first;
+      it = resource_list.emplace(std::make_pair(find_path.string(), std::make_unique<Font>(find_path, new_face))).first;
     }
 
     return static_cast<Font*>(it->second.get());

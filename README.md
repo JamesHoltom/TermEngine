@@ -15,11 +15,11 @@ end
 
 ```
 
-Additional examples can be found in __projects/example__.
+Additional examples can be found in __projects/examples__.
 
 ## Building
 
-TermEngine can currently be been built on Windows, Mac and Linux.
+TermEngine is currently built and released on Linux, however Windows and Mac should also be able to build the project.
 
 Instructions can be found in __BUILDING__.
 

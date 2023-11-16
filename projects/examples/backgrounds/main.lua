@@ -1,14 +1,11 @@
 local bgText, showBg, background1, background2
 
 function Init()
-  bgText = TextObject(Values.IVEC2_ZERO, Ivec2(19, 2))
-  bgText.text = "Press 'b' to changethe background"
+  bgText = TextObject(Values.IVEC2_ZERO, Ivec2(20, 2), "Press 'b' to change\nthe background")
 
   showBg = 0
   background1 = "backgrounds/example.png"
   background2 = "backgrounds/danger.png"
-
-  defaultScene.background.renderMode = true
 
   return true
 end
@@ -20,21 +17,21 @@ function Loop(timestep)
     showBg = (showBg + 1) % 3
 
     if showBg == 0 then
-      defaultScene.background.source = ""
+      defaultWindow.background:remove()
     elseif showBg == 1 then
-      defaultScene.background.source = background1
+      defaultWindow.background.source = background1
     else
-      defaultScene.background.source = background2
+      defaultWindow.background.source = background2
     end
-  elseif keyboard.isPressed("a") and defaultScene.background then
-    if defaultScene.background.colour.a == 255 then
-      defaultScene.background.colour.a = 192
-    elseif defaultScene.background.colour.a == 192 then
-      defaultScene.background.colour.a = 128
-    elseif defaultScene.background.colour.a == 128 then
-      defaultScene.background.colour.a = 64
+  elseif keyboard.isPressed("a") and defaultWindow.background then
+    if defaultWindow.background.colour.a == 255 then
+      defaultWindow.background.colour.a = 192
+    elseif defaultWindow.background.colour.a == 192 then
+      defaultWindow.background.colour.a = 128
+    elseif defaultWindow.background.colour.a == 128 then
+      defaultWindow.background.colour.a = 64
     else
-      defaultScene.background.colour.a = 255
+      defaultWindow.background.colour.a = 255
     end
   end
 end

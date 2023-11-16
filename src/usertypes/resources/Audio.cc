@@ -249,9 +249,9 @@ namespace term_engine::usertypes {
 
     const std::filesystem::path find_path = system::SearchForResourcePath(filepath);
 
-    if (find_path == "")
+    if (find_path.empty())
     {
-      utility::logger->warn("Failed to find audio resource at \"{}\".", find_path.string());
+      utility::logger->warn("No audio filepath given to load!");
 
       return nullptr;
     }

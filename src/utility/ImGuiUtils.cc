@@ -14,35 +14,26 @@
 namespace term_engine::utility {
   bool InitImGui()
   {
-    uint32_t flags = SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN;
-
-    if (system::debug_mode)
+    if (!system::debug_mode)
     {
-      flags |= SDL_WINDOW_RESIZABLE;
-
-      IMGUI_CHECKVERSION();
+      return true;
     }
+
+    uint32_t flags = SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN | SDL_WINDOW_RESIZABLE;
+
+    IMGUI_CHECKVERSION();
 
     imgui_debug_window = SDL_CreateWindow("TermEngine Debug Window", 0, 0, (int)DEBUG_WINDOW_SIZE.x, (int)DEBUG_WINDOW_SIZE.y, flags);
 
-    if (imgui_debug_window == nullptr)
+    if (imgui_debug_window != nullptr)
+    {
+      logger->debug("Created debug window with ID {}.", SDL_GetWindowID(imgui_debug_window));
+    }
+    else
     {
       logger->error("Failed to create debug window: {}", SDL_GetError());
 
       return false;
-    }
-
-    // GLEW needs to be initialised as soon as a GL context is created.
-    if (!InitContext(imgui_debug_window))
-    {
-      logger->error("Failed to set up OpenGL context!");
-      
-      return false;
-    }
-
-    if (!system::debug_mode)
-    {
-      return true;
     }
 
     ImGui::CreateContext();
@@ -57,6 +48,12 @@ namespace term_engine::utility {
     {
       io.Fonts->AddFontFromFileTTF(fontPath.c_str(), 16.0f, nullptr, io.Fonts->GetGlyphRangesCyrillic());
       io.Fonts->Build();
+    }
+    else
+    {
+      logger->error("Failed to generate font for debug window!");
+
+      return false;
     }
 
     ImGui_ImplSDL2_InitForOpenGL(imgui_debug_window, context);
@@ -75,9 +72,10 @@ namespace term_engine::utility {
       ImGui::DestroyContext();
     }
     
-    SDL_DestroyWindow(imgui_debug_window);
-    
-    CleanUpContext();
+    if (imgui_debug_window != nullptr)
+    {
+      SDL_DestroyWindow(imgui_debug_window);
+    }
   }
 
   void ImGui_StartFrame()
@@ -175,6 +173,16 @@ namespace term_engine::utility {
       return;
     }
 
+    if (ImGui::BeginTabItem("Game Windows"))
+    {
+      for (usertypes::GameWindowPtr& game_window : usertypes::game_window_list)
+      {
+        game_window->UpdateDebugInfo();
+      }
+
+      ImGui::EndTabItem();
+    }
+
     if (ImGui::BeginTabItem("Game Scenes"))
     {
       for (auto& [ _, game_scene ] : usertypes::game_scene_list)
@@ -216,5 +224,10 @@ namespace term_engine::utility {
 
       ImGui::EndTabItem();
     }
+  }
+
+  bool IsImguiWindow(uint32_t window_id)
+  {
+    return SDL_GetWindowID(imgui_debug_window) == window_id;
   }
 }

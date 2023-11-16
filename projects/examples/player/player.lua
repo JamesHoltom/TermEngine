@@ -18,7 +18,7 @@ function Player(_pos)
 		
 		if mouse.isPressed(mouse.RIGHT) then
 			if self.box.hasOutline() then
-				self.box.outline = Character("", Colours.BLACK, Colours.WHITE)
+				self.box.outline = Character(characters.NO_CHARACTER, Colours.BLACK, Colours.BLACK)
 			else
 				self.box.outline = Character("*", Colours.GREEN, Colours.WHITE)
 			end

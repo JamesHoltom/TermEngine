@@ -4,16 +4,12 @@
 #include "../utility/SpdlogUtils.h"
 
 namespace term_engine::usertypes {
-  Window::Window() :
-    Window(DEFAULT_WINDOW_POSITION, DEFAULT_WINDOW_SIZE, std::string(DEFAULT_WINDOW_TITLE), 0)
-  {}
-
-  Window::Window(const glm::ivec2& position, const glm::ivec2& size, const std::string& title, uint32_t flags) :
+  Window::Window(GameWindow* game_window, const glm::ivec2& position, const glm::ivec2& size, const std::string& title, uint32_t flags) :
+    game_window_(game_window),
     window_(nullptr),
     size_(size),
     clear_colour_(DEFAULT_WINDOW_CLEAR_COLOUR / 255.0f),
-    render_mode_(GL_FILL),
-    close_logic_(CloseLogic::CLOSE)
+    render_mode_(GL_FILL)
   {
     window_ = SDL_CreateWindow(title.c_str(), position.x, position.y, size.x, size.y, SDL_WINDOW_OPENGL | flags);
 
@@ -41,9 +37,26 @@ namespace term_engine::usertypes {
     utility::logger->debug("Destroyed window.");
   }
 
+  void Window::DoEvents(const SDL_Event& event)
+  {
+    if (event.window.event == SDL_WINDOWEVENT_MOVED)
+    {
+      SetPosition(glm::ivec2(event.window.data1, event.window.data2));
+    }
+    else if (event.window.event == SDL_WINDOWEVENT_RESIZED)
+    {
+      SetSize(glm::ivec2(event.window.data1, event.window.data2));
+    }
+  }
+
   uint32_t Window::GetId() const
   {
     return SDL_GetWindowID(window_);
+  }
+
+  SDL_Window* Window::GetWindow()
+  {
+    return window_;
   }
 
   glm::ivec2& Window::GetPosition()
@@ -64,11 +77,6 @@ namespace term_engine::usertypes {
   glm::vec4& Window::GetClearColour()
   {
     return clear_colour_;
-  }
-
-  CloseLogic Window::GetCloseBehaviour() const
-  {
-    return close_logic_;
   }
 
   bool Window::IsBorderless() const
@@ -142,6 +150,7 @@ namespace term_engine::usertypes {
     assert(size.x > 0 && size.y > 0);
     
     size_ = size;
+    game_window_->SetProjection(size);
   }
 
   void Window::SetTitle(const std::string& title) const
@@ -152,11 +161,6 @@ namespace term_engine::usertypes {
   void Window::SetClearColour(const glm::vec4& colour)
   {
     clear_colour_ = glm::clamp(colour, glm::vec4(), glm::vec4(255.0f));
-  }
-
-  void Window::SetCloseBehaviour(CloseLogic behaviour)
-  {
-    close_logic_ = behaviour;
   }
 
   void Window::SetBorderless(bool flag) const
@@ -223,6 +227,11 @@ namespace term_engine::usertypes {
     SDL_GL_SwapWindow(window_);
   }
 
+  void Window::SetGameWindow(GameWindow* ptr)
+  {
+    game_window_ = ptr;
+  }
+
   void Window::UpdateDebugInfo() const
   {
     ImGui::SeparatorText("Window");
@@ -253,6 +262,28 @@ namespace term_engine::usertypes {
     {
       utility::logger->warn("Invalid vsync flag given.");
     }
+  }
+
+  bool InitDefaultWindow()
+  {
+    default_window = std::make_unique<Window>(nullptr, DEFAULT_WINDOW_POSITION, DEFAULT_WINDOW_SIZE, std::string(DEFAULT_WINDOW_TITLE), 0);
+
+    // GLEW needs to be initialised as soon as a GL context is created.
+    if (!utility::InitContext(default_window->GetWindow()))
+    {
+      utility::logger->error("Failed to set up OpenGL context!");
+      
+      return false;
+    }
+
+    return true;
+  }
+
+  void CleanUpDefaultWindow()
+  {
+    default_window.release();
+
+    utility::CleanUpContext();
   }
 
   int Window::vsync_flag_ = 0;

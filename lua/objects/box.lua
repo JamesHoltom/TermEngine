@@ -20,8 +20,8 @@ function BoxObject(_position, _size, _game_scene)
 	
 	-- @brief Refreshes the object data with the updated settings.
 	local _setData = function()
-		local minW = self.object.size.x
-		local maxW = (self.object.size.x * self.object.size.y) - minW
+		local minW = self.object.data.size.x
+		local maxW = (self.object.data.size.x * self.object.data.size.y) - minW
 		
 		self.object:set(function(_, index)
 			if self.has_outline and (index < minW or index > maxW or math.fmod(index, minW) <= 1) then
@@ -59,8 +59,10 @@ function BoxObject(_position, _size, _game_scene)
 	-- @returns The value of the property.
 	--]]
 	local mtIndex = function(_, key)
-		if key == "id" or key == "position" or key == "size" or key == "active" then
+		if key == "id" or key == "position" or key == "active" then
 			return self.object[key]
+		elseif key == "size" then
+			return self.object.data.size
 		elseif key == "fill" or key == "outline" then
 			return self[key]
 		else
@@ -75,26 +77,34 @@ function BoxObject(_position, _size, _game_scene)
 	--]]
 	local mtNewIndex = function(_, key, value)
 		if key == "position" then
-			self.object.position = Ivec2(value)
-		elseif key == "size" then
-			self.object.size = Ivec2(value)
-			_setData()
-		elseif key == "active" then
-			self.object.active = value
-		elseif key == "fill" then
-			self[key] = Character(value)
-			
-			_setData()
-		elseif key == "outline" then
-			self[key] = value
-
-			if value.character == characters.NO_CHARACTER then
-				self.has_outline = false
-			else
-				self.has_outline = true
+			if value.__type.name == "Ivec2" then
+				self.object.position = Ivec2(value)
 			end
-			
-			_setData()
+		elseif key == "size" then
+			if value.__type.name == "Ivec2" and value >= Values.IVEC2_ONE then
+				self.object.data.size = Ivec2(value)
+				_setData()
+			end
+		elseif key == "active" then
+			self.object.active = value == true
+		elseif key == "fill" then
+			if value.__type.name == "Character" then
+				self[key] = value
+				
+				_setData()
+			end
+		elseif key == "outline" then
+			if value.__type.name == "Character" then
+				self[key] = value
+
+				if value.character == characters.NO_CHARACTER then
+					self.has_outline = false
+				else
+					self.has_outline = true
+				end
+				
+				_setData()
+			end
 		end
 	end
 	

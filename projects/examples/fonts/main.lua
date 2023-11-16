@@ -12,8 +12,8 @@ local line1Text, line2Text, box
 function Init()
   otherFont = Font("fonts/SpaceMono-Regular.ttf")
 
-  defaultScene.charmap.size = Ivec2(40, 4)
-  defaultScene:resizeToCharacterMap()
+  defaultGameScene.charmap.size = Ivec2(40, 4)
+  defaultWindow:resizeToCharacterMap()
 
   box = BoxObject(Values.IVEC2_ZERO, Ivec2(40, 4))
   box.outline = Character("^", Colours.WHITE, Colours.RED)
@@ -30,20 +30,20 @@ end
 
 function Loop(timestep)
   if keyboard.isPressed("f") then
-    if defaultScene.font == defaultFont then
-      defaultScene.font = otherFont
+    if defaultWindow.font == defaultFont then
+      defaultWindow.font = otherFont
     else
-      defaultScene.font = defaultFont
+      defaultWindow.font = defaultFont
     end
 
-    print("Font Path: " .. defaultScene.font.filepath)
+    print("Font Path: " .. defaultWindow.font.name)
   elseif keyboard.isPressed("s") then
-    if defaultScene.fontSize == 32 then
-      defaultScene.fontSize = 48
+    if defaultWindow.fontSize == 32 then
+      defaultWindow.fontSize = 48
     else
-      defaultScene.fontSize = 32
+      defaultWindow.fontSize = 32
     end
 
-    print("Font Size: " .. defaultScene.fontSize)
+    print("Font Size: " .. defaultWindow.fontSize)
   end
 end

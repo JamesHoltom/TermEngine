@@ -21,11 +21,11 @@ namespace term_engine::system {
     }
     catch (cxxopts::OptionParseException& ex)
     {
-      utility::logger->error("Failed to parse command-line arguments. Error: {}", std::string(ex.what()));
+      utility::logger->error("Failed to parse command-line arguments. Error: {}", ex.what());
     }
     catch (cxxopts::OptionSpecException& ex)
     {
-      utility::logger->error("Failed to define command-line arguments. Error: {}", std::string(ex.what()));
+      utility::logger->error("Failed to define command-line arguments. Error: {}", ex.what());
     }
   }
 }

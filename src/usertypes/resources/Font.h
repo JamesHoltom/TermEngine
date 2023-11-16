@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <map>
 #include <string>
+#include <variant>
 #include <glm/glm.hpp>
 #include "BaseResource.h"
 #include "../../rendering/Texture.h"
@@ -14,6 +15,7 @@
 
 namespace term_engine::usertypes {
   struct CharacterBB;
+  class Font;
 
   /// @brief The type name for Fonts.
   constexpr char FONT_TYPE[] = "Font";
@@ -32,6 +34,8 @@ namespace term_engine::usertypes {
   typedef std::pair<char16_t, uint32_t> CharacterPair;
   /// @brief Used to store characters and their bounds within the texture.
   typedef std::map<CharacterPair, CharacterBB> CharacterList;
+  /// @brief Used to pass either a Font object or it's string index to functions.
+  typedef std::variant<Font*, std::string> FontVariant;
   
   /// @brief Defines the bounding position, character/font size and baseline of a character within the font atlas.
   struct CharacterBB {
@@ -76,6 +80,7 @@ namespace term_engine::usertypes {
      * @brief Constructs the resource with the given filepath.
      * 
      * @param[in] filepath The filepath to the resource.
+     * @param[in] face     The font face to load character textures from.
      */
     Font(const std::filesystem::path& filepath, FT_Face face);
 

@@ -6,6 +6,7 @@
 #include <string>
 #include "BaseObject.h"
 #include "../Character.h"
+#include "../CharacterMap.h"
 #include "../GameScene.h"
 #include "../resources/Animation.h"
 #include "../../utility/GLUtils.h"
@@ -89,18 +90,11 @@ namespace term_engine::usertypes {
     glm::ivec2& GetPosition();
 
     /**
-     * @brief Returns the size of the object.
+     * @brief Returns the object's character data.
      * 
-     * @returns The size of the object.
+     * @returns The character data.
      */
-    glm::ivec2& GetSize();
-
-    /**
-     * @brief Returns a reference to the object's data.
-     * 
-     * @returns The data within the object.
-     */
-    CharacterData& GetData();
+    CharacterMap& GetCharacterMap();
 
     /**
      * @brief Returns the animation state of the object.
@@ -124,11 +118,11 @@ namespace term_engine::usertypes {
     void SetPosition(const glm::ivec2& position);
 
     /**
-     * @brief Sets the size of the object.
+     * @brief Sets the character data for the object.
      * 
-     * @param[in] size The new size of the object.
+     * @param[in] data The character data.
      */
-    void SetSize(const glm::ivec2& size);
+    void SetCharacterMap(const CharacterMap& data);
 
     /**
      * @brief Applies the results of a user-defined function on the object data.
@@ -162,10 +156,8 @@ namespace term_engine::usertypes {
     bool is_hovering_;
     /// @brief The top-left position of the object.
     glm::ivec2 position_;
-    /// @brief The size of the object, in rows & columns.
-    glm::ivec2 size_;
-    /// @brief The character parameters that will copied to the buffer when rendered.
-    CharacterData data_;
+    /// @brief The character data that will be copied to the buffer when rendered.
+    CharacterMap data_;
     /// @brief The animation state of the object.
     AnimationState animation_state_;
     /// @brief The game scene this object renders to.
@@ -177,10 +169,10 @@ namespace term_engine::usertypes {
    * 
    * @param[in] position   The position of the game object.
    * @param[in] size       The size of the game object, in rows & columns.
-   * @param[in] name       The name of the game scene the game object belongs to.
+   * @param[in] game_scene The game scene the game object belongs to.
    * @returns A raw pointer to the object.
    */
-  GameObject* AddGameObjectToScene(const glm::ivec2& position, const glm::ivec2& size, const std::string& name);
+  GameObject* AddGameObjectToScene(const glm::ivec2& position, const glm::ivec2& size, GameSceneVariant game_scene);
 
   /**
    * @brief Adds a game object for the default game scene to the list.

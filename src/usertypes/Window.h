@@ -3,11 +3,16 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
+#include <forward_list>
+#include <memory>
 #include <string>
+#include "GameWindow.h"
 #include "../utility/GLUtils.h"
 #include "../utility/SDLUtils.h"
 
 namespace term_engine::usertypes {
+  class Window;
+
   /// @brief The default position of the window.
   constexpr glm::ivec2 DEFAULT_WINDOW_POSITION(SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
   /// @brief The default size of the window.
@@ -17,26 +22,35 @@ namespace term_engine::usertypes {
   /// @brief The default clear colour to use when refreshing the window.
   constexpr glm::vec4 DEFAULT_WINDOW_CLEAR_COLOUR(0.0f, 0.0f, 0.0f, 255.0f);
 
-  /// @brief Defines what can happen when the user closes the window.
-  enum CloseLogic { HIDE = 0, CLOSE = 1, QUIT = 2 };
+  /// @brief Unique pointer to a window.
+  typedef std::unique_ptr<Window> WindowPtr;
+
+  /// @brief The default window, which persists whenever the project is changed, to ensure an OpenGL context is always active.
+  inline WindowPtr default_window = nullptr;
 
   /// @brief Used to handle a window on the screen.
   class Window {
   public:
-    /// @brief Constructs the window with the default parameters.
-    Window();
-
     /**
      * @brief Constructs the window with the given parameters.
      * 
-     * @param[in] position  The position of the window.
-     * @param[in] size      The size of the window, in pixels (px).
-     * @param[in] title     The title of the window.
+     * @param[in] game_window The GameWindow this window belongs to.
+     * @param[in] position    The position of the window.
+     * @param[in] size        The size of the window, in pixels (px).
+     * @param[in] title       The title of the window.
+     * @param[in] flags       The SDL_Window flags to set.
      */
-    Window(const glm::ivec2& position, const glm::ivec2& size, const std::string& title, uint32_t flags);
+    Window(GameWindow* game_window, const glm::ivec2& position, const glm::ivec2& size, const std::string& title, uint32_t flags);
 
     /// @brief Destroys the window.
     ~Window();
+
+    /**
+     * @brief Updates the window with events from SDL.
+     * 
+     * @param[in] event The SDL event to update the window with.
+     */
+    void DoEvents(const SDL_Event& event);
 
     /**
      * @brief Returns the window's ID.
@@ -44,6 +58,13 @@ namespace term_engine::usertypes {
      * @returns The window ID.
      */
     uint32_t GetId() const;
+
+    /**
+     * @brief Returns the SDL handle for the window.
+     * 
+     * @returns A raw pointer to the SDL window handle.
+     */
+    SDL_Window* GetWindow();
 
     /**
      * @brief Returns the position of the window.
@@ -60,13 +81,6 @@ namespace term_engine::usertypes {
     glm::ivec2& GetSize();
 
     /**
-     * @brief Returns the title of the window.
-     * 
-     * @returns The title of the window.
-     */
-    std::string GetTitle() const;
-
-    /**
      * @brief Returns the clear colour of the window.
      * 
      * @returns The clear colour of the window.
@@ -74,11 +88,18 @@ namespace term_engine::usertypes {
     glm::vec4& GetClearColour();
 
     /**
-     * @brief Returns whether the window will close, quit or hide upon user input.
+     * @brief Returns if wireframe rendering is enabled or not.
      * 
-     * @returns A value defining the window behaviour.
+     * @returns If wireframe rendering is enabled.
      */
-    CloseLogic GetCloseBehaviour() const;
+    bool IsWireframeEnabled() const;
+
+    /**
+     * @brief Returns the title of the window.
+     * 
+     * @returns The title of the window.
+     */
+    std::string GetTitle() const;
 
     /**
      * @brief Returns if the window is borderless.
@@ -123,13 +144,6 @@ namespace term_engine::usertypes {
     bool IsMouseGrabbed() const;
 
     /**
-     * @brief Returns if wireframe rendering is enabled or not.
-     * 
-     * @returns If wireframe rendering is enabled.
-     */
-    bool IsWireframeEnabled() const;
-
-    /**
      * @brief Repositions the window.
      * @note Calling this function also calls SetPosition().
      * 
@@ -139,7 +153,7 @@ namespace term_engine::usertypes {
     
     /// @brief Centers the window to the desktop.
     void CenterPosition();
-    
+
     /**
      * @brief Resizes of the window.
      * @note Calling this function also calls SetSize().
@@ -163,6 +177,16 @@ namespace term_engine::usertypes {
      * @param[in] size The new size of the window.
      */
     void SetSize(const glm::ivec2& size);
+
+    /**
+     * @brief Sets the clear colour of the window.
+     * 
+     * @param[in] colour The clear colour to use.
+     */
+    void SetClearColour(const glm::vec4& colour);
+
+    /// @brief Disables wireframe rendering.
+    void SetWireframe(bool flag);
     
     /**
      * @brief Sets the title of the window.
@@ -171,20 +195,6 @@ namespace term_engine::usertypes {
      */
     void SetTitle(const std::string& title) const;
     
-    /**
-     * @brief Sets the clear colour of the window.
-     * 
-     * @param[in] colour The clear colour to use.
-     */
-    void SetClearColour(const glm::vec4& colour);
-
-    /**
-     * @brief Sets if the window will close, quit or hide upon user input.
-     * 
-     * @param[in] behaviour A value defining the window behaviour.
-     */
-    void SetCloseBehaviour(CloseLogic behaviour);
-
     /**
      * @brief Sets if the window is borderless.
      * 
@@ -198,7 +208,7 @@ namespace term_engine::usertypes {
      * @param[in] flag The value to set.
      */
     void SetResizable(bool flag) const;
-    
+
     /// @brief Minimises the window.
     void Minimise() const;
 
@@ -221,9 +231,6 @@ namespace term_engine::usertypes {
      */
     void SetMouseGrab(bool flag) const;
     
-    /// @brief Disables wireframe rendering.
-    void SetWireframe(bool flag);
-
     /// @brief Sets the window as currently active.
     void Use() const;
 
@@ -232,6 +239,14 @@ namespace term_engine::usertypes {
 
     /// @brief Flips the window buffers, rendering the current frame's buffer to the screen.
     void Refresh() const;
+
+    /**
+     * @brief Sets the game window using this window.
+     * @note This is solely used to assign the default window, whenever a project is loaded.
+     * 
+     * @param[in] ptr Raw pointer to the game window to set.
+     */
+    void SetGameWindow(GameWindow* ptr);
 
     /// @brief Updates the debugging information for this window.
     void UpdateDebugInfo() const;
@@ -255,6 +270,8 @@ namespace term_engine::usertypes {
   private:
     /// @brief The SDL handle to the window.
     SDL_Window* window_;
+    /// @brief Raw pointer to the game window being rendered.
+    GameWindow* game_window_;
     /// @brief Has the window been fully initialised?
     bool is_init_;
     /// @brief The position of the window, in pixels (px).
@@ -265,11 +282,19 @@ namespace term_engine::usertypes {
     glm::vec4 clear_colour_;
     /// @brief Whether to use wireframe rendering or not.
     uint32_t render_mode_;
-    /// @brief The type of window behaviour when the user closes the window.
-    CloseLogic close_logic_;
     /// @brief Whether vsync is enabled/disabled.
     static int vsync_flag_;
   };
+
+  /**
+   * @brief Sets up the default window and the OpenGL context.
+   * 
+   * @returns If the default window and context were successfully set up.
+   */
+  bool InitDefaultWindow();
+
+  /// @brief Destroys the default window and OpenGL context after use.
+  void CleanUpDefaultWindow();
 }
 
 #endif // ! WINDOW_H

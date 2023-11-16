@@ -8,6 +8,7 @@
 #include <windows.h>
 #endif
 #include "FileFunctions.h"
+#include "../scripting/ScriptingInterface.h"
 #include "../utility/SpdlogUtils.h"
 
 namespace term_engine::system {
@@ -16,6 +17,10 @@ namespace term_engine::system {
     if (std::filesystem::exists(filename))
     {
       return filename;
+    }
+    else if (filename.empty())
+    {
+      return "";
     }
 
     const std::filesystem::path rootPath = std::filesystem::current_path();
@@ -29,7 +34,9 @@ namespace term_engine::system {
     {
       const std::filesystem::path fullPath = location / filename;
 
-      if (std::filesystem::exists(fullPath))
+      utility::logger->debug("Testing project path at {}.", fullPath);
+
+      if (std::filesystem::exists(fullPath / "main.lua"))
       {
         utility::logger->debug("Found project path at {}.", fullPath);
 
@@ -44,20 +51,29 @@ namespace term_engine::system {
 
   std::filesystem::path SearchForResourcePath(const std::string& filename)
   {
+    if (std::filesystem::exists(filename))
+    {
+      return filename;
+    }
+    else if (filename.empty())
+    {
+      return "";
+    }
+
     const std::filesystem::path rootPath = std::filesystem::current_path();
     const std::filesystem::path locations[] = {
 #if defined(__linux__)
-      "/usr/share/fonts/",
-      "/usr/local/share/fonts/",
+      "/usr/share/fonts",
+      "/usr/local/share/fonts",
 #elif defined(_WIN32) || defined (_WIN64)
-      "C:/Windows/Fonts/",
+      "C:/Windows/Fonts",
 #elif defined(__APPLE__) && defined(__MACH__)
-      "/System/Library/Fonts/"
+      "/System/Library/Fonts"
 #endif
       rootPath,
       rootPath / "resources",
-      project_path,
-      project_path / "resources"
+      scripting::project_path,
+      scripting::project_path / "resources"
     };
 
     for (const std::filesystem::path& location : locations)
@@ -119,7 +135,7 @@ namespace term_engine::system {
       return;
     }
 
-    std::filesystem::path filepath = project_path / filename;
+    std::filesystem::path filepath = scripting::project_path / filename;
     std::ofstream file_stream;
     std::ios_base::openmode mode = append ? std::ios::app : std::ios::trunc;
 
@@ -144,7 +160,7 @@ namespace term_engine::system {
   FileList GetFileList(const std::string& directory)
   {
     FileList file_list;
-    std::filesystem::path dirpath = project_path / directory;
+    std::filesystem::path dirpath = scripting::project_path / directory;
 
     for (std::filesystem::directory_entry file : std::filesystem::directory_iterator(dirpath)) {
       if (!file.is_directory()) {
@@ -158,7 +174,7 @@ namespace term_engine::system {
   FileList GetFolderList(const std::string& directory)
   {
     FileList folder_list;
-    std::filesystem::path dirpath = project_path / directory;
+    std::filesystem::path dirpath = scripting::project_path / directory;
 
     for (std::filesystem::directory_entry file : std::filesystem::directory_iterator(dirpath)) {
       if (file.is_directory()) {

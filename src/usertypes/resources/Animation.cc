@@ -6,22 +6,16 @@
 namespace term_engine::usertypes {
   AnimationFrame::AnimationFrame() :
     data_(),
-    size_(glm::ivec2()),
     offset_(glm::ivec2()),
     added_duration_(0) {}
 
   AnimationFrame::AnimationFrame(const sol::table& data, const glm::ivec2& size, const glm::ivec2& offset, int32_t duration) :
-    size_(size),
+    data_(),
     offset_(offset),
     added_duration_(duration)
   {
-      for (auto item : data)
-      {
-        if (item.second.is<Character>())
-        {
-          data_.push_back(item.second.as<Character>());
-        }
-      }
+    data_.SetSize(size);
+    data_.SetData(data);
   };
 
   AnimationFrame::AnimationFrame(const sol::table& data, const glm::ivec2& size, const glm::ivec2& offset) :
@@ -30,14 +24,44 @@ namespace term_engine::usertypes {
   AnimationFrame::AnimationFrame(const sol::table& data, const glm::ivec2& size) :
     AnimationFrame(data, size, glm::ivec2(), 0) {};
 
+  CharacterMap& AnimationFrame::GetCharacterMap()
+  {
+    return data_;
+  }
+
+  glm::ivec2& AnimationFrame::GetOffset()
+  {
+    return offset_;
+  }
+
+  int& AnimationFrame::GetAddedDuration()
+  {
+    return added_duration_;
+  }
+
+  void AnimationFrame::SetCharacterMap(const CharacterMap& data)
+  {
+    data_ = data;
+  }
+
+  void AnimationFrame::SetOffset(const glm::ivec2& offset)
+  {
+    offset_ = offset;
+  }
+
+  void AnimationFrame::SetAddedDuration(int duration)
+  {
+    added_duration_ = duration;
+  }
+
   void AnimationFrame::UpdateDebugInfo()
   {
     if (ImGui::TreeNode((void*)this, "Animation Frame"))
     {
-      ImGui::Text("Size: %i, %i", size_.x, size_.y);
       ImGui::Text("Offset: %i, %i", offset_.x, offset_.y);
+      ImGui::Text("Duration: %i", added_duration_);
 
-      UpdateCharacterDataDebugInfo(data_, size_);
+      data_.UpdateDebugInfo();
       
       ImGui::TreePop();
     }
@@ -184,7 +208,7 @@ namespace term_engine::usertypes {
 
     assert(current_frame != nullptr);
 
-    uint32_t accumulator_limit = frame_duration_ + current_frame->added_duration_;
+    uint32_t accumulator_limit = frame_duration_ + current_frame->GetAddedDuration();
     int32_t frame_offset = is_reversing_ ? -1 : 1;
     uint32_t last_frame = animations_.front().animation_->GetFrameCount() - 1;
 
@@ -444,7 +468,7 @@ namespace term_engine::usertypes {
   {
     if (name.empty())
     {
-      utility::logger->warn("Cannot create animation with empty name!");
+      utility::logger->warn("No animation name given to load!");
 
       return nullptr;
     }

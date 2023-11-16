@@ -13,12 +13,9 @@ namespace term_engine::usertypes {
     layer_(0),
     is_hovering_(false),
     position_(position),
-    size_(size),
     game_scene_(game_scene)
   {
-    const uint64_t data_size = size.x * size.y;
-    data_.reserve(data_size);
-    data_.resize(data_size);
+    data_.SetSize(size);
 
     utility::logger->debug("Created object with ID {} at {},{} with size {}x{}.", object_id_, position.x, position.y, size.x, size.y);
   }
@@ -28,7 +25,6 @@ namespace term_engine::usertypes {
     layer_(object->layer_),
     is_hovering_(false),
     position_(object->position_),
-    size_(object->size_),
     data_(object->data_),
     game_scene_(game_scene)
   {
@@ -42,17 +38,18 @@ namespace term_engine::usertypes {
 
   void GameObject::Update(uint64_t timestep)
   {
-    if (is_active_)
+    if (is_active_ && game_scene_->GetGameWindow() != nullptr)
     {
+      GameWindow* game_window = game_scene_->GetGameWindow();
       glm::ivec2 mouse_position = events::GetMousePosition();
-      glm::ivec2 mouse_rowcol = utility::GetRowColFromPosition(game_scene_, mouse_position);
+      glm::ivec2 mouse_rowcol = utility::GetRowColFromPosition(game_scene_->GetGameWindow(), mouse_position);
 
-      if (game_scene_->GetWindow()->IsInFocus() && glm::all(glm::greaterThanEqual(mouse_rowcol, position_)) && glm::all(glm::lessThanEqual(mouse_rowcol, position_ + size_ - glm::ivec2(1))))
+      if (game_window->GetWindow()->IsInFocus() && glm::all(glm::greaterThanEqual(mouse_rowcol, position_)) && glm::all(glm::lessThanEqual(mouse_rowcol, position_ + data_.GetSize() - glm::ivec2(1))))
       {
         if (!is_hovering_)
         {
           is_hovering_ = true;
-          events::Event ev = events::event_list.emplace_back("object_hover", game_scene_, scripting::lua_state->create_table_with(
+          events::Event ev = events::event_list.emplace_back("object_hover", game_window, scripting::lua_state->create_table_with(
             "game_scene", game_scene_->GetName(),
             "id", object_id_,
             "type", "over"
@@ -65,7 +62,7 @@ namespace term_engine::usertypes {
         {
           is_hovering_ = false;
           
-          events::event_list.emplace_back("object_hover", game_scene_, scripting::lua_state->create_table_with(
+          events::event_list.emplace_back("object_hover", game_window, scripting::lua_state->create_table_with(
             "game_scene", game_scene_->GetName(),
             "id", object_id_,
             "type", "out"
@@ -80,11 +77,11 @@ namespace term_engine::usertypes {
         AnimationFrame* frame = animation_state_.GetCurrentFrame();
         assert(frame != nullptr);
 
-        game_scene_->GetCharacterMap()->PushCharacters(position_ + frame->offset_, frame->size_, frame->data_);
+        game_scene_->GetCharacterMap()->PushCharacters(position_ + frame->GetOffset(), frame->GetCharacterMap());
       }
       else
       {
-        game_scene_->GetCharacterMap()->PushCharacters(position_, size_, data_);
+        game_scene_->GetCharacterMap()->PushCharacters(position_, data_);
       }
     }
   }
@@ -119,12 +116,7 @@ namespace term_engine::usertypes {
     return position_;
   }
 
-  glm::ivec2& GameObject::GetSize()
-  {
-    return size_;
-  }
-
-  CharacterData& GameObject::GetData()
+  CharacterMap& GameObject::GetCharacterMap()
   {
     return data_;
   }
@@ -146,35 +138,14 @@ namespace term_engine::usertypes {
     position_ = position;
   }
 
-  void GameObject::SetSize(const glm::ivec2& size)
+  void GameObject::SetCharacterMap(const CharacterMap& data)
   {
-    if (size.x <= 0 || size.y <= 0)
-    {
-      utility::logger->warn("Cannot create object with a width/height of 0!");
-
-      return;
-    }
-    
-    const uint64_t old_data_size = size_.x * size_.y;
-    const uint64_t new_data_size = size.x * size.y;
-
-    if (old_data_size < new_data_size) {
-      data_.reserve(new_data_size);
-    }
-
-    data_.resize(new_data_size);
-
-    size_ = size;
+    data_ = data;
   }
 
   void GameObject::Set(const sol::function& func)
   {
-    int index = 1;
-
-    for (Character& character : data_)
-    {
-      character = func.call<Character>(data_, index++);
-    }
+    data_.SetFunction(func);
   }
 
   void GameObject::MoveToGameScene(const std::string& name)
@@ -219,18 +190,16 @@ namespace term_engine::usertypes {
       ImGui::Text("Active?: %s", is_active_ ? "Yes" : "No");
       ImGui::Text("Hovering?: %s", is_hovering_ ? "Yes" : "No");
       ImGui::Text("Position: %i, %i", position_.x, position_.y);
-      ImGui::Text("Size: %i, %i", size_.x, size_.y);
       ImGui::Text("Game Scene: %s", game_scene_->GetName().c_str());
 
-      UpdateCharacterDataDebugInfo(data_, size_);
-
+      data_.UpdateDebugInfo();
       animation_state_.UpdateDebugInfo();
 
       ImGui::TreePop();
     }
   }
 
-  GameObject* AddGameObjectToScene(const glm::ivec2& position, const glm::ivec2& size, const std::string& name)
+  GameObject* AddGameObjectToScene(const glm::ivec2& position, const glm::ivec2& size, GameSceneVariant game_scene)
   {
     if (size.x <= 0 || size.y <= 0)
     {
@@ -239,19 +208,35 @@ namespace term_engine::usertypes {
       return nullptr;
     }
 
-    is_object_list_dirty = true;
+    GameScene* find_scene = nullptr;
 
-    GameScene* game_scene = GetGameSceneByName(name);
-
-    if (game_scene == nullptr)
+    try
     {
-      utility::logger->warn("Cannot add game object for non-existent game scene \"{}\"!", name);
+      if (std::holds_alternative<std::string>(game_scene))
+      {
+        find_scene = GetGameSceneByName(std::get<std::string>(game_scene));
+      }
+      else
+      {
+        find_scene = std::get<GameScene*>(game_scene);
+      }
+    }
+    catch (const std::bad_variant_access &err)
+    {
+      utility::logger->error("Invalid game scene given to game window!");
+    }
+
+    if (find_scene == nullptr)
+    {
+      utility::logger->warn("Cannot add game object for non-existent game scene \"{}\"!", find_scene->GetName());
 
       return nullptr;
     }
     else
     {
-      object_list.emplace_front(std::make_shared<GameObject>(game_scene, position, size));
+      is_object_list_dirty = true;
+
+      object_list.emplace_front(std::make_shared<GameObject>(find_scene, position, size));
       
       return static_cast<GameObject*>(object_list.front().get());
     }

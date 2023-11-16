@@ -7,6 +7,7 @@
 #include "resources/Font.h"
 #include "../rendering/Buffer.h"
 #include "../utility/GLUtils.h"
+#include "../utility/SolUtils.h"
 
 namespace term_engine::usertypes {
   /// @brief The default number of rows/columns in the view.
@@ -19,11 +20,12 @@ namespace term_engine::usertypes {
     CharacterMap();
 
     /**
-     * @brief Gets the position of the character map on the game scene.
+     * @brief Constructs the character map with the given parameters. 
      * 
-     * @returns The position of the character map.
+     * @param[in] size The size of the character map, in rows/columns.
+     * @param[in] data The character data to set.
      */
-    glm::vec2& GetPosition();
+    CharacterMap(const glm::ivec2& size, const sol::table& data);
 
     /**
      * @brief Gets the size of the character map.
@@ -33,18 +35,18 @@ namespace term_engine::usertypes {
     glm::ivec2& GetSize();
 
     /**
-     * @brief Returns if empty characters, when rendering, should have a background colour set.
+     * @brief Returns the list of characters in the map.
      * 
-     * @returns If a background colour is set.
+     * @returns The character data.
      */
-    bool ShouldEmptyCharactersHaveBackground() const;
+    CharacterData& GetData();
 
     /**
-     * @brief Sets the position of the character map on the game scene.
+     * @brief Returns if background colour are omitted when rendering empty characters.
      * 
-     * @param[in] position The position to move the character map to.
+     * @returns If background colours are not drawn for empty characters.
      */
-    void SetPosition(const glm::vec2& position);
+    bool& AreEmptyCharactersHidden();
 
     /**
      * @brief Sets the size of the character map, in rows/columns.
@@ -54,42 +56,56 @@ namespace term_engine::usertypes {
     void SetSize(const glm::ivec2& size);
 
     /**
-     * @brief Sets if empty characters should have a background colour when rendering.
+     * @brief Sets the characters in the map with the given data.
      * 
-     * @param[in] flag If empty characters should have a background colour.
+     * @param[in] data The character data to set.
      */
-    void SetEmptyCharacterBackground(bool flag);
+    void SetData(const sol::table& data);
+
+    /**
+     * @brief Sets if empty characters should not draw their background colour when rendering.
+     * 
+     * @param[in] flag If empty characters should not draw their background colour.
+     */
+    void SetHideEmptyCharacters(bool flag);
 
     /// @brief Clears the character map.
     void Clear();
 
     /**
+     * @brief Sets the characters in the map, based on the return value from the given Lua function.
+     * 
+     * @param[in] func The Lua function to generate characters from.
+     */
+    void SetFunction(const sol::function& func);
+
+    /**
      * @brief Pushes character data to the buffer at the given index.
      * 
-     * @param[in] data The character data to push.
+     * @param[in] position The position on the map to start pushing characters to, in rows/columns.
+     * @param[in] data     The character data to push.
      */
-    void PushCharacters(const glm::ivec2& position, const glm::ivec2& size, const CharacterData& data);
+    void PushCharacters(const glm::ivec2& position, const CharacterMap& data);
 
     /**
      * @brief Copies the data from a character map into an OpenGL buffer.
      * 
      * @param[in] character_map 
+     * @param[in] position
      * @param[in,out] buffer 
      * @param[in] font 
      * @param[in] font_size
      */
-    friend void CopyCharacterMapToBuffer(const CharacterMap& character_map, rendering::Buffer& buffer, Font* font, uint32_t font_size);
+    static void CopyToBuffer(CharacterMap* character_map, const glm::ivec2& position, rendering::Buffer& buffer, Font* font, uint32_t font_size);
 
     /// @brief Updates the debugging information for this character map.
     void UpdateDebugInfo() const;
 
   protected:
-    /// @brief The position of the character map.
-    glm::vec2 position_;
     /// @brief The size of the character map, in rows/columns.
     glm::ivec2 size_;
-    /// @brief The background colour to use when rendering an empty character.
-    glm::vec4 empty_character_bg_colour_;
+    /// @brief Should the background colour be omitted when rendering an empty character?
+    bool hide_empty_characters_;
     /// @brief The character data to be rendered to a game scene.
     CharacterData data_;
   };

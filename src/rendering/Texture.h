@@ -47,7 +47,7 @@ namespace term_engine::rendering {
   /**
    * @brief Loads an image to be used as an OpenGL texture.
    * 
-   * @param[in] filename The path to the image to load.
+   * @param[in] filepath The path to the image to load.
    * @param[in] unit     The texture unit to bind to.
    * @returns The loaded texture data.
    */

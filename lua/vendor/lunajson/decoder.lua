@@ -383,19 +383,36 @@ local function newdecoder()
 
 	--[[ @JamesHoltom - This is used to re-create TermEngine-specific userdata if found. ]]
 
+	local function parse_character(obj)
+		return _Character(obj.__data.character, obj.__data.foregroundColour, obj.__data.backgroundColour)
+	end
+
+	local function parse_character_map(obj)
+		local data, size, hEC = {}, obj.size, (obj.hideEmptyCharacters == true)
+
+		for k, v in ipairs(obj.data) do
+			data[k] = v
+		end
+
+		return data, size, hEC
+	end
+
 	local function check_for_userdata(obj)
 		if obj.__type and obj.__data then
 			if obj.__type == "Character" then
-				return _Character(obj.__data.character, check_for_userdata(obj.__data.foregroundColour), check_for_userdata(obj.__data.backgroundColour))
+				return parse_character(obj)
 			elseif obj.__type == "GameObject" then
-				local tmp = _GameObject(check_for_userdata(obj.__data.position), check_for_userdata(obj.__data.size))
+				local data, size, hEC = parse_character_map(obj.__data.data)
+				local pos = check_for_userdata(obj.__data.position)
+				local tmp = _GameObject(pos, size)
 				
-				tmp.active = obj.__data.active
-
-				for k,v in ipairs(obj.__data.data) do
-					tmp.data[k] = check_for_userdata(v)
+				for k,v in ipairs(data) do
+					tmp.data.data[k] = v
 				end
 
+				tmp.active = (obj.__data.active == true)
+				tmp.data.hideEmptyCharacters = hEC
+				
 				return tmp
 			elseif obj.__type == "Animation" then
 				local tmp = _Animation(obj.__data.name)
@@ -406,11 +423,11 @@ local function newdecoder()
 
 				return tmp
 			elseif obj.__type == "AnimationFrame" then
-				local tmp = _AnimationFrame({}, check_for_userdata(obj.__data.size), check_for_userdata(obj.__data.offset), obj.__data.addedDuration)
+				local data, size, hEC = parse_character_map(obj.__data.data)
+				local offset = check_for_userdata(obj.__data.offset)
+				local tmp = _AnimationFrame(data, size, offset, tonumber(obj.__data.addedDuration))
 
-				for k, v in ipairs(obj.__data.data) do
-					tmp.data[k] = check_for_userdata(v)
-				end
+				tmp.data.hideEmptyCharacters = hEC
 
 				return tmp
 			elseif obj.__type == "Ivec2" then

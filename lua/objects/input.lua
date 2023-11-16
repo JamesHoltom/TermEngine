@@ -51,8 +51,8 @@ function InputObject(_position, _size, _game_scene)
 		self.object:set(SetText(self, text, text_colour, bg_colour, false, 2))
 
 		if GetSelectedObject() == self.object.id then
-			self.object.data[self.cursor].foregroundColour = characters.DEFAULT_BACKGROUND_COLOUR
-			self.object.data[self.cursor].backgroundColour = characters.DEFAULT_FOREGROUND_COLOUR
+			self.object.data.data[self.cursor].foregroundColour = characters.DEFAULT_BACKGROUND_COLOUR
+			self.object.data.data[self.cursor].backgroundColour = characters.DEFAULT_FOREGROUND_COLOUR
 		end
 	end
 
@@ -166,8 +166,10 @@ function InputObject(_position, _size, _game_scene)
 	-- @returns The value of the property.
 	--]]
 	local mtIndex = function(_, key)
-		if key == "id" or key == "position" or key == "size" or key == "hovering" or key == "active" then
+		if key == "id" or key == "position" or key == "hovering" or key == "active" then
 			return self.object[key]
+		elseif key == "size" then
+			return self.object.data.size
 		elseif key == "label" or key == "value" or key == "cursor" then
 			return self[key]
 		else
@@ -187,8 +189,8 @@ function InputObject(_position, _size, _game_scene)
 			end
 		elseif key == "size" then
 			if value.__type.name == "Ivec2" and value >= Values.IVEC2_ONE then
-				self.object.size = value
-				self.max_length = self.object.size.x * self.object.size.y
+				self.object.data.size = Ivec2(value)
+				self.max_length = self.object.data.size.x * self.object.data.size.y
 			end
 		elseif key == "active" then
 			self.object.active = value == true

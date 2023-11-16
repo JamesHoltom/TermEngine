@@ -6,15 +6,15 @@ namespace term_engine::usertypes {
   uint64_t BaseObject::object_next_id_ = 1;
 
   BaseObject::BaseObject() :
+    Flaggable(),
     object_id_(object_next_id_++),
-    is_active_(true),
-    marked_for_removal_(false)
+    is_active_(true)
   {}
 
   BaseObject::BaseObject(BaseObject* object) :
+    Flaggable(),
     object_id_(object_next_id_++),
-    is_active_(object->is_active_),
-    marked_for_removal_(false)
+    is_active_(object->is_active_)
   {}
 
   uint64_t BaseObject::GetObjectId() const
@@ -30,21 +30,6 @@ namespace term_engine::usertypes {
   void BaseObject::SetActive(bool flag)
   {
     is_active_ = flag;
-  }
-
-  bool BaseObject::FlaggedForRemoval() const
-  {
-    return marked_for_removal_;
-  }
-
-  void BaseObject::FlagForRemoval()
-  {
-    marked_for_removal_ = true;
-  }
-
-  void BaseObject::UnflagForRemoval()
-  {
-    marked_for_removal_ = false;
   }
 
   uint64_t BaseObject::GetNextId()
@@ -86,16 +71,18 @@ namespace term_engine::usertypes {
     }
   }
 
-  void ClearAllObjects()
-  {
-    object_list.clear();
-  }
-
   void ClearFlaggedObjects()
   {
     object_list.remove_if([](const ObjectPtr& object)
     {
       return object->FlaggedForRemoval();
     });
+  }
+
+  void ClearAllObjects()
+  {
+    object_list.clear();
+
+    utility::logger->debug("Cleared all game objects from the list.");
   }
 }

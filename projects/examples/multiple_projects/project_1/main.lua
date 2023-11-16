@@ -5,8 +5,8 @@
 local projectText
 
 function Init()
-  projectText = TextObject(Values.IVEC2_ONE, Ivec2(18, 3), "This is Project 1!Press 'p' to go tothe next project!")
-  
+  projectText = TextObject(Values.IVEC2_ONE, Ivec2(20, 3), "This is Project 1!\nPress 'p' to go to\nthe next project!")
+
   return true
 end
 

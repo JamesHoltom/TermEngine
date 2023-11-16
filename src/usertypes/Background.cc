@@ -5,21 +5,11 @@
 
 namespace term_engine::usertypes {
   Background::Background() :
-    filepath_(),
-    texture_(),
+    image_(nullptr),
     position_(glm::ivec2()),
     size_(glm::ivec2()),
     colour_(glm::vec4(255.0f))
-  {
-    utility::logger->debug("Created background.");
-  }
-
-  Background::~Background()
-  {
-    texture_.reset();
-
-    utility::logger->debug("Destroyed background.");
-  }
+  {}
 
   glm::ivec2& Background::GetPosition()
   {
@@ -31,18 +21,6 @@ namespace term_engine::usertypes {
     return size_;
   }
 
-  glm::ivec2 Background::GetTextureSize() const
-  {
-    if (texture_)
-    {
-      return texture_->size_;
-    }
-    else
-    {
-      return glm::ivec2();
-    }
-  }
-
   glm::vec4& Background::GetColour()
   {
     return colour_;
@@ -50,7 +28,14 @@ namespace term_engine::usertypes {
 
   std::string Background::GetSource() const
   {
-    return filepath_.string();
+    if (image_ != nullptr)
+    {
+      return image_->GetName();
+    }
+    else
+    {
+      return "";
+    }
   }
 
   void Background::SetPosition(const glm::ivec2& position)
@@ -70,44 +55,24 @@ namespace term_engine::usertypes {
 
   void Background::SetSource(const std::string& filepath)
   {
-    if (filepath.empty())
+    Image* img = LoadImage(filepath);
+
+    if (img != nullptr)
     {
-      filepath_ = "";
-      texture_.reset();
-
-      utility::logger->debug("Unset background texture.");
-      
-      return;
+      image_ = img;
+      size_ = image_->GetTextureSize();
     }
+  }
 
-    std::filesystem::path fullPath = system::SearchForResourcePath(filepath);
-
-    if (!fullPath.empty())
-    {
-      rendering::TextureData* ptr = rendering::CreateTextureFromImage(fullPath, 1);
-
-      if (ptr != nullptr)
-      {
-        filepath_ = fullPath;
-        texture_ = rendering::TexturePtr(ptr);
-        size_ = texture_->size_;
-
-        utility::logger->debug("Set background texture to \"{}\".", fullPath.string());
-      }
-      else
-      {
-        utility::logger->warn("Failed to set background texture to \"{}\"!", fullPath.string());
-      }
-    }
-    else
-    {
-      utility::logger->warn("Failed to find background texture at \"{}\"!", filepath);
-    }
+  void Background::RemoveSource()
+  {
+    image_ = nullptr;
+    Reset();
   }
 
   bool Background::IsLoaded() const
   {
-    return (bool)texture_;
+    return image_ != nullptr;
   }
 
   void Background::Reset()
@@ -115,9 +80,9 @@ namespace term_engine::usertypes {
     position_ = glm::ivec2();
     colour_ = glm::vec4(255.0);
 
-    if (texture_)
+    if (image_)
     {
-      size_ = texture_->size_;
+      size_ = image_->GetTextureSize();
     }
     else
     {
@@ -127,7 +92,7 @@ namespace term_engine::usertypes {
 
   void Background::CopyToBuffer(rendering::Buffer& buffer) const
   {
-    assert(texture_);
+    assert(image_ != nullptr);
 
     /* Draw order:
     * 1
@@ -152,27 +117,21 @@ namespace term_engine::usertypes {
 
   void Background::Use() const
   {
-    assert(texture_);
+    assert(image_ != nullptr);
 
-    glActiveTexture(GL_TEXTURE0 + texture_->texture_unit_);
-    glBindTexture(GL_TEXTURE_2D, texture_->texture_id_);
+    image_->Use();
   }
 
   void Background::UpdateDebugInfo() const
   {
     ImGui::SeparatorText("Background");
 
-    if (texture_)
+    if (image_ != nullptr)
     {
-      ImGui::Text("Filepath: %s", filepath_.c_str());
+      ImGui::Text("Image: %s", image_->GetName().c_str());
       ImGui::Text("Position: %i, %i", position_.x, position_.y);
       ImGui::Text("Size: %i, %i", size_.x, size_.y);
       ImGui::Text("Colour: %f, %f, %f, %f", colour_.r, colour_.g, colour_.b, colour_.a);
-
-      ImGui::SeparatorText("Texture");
-      ImGui::Text("ID: %i", texture_->texture_id_);
-      ImGui::Text("Index: %i", texture_->texture_unit_);
-      ImGui::Text("Size: %i, %i", texture_->size_.x, texture_->size_.y);
     }
     else
     {

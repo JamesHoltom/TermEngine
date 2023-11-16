@@ -13,6 +13,7 @@
 #include "../../usertypes/Window.h"
 #include "../../usertypes/game_objects/GameObject.h"
 #include "../../usertypes/game_objects/TimedFunction.h"
+#include "../../usertypes/resources/Animation.h"
 #include "../../usertypes/resources/Audio.h"
 #include "../../usertypes/resources/Font.h"
 #include "../../utility/ConversionUtils.h"
@@ -71,14 +72,12 @@ namespace term_engine::scripting::bindings {
       "getPosition", &events::GetMousePosition,
       "getMovement", &events::GetMouseMovement);
 
-    state.set_function("getEventListenerById", &usertypes::GetEventListenerById);
-    state.set_function("getGameObjectById", &usertypes::GetGameObjectById);
-    state.set_function("getTimedFunctionById", &usertypes::GetTimedFunctionById);
-    state.set_function("getGameSceneByName", &usertypes::GetGameSceneByName);
-
     state.create_named_table("project",
       "load", &SetNextProject,
       "reload", &ReloadProject);
+
+    state.create_named_table("resources",
+      "remove", &usertypes::RemoveResource);
 
     state.create_named_table("textInput",
       "isActive", &events::IsTextInputModeActive,
@@ -88,24 +87,29 @@ namespace term_engine::scripting::bindings {
     state.create_named_table("window",
       "vsync", sol::overload(&usertypes::Window::IsVsyncEnabled, &usertypes::Window::SetVsync));
 
-    state.set_function("getIndexFromPosition", sol::overload(
-      sol::resolve<uint32_t(usertypes::GameObject*, const glm::ivec2&)>(&utility::GetIndexFromPosition),
-      sol::resolve<uint32_t(usertypes::GameScene*, const glm::ivec2&)>(&utility::GetIndexFromPosition)));
-    state.set_function("getPositionFromIndex", sol::overload(
-      sol::resolve<glm::ivec2(usertypes::GameObject*, uint32_t)>(&utility::GetPositionFromIndex),
-      sol::resolve<glm::ivec2(usertypes::GameScene*, uint32_t)>(&utility::GetPositionFromIndex)));
-    state.set_function("getRowColFromPosition", sol::overload(
-      sol::resolve<glm::ivec2(usertypes::GameObject*, const glm::ivec2&)>(&utility::GetRowColFromPosition),
-      sol::resolve<glm::ivec2(usertypes::GameScene*, const glm::ivec2&)>(&utility::GetRowColFromPosition)));
-    state.set_function("getPositionFromRowCol", sol::overload(
-      sol::resolve<glm::ivec2(usertypes::GameObject*, const glm::ivec2&)>(&utility::GetPositionFromRowCol),
-      sol::resolve<glm::ivec2(usertypes::GameScene*, const glm::ivec2&)>(&utility::GetPositionFromRowCol)));
+    state.set_function("getIndexFromPosition", &utility::GetIndexFromPosition);
+    state.set_function("getPositionFromIndex", &utility::GetPositionFromIndex);
+    state.set_function("getRowColFromPosition", &utility::GetRowColFromPosition);
+    state.set_function("getPositionFromRowCol", &utility::GetPositionFromRowCol);
     state.set_function("getRowColFromIndex", sol::overload(
+      sol::resolve<glm::ivec2(const glm::ivec2&, uint32_t)>(&utility::GetRowColFromIndex),
+      sol::resolve<glm::ivec2(usertypes::CharacterMap*, uint32_t)>(&utility::GetRowColFromIndex),
       sol::resolve<glm::ivec2(usertypes::GameObject*, uint32_t)>(&utility::GetRowColFromIndex),
-      sol::resolve<glm::ivec2(usertypes::GameScene*, uint32_t)>(&utility::GetRowColFromIndex)));
+      sol::resolve<glm::ivec2(usertypes::AnimationFrame*, uint32_t)>(&utility::GetRowColFromIndex),
+      sol::resolve<glm::ivec2(usertypes::GameScene*, uint32_t)>(&utility::GetRowColFromIndex),
+      sol::resolve<glm::ivec2(usertypes::GameWindow*, uint32_t)>(&utility::GetRowColFromIndex)));
     state.set_function("getIndexFromRowCol", sol::overload(
+      sol::resolve<uint32_t(const glm::ivec2&, const glm::ivec2&)>(&utility::GetIndexFromRowCol),
+      sol::resolve<uint32_t(usertypes::CharacterMap*, const glm::ivec2&)>(&utility::GetIndexFromRowCol),
       sol::resolve<uint32_t(usertypes::GameObject*, const glm::ivec2&)>(&utility::GetIndexFromRowCol),
-      sol::resolve<uint32_t(usertypes::GameScene*, const glm::ivec2&)>(&utility::GetIndexFromRowCol)));
+      sol::resolve<uint32_t(usertypes::AnimationFrame*, const glm::ivec2&)>(&utility::GetIndexFromRowCol),
+      sol::resolve<uint32_t(usertypes::GameScene*, const glm::ivec2&)>(&utility::GetIndexFromRowCol),
+      sol::resolve<uint32_t(usertypes::GameWindow*, const glm::ivec2&)>(&utility::GetIndexFromRowCol)));
+
+    state.set_function("getEventListenerById", &usertypes::GetEventListenerById);
+    state.set_function("getGameObjectById", &usertypes::GetGameObjectById);
+    state.set_function("getTimedFunctionById", &usertypes::GetTimedFunctionById);
+    state.set_function("getGameSceneByName", &usertypes::GetGameSceneByName);
   }
 }
 

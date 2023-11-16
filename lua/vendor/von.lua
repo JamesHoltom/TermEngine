@@ -602,7 +602,7 @@ local extra_deserialize = {
 		local i, a = i or 1
 		local c, fg, bg = "", Vec4(), Vec4()
 		
-		a = find(s, ",", i)
+		a = find(s, "|", i)
 
 		if a then
 			c = sub(s, i, a - 1)
@@ -622,19 +622,16 @@ local extra_deserialize = {
 	-- A GameObject, consisting of the data, position and size.
 	["GameObject"] = function(s, i, len, unnecessaryEnd, jobstate)
 		local i, a = i or 1
-		local pos, size, active = Ivec2(), Ivec2(), true
+		local pos, size, hEC, active = Ivec2(), Ivec2(), false, true
 
 		pos, i = _deserialize["Ivec2"](s, i, len, unnecessaryEnd, jobstate)
 		i = i + 2
+		active, i = _deserialize["boolean"](s, i, len, unnecessaryEnd, jobstate)
+		i = i + 2
 		size, i = _deserialize["Ivec2"](s, i, len, unnecessaryEnd, jobstate)
 		i = i + 2
-
-		a = find(s, "{", i)
-
-		if a then
-			active = sub(s, i, a - 1) == "1"
-			i = a + 1
-		end
+		hEC, i = _deserialize["boolean"](s, i, len, unnecessaryEnd, jobstate)
+		i = i + 2
 
 		local obj = GameObject(pos, size)
 		local gChr, gIndex, hitEnd = nil, 1, false
@@ -643,7 +640,7 @@ local extra_deserialize = {
 
 		repeat
 			gChr, i = _deserialize["Character"](s, i, len, unnecessaryEnd, jobstate)
-			obj.data[gIndex] = gChr
+			obj.data.data[gIndex] = gChr
 
 			if s:sub(i + 1, i + 1) == "}" then
 				hitEnd = true
@@ -687,29 +684,33 @@ local extra_deserialize = {
 
 		return anim, i
 	end,
-	-- An Animation, consisting of the size, offset, additional duration and data.
+	-- An Animation frame, consisting of the size, offset, additional duration and data.
 	["AnimationFrame"] = function(s, i, len, unnecessaryEnd, jobstate)
 		local i, a = i or 1
-		local size, offset, addedDuration = Ivec2(), Ivec2(), 0
+		local size, offset, addedDuration, hEC = Ivec2(), Ivec2(), 0, false
 
-		size, i = _deserialize["Ivec2"](s, i, len, unnecessaryEnd, jobstate)
-		i = i + 2
 		offset, i = _deserialize["Ivec2"](s, i, len, unnecessaryEnd, jobstate)
 		i = i + 2
 
-		a = find(s, "{", i)
+		a = find(s, "|", i)
 
 		if a then
 			addedDuration = tonumber(sub(s, i, a - 1))
 			i = a + 1
 		end
 
-		local frame = AnimationFrame({}, size, offset, addedDuration)
+		size, i = _deserialize["Ivec2"](s, i, len, unnecessaryEnd, jobstate)
+		i = i + 2
+
+		hEC, i = _deserialize["boolean"](s, i, len, unnecessaryEnd, jobstate)
+		i = i + 2
+
+		local frameData = {}
 		local gChr, gIndex, hitEnd = nil, 1, false
 
 		repeat
 			gChr, i = _deserialize["Character"](s, i, len, unnecessaryEnd, jobstate)
-			frame.data[gIndex] = gChr
+			frameData[gIndex] = gChr
 
 			if s:sub(i + 1, i + 1) == "}" then
 				hitEnd = true
@@ -719,9 +720,12 @@ local extra_deserialize = {
 			end
 		until i >= len or hitEnd
 
-		i = i + 1
+		if addedDuration and size and hEC then
+			i = i + 1
+			return AnimationFrame(frameData, size, offset, addedDuration), i
+		end
 
-		return frame, i
+		error("vON: AnimationFrame definition started... Found no end.")
 	end,
 	-- A pair of integer numbers separated by a comma (,).
 	["Ivec2"] = function(s, i, len, unnecessaryEnd, jobstate)
@@ -734,7 +738,7 @@ local extra_deserialize = {
 			i = a + 1
 		end
 
-		a = find(s, "[|;:}~]", i)
+		a = find(s, "[,|;:{}~]", i)
 
 		if a then
 			y = tonumber(sub(s, i, a - 1))
@@ -758,7 +762,7 @@ local extra_deserialize = {
 			i = a + 1
 		end
 
-		a = find(s, "[|;:}~]", i)
+		a = find(s, "[,|;:{}~]", i)
 
 		if a then
 			y = tonumber(sub(s, i, a - 1))
@@ -789,7 +793,7 @@ local extra_deserialize = {
 			i = a + 1
 		end
 
-		a = find(s, "[|;:}~]", i)
+		a = find(s, "[,|;:{}~]", i)
 
 		if a then
 			z = tonumber(sub(s, i, a - 1))
@@ -858,7 +862,7 @@ local extra_deserialize = {
 			i = a + 1
 		end
 
-		a = find(s, "[|;:}~]", i)
+		a = find(s, "[,|;:{}~]", i)
 
 		if a then
 			w = tonumber(sub(s, i, a - 1))
@@ -896,7 +900,7 @@ local extra_deserialize = {
 			i = a + 1
 		end
 
-		a = find(s, "[|;:}~]", i)
+		a = find(s, "[,|;:{}~]", i)
 
 		if a then
 			w = tonumber(sub(s, i, a - 1))
@@ -913,7 +917,7 @@ local extra_deserialize = {
 
 local extra_serialize = {
 	["Character"] = function(data, mustInitiate, isNumeric, isKey, isLast, first, jobstate)
-		local tmp = data.character .. "," .. tostring(data.foregroundColour) .. "|" .. tostring(data.backgroundColour)
+		local tmp = data.character .. "|" .. tostring(data.foregroundColour) .. "|" .. tostring(data.backgroundColour)
 
 		if mustInitiate then
 			tmp = "g" .. tmp
@@ -926,26 +930,23 @@ local extra_serialize = {
 		end
 	end,
 	["GameObject"] = function(data, mustInitiate, isNumeric, isKey, isLast, first, jobstate)
-		local active = 0
-		if data.active then active = 1 end
-		local tmp = tostring(data.position) .. "|" .. tostring(data.size) .. "|" .. active .. "{"
-		local len = #data.data
+		local active, hEC = "0", "0"
+		if data.active then active = "1" end
+		if data.data.hideEmptyCharacters then hEC = "1" end
+		local tmp = tostring(data.position) .. "|" .. active .. "|" .. tostring(data.data.size) .. "|" .. hEC .. "{"
+		local len = #data.data.data
 
 		if mustInitiate then
 			tmp = "O" .. tmp
 		end
 
 		for i = 1, len do
-			tmp = tmp .. _serialize["Character"](data.data[i], false, false, false, i == len, false, jobstate)
+			tmp = tmp .. _serialize["Character"](data.data.data[i], false, false, false, i == len, false, jobstate)
 		end
-		
+
 		tmp = tmp .. "}"
 
-		if isKey or isLast then
-			return tmp
-		else
-			return tmp .. ";"
-		end
+		return tmp
 	end,
 	["Animation"] = function(data, mustInitiate, isNumeric, isKey, isLast, first, jobstate)
 		local tmp = tostring(data.name) .. "{"
@@ -961,22 +962,20 @@ local extra_serialize = {
 
 		tmp = tmp .. "}"
 
-		if isKey or isLast then
-			return tmp
-		else
-			return tmp .. ";"
-		end
+		return tmp
 	end,
 	["AnimationFrame"] = function(data, mustInitiate, isNumeric, isKey, isLast, first, jobstate)
-		local tmp = tostring(data.size) .. "|" .. tostring(data.offset) .. "|" .. data.addedDuration .. "{"
-		local len = #data.data
+		local hEC = "0"
+		if data.data.hideEmptyCharacters then hEC = "1" end
+		local tmp = tostring(data.offset) .. "|" .. data.addedDuration .. "|" .. tostring(data.data.size) .. "|" .. hEC .. "{"
+		local len = #data.data.data
 
 		if mustInitiate then
 			tmp = "F" .. tmp
 		end
 
 		for i = 1, len do
-			tmp = tmp .. _serialize["Character"](data.data[i], false, false, false, i == len, false, jobstate)
+			tmp = tmp .. _serialize["Character"](data.data.data[i], false, false, false, i == len, false, jobstate)
 		end
 
 		tmp = tmp .. "}"
@@ -986,6 +985,8 @@ local extra_serialize = {
 		else
 			return tmp .. ";"
 		end
+
+		return tmp
 	end,
 	["Ivec2"] = function(data, mustInitiate, isNumeric, isKey, isLast, first, jobstate)
 		local tmp = tostring(data)

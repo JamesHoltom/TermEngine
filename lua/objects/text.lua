@@ -35,8 +35,10 @@ function TextObject(_position, _size, _text, _game_scene)
 	-- @returns The value of the property.
 	--]]
 	local mtIndex = function(_, key)
-		if key == "id" or key == "position" or key == "size" or key == "active" then
+		if key == "id" or key == "position" or key == "active" then
 			return self.object[key]
+		elseif key == "size" then
+			return self.object.data.size
 		elseif key == "text" or key == "fit_text" or key == "tab_size" or key == "fg_colour" or key == "bg_colour" then
 			return self[key]
 		else
@@ -56,7 +58,7 @@ function TextObject(_position, _size, _text, _game_scene)
 			end
 		elseif key == "size" then
 			if value.__type.name == "Ivec2" and value >= Values.IVEC2_ONE then
-				self.object.size = value
+				self.object.data.size = value
 				_setData()
 			end
 		elseif key == "active" then
@@ -71,8 +73,10 @@ function TextObject(_position, _size, _text, _game_scene)
 			self.tab_size = value
 			_setData()
 		elseif key == "fg_colour" or key == "bg_colour" then
-			self[key] = Vec4(value)
-			_setData()
+			if value.__type.name == "Vec4" and value:clamp(0, 255) == value then
+				self[key] = Vec4(value)
+				_setData()
+			end
 		end
 	end
 

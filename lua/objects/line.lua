@@ -27,7 +27,7 @@ function LineObject(_start, _end, _char, _game_scene)
     if size == Values.IVEC2_ZERO then
       return
     elseif size == Values.IVEC2_ONE then
-      self.object.data[1] = self.character
+      self.object.data.set(1, self.character)
       return
     end
 
@@ -46,7 +46,7 @@ function LineObject(_start, _end, _char, _game_scene)
     end
 
     self.object.position = pos
-    self.object.size = size
+    self.object.data.size = size
     self.object:set(function(_, _) return empty_character end)
 
     local startPos = self.startPosition - self.object.position
@@ -64,9 +64,9 @@ function LineObject(_start, _end, _char, _game_scene)
 
     for i = 0, iterLimit do
       local iterDiff = Vec2(i/iterLimit) * diff
-      local index = getIndexFromRowCol(self.object.size, startPos + Ivec2(iterDiff:round()))
+      local index = getIndexFromRowCol(self.object.data.size, startPos + Ivec2(iterDiff:round()))
 
-      self.object.data[index] = self.character
+      self.object.data.set(index, self.character)
     end
   end
 
@@ -81,8 +81,10 @@ function LineObject(_start, _end, _char, _game_scene)
 	-- @returns The value of the property.
 	--]]
 	local mtIndex = function(_, key)
-    if key == "id" or key == "position" or key == "size" or key == "active" then
+    if key == "id" or key == "position" or key == "active" then
       return self.object[key]
+    elseif key == "size" then
+      return self.object.data.size
     elseif key == "startPosition" or key == "endPosition" or key == "character" then
       return self[key]
     else
@@ -96,10 +98,16 @@ function LineObject(_start, _end, _char, _game_scene)
   -- @param value The value to set the property to.
   --]]
   local mtNewIndex = function(_, key, value)
-    if key == "startPosition" or key == "endPosition" or key == "character" then
-      self[key] = value
-			
-			_setData()
+    if key == "startPosition" or key == "endPosition" then
+      if value.__type.name == "Ivec2" then
+        self[key] = value
+        
+        _setData()
+      end
+    elseif key == "character" then
+      self.character = string.sub(value, 1, 1)
+
+      _setData()
     elseif key == "active" then
       self.object.active = value == true
     end

@@ -8,7 +8,9 @@
 #include "../../usertypes/Background.h"
 #include "../../usertypes/CharacterMap.h"
 #include "../../usertypes/EventListener.h"
+#include "../../usertypes/Flaggable.h"
 #include "../../usertypes/GameScene.h"
+#include "../../usertypes/GameWindow.h"
 #include "../../usertypes/Timer.h"
 #include "../../usertypes/Window.h"
 #include "../../usertypes/game_objects/BaseObject.h"
@@ -18,17 +20,25 @@
 #include "../../usertypes/resources/Animation.h"
 #include "../../usertypes/resources/Audio.h"
 #include "../../usertypes/resources/Font.h"
+#include "../../usertypes/resources/Image.h"
 #include "../../usertypes/resources/ShaderProgram.h"
 #include "../../utility/SolUtils.h"
 
+SOL_BASE_CLASSES(term_engine::usertypes::BaseObject, term_engine::usertypes::Flaggable);
+SOL_BASE_CLASSES(term_engine::usertypes::BaseResource, term_engine::usertypes::Flaggable);
+SOL_BASE_CLASSES(term_engine::usertypes::EventListener, term_engine::usertypes::Flaggable);
+SOL_BASE_CLASSES(term_engine::usertypes::GameScene, term_engine::usertypes::Flaggable);
+SOL_BASE_CLASSES(term_engine::usertypes::GameWindow, term_engine::usertypes::Flaggable);
 SOL_BASE_CLASSES(term_engine::usertypes::GameObject, term_engine::usertypes::BaseObject);
 SOL_BASE_CLASSES(term_engine::usertypes::TimedFunction, term_engine::usertypes::BaseObject);
 SOL_BASE_CLASSES(term_engine::usertypes::Animation, term_engine::usertypes::BaseResource);
 SOL_BASE_CLASSES(term_engine::usertypes::Audio, term_engine::usertypes::BaseResource);
 SOL_BASE_CLASSES(term_engine::usertypes::Font, term_engine::usertypes::BaseResource);
+SOL_BASE_CLASSES(term_engine::usertypes::Image, term_engine::usertypes::BaseResource);
 SOL_BASE_CLASSES(term_engine::usertypes::ShaderProgram, term_engine::usertypes::BaseResource);
+SOL_DERIVED_CLASSES(term_engine::usertypes::Flaggable, term_engine::usertypes::BaseObject, term_engine::usertypes::BaseResource, term_engine::usertypes::EventListener, term_engine::usertypes::GameScene, term_engine::usertypes::GameWindow);
 SOL_DERIVED_CLASSES(term_engine::usertypes::BaseObject, term_engine::usertypes::GameObject, term_engine::usertypes::TimedFunction);
-SOL_DERIVED_CLASSES(term_engine::usertypes::BaseResource, term_engine::usertypes::Animation, term_engine::usertypes::Audio, term_engine::usertypes::Font, term_engine::usertypes::ShaderProgram);
+SOL_DERIVED_CLASSES(term_engine::usertypes::BaseResource, term_engine::usertypes::Animation, term_engine::usertypes::Audio, term_engine::usertypes::Font, term_engine::usertypes::Image, term_engine::usertypes::ShaderProgram);
 
 namespace term_engine::scripting::bindings {
   /**
@@ -38,32 +48,37 @@ namespace term_engine::scripting::bindings {
    */
   void BindUsertypesToState(sol::state& state)
   {
+    state.new_usertype<usertypes::Flaggable>(
+      "__flaggable",
+      sol::meta_function::construct, sol::no_constructor,
+      "release", &usertypes::Flaggable::FlagForRemoval,
+      "preventRelease", &usertypes::Flaggable::UnflagForRemoval);
+
     state.new_usertype<usertypes::BaseObject>(
       "__baseobject",
       sol::meta_function::construct, sol::no_constructor,
+      sol::base_classes, sol::bases<usertypes::Flaggable>(),
       "id", sol::readonly_property(&usertypes::BaseObject::GetObjectId),
       "type", sol::readonly_property(&usertypes::BaseObject::GetObjectType),
-      "active", sol::property(&usertypes::BaseObject::IsActive, &usertypes::BaseObject::SetActive),
-      "release", &usertypes::BaseObject::FlagForRemoval);
+      "active", sol::property(&usertypes::BaseObject::IsActive, &usertypes::BaseObject::SetActive));
 
     state.new_usertype<usertypes::BaseResource>(
       "__baseresource",
       sol::meta_function::construct, sol::no_constructor,
+      sol::base_classes, sol::bases<usertypes::Flaggable>(),
       "type", sol::readonly_property(&usertypes::BaseResource::GetResourceType),
-      "name", sol::readonly_property(&usertypes::BaseResource::GetName),
-      "release", &usertypes::BaseResource::FlagForRemoval);
+      "name", sol::readonly_property(&usertypes::BaseResource::GetName));
 
     state.new_usertype<usertypes::GameObject>(
       "GameObject",
       sol::meta_function::construct, sol::factories(&usertypes::AddGameObjectToScene, &usertypes::AddGameObject),
       sol::call_constructor, sol::factories(&usertypes::AddGameObjectToScene, &usertypes::AddGameObject),
-      sol::base_classes, sol::bases<usertypes::BaseObject>(),
+      sol::base_classes, sol::bases<usertypes::BaseObject, usertypes::Flaggable>(),
       sol::meta_function::type, state.create_table_with("name", "GameObject"),
       "layer", sol::property(&usertypes::GameObject::GetLayer, &usertypes::GameObject::SetLayer),
       "hovering", sol::readonly_property(&usertypes::GameObject::IsHoveringOver),
       "position", sol::property(&usertypes::GameObject::GetPosition, &usertypes::GameObject::SetPosition),
-      "size", sol::property(&usertypes::GameObject::GetSize, &usertypes::GameObject::SetSize),
-      "data", sol::readonly_property(&usertypes::GameObject::GetData),
+      "characterMap", sol::property(&usertypes::GameObject::GetCharacterMap, &usertypes::GameObject::SetCharacterMap),
       "animation", sol::readonly_property(&usertypes::GameObject::GetAnimation),
       "set", &usertypes::GameObject::Set,
       "gameScene", sol::readonly_property(&usertypes::GameObject::GetGameScene),
@@ -74,7 +89,7 @@ namespace term_engine::scripting::bindings {
       "TimedFunction",
       sol::meta_function::construct, sol::factories(&usertypes::AddTimedFunction),
       sol::call_constructor, sol::factories(&usertypes::AddTimedFunction),
-      sol::base_classes, sol::bases<usertypes::BaseObject>(),
+      sol::base_classes, sol::bases<usertypes::BaseObject, usertypes::Flaggable>(),
       sol::meta_function::type, state.create_table_with("name", "TimedFunction"),
       "delay", sol::readonly_property(&usertypes::TimedFunction::GetDelay),
       "repeat", sol::readonly_property(&usertypes::TimedFunction::IsRepeatable),
@@ -84,7 +99,7 @@ namespace term_engine::scripting::bindings {
       "Animation",
       sol::meta_function::construct, sol::factories(&usertypes::LoadAnimation),
       sol::call_constructor, sol::factories(&usertypes::LoadAnimation),
-      sol::base_classes, sol::bases<usertypes::BaseResource>(),
+      sol::base_classes, sol::bases<usertypes::BaseResource, usertypes::Flaggable>(),
       sol::meta_function::type, state.create_table_with("name", "Animation"),
       "frameCount", sol::readonly_property(&usertypes::Animation::GetFrameCount),
       "frames", sol::readonly_property(&usertypes::Animation::GetFrames),
@@ -98,7 +113,7 @@ namespace term_engine::scripting::bindings {
       "Audio",
       sol::meta_function::construct, sol::factories(&usertypes::LoadAudio),
       sol::call_constructor, sol::factories(&usertypes::LoadAudio),
-      sol::base_classes, sol::bases<usertypes::BaseResource>(),
+      sol::base_classes, sol::bases<usertypes::BaseResource, usertypes::Flaggable>(),
       sol::meta_function::type, state.create_table_with("name", "Audio"),
       "play", &usertypes::Audio::Play,
       "stop", &usertypes::Audio::Stop,
@@ -119,27 +134,32 @@ namespace term_engine::scripting::bindings {
       "Font",
       sol::meta_function::construct, sol::factories(&usertypes::LoadFont),
       sol::call_constructor, sol::factories(&usertypes::LoadFont),
-      sol::base_classes, sol::bases<usertypes::BaseResource>(),
+      sol::base_classes, sol::bases<usertypes::BaseResource, usertypes::Flaggable>(),
       sol::meta_function::type, state.create_table_with("name", "Font"),
       "characterSize", &usertypes::Font::GetCharacterSize);
+
+    state.new_usertype<usertypes::Image>(
+      "Image",
+      sol::meta_function::construct, sol::factories(&usertypes::LoadImage),
+      sol::call_constructor, sol::factories(&usertypes::LoadImage),
+      sol::base_classes, sol::bases<usertypes::BaseResource, usertypes::Flaggable>(),
+      sol::meta_function::type, state.create_table_with("name", "Image"),
+      "size", sol::readonly_property(&usertypes::Image::GetTextureSize));
 
     state.new_usertype<usertypes::ShaderProgram>(
       "ShaderProgram",
       sol::meta_function::construct, sol::factories(&usertypes::AddShader),
       sol::call_constructor, sol::factories(&usertypes::AddShader),
-      sol::base_classes, sol::bases<usertypes::BaseResource>(),
+      sol::base_classes, sol::bases<usertypes::BaseResource, usertypes::Flaggable>(),
       sol::meta_function::type, state.create_table_with("name", "ShaderProgram"),
       "setUniform", sol::overload(
         &usertypes::ShaderProgram::SetUniform<float>,
         &usertypes::ShaderProgram::SetUniform<int>,
         &usertypes::ShaderProgram::SetUniformVector<glm::vec2>,
         &usertypes::ShaderProgram::SetUniformVector<glm::ivec2>,
-        &usertypes::ShaderProgram::SetUniformVector<glm::uvec2>,
         &usertypes::ShaderProgram::SetUniformVector<glm::vec3>,
         &usertypes::ShaderProgram::SetUniformVector<glm::ivec3>,
-        &usertypes::ShaderProgram::SetUniformVector<glm::uvec3>,
         &usertypes::ShaderProgram::SetUniformVector<glm::vec4>,
-        &usertypes::ShaderProgram::SetUniformVector<glm::ivec4>,
         &usertypes::ShaderProgram::SetUniformVector<glm::ivec4>));
     
     state.new_usertype<usertypes::AnimationFrame>(
@@ -151,10 +171,9 @@ namespace term_engine::scripting::bindings {
                                                void(const sol::table&, const glm::ivec2&, const glm::ivec2&),
                                                void(const sol::table&, const glm::ivec2&, const glm::ivec2&, uint32_t)>(),
       sol::meta_function::type, state.create_table_with("name", "AnimationFrame"),
-      "data", &usertypes::AnimationFrame::data_,
-      "size", &usertypes::AnimationFrame::size_,
-      "offset", &usertypes::AnimationFrame::offset_,
-      "addedDuration", &usertypes::AnimationFrame::added_duration_);
+      "characterMap", sol::property(&usertypes::AnimationFrame::GetCharacterMap, &usertypes::AnimationFrame::SetCharacterMap),
+      "offset", sol::property(&usertypes::AnimationFrame::GetOffset, &usertypes::AnimationFrame::SetOffset),
+      "addedDuration", sol::property(&usertypes::AnimationFrame::GetAddedDuration, &usertypes::AnimationFrame::SetAddedDuration));
 
     state.new_usertype<usertypes::AnimationState>(
       "AnimationState",
@@ -182,9 +201,9 @@ namespace term_engine::scripting::bindings {
       sol::meta_function::type, state.create_table_with("name", "Background"),
       "position", sol::property(&usertypes::Background::GetPosition, &usertypes::Background::SetPosition),
       "size", sol::property(&usertypes::Background::GetSize, &usertypes::Background::SetSize),
-      "imageSize", sol::readonly_property(&usertypes::Background::GetTextureSize),
       "colour", sol::property(&usertypes::Background::GetColour, &usertypes::Background::SetColour),
       "source", sol::property(&usertypes::Background::GetSource, &usertypes::Background::SetSource),
+      "remove", &usertypes::Background::RemoveSource,
       "loaded", sol::readonly_property(&usertypes::Background::IsLoaded),
       "reset", &usertypes::Background::Reset);
 
@@ -204,42 +223,58 @@ namespace term_engine::scripting::bindings {
 
     state.new_usertype<usertypes::CharacterMap>(
       "CharacterMap",
-      sol::meta_function::construct, sol::no_constructor,
+      sol::meta_function::construct, sol::constructors<void(),
+                                                       void(const glm::ivec2&, const sol::table&)>(),
+      sol::call_constructor, sol::constructors<void(),
+                                               void(const glm::ivec2&, const sol::table&)>(),
       sol::meta_function::type, state.create_table_with("name", "CharacterMap"),
-      "position", sol::property(&usertypes::CharacterMap::GetPosition, &usertypes::CharacterMap::SetPosition),
+      "set", &usertypes::CharacterMap::SetFunction,
+      "data", sol::property(&usertypes::CharacterMap::GetData, &usertypes::CharacterMap::SetData),
       "size", sol::property(&usertypes::CharacterMap::GetSize, &usertypes::CharacterMap::SetSize),
-      "hideEmptyCharacters", sol::property(&usertypes::CharacterMap::ShouldEmptyCharactersHaveBackground, &usertypes::CharacterMap::SetEmptyCharacterBackground));
-    
+      "hideEmptyCharacters", sol::property(&usertypes::CharacterMap::AreEmptyCharactersHidden, &usertypes::CharacterMap::SetHideEmptyCharacters));
+
     state.new_usertype<usertypes::EventListener>(
       "EventListener",
-      sol::meta_function::construct, sol::factories(&usertypes::AddEventListenerToScene, &usertypes::AddEventListener),
-      sol::call_constructor, sol::factories(&usertypes::AddEventListenerToScene, &usertypes::AddEventListener),
+      sol::meta_function::construct, sol::factories(&usertypes::AddEventListener),
+      sol::call_constructor, sol::factories(&usertypes::AddEventListener),
+      sol::base_classes, sol::bases<usertypes::Flaggable>(),
       sol::meta_function::type, state.create_table_with("name", "EventListener"),
       "id", sol::readonly_property(&usertypes::EventListener::GetListenerId),
       "active", sol::property(&usertypes::EventListener::IsActive, &usertypes::EventListener::SetActive),
       "type", sol::readonly_property(&usertypes::EventListener::GetListenerType),
       "timesFired", sol::readonly_property(&usertypes::EventListener::GetTimesFired),
-      "trigger", &usertypes::EventListener::Trigger,
-      "release", &usertypes::EventListener::FlagForRemoval,
-      "preventRelease", &usertypes::EventListener::UnflagForRemoval);
+      "trigger", &usertypes::EventListener::Trigger);
 
     state.new_usertype<usertypes::GameScene>(
       "GameScene",
       sol::meta_function::construct, sol::factories(&usertypes::AddGameScene),
       sol::call_constructor, sol::factories(&usertypes::AddGameScene),
+      sol::base_classes, sol::bases<usertypes::Flaggable>(),
       sol::meta_function::type, state.create_table_with("name", "GameScene"),
       "name", sol::readonly_property(&usertypes::GameScene::GetName),
-      "background", sol::readonly_property(&usertypes::GameScene::GetBackground),
-      "charmap", sol::readonly_property(&usertypes::GameScene::GetCharacterMap),
-      "font", sol::property(&usertypes::GameScene::GetFont, &usertypes::GameScene::SetFont),
-      "fontSize", sol::property(&usertypes::GameScene::GetFontSize, &usertypes::GameScene::SetFontSize),
-      "backgroundShader", sol::property(&usertypes::GameScene::GetBackgroundShader, &usertypes::GameScene::SetBackgroundShader),
-      "textShader", sol::property(&usertypes::GameScene::GetTextShader, &usertypes::GameScene::SetTextShader),
-      "window", sol::readonly_property(&usertypes::GameScene::GetWindow),
-      "close", &usertypes::GameScene::FlagForRemoval,
-      "preventClose", &usertypes::GameScene::UnflagForRemoval,
-      "resizeToCharacterMap", &usertypes::GameScene::ResizeToFitCharacterMap,
-      "resizeToWindow", &usertypes::GameScene::ResizeToFitWindow);
+      "characterMap", sol::readonly_property(&usertypes::GameScene::GetCharacterMap),
+      "gameWindow", sol::property(&usertypes::GameScene::GetGameWindow, &usertypes::GameScene::SetGameWindow),
+      "onInit", sol::property(&usertypes::GameScene::GetOnInit, &usertypes::GameScene::SetOnInit),
+      "onLoop", sol::property(&usertypes::GameScene::GetOnLoop, &usertypes::GameScene::SetOnLoop),
+      "onQuit", sol::property(&usertypes::GameScene::GetOnQuit, &usertypes::GameScene::SetOnQuit));
+
+    state.new_usertype<usertypes::GameWindow>(
+      "GameWindow",
+      sol::meta_function::construct, sol::factories(&usertypes::AddGameWindow),
+      sol::call_constructor, sol::factories(&usertypes::AddGameWindow),
+      sol::base_classes, sol::bases<usertypes::Flaggable>(),
+      sol::meta_function::type, state.create_table_with("name", "GameWindow"),
+      "background", sol::readonly_property(&usertypes::GameWindow::GetBackground),
+      "font", sol::property(&usertypes::GameWindow::GetFont, &usertypes::GameWindow::SetFont),
+      "fontSize", sol::property(&usertypes::GameWindow::GetFontSize, &usertypes::GameWindow::SetFontSize),
+      "backgroundShader", sol::property(&usertypes::GameWindow::GetBackgroundShader, &usertypes::GameWindow::SetBackgroundShader),
+      "textShader", sol::property(&usertypes::GameWindow::GetTextShader, &usertypes::GameWindow::SetTextShader),
+      "window", sol::readonly_property(&usertypes::GameWindow::GetWindow),
+      "gameScene", sol::property(&usertypes::GameWindow::GetGameScene, &usertypes::GameWindow::SetGameScene),
+      "reloadGameScene", &usertypes::GameWindow::ReloadGameScene,
+      "closeBehaviour", sol::property(&usertypes::GameWindow::GetCloseBehaviour, &usertypes::GameWindow::SetCloseBehaviour),
+      "resizeToCharacterMap", &usertypes::GameWindow::ResizeToFitCharacterMap,
+      "resizeToWindow", &usertypes::GameWindow::ResizeToFitWindow);
     
     state.new_usertype<usertypes::Timer>(
       "Timer",
@@ -273,8 +308,7 @@ namespace term_engine::scripting::bindings {
       "hide", &usertypes::Window::Hide,
       "captured", sol::property(&usertypes::Window::IsMouseGrabbed, &usertypes::Window::SetMouseGrab),
       "clearColour", sol::property(&usertypes::Window::GetClearColour, &usertypes::Window::SetClearColour),
-      "renderMode", sol::property(&usertypes::Window::IsWireframeEnabled, &usertypes::Window::SetWireframe),
-      "closeBehaviour", sol::property(&usertypes::Window::GetCloseBehaviour, &usertypes::Window::SetCloseBehaviour));
+      "renderMode", sol::property(&usertypes::Window::IsWireframeEnabled, &usertypes::Window::SetWireframe));
   }
 }
 

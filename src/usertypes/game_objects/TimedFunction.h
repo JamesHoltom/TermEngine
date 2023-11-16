@@ -104,6 +104,7 @@ namespace term_engine::usertypes {
    * @brief Adds a timed function to the list.
    * 
    * @param[in] delay    The amount of time to delay calling the function for, in milliseconds (ms).
+   * @param[in] started  Whether to start delaying the function once it has been created.
    * @param[in] repeat   Whether to continuously call the function, using the delay as an interval.
    * @param[in] callback The function to call when the delay has been met.
    * @returns A raw pointer to the object.
