@@ -407,11 +407,11 @@ local function newdecoder()
 				local tmp = _GameObject(pos, size)
 				
 				for k,v in ipairs(data) do
-					tmp.data.data[k] = v
+					tmp.characterMap.data[k] = v
 				end
 
 				tmp.active = (obj.__data.active == true)
-				tmp.data.hideEmptyCharacters = hEC
+				tmp.characterMap.hideEmptyCharacters = hEC
 				
 				return tmp
 			elseif obj.__type == "Animation" then
@@ -427,7 +427,7 @@ local function newdecoder()
 				local offset = check_for_userdata(obj.__data.offset)
 				local tmp = _AnimationFrame(data, size, offset, tonumber(obj.__data.addedDuration))
 
-				tmp.data.hideEmptyCharacters = hEC
+				tmp.characterMap.hideEmptyCharacters = hEC
 
 				return tmp
 			elseif obj.__type == "Ivec2" then

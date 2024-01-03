@@ -9,14 +9,13 @@
 -- @param _game_scene The game scene to add the textbox to.
 --]]
 function InputObject(_position, _size, _game_scene)
-	local game_scene = _game_scene or "default"
 	local self = {
-		object = GameObject(_position, _size, game_scene),	-- @brief Handle to the Object.
-		name = _name,																				-- @brief The name of the input.
-		label = "",																					-- @brief The input label.
-		value = "",																					-- @brief The input value.
-		max_length = _size.x * _size.y,											-- @brief The maximum length of the value.
-		cursor = 1																					-- @brief The position of the text cursor.
+		object = GameObject(_position, _size, _game_scene or defaultGameScene),	-- @brief Handle to the Object.
+		name = _name,																														-- @brief The name of the input.
+		label = "",																															-- @brief The input label.
+		value = "",																															-- @brief The input value.
+		max_length = _size.x * _size.y,																					-- @brief The maximum length of the value.
+		cursor = 1																															-- @brief The position of the text cursor.
 	}
 
 	--[[
@@ -51,8 +50,8 @@ function InputObject(_position, _size, _game_scene)
 		self.object:set(SetText(self, text, text_colour, bg_colour, false, 2))
 
 		if GetSelectedObject() == self.object.id then
-			self.object.data.data[self.cursor].foregroundColour = characters.DEFAULT_BACKGROUND_COLOUR
-			self.object.data.data[self.cursor].backgroundColour = characters.DEFAULT_FOREGROUND_COLOUR
+			self.object.characterMap.data[self.cursor].foregroundColour = characters.DEFAULT_BACKGROUND_COLOUR
+			self.object.characterMap.data[self.cursor].backgroundColour = characters.DEFAULT_FOREGROUND_COLOUR
 		end
 	end
 
@@ -169,7 +168,7 @@ function InputObject(_position, _size, _game_scene)
 		if key == "id" or key == "position" or key == "hovering" or key == "active" then
 			return self.object[key]
 		elseif key == "size" then
-			return self.object.data.size
+			return self.object.characterMap.size
 		elseif key == "label" or key == "value" or key == "cursor" then
 			return self[key]
 		else
@@ -189,8 +188,8 @@ function InputObject(_position, _size, _game_scene)
 			end
 		elseif key == "size" then
 			if value.__type.name == "Ivec2" and value >= Values.IVEC2_ONE then
-				self.object.data.size = Ivec2(value)
-				self.max_length = self.object.data.size.x * self.object.data.size.y
+				self.object.characterMap.size = Ivec2(value)
+				self.max_length = self.object.characterMap.size.x * self.object.characterMap.size.y
 			end
 		elseif key == "active" then
 			self.object.active = value == true

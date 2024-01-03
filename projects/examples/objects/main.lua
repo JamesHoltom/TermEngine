@@ -10,10 +10,10 @@ function Init()
 
   -- The position and size of the Object can be set by their properties.
   anotherObj.position = Ivec2(2, 3)
-  anotherObj.data.size = Values.IVEC2_ONE
+  anotherObj.characterMap.size = Values.IVEC2_ONE
 
   -- You can set individual characters in an Object with the `.data` property.
-  anotherObj.data.data[1] = Character("!", Colours.GREEN, Colours.DARK_GREY)
+  anotherObj.characterMap.data[1] = Character("!", Colours.GREEN, Colours.DARK_GREY)
 
   return true
 end

@@ -342,7 +342,7 @@ local function newencoder()
 		f_string("data")
 		builder[i] = ":"
 		i = i + 1
-		f_character_map(obj.data)
+		f_character_map(obj.characterMap)
 		builder[i] = ','
 		i = i + 1
 		
@@ -382,7 +382,7 @@ local function newencoder()
 		f_string("data")
 		builder[i] = ":"
 		i = i + 1
-		f_character_map(frame.data)
+		f_character_map(frame.characterMap)
 		builder[i] = ','
 		i = i + 1
 

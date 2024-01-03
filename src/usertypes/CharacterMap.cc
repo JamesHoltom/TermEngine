@@ -76,7 +76,7 @@ namespace term_engine::usertypes {
           break;
         }
 
-        data_[i] = characters[i];
+        data_[i] = characters.at(i);
       }
     }
     catch (const std::exception& err)
@@ -125,8 +125,8 @@ namespace term_engine::usertypes {
       // Do not push the character if it is an empty character.
       if (!omitEmptyChars && position.x + column_pos >= 0 && position.x + column_pos < size_.x) {
         // Do not push the character if it is outside the target character map.
-        if (index >= 0 && index < size_.x * size_.y) {
-          data_[index] = Character(character);
+        if (index >= 0 && index < data_.size()) {
+          data_.at(index) = Character(character);
         }
       }
 
@@ -146,6 +146,10 @@ namespace term_engine::usertypes {
     if (ImGui::TreeNode("Character Map"))
     {
       ImGui::Text("Size: %i, %i", size_.x, size_.y);
+      ImGui::Text("Hide empty characters?: %s", hide_empty_characters_ ? "Yes" : "No");
+      ImGui::SeparatorText("First Char");
+      ImGui::Text("Value: %i", data_.at(0).character_);
+      ImGui::Text("Hidden?: %s", data_.at(0).character_ == NO_CHARACTER && hide_empty_characters_ ? "Yes" : "No");
 
       UpdateCharacterDataDebugInfo(data_, size_);
       

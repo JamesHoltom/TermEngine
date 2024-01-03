@@ -13,10 +13,10 @@ local empty_character = Character(characters.NO_CHARACTER, characters.DEFAULT_FO
 --]]
 function LineObject(_start, _end, _char, _game_scene)
   local self = {
-    object = GameObject(Values.IVEC2_ZERO, Values.IVEC2_ONE, _game_scene or "default"), -- @brief Handle to the Object.
-    startPosition = _start,                                                             -- @brief The starting position of the line.
-    endPosition = _end,                                                                 -- @brief The ending position of the line.
-    character = _char                                                                   -- @brief The Character to use for the line.
+    object = GameObject(Values.IVEC2_ZERO, Values.IVEC2_ONE, _game_scene or defaultGameScene),  -- @brief Handle to the Object.
+    startPosition = _start,                                                                     -- @brief The starting position of the line.
+    endPosition = _end,                                                                         -- @brief The ending position of the line.
+    character = _char                                                                           -- @brief The Character to use for the line.
   }
 
   -- @brief Refreshes the object data with the updated settings.
@@ -27,7 +27,7 @@ function LineObject(_start, _end, _char, _game_scene)
     if size == Values.IVEC2_ZERO then
       return
     elseif size == Values.IVEC2_ONE then
-      self.object.data.set(1, self.character)
+      self.object.characterMap.set(1, self.character)
       return
     end
 
@@ -46,7 +46,7 @@ function LineObject(_start, _end, _char, _game_scene)
     end
 
     self.object.position = pos
-    self.object.data.size = size
+    self.object.characterMap.size = size
     self.object:set(function(_, _) return empty_character end)
 
     local startPos = self.startPosition - self.object.position
@@ -64,9 +64,9 @@ function LineObject(_start, _end, _char, _game_scene)
 
     for i = 0, iterLimit do
       local iterDiff = Vec2(i/iterLimit) * diff
-      local index = getIndexFromRowCol(self.object.data.size, startPos + Ivec2(iterDiff:round()))
+      local index = getIndexFromRowCol(self.object.characterMap.size, startPos + Ivec2(iterDiff:round()))
 
-      self.object.data.set(index, self.character)
+      self.object.characterMap.set(index, self.character)
     end
   end
 
@@ -84,7 +84,7 @@ function LineObject(_start, _end, _char, _game_scene)
     if key == "id" or key == "position" or key == "active" then
       return self.object[key]
     elseif key == "size" then
-      return self.object.data.size
+      return self.object.characterMap.size
     elseif key == "startPosition" or key == "endPosition" or key == "character" then
       return self[key]
     else

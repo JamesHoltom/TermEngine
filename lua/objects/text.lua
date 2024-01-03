@@ -11,12 +11,12 @@
 --]]
 function TextObject(_position, _size, _text, _game_scene)
 	local self = {
-		object = GameObject(_position, _size, _game_scene or "default"),	-- @brief Handle to the Object.
-		text = tostring(_text or ""),																			-- @brief The text to render.
-		fit_text = false,																									-- @brief Should the background colour fit the text, or the Object bounds?
-		tab_size = 2,																											-- @brief The size of tab characters (i.e. '\t').
-		fg_colour = characters.DEFAULT_FOREGROUND_COLOUR,									-- @brief The text colour.
-		bg_colour = characters.DEFAULT_BACKGROUND_COLOUR									-- @brief The background colour.
+		object = GameObject(_position, _size, _game_scene or defaultGameScene),	-- @brief Handle to the Object.
+		text = tostring(_text or ""),																						-- @brief The text to render.
+		fit_text = false,																												-- @brief Should the background colour fit the text, or the Object bounds?
+		tab_size = 2,																														-- @brief The size of tab characters (i.e. '\t').
+		fg_colour = characters.DEFAULT_FOREGROUND_COLOUR,												-- @brief The text colour.
+		bg_colour = characters.DEFAULT_BACKGROUND_COLOUR												-- @brief The background colour.
 	}
 
 	-- @brief Refreshes the object data with the updated settings.
@@ -38,7 +38,7 @@ function TextObject(_position, _size, _text, _game_scene)
 		if key == "id" or key == "position" or key == "active" then
 			return self.object[key]
 		elseif key == "size" then
-			return self.object.data.size
+			return self.object.characterMap.size
 		elseif key == "text" or key == "fit_text" or key == "tab_size" or key == "fg_colour" or key == "bg_colour" then
 			return self[key]
 		else
@@ -58,7 +58,7 @@ function TextObject(_position, _size, _text, _game_scene)
 			end
 		elseif key == "size" then
 			if value.__type.name == "Ivec2" and value >= Values.IVEC2_ONE then
-				self.object.data.size = value
+				self.object.characterMap.size = value
 				_setData()
 			end
 		elseif key == "active" then

@@ -148,7 +148,7 @@ namespace term_engine::usertypes {
   void Window::SetSize(const glm::ivec2& size)
   {
     assert(size.x > 0 && size.y > 0);
-    
+
     size_ = size;
     game_window_->SetProjection(size);
   }

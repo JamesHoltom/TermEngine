@@ -120,7 +120,7 @@ namespace term_engine::usertypes {
     if (size == 0) {
       utility::logger->warn("Cannot use a font size of 0!");
 
-      return;
+      return EMPTY_CHARACTER;
     }
 
     Use();
@@ -158,7 +158,7 @@ namespace term_engine::usertypes {
     if (size == 0) {
       utility::logger->warn("Cannot use a font size of 0!");
 
-      return;
+      return size_list_.end();
     }
 
     FT_Size new_size;

@@ -29,7 +29,7 @@ function ExampleObject(_pos, _text, _game_scene)
     elseif key == "position" then
       return self.obj.position
     elseif key == "size" then
-      return self.obj.data.size
+      return self.obj.characterMap.size
     else
       return nil
     end
@@ -43,14 +43,14 @@ function ExampleObject(_pos, _text, _game_scene)
       end
     elseif key == "size" then
       if value.__type.name == "Ivec2" and value >= Values.IVEC2_ONE then
-        self.obj.data.size = Ivec2(value)
+        self.obj.characterMap.size = Ivec2(value)
       end
     end
   end
 
   -- Set the text in the base Object.
-  self.obj.data.size = Ivec2(#self.text, 1)
-  self.obj.data:set(function(_, index) return Character(self.text:sub(index, index), Colours.WHITE, Colours.BLACK) end)
+  self.obj.characterMap.size = Ivec2(#self.text, 1)
+  self.obj.characterMap:set(function(_, index) return Character(self.text:sub(index, index), Colours.WHITE, Colours.BLACK) end)
   
   -- Return the object with the methods and metatable set.
   return setmetatable({

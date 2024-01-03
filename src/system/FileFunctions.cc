@@ -99,7 +99,7 @@ namespace term_engine::system {
   {
     std::filesystem::path filepath = SearchForResourcePath(filename);
 
-    if (filepath == "")
+    if (filepath.empty())
     {
       utility::logger->warn("Could not find file to read data from!");
       
@@ -128,7 +128,7 @@ namespace term_engine::system {
 
   void WriteFile(const std::string& filename, const std::string& data, bool append)
   {
-    if (filename == "")
+    if (filename.empty())
     {
       utility::logger->warn("No file has been selected to write/append data to!");
       

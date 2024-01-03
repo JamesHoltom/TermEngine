@@ -38,7 +38,7 @@ namespace term_engine::usertypes {
 
     SetGameScene(game_scene);
     
-    SetProjection(DEFAULT_WINDOW_SIZE);
+    SetProjection(window_->GetSize());
 
     utility::logger->debug("Created game window.");
   }

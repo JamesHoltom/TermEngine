@@ -228,7 +228,7 @@ namespace term_engine::usertypes {
 
     if (find_scene == nullptr)
     {
-      utility::logger->warn("Cannot add game object for non-existent game scene \"{}\"!", find_scene->GetName());
+      utility::logger->warn("Cannot add game object for non-existent game scene!");
 
       return nullptr;
     }

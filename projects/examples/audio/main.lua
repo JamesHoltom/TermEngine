@@ -10,7 +10,7 @@
 local audioText, cursorText, settingsText, audioMusic, audioSeek, audioLength
 
 function Init()
-  defaultGameScene.charmap.size = Ivec2(42, 7)
+  defaultGameScene.characterMap.size = Ivec2(42, 7)
   defaultWindow:resizeToCharacterMap()
 
   audioMusic = Audio("audio/Map.wav", "stream")

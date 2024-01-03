@@ -29,7 +29,7 @@ function printGameObject(k, v, depth)
 
   print(tab .. k .. ": GameObject - Pos(" .. tostring(v.position) .. "), Size(" .. tostring(v.size) .. "), Active(" .. tostring(v.active) .. "), Data({")
 
-  printCharacterMap("data", v.data, depth + 1)
+  printCharacterMap("data", v.characterMap, depth + 1)
 
   print(tab .. "})")
 end
@@ -41,7 +41,7 @@ function printAnimationFrame(k, v, depth)
 
   print(tab .. k .. ": AnimationFrame - Size(" .. tostring(v.data.size) .. "), Offset(" .. tostring(v.offset) .. "), Added Duration(" .. v.addedDuration .. "), Data([")
 
-  printCharacterMap("data", v.data, depth + 1)
+  printCharacterMap("data", v.characterMap, depth + 1)
 
   print(tab .. "])")
 end
@@ -93,7 +93,7 @@ function Init()
   local vCharacter = Character("v", Colours.RED, Colours.WHITE)
   local wCharacter = Character("w", Colours.WHITE, Colours.RED)
   local vObj = GameObject(Values.IVEC2_ONE, Ivec2(1, 2))
-  vObj.data.data[1] = vCharacter
+  vObj.characterMap.data[1] = vCharacter
   local vAnim = Animation("von_anim")
   vAnim:addFrame(AnimationFrame({ vCharacter, wCharacter }, Ivec2(1, 2), Ivec2(0, 4), 250))
   vAnim:addFrame(AnimationFrame({ vCharacter, wCharacter }, Ivec2(2, 1), Ivec2(5, 6), 500))
@@ -112,7 +112,7 @@ function Init()
   local jCharacter = Character("j", Colours.BLUE, Colours.WHITE)
   local lCharacter = Character("l", Colours.WHITE, Colours.BLUE)
   local jObj = GameObject(Ivec2(1, 3), Values.IVEC2_ONE)
-  jObj.data.data[1] = jCharacter
+  jObj.characterMap.data[1] = jCharacter
   local jAnim = Animation("json_anim")
   jAnim:addFrame(AnimationFrame({ jCharacter, lCharacter }, Ivec2(1, 2), Ivec2(3, 4), 250))
   jAnim:addFrame(AnimationFrame({ jCharacter, lCharacter }, Ivec2(2, 1), Ivec2(5, 6), 500))

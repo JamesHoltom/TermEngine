@@ -19,10 +19,10 @@ function SetText(obj, _text, _fg_colour, _bg_colour, _fit_text, _tab_size)
 
   return function(_, index)
     local ret = Character(" ", _fg_colour, _bg_colour)
-    
+
     -- If we previously hit a newline character, and we're now on a new line, start rendering characters.
     if newline == true then
-      if math.fmod(index, obj.data.size.x) == 1 then
+      if math.fmod(index, obj.characterMap.size.x) == 1 then
         newline = false
         tabs_left = 0
       else

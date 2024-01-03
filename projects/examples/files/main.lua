@@ -21,7 +21,7 @@ function SetValue()
 end
 
 function Init()
-  defaultGameScene.charmap.size = Ivec2(16, 8)
+  defaultGameScene.characterMap.size = Ivec2(16, 8)
   defaultWindow:resizeToCharacterMap()
 
   if filesystem.exists("resources/myFile.txt") then

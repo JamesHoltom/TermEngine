@@ -12,16 +12,16 @@ local empty_character = Character(characters.NO_CHARACTER, characters.DEFAULT_FO
 --]]
 function BoxObject(_position, _size, _game_scene)
 	local self = {
-		object = GameObject(_position, _size, _game_scene or "default"),	-- @brief Handle to the Object.
-		fill = empty_character,																						-- @brief The Character to use for the fill.
-		outline = empty_character,																				-- @brief The Character to use for the outline.
-		has_outline = false																								-- @brief Has an outline been set?
+		object = GameObject(_position, _size, _game_scene or defaultGameScene),	-- @brief Handle to the Object.
+		fill = empty_character,																									-- @brief The Character to use for the fill.
+		outline = empty_character,																							-- @brief The Character to use for the outline.
+		has_outline = false																											-- @brief Has an outline been set?
 	}
 	
 	-- @brief Refreshes the object data with the updated settings.
 	local _setData = function()
-		local minW = self.object.data.size.x
-		local maxW = (self.object.data.size.x * self.object.data.size.y) - minW
+		local minW = self.object.characterMap.size.x
+		local maxW = (self.object.characterMap.size.x * self.object.characterMap.size.y) - minW
 		
 		self.object:set(function(_, index)
 			if self.has_outline and (index < minW or index > maxW or math.fmod(index, minW) <= 1) then
@@ -62,7 +62,7 @@ function BoxObject(_position, _size, _game_scene)
 		if key == "id" or key == "position" or key == "active" then
 			return self.object[key]
 		elseif key == "size" then
-			return self.object.data.size
+			return self.object.characterMap.size
 		elseif key == "fill" or key == "outline" then
 			return self[key]
 		else
@@ -82,7 +82,7 @@ function BoxObject(_position, _size, _game_scene)
 			end
 		elseif key == "size" then
 			if value.__type.name == "Ivec2" and value >= Values.IVEC2_ONE then
-				self.object.data.size = Ivec2(value)
+				self.object.characterMap.size = Ivec2(value)
 				_setData()
 			end
 		elseif key == "active" then

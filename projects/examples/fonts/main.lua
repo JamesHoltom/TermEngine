@@ -12,7 +12,7 @@ local line1Text, line2Text, box
 function Init()
   otherFont = Font("fonts/SpaceMono-Regular.ttf")
 
-  defaultGameScene.charmap.size = Ivec2(40, 4)
+  defaultGameScene.characterMap.size = Ivec2(40, 4)
   defaultWindow:resizeToCharacterMap()
 
   box = BoxObject(Values.IVEC2_ZERO, Ivec2(40, 4))

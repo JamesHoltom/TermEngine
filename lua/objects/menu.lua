@@ -9,15 +9,15 @@
 --]]
 function MenuObject(_position, _game_scene)
 	local menu_self = {
-		position = _position,										-- @brief The position of the object.
-		size = Values.IVEC2_ZERO,								-- @brief The size of the object.
-		use_keys = false,												-- @brief Are keyboard controls enabled for the menu?
-		selected_option = 1,										-- @brief The index of the option currently selected.
-		active = true,													-- @brief Is the menu (and all of its options) active?
-		next_y_position = 0,										-- @brief The Y position for the next option.
-		options = {},														-- @brief The list of options.
-		key_handler = nil,											-- @brief The listener for "key_down" events.
-		game_scene = _game_scene or "default"		-- @brief The game scene to add options to.
+		position = _position,													-- @brief The position of the object.
+		size = Values.IVEC2_ZERO,											-- @brief The size of the object.
+		use_keys = false,															-- @brief Are keyboard controls enabled for the menu?
+		selected_option = 1,													-- @brief The index of the option currently selected.
+		active = true,																-- @brief Is the menu (and all of its options) active?
+		next_y_position = 0,													-- @brief The Y position for the next option.
+		options = {},																	-- @brief The list of options.
+		key_handler = nil,														-- @brief The listener for "key_down" events.
+		game_scene = _game_scene or defaultGameScene	-- @brief The game scene to add options to.
 	}
 
 	--[[
@@ -92,7 +92,7 @@ function MenuObject(_position, _game_scene)
 			if key == "id" or key == "position" or key == "hovering" or key == "active" then
 				return opt_self.object[key]
 			elseif key == "size" then
-				return opt_self.object.data.size
+				return opt_self.object.characterMap.size
 			elseif key == "title" then
 				return opt_self[key]
 			else

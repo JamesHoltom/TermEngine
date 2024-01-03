@@ -640,7 +640,7 @@ local extra_deserialize = {
 
 		repeat
 			gChr, i = _deserialize["Character"](s, i, len, unnecessaryEnd, jobstate)
-			obj.data.data[gIndex] = gChr
+			obj.characterMap.data[gIndex] = gChr
 
 			if s:sub(i + 1, i + 1) == "}" then
 				hitEnd = true
@@ -932,16 +932,16 @@ local extra_serialize = {
 	["GameObject"] = function(data, mustInitiate, isNumeric, isKey, isLast, first, jobstate)
 		local active, hEC = "0", "0"
 		if data.active then active = "1" end
-		if data.data.hideEmptyCharacters then hEC = "1" end
-		local tmp = tostring(data.position) .. "|" .. active .. "|" .. tostring(data.data.size) .. "|" .. hEC .. "{"
-		local len = #data.data.data
+		if data.characterMap.hideEmptyCharacters then hEC = "1" end
+		local tmp = tostring(data.position) .. "|" .. active .. "|" .. tostring(data.characterMap.size) .. "|" .. hEC .. "{"
+		local len = #data.characterMap.data
 
 		if mustInitiate then
 			tmp = "O" .. tmp
 		end
 
 		for i = 1, len do
-			tmp = tmp .. _serialize["Character"](data.data.data[i], false, false, false, i == len, false, jobstate)
+			tmp = tmp .. _serialize["Character"](data.characterMap.data[i], false, false, false, i == len, false, jobstate)
 		end
 
 		tmp = tmp .. "}"
@@ -966,16 +966,16 @@ local extra_serialize = {
 	end,
 	["AnimationFrame"] = function(data, mustInitiate, isNumeric, isKey, isLast, first, jobstate)
 		local hEC = "0"
-		if data.data.hideEmptyCharacters then hEC = "1" end
-		local tmp = tostring(data.offset) .. "|" .. data.addedDuration .. "|" .. tostring(data.data.size) .. "|" .. hEC .. "{"
-		local len = #data.data.data
+		if data.characterMap.hideEmptyCharacters then hEC = "1" end
+		local tmp = tostring(data.offset) .. "|" .. data.addedDuration .. "|" .. tostring(data.characterMap.size) .. "|" .. hEC .. "{"
+		local len = #data.characterMap.data
 
 		if mustInitiate then
 			tmp = "F" .. tmp
 		end
 
 		for i = 1, len do
-			tmp = tmp .. _serialize["Character"](data.data.data[i], false, false, false, i == len, false, jobstate)
+			tmp = tmp .. _serialize["Character"](data.characterMap.data[i], false, false, false, i == len, false, jobstate)
 		end
 
 		tmp = tmp .. "}"
