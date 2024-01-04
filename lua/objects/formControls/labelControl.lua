@@ -44,7 +44,7 @@ function LabelControl(_name, _position, _size, _form, _label, _options)
 	local _setControl = function(_control)
 		for k, v in pairs(_form.controls) do
 			if v.name == _control then
-				self._name = _control
+				self.name = _control
 
 				return
 			end

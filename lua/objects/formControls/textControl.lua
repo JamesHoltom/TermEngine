@@ -257,7 +257,7 @@ function TextControl(_name, _position, _size, _form, _options)
 		_refreshControl(false)
 	end
 
-	_setMaxLength(tonumber(options.max_length or 0))
+	_setMaxLength(tonumber(_options.max_length or 0))
 	_refreshControl(false)
 
 	return setmetatable({
