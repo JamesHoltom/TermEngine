@@ -146,8 +146,15 @@ function FormObject(_name, _game_scene)
 				validator = args.validator,
 				colours = args.colours or {}
 			})
-		-- elseif ctlType == "number" then
-		-- 	obj = NumberControl(name, size, options)
+		elseif ctlType == "number" then
+			obj = NumberControl(name, position, size, s, {
+				colours = args.colours or {},
+				required = args.required == true,
+				minimum = args.minimum or false,
+				maximum = args.maximum or false,
+				prefix = args.prefix or "",
+				suffix = args.suffix or ""
+			})
 		-- elseif ctlType == "slider" then
 		-- 	obj = SliderControl(name, size, options)
 		-- elseif ctlType == "slider2d" then
