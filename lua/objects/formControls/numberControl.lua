@@ -6,12 +6,13 @@
 -- @brief Extends the GameObject usertype to make inputting numbers simpler.
 -- @param _size 			The size of the number box.
 --]]
-function NumberControl(_name, _position, _size, _form, _options)
+function NumberControl(_name, _position, _width, _form, _options)
 	local colours = _options.colours or {}
 
 	local self = {
 		name = _name,
-		object = GameObject(_position, _size , _form.game_scene or defaultGameScene),
+		width = tonumber(_width),
+		object = GameObject(_position, Ivec2(tonumber(_width), 1), _form.game_scene or defaultGameScene),
 		colours = {
 			default_text = colours.default_text or characters.DEFAULT_FOREGROUND_COLOUR,
 			default_bg = colours.default_bg or characters.DEFAULT_BACKGROUND_COLOUR,
@@ -30,10 +31,10 @@ function NumberControl(_name, _position, _size, _form, _options)
 		required = _options.required == true,								-- @brief Is it mandatory for the value to be submitted?
 		maximum = tonumber(_options.maximum) or false,
 		minimum = tonumber(_options.minimum) or false,
-		prefix = tostring(_options.prefix or ""),
-		suffix = tostring(_options.suffix or ""),
 		validator = nil,	-- @brief Function that validates if the number input is valid.
-		is_valid = true
+		is_valid = true,
+		enable_step = _options.enable_step == true,
+		step_value = tonumber(_options.step_value) or 1
 	}
 	
 	local _setCursor = function(_at)
@@ -67,11 +68,14 @@ function NumberControl(_name, _position, _size, _form, _options)
 		if textInput.isActive() then
 			text_value = self.text_value
 		else
-			-- TODO: Add check for negative values when adding prefix.
-			text_value = self.prefix .. tostring(self.value) .. self.suffix
+			text_value = tostring(self.value)
 		end
 
 		text_value = text_value:sub(self.cursor_offset)
+
+		if self.enable_step == true then
+			text_value = string.format("%s%"..math.max(self.width - #text_value, 2).."s", text_value, "<>")
+		end
 
 		if self.object.hovering == true then
 			text_colour = self.colours.selected_text
@@ -123,13 +127,23 @@ function NumberControl(_name, _position, _size, _form, _options)
 	end
 
 	local _doMouseEvents = function(_selected, _data)
+		local cursor = _data.rowcol - self.object.position
+		local step_down_hover = self.enable_step and (cursor.x == self.width - 2)
+		local step_up_hover = self.enable_step and (cursor.x == self.width - 1)
+
 		if _selected == true then
-			if not textInput.isActive() then
-				self.text_value = tostring(self.value)
-				textInput.start()
+			if step_down_hover == true and self.minimum ~= false then
+				self.value = math.max(self.value - self.step_value, self.minimum)
+			elseif step_up_hover == true and self.maximum ~= false then
+				self.value = math.min(self.value + self.step_value, self.maximum)
+			else
+				if not textInput.isActive() then
+					self.text_value = tostring(self.value)
+					textInput.start()
+				end
+				
+				_setCursor(_data.rowcol.x - self.object.position.x + 1)
 			end
-			
-			_setCursor(_data.rowcol.x - self.object.position.x + 1)
 		else
 			_setValue()
 
@@ -207,7 +221,6 @@ function NumberControl(_name, _position, _size, _form, _options)
 	local _doTextEvents = function(_data)
 		local offset = self.cursor_at + self.cursor_offset
 
-		-- TODO: Prevent non-numeric characters, enforce minus symbol on first character only, enforce 1 decimal symbol + prepend with 0 if first.
 		if _data.text == "-" then
 			if offset > 1 or self.text_value:sub(0, 1) == "-" then
 				return
@@ -249,8 +262,8 @@ function NumberControl(_name, _position, _size, _form, _options)
 		if key == "id" or key == "position" then
 			return self.object[key]
 		elseif key == "size" then
-			return self.object.characterMap.size
-		elseif key == "name" or key == "value" or key == "minimum" or key == "maximum" or key == "required" or key == "validator" then
+			return Ivec2(self.width, 1)
+		elseif key == "name" or key == "width" or key == "value" or key == "minimum" or key == "maximum" or key == "required" or key == "validator" or key == "enable_step" or key == "step_value" then
 			return self[key]
 		elseif key == "cursor" then
 			return self.cursor_at + self.cursor_offset
@@ -270,15 +283,19 @@ function NumberControl(_name, _position, _size, _form, _options)
 				self.object.position = Ivec2(value)
 			end
 		elseif key == "size" then
-			if value.__type.name == "Ivec2" and value >= Values.IVEC2_ONE then
-				self.object.characterMap.size = value
+			if value.__type.name == "Ivec2" then
+				self.width = tonumber(value.x)
+				self.object.characterMap.size = Ivec2(self.width, 1)
 			end
+		elseif key == "width" then
+			self[key] = tonumber(value)
+			self.object.characterMap.size = Ivec2(self.width, 1)
 		elseif key == "value" then
 			self.text_value = tostring(value)
 			_setValue()
-		elseif key == "minimum" or key == "maximum" then
+		elseif key == "minimum" or key == "maximum" or key == "step_value" then
 			self[key] = tonumber(value)
-		elseif key == "required" then
+		elseif key == "required" or key == "enable_step" then
 			self[key] = (value == true)
 		elseif key == "cursor" then
 			_setCursor(tonumber(value))

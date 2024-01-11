@@ -102,7 +102,6 @@ function LabelControl(_name, _position, _size, _form, _label, _options)
 	_refreshControl()
 
 	return setmetatable({
-		setCursor = _setCursor,
 		setControl = _setControl,
 		doMouseEvents = _doMouseEvents,
 		refreshControl = _refreshControl

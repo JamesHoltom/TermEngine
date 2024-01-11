@@ -152,8 +152,8 @@ function FormObject(_name, _game_scene)
 				required = args.required == true,
 				minimum = args.minimum or false,
 				maximum = args.maximum or false,
-				prefix = args.prefix or "",
-				suffix = args.suffix or ""
+				enable_step = args.enable_step == true,
+				step_value = args.step_value or 1
 			})
 		-- elseif ctlType == "slider" then
 		-- 	obj = SliderControl(name, size, options)
