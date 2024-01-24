@@ -11,28 +11,41 @@ local events = {}
 local function InitFormEvents()
 	if is_init == false then
 		events = {
-			hover = EventListener("object_hover", function(_, data)
+			hover = EventListener("object_hover", function(_, _data)
 				for k, v in ipairs(controls) do
-					if v.id == data.id then
-						controls[k].refreshControl(selected_control == v.id)
+					if type(v) == "CheckboxControl" then
+						for _, id in ipairs(v.ids) do
+							if id == _data.id then
+								controls[k].onHover(_data.type == "over")
+								return
+							end
+						end
+					elseif v.id == _data.id then
+						controls[k].onHover(_data.type == "over")
 						return
 					end
 				end
 			end),
-			click = EventListener("mouse_down", function(_, data)
+			click = EventListener("mouse_down", function(_, _data)
 				local old_control = selected_control
 				selected_control = false
 
 				for k, v in ipairs(controls) do
-					if data.rowcol >= v.position and data.rowcol < v.position + v.size then
-						if old_control ~= false and type(controls[old_control].doMouseEvents) == "function" then
-							controls[old_control].doMouseEvents(false, data)
+					if _data.rowcol >= v.position and _data.rowcol < v.position + v.size then
+						if old_control ~= false and old_control ~= k then
+							if type(controls[old_control].doMouseEvents) == "function" then
+								controls[old_control].doMouseEvents(_data)
+							end
+
+							controls[old_control].onSelect(false)
 						end
 						
 						selected_control = k
 
+						controls[selected_control].onSelect(true)
+
 						if type(controls[selected_control].doMouseEvents) == "function" then
-							controls[selected_control].doMouseEvents(true, data)
+							controls[selected_control].doMouseEvents(_data)
 						end
 
 						break
@@ -40,21 +53,22 @@ local function InitFormEvents()
 				end
 
 				if old_control ~= false and selected_control == false then
-					controls[old_control].doMouseEvents(false, data)
+					if type(controls[old_control].doMouseEvents) == "function" then
+						controls[old_control].doMouseEvents(_data)
+					end
+
+					controls[old_control].onSelect(false)
 				end
 			end),
-			keydown = EventListener("key_down", function(_, data)
+			keydown = EventListener("key_down", function(_, _data)
 				if selected_control ~= false and type(controls[selected_control].doKeyEvents) == "function" then
-					controls[selected_control].doKeyEvents(data)
+					controls[selected_control].doKeyEvents(_data)
 				end
 			end),
-			input = EventListener("text_input", function(_, data)
+			input = EventListener("text_input", function(_, _data)
 				if selected_control ~= false and type(controls[selected_control].doTextEvents) == "function" then
-					controls[selected_control].doTextEvents(data)
+					controls[selected_control].doTextEvents(_data)
 				end
-			end),
-			submit = EventListener("form_submit", function(_, data)
-				-- TODO: 
 			end)
 		}
 		is_init = true
@@ -106,7 +120,7 @@ function FormObject(_name, _game_scene)
 			local control = controls[v]
 
 			if type(control) ~= "LabelControl" then
-				local result, data, error = control.validate()
+				local result, data, error = control:validate()
 				
 				if result == false and validated == true then
 					_raiseValidationError(self, error)
@@ -131,40 +145,47 @@ function FormObject(_name, _game_scene)
 		local ctlType = args.type or ""
 		local name = args.name or ""
 		local position = args.position or Values.IVEC2_ZERO
-		local size = args.size or Values.IVEC2_ONE
+		local size = args.size or 1
 		local obj = nil
 
-		if ctlType == "label" then
-			obj = LabelControl(name, position, size, s, args.label or "", {
-				colours = args.colours or {}
-			})
-		elseif ctlType == "text" then
+		if ctlType == "text" then
 			obj = TextControl(name, position, size, s, {
 				value = tostring(args.value or ""),
 				max_length = tonumber(args.max_length),
-				required = args.required == true,
+				required = (args.required == true),
 				validator = args.validator,
-				colours = args.colours or {}
+				colours = args.colours or {},
+				label = args.label,
+				label_size = args.label_size
 			})
 		elseif ctlType == "number" then
 			obj = NumberControl(name, position, size, s, {
-				colours = args.colours or {},
-				required = args.required == true,
+				value = tonumber(args.value),
 				minimum = args.minimum or false,
 				maximum = args.maximum or false,
-				enable_step = args.enable_step == true,
-				step_value = args.step_value or 1
+				enable_step = (args.enable_step == true),
+				step_value = args.step_value or 1,
+				required = (args.required == true),
+				validator = args.validator,
+				colours = args.colours or {},
+				label = args.label,
+				label_size = args.label_size
 			})
 		-- elseif ctlType == "slider" then
 		-- 	obj = SliderControl(name, size, options)
 		-- elseif ctlType == "slider2d" then
 		-- 	obj = Slider2DControl(name, size, options)
-		-- elseif ctlType == "radio" then
-		-- 	obj = TickboxControl(name, false, size, options)
-		-- elseif ctlType == "checkbox" then
-		-- 	obj = TickboxControl(name, true, size, options)
-		-- elseif ctlType == "button" then
-		-- 	obj = ButtonControl(name, size, options)
+		elseif ctlType == "checkbox" then
+			obj = CheckboxControl(name, position, s, {
+				options = args.options or {},
+				value_texts = args.value_texts or {},
+				required = (args.required == true),
+				select_multiple = (args.select_multiple == true),
+				validator = args.validator,
+				colours = args.colours or {},
+				label = args.label,
+				label_size = args.label_size
+			})
 		-- elseif ctlType == "dropdown" then
 		-- 	obj = DropdownControl(name, size, options)
 		end
@@ -201,22 +222,22 @@ function FormObject(_name, _game_scene)
 
 	local _selectControl = function(_name)
 		if selected_control ~= false then
-			controls[selected_control].refreshControl(false)
+			controls[selected_control].onSelect(false)
 		end
 
 		for k, v in pairs(self.controls) do
 			if controls[v].name == _name then
-				controls[v].refreshControl(true)
+				controls[v].onSelect(true)
 				selected_control = v
 
-				break
+				return
 			end
 		end
 	end
 
-	local _deselectControl = function()
+	local _deselectControls = function()
 		if selected_control ~= false then
-			controls[selected_control].refreshControl(false)
+			controls[selected_control].onSelect(false)
 			selected_control = false
 		end
 	end
@@ -240,6 +261,8 @@ function FormObject(_name, _game_scene)
 	local mtIndex = function(_, key)
 		if key == "active" or key == "game_scene" then
 			return self[key]
+		elseif key == "selected_control" then
+			return selected_control
 		elseif key == "controls" then
 			local retCtls = {}
 
@@ -277,7 +300,7 @@ function FormObject(_name, _game_scene)
 		addControls = _addControls,
 		removeControl = _removeControl,
 		selectControl = _selectControl,
-		deselectControl = _deselectControl,
+		deselectControls = _deselectControls,
 		release = _release
 	}, {
 		__index    = mtIndex,

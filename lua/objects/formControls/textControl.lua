@@ -11,96 +11,16 @@
 -- @param _options		Additional options to configure the control with.
 --]]
 function TextControl(_name, _position, _size, _form, _options)
-	local colours = _options.colours or {}
+	local self = generateControlSelf("TextControl", _name, _position, _size, _form, _options)
 
-	local self = {
-		name = _name,													-- @brief The name of the control.
-		object = GameObject(_position, _size , _form.game_scene or defaultGameScene),
-		colours = {
-			default_text = colours.default_text or characters.DEFAULT_FOREGROUND_COLOUR,
-			default_bg = colours.default_bg or characters.DEFAULT_BACKGROUND_COLOUR,
-			selected_text = colours.selected_text or characters.DEFAULT_FOREGROUND_COLOUR,
-			selected_bg = colours.selected_bg or Colours.DARK_GREY,
-			cursor_text = colours.cursor_text or characters.DEFAULT_BACKGROUND_COLOUR,
-			cursor_bg = colours.cursor_bg or characters.DEFAULT_FOREGROUND_COLOUR,
-			error_text = colours.error_text or characters.DEFAULT_FOREGROUND_COLOUR,
-			error_bg = colours.error_bg or Colours.RED
-		},
-		value = "",														-- @brief The input value.
-		default = "",													-- @brief The default value.
-		cursor_at = 1,												-- @brief The index character, relevant to the game object, to show the cursor at.
-		cursor_offset = 0,										-- @brief The offset of characters in the input value to start writing to the game object.
-		required = _options.required == true,	-- @brief Is it mandatory for text to be written upon submission?
-		max_length = false,										-- @brief The maximum length of the input value.
-		validator = nil,											-- @brief Function that validates if the written text is valid.
-		is_valid = true												-- @brief Flag to indicate if the current input value is valid.
-	}
-	
 	local _setCursor = function(_at)
 		local end_index = utf8.len(self.value) + 1
-		local end_select = math.max(end_index, self.object.characterMap.size.x)
+		local end_select = math.max(end_index, self.value_size)
+		local at = tonumber(_at) - self.label_size
 
-		if type(_at) == "number" and _at >= 1 and _at <= end_select then
-			self.cursor_at = math.min(_at, end_index)
+		if at >= 1 and at <= end_select then
+			self.cursor_at = self.label_size + math.min(at, end_index)
 		end
-	end
-
-	local _refreshControl = function(_is_selected)
-		local text, text_colour, bg_colour
-
-		if self.object.hovering == true then
-			text_colour = self.colours.selected_text
-			bg_colour = self.colours.selected_bg
-		elseif self.is_valid == false then
-			text_colour = self.colours.error_text
-			bg_colour = self.colours.error_bg
-		else
-			text_colour = self.colours.default_text
-			bg_colour = self.colours.default_bg
-		end
-
-		if utf8.len(self.value) > 0 then
-			text = self.value:sub(self.cursor_offset)
-		else
-			text = ""
-		end
-
-		self.object:set(SetText(self.object, text, text_colour, bg_colour, true, 2))
-
-		if _is_selected == true then
-			self.object.characterMap.data[self.cursor_at].foregroundColour = self.colours.cursor_text
-			self.object.characterMap.data[self.cursor_at].backgroundColour = self.colours.cursor_bg
-		end
-	end
-
-	local _validate = function()
-		if self.required == true then
-			local ok, error = isRequired(self)
-
-			if ok == false then
-				return ok, self.value, error
-			end
-		end
-
-		if self.validator ~= nil then
-			local ok, error = self:validator()
-
-			if ok == false then
-				return ok, self.value, error
-			end
-		end
-
-		self.is_valid = result
-
-		_refreshControl(false)
-
-		return true, self.value, ""
-	end
-
-	local _clearValidation = function()
-		self.is_valid = true
-
-		_refreshControl(false)
 	end
 
 	local _setMaxLength = function(value)
@@ -111,24 +31,72 @@ function TextControl(_name, _position, _size, _form, _options)
 		end
 	end
 
-	local _doMouseEvents = function(_selected, _data)
-		if _selected == true then
-			textInput.start()
+	local _refreshControl = function()
+		local text, text_colour, bg_colour
 
-			_setCursor(_data.rowcol.x - self.object.position.x + 1)
+		if self.is_hovering == true then
+			text_colour = self.colours.hover_text
+			bg_colour = self.colours.hover_bg
+		elseif self.is_valid == false then
+			text_colour = self.colours.error_text
+			bg_colour = self.colours.error_bg
 		else
-			textInput.stop()
+			text_colour = self.colours.default_text
+			bg_colour = self.colours.default_bg
 		end
 
-		_refreshControl(_selected)
+		if utf8.len(self.value) > 0 then
+			text = self.value:sub(self.cursor_offset + 1)
+		else
+			text = ""
+		end
+
+		self.object:set(SetText(self.object, self.label .. text, text_colour, bg_colour, true, 2))
+
+		if self.is_selected == true then
+			self.object.characterMap.data[self.cursor_at].foregroundColour = self.colours.cursor_text
+			self.object.characterMap.data[self.cursor_at].backgroundColour = self.colours.cursor_bg
+		end
+	end
+
+	local _validate = function()
+		local result, error = true, ""
+
+		if self.required == true then
+			result, error = isRequired(self)
+		end
+	
+		if self.validator ~= nil and result ~= false then
+			result, error = self:validator()
+		end
+	
+		self.is_valid = result
+		_refreshControl()
+	
+		return result, self.value, error
+	end
+
+	local _clearValidation = function()
+		self.is_valid = true
+
+		_refreshControl()
+	end
+
+	local _doMouseEvents = function(_data)
+		if self.is_selected == true then
+			_setCursor(_data.rowcol.x - self.object.position.x + 1)
+		end
+
+		_refreshControl()
 	end
 
 	local _doKeyEvents = function(_data)
-		local offset = self.cursor_at + self.cursor_offset
+		local cursor_at = self.cursor_at - self.label_size
+		local offset = cursor_at + self.cursor_offset
 		local char_length = utf8.len(self.value)
 
 		if _data.key == "Left" then
-			if self.cursor_at > 1 then
+			if cursor_at > 1 then
 				self.cursor_at = self.cursor_at - 1
 			elseif self.cursor_offset > 0 then
 				self.cursor_offset = self.cursor_offset - 1
@@ -148,7 +116,7 @@ function TextControl(_name, _position, _size, _form, _options)
 				end
 			end
 		elseif _data.key == "Backspace" and char_length > 0 and offset > 1 then
-			if self.cursor_at > 1 then
+			if cursor_at > 1 then
 				self.cursor_at = self.cursor_at - 1
 			else
 				self.cursor_offset = self.cursor_offset - 1
@@ -184,11 +152,11 @@ function TextControl(_name, _position, _size, _form, _options)
 			self.value = new_value
 			self.is_valid = true
 		elseif _data.key == "Home" then
-			self.cursor_at = 1
+			self.cursor_at = self.label_size + 1
 			self.cursor_offset = 0
 		elseif _data.key == "End" then
-			self.cursor_at = math.min(char_length, self.object.characterMap.size.x) + 1
-			self.cursor_offset = math.max(0, char_length - self.object.characterMap.size.x)
+			self.cursor_at = math.min(self.label_size + char_length, self.object.characterMap.size.x) + 1
+			self.cursor_offset = math.max(0, self.label_size + char_length - self.object.characterMap.size.x)
 		elseif _data.key == "X" and _data.ctrl then
 			clipboard.set(self.value)
 
@@ -200,17 +168,17 @@ function TextControl(_name, _position, _size, _form, _options)
 			clipboard.set(self.value)
 		elseif _data.key == "V" and _data.ctrl then
 			self.value = clipboard.get()
-			self.cursor_at = math.min(char_length, self.object.characterMap.size.x) + 1
-			self.cursor_offset = math.max(0, char_length - self.object.characterMap.size.x)
+			self.cursor_at = math.min(self.label_size + char_length, self.object.characterMap.size.x) + 1
+			self.cursor_offset = math.max(0, self.label_size + char_length - self.object.characterMap.size.x)
 			self.is_valid = true
 		end
 
-		_refreshControl(true)
+		_refreshControl()
 	end
 
 	local _doTextEvents = function(_data)
 		if self.max_length == false or utf8.len(self.value) < self.max_length then
-			local offset = utf8.offset(self.value, self.cursor_at + self.cursor_offset)
+			local offset = utf8.offset(self.value, self.cursor_at - self.label_size + self.cursor_offset)
 			local new_value = ""
 
 			if offset ~= nil then
@@ -228,8 +196,26 @@ function TextControl(_name, _position, _size, _form, _options)
 				self.cursor_offset = self.cursor_offset + 1
 			end
 
-			_refreshControl(true)
+			_refreshControl()
 		end
+	end
+
+	local _onHover = function(_is_hovering)
+		self.is_hovering = _is_hovering
+
+		_refreshControl()
+	end
+
+	local _onSelect = function(_is_selected)
+		self.is_selected = _is_selected
+
+		if _is_selected == true and textInput.isActive() == false then
+			textInput.start()
+		elseif _is_selected == false and textInput.isActive() == true then
+			textInput.stop()
+		end
+
+		_refreshControl()
 	end
 
 	-- @brief Cleans up the object after use.
@@ -278,23 +264,31 @@ function TextControl(_name, _position, _size, _form, _options)
 			_setMaxLength(tonumber(value))
 		elseif key == "required" then
 			self[key] = (value == true)
+		elseif key == "validator" then
+			if type(v) == "function" then
+				self.validator = value
+			end
 		elseif key == "cursor" then
 			_setCursor(tonumber(value))
 		end
 
-		_refreshControl(false)
+		_refreshControl()
 	end
 
 	_setMaxLength(tonumber(_options.max_length or 0))
-	_refreshControl(false)
+	_setCursor(self.label_size + 1)
+	_refreshControl()
 
 	return setmetatable({
+		release = _release,
 		validate = _validate,
 		clearValidation = _clearValidation,
 		doMouseEvents = _doMouseEvents,
 		doKeyEvents = _doKeyEvents,
 		doTextEvents = _doTextEvents,
-		refreshControl = _refreshControl
+		refreshControl = _refreshControl,
+		onHover = _onHover,
+		onSelect = _onSelect
 	}, {
 		__index    	= mtIndex,
 		__newindex 	= mtNewIndex,

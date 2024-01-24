@@ -4,45 +4,22 @@
 
 --[[
 -- @brief Extends the GameObject usertype to make inputting numbers simpler.
--- @param _size 			The size of the number box.
+-- @param _name				The name of the control.
+-- @param _position		The position of the control.
+-- @param _size 			The size of the control.
+-- @param _form				The form object this control is associated with.
+-- @param _options		Additional options to configure the control with.
 --]]
-function NumberControl(_name, _position, _width, _form, _options)
-	local colours = _options.colours or {}
+function NumberControl(_name, _position, _size, _form, _options)
+	local self = generateControlSelf("NumberControl", _name, _position, _size, _form, _options)
 
-	local self = {
-		name = _name,
-		width = tonumber(_width),
-		object = GameObject(_position, Ivec2(tonumber(_width), 1), _form.game_scene or defaultGameScene),
-		colours = {
-			default_text = colours.default_text or characters.DEFAULT_FOREGROUND_COLOUR,
-			default_bg = colours.default_bg or characters.DEFAULT_BACKGROUND_COLOUR,
-			selected_text = colours.selected_text or characters.DEFAULT_FOREGROUND_COLOUR,
-			selected_bg = colours.selected_bg or Colours.DARK_GREY,
-			cursor_text = colours.cursor_text or characters.DEFAULT_BACKGROUND_COLOUR,
-			cursor_bg = colours.cursor_bg or characters.DEFAULT_FOREGROUND_COLOUR,
-			error_text = colours.error_text or characters.DEFAULT_FOREGROUND_COLOUR,
-			error_bg = colours.error_bg or Colours.RED
-		},
-		value = 0,								-- @brief The input value.
-		text_value = "",
-		default = 0,
-		cursor_at = 1,
-		cursor_offset = 0,
-		required = _options.required == true,								-- @brief Is it mandatory for the value to be submitted?
-		maximum = tonumber(_options.maximum) or false,
-		minimum = tonumber(_options.minimum) or false,
-		validator = nil,	-- @brief Function that validates if the number input is valid.
-		is_valid = true,
-		enable_step = _options.enable_step == true,
-		step_value = tonumber(_options.step_value) or 1
-	}
-	
 	local _setCursor = function(_at)
 		local end_index = #self.text_value + 1
-		local end_select = math.max(end_index, self.object.characterMap.size.x)
+		local end_select = math.max(end_index, self.value_size)
+		local at = tonumber(_at) - self.label_size
 
-		if type(_at) == "number" and _at >= 1 and _at <= end_select then
-			self.cursor_at = math.min(_at, end_index)
+		if at >= 1 and at <= end_select then
+			self.cursor_at = self.label_size + math.min(at, end_index)
 		end
 	end
 
@@ -62,10 +39,10 @@ function NumberControl(_name, _position, _width, _form, _options)
 		self.text_value = ""
 	end
 
-	local _refreshControl = function(_is_selected)
+	local _refreshControl = function()
 		local text_value, text_colour, bg_colour
 
-		if textInput.isActive() then
+		if self.is_selected == true and textInput.isActive() == true then
 			text_value = self.text_value
 		else
 			text_value = tostring(self.value)
@@ -74,12 +51,12 @@ function NumberControl(_name, _position, _width, _form, _options)
 		text_value = text_value:sub(self.cursor_offset)
 
 		if self.enable_step == true then
-			text_value = string.format("%s%"..math.max(self.width - #text_value, 2).."s", text_value, "<>")
+			text_value = string.format("%s%"..math.max(self.value_size - #text_value, 2).."s", text_value, "<>")
 		end
 
-		if self.object.hovering == true then
-			text_colour = self.colours.selected_text
-			bg_colour = self.colours.selected_bg
+		if self.is_hovering == true then
+			text_colour = self.colours.hover_text
+			bg_colour = self.colours.hover_bg
 		elseif self.is_valid == false then
 			text_colour = self.colours.error_text
 			bg_colour = self.colours.error_bg
@@ -88,77 +65,59 @@ function NumberControl(_name, _position, _width, _form, _options)
 			bg_colour = self.colours.default_bg
 		end
 
-		self.object:set(SetText(self.object, text_value, text_colour, bg_colour, true, 2))
+		self.object:set(SetText(self.object, self.label .. text_value, text_colour, bg_colour, true, 2))
 
-		if _is_selected == true then
+		if self.is_selected == true then
 			self.object.characterMap.data[self.cursor_at].foregroundColour = self.colours.cursor_text
 			self.object.characterMap.data[self.cursor_at].backgroundColour = self.colours.cursor_bg
 		end
 	end
 
 	local _validate = function()
-		if self.required == true then
-			local ok, error = isRequired(self)
+		local result, error = true, ""
 
-			if ok == false then
-				return ok, self.value, error
-			end
-		end
-
-		if self.validator ~= nil then
-			local ok, error = self:validator()
-
-			if ok == false then
-				return ok, self.value, error
-			end
+		if self.validator ~= nil and result ~= false then
+			result, error = self:validator()
 		end
 
 		self.is_valid = result
+		_refreshControl()
 
-		_refreshControl(false)
-
-		return true, self.value, ""
+		return result, self.value, error
 	end
 
 	local _clearValidation = function()
 		self.is_valid = true
 
-		_refreshControl(false)
+		_refreshControl()
 	end
 
-	local _doMouseEvents = function(_selected, _data)
-		local cursor = _data.rowcol - self.object.position
-		local step_down_hover = self.enable_step and (cursor.x == self.width - 2)
-		local step_up_hover = self.enable_step and (cursor.x == self.width - 1)
+	local _doMouseEvents = function(_data)
+		local cursor = _data.rowcol.x - self.object.position.x
+		local step_down_hover = self.enable_step and (cursor == (self.label_size + self.value_size - 2))
+		local step_up_hover = self.enable_step and (cursor == (self.label_size + self.value_size - 1))
+		local value = tonumber(self.text_value) or 0
 
-		if _selected == true then
+		if self.is_hovering == true then
 			if step_down_hover == true and self.minimum ~= false then
-				self.value = math.max(self.value - self.step_value, self.minimum)
+				self.text_value = tostring(math.max(value - self.step_value, self.minimum))
 			elseif step_up_hover == true and self.maximum ~= false then
-				self.value = math.min(self.value + self.step_value, self.maximum)
+				self.text_value = tostring(math.min(value + self.step_value, self.maximum))
 			else
-				if not textInput.isActive() then
-					self.text_value = tostring(self.value)
-					textInput.start()
-				end
-				
-				_setCursor(_data.rowcol.x - self.object.position.x + 1)
+				_setCursor(cursor + 1)
 			end
-		else
-			_setValue()
-
-			textInput.stop()
 		end
 
-		_refreshControl(_selected)
+		_refreshControl()
 	end
 
 	local _doKeyEvents = function(_data)
-		local offset = self.cursor_at + self.cursor_offset
+		local cursor_at = self.cursor_at - self.label_size
+		local offset = cursor_at + self.cursor_offset
 		local char_length = #self.text_value
 
 		if _data.key == "Left" then
-			if self.cursor_at > 1 then
+			if cursor_at > 1 then
 				self.cursor_at = self.cursor_at - 1
 			elseif self.cursor_offset > 0 then
 				self.cursor_offset = self.cursor_offset - 1
@@ -174,7 +133,7 @@ function NumberControl(_name, _position, _width, _form, _options)
 				end
 			end
 		elseif _data.key == "Backspace" and char_length > 0 and offset > 1 then
-			if self.cursor_at > 1 then
+			if cursor_at > 1 then
 				self.cursor_at = self.cursor_at - 1
 			else
 				self.cursor_offset = self.cursor_offset - 1
@@ -195,31 +154,31 @@ function NumberControl(_name, _position, _width, _form, _options)
 			self.text_value = new_value
 			self.is_valid = true
 		elseif _data.key == "Home" then
-			self.cursor_at = 1
+			self.cursor_at = self.label_size + 1
 			self.cursor_offset = 0
 		elseif _data.key == "End" then
-			self.cursor_at = math.min(char_length, self.object.characterMap.size.x) + 1
-			self.cursor_offset = math.max(0, char_length - self.object.characterMap.size.x)
+			self.cursor_at = math.min(self.label_size + char_length, self.object.characterMap.size.x) + 1
+			self.cursor_offset = math.max(0, self.label_size + char_length - self.object.characterMap.size.x)
 		elseif _data.key == "X" and _data.ctrl then
 			clipboard.set(self.text_value)
 
 			self.text_value = ""
 			self.value = 0
-			self.cursor_at = 1
+			self.cursor_at = self.label_size + 1
 			self.cursor_offset = 0
 		elseif _data.key == "C" and _data.ctrl then
 			clipboard.set(self.text_value)
 		elseif _data.key == "V" and _data.ctrl then
 			self.text_value = clipboard.get()
-			self.cursor_at = math.min(char_length, self.object.characterMap.size.x) + 1
-			self.cursor_offset = math.max(0, char_length - self.object.characterMap.size.x)
+			self.cursor_at = math.min(self.label_size + char_length, self.object.characterMap.size.x) + 1
+			self.cursor_offset = math.max(0, self.label_size + char_length - self.object.characterMap.size.x)
 		end
 
-		_refreshControl(true)
+		_refreshControl()
 	end
 
 	local _doTextEvents = function(_data)
-		local offset = self.cursor_at + self.cursor_offset
+		local offset = self.cursor_at - self.label_size + self.cursor_offset
 
 		if _data.text == "-" then
 			if offset > 1 or self.text_value:sub(0, 1) == "-" then
@@ -245,7 +204,27 @@ function NumberControl(_name, _position, _width, _form, _options)
 			self.cursor_offset = self.cursor_offset + 1
 		end
 		
-		_refreshControl(true)
+		_refreshControl()
+	end
+
+	local _onHover = function(_is_hovering)
+		self.is_hovering = _is_hovering
+
+		_refreshControl()
+	end
+
+	local _onSelect = function(_is_selected)
+		self.is_selected = _is_selected
+
+		if _is_selected == true and textInput.isActive() == false then
+			self.text_value = tostring(self.value)
+			textInput.start()
+		elseif _is_selected == false and textInput.isActive() == true then
+			_setValue()
+			textInput.stop()
+		end
+
+		_refreshControl()
 	end
 
 	-- @brief Cleans up the object after use.
@@ -262,8 +241,8 @@ function NumberControl(_name, _position, _width, _form, _options)
 		if key == "id" or key == "position" then
 			return self.object[key]
 		elseif key == "size" then
-			return Ivec2(self.width, 1)
-		elseif key == "name" or key == "width" or key == "value" or key == "minimum" or key == "maximum" or key == "required" or key == "validator" or key == "enable_step" or key == "step_value" then
+			return Ivec2(self.label_size + self.value_size, 1)
+		elseif key == "name" or key == "value" or key == "minimum" or key == "maximum" or key == "validator" or key == "enable_step" or key == "step_value" then
 			return self[key]
 		elseif key == "cursor" then
 			return self.cursor_at + self.cursor_offset
@@ -284,35 +263,47 @@ function NumberControl(_name, _position, _width, _form, _options)
 			end
 		elseif key == "size" then
 			if value.__type.name == "Ivec2" then
-				self.width = tonumber(value.x)
-				self.object.characterMap.size = Ivec2(self.width, 1)
+				self.value_size = tonumber(value)
+				self.object.characterMap.size = Ivec2(self.label_size + self.value_size, 1)
 			end
-		elseif key == "width" then
-			self[key] = tonumber(value)
-			self.object.characterMap.size = Ivec2(self.width, 1)
 		elseif key == "value" then
 			self.text_value = tostring(value)
 			_setValue()
 		elseif key == "minimum" or key == "maximum" or key == "step_value" then
 			self[key] = tonumber(value)
-		elseif key == "required" or key == "enable_step" then
+		elseif key == "enable_step" then
 			self[key] = (value == true)
+		elseif key == "validator" then
+			if type(v) == "function" then
+				self.validator = value
+			end
 		elseif key == "cursor" then
 			_setCursor(tonumber(value))
 		end
 
-		_refreshControl(false)
+		_refreshControl()
 	end
 
-	_refreshControl(false)
+	local value = tonumber(_options.value)
+
+	if value ~= nil then
+		self.value = value
+		_setValue()
+	end
+
+	_setCursor(self.label_size + 1)
+	_refreshControl()
 
 	return setmetatable({
+		release = _release,
 		validate = _validate,
 		clearValidation = _clearValidation,
 		doMouseEvents = _doMouseEvents,
 		doKeyEvents = _doKeyEvents,
 		doTextEvents = _doTextEvents,
-		refreshControl = _refreshControl
+		refreshControl = _refreshControl,
+		onHover = _onHover,
+		onSelect = _onSelect
 	}, {
 		__index    	= mtIndex,
 		__newindex 	= mtNewIndex,

@@ -4,6 +4,7 @@
 #include "../system/CLArguments.h"
 #include "../utility/ConversionUtils.h"
 #include "../utility/ImGuiUtils.h"
+#include "../utility/LogUtils.h"
 #include "../utility/SpdlogUtils.h"
 
 namespace term_engine::events {
@@ -19,12 +20,40 @@ namespace term_engine::events {
 
   void DoSDLEvents(const SDL_Event& event)
   {
-    if (utility::IsImguiWindow(event.key.windowID))
+    int window_id = 0;
+
+    switch (event.type)
+    {
+      case SDL_KEYDOWN:
+      case SDL_KEYUP:
+        window_id = event.key.windowID;
+        break;
+      case SDL_TEXTINPUT:
+        window_id = event.text.windowID;
+        break;
+      case SDL_MOUSEBUTTONDOWN:
+      case SDL_MOUSEBUTTONUP:
+        window_id = event.button.windowID;
+        break;
+      case SDL_MOUSEMOTION:
+        window_id = event.motion.windowID;
+        break;
+      case SDL_MOUSEWHEEL:
+        window_id = event.wheel.windowID;
+        break;
+      case SDL_WINDOWEVENT:
+        window_id = event.window.windowID;
+        break;
+      default:
+        return;
+    }
+
+    if (utility::IsImguiWindow(window_id))
     {
       return;
     }
-    
-    usertypes::GameWindow* game_window = usertypes::GetGameWindowByWindowId(event.key.windowID);
+
+    usertypes::GameWindow* game_window = usertypes::GetGameWindowByWindowId(window_id);
 
     if (game_window == nullptr)
     {
