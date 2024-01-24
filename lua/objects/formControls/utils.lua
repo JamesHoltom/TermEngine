@@ -59,7 +59,7 @@ function generateControlSelf(_type, _name, _position, _size, _form, _options)
       selected = {},
       objects = {}
     }
-    s.select_multiple = _options.select_multiple == true
+    s.select_multiple = _options.select_multiple ~= false
 
     for _, v in ipairs(options) do
       table.insert(s.options.labels, v.label)

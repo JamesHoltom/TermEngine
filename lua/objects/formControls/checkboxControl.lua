@@ -76,8 +76,15 @@ function CheckboxControl(_name, _position, _form, _options)
 		if self.is_selected == true then
 			for k, v in ipairs(self.options.objects) do
 				if v.hovering == true then
-					self.options.selected[k] = not self.options.selected[k]
-					break
+					if self.select_multiple == false then
+						self.options.selected[k] = true
+					else
+						self.options.selected[k] = not self.options.selected[k]
+					end
+				else
+					if self.select_multiple == false then
+						self.options.selected[k] = false
+					end
 				end
 			end
 		end
