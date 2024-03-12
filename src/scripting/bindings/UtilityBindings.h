@@ -42,6 +42,11 @@ namespace term_engine::scripting::bindings {
       "isFilled", &events::IsClipboardFilled,
       "get", &events::GetClipboard,
       "set", &events::SetClipboard);
+
+    state.create_named_table("closeBehaviour",
+      "HIDE", 0,
+      "CLOSE", 1,
+      "QUIT", 2);
     
     state.create_named_table("fps",
       "print", &system::PrintFPS,

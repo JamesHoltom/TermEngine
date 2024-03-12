@@ -11,8 +11,7 @@ namespace term_engine::usertypes {
     font_size_(DEFAULT_FONT_SIZE),
     text_buffer_(),
     background_buffer_(),
-    is_closing_(false),
-    close_logic_(CloseLogic::CLOSE)
+    is_closing_(false)
   {
     font_ = LoadFont(std::string(DEFAULT_FONT));
 
@@ -23,11 +22,13 @@ namespace term_engine::usertypes {
       window_ = default_window.get();
       window_->SetGameWindow(this);
       game_scene = GetGameSceneByName(DEFAULT_GAME_SCENE_NAME);
+      close_logic_ = CloseLogic::QUIT;
     }
     else
     {
       window_ = new Window(this, DEFAULT_WINDOW_POSITION, DEFAULT_WINDOW_SIZE, std::string(DEFAULT_WINDOW_TITLE), 0);
       game_scene = AddGameScene("window_" + std::to_string(window_->GetId()));
+      close_logic_ = CloseLogic::CLOSE;
     }
 
     background_shader_program_ = GetShader(std::string(DEFAULT_BG_SHADER));
@@ -235,7 +236,12 @@ namespace term_engine::usertypes {
 
   void GameWindow::SetCloseBehaviour(CloseLogic behaviour)
   {
-    close_logic_ = behaviour;
+    if (!is_default_window_) {
+      close_logic_ = behaviour;
+    }
+    else {
+      utility::logger->warn("Default window can only be configured to quit!");
+    }
   }
 
   void GameWindow::ReloadGameScene()

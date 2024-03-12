@@ -2,18 +2,23 @@
 -- @author James Holtom
 --]]
 
-local is_init = false
-local selected_control = false
-local selection_mode = "key"
-local controls = {}
-local events = {}
+local is_init = false						-- @brief Have the event listeners been initialised?
+local selected_control = false	-- @brief The currently selected form control.
+local controls = {}							-- @brief The list of form controls.
+local events = {}								-- @brief The list of event listeners.
 
+-- @brief Initialises the event listeners for handling form input/selection.
 local function InitFormEvents()
 	if is_init == false then
 		events = {
 			hover = EventListener("object_hover", function(_, _data)
 				for k, v in ipairs(controls) do
-					if type(v) == "CheckboxControl" then
+					if type(v) == "CheckboxControl" or type(v) == "DropdownControl" then
+						if v.label_id == _data.id then
+							controls[k].onHover(_data.type == "over")
+							return
+						end
+
 						for _, id in ipairs(v.ids) do
 							if id == _data.id then
 								controls[k].onHover(_data.type == "over")
@@ -31,33 +36,36 @@ local function InitFormEvents()
 				selected_control = false
 
 				for k, v in ipairs(controls) do
-					if _data.rowcol >= v.position and _data.rowcol < v.position + v.size then
-						if old_control ~= false and old_control ~= k then
-							if type(controls[old_control].doMouseEvents) == "function" then
-								controls[old_control].doMouseEvents(_data)
+					if v.active == true then
+						if v.isOver(_data.rowcol) == true then
+							if old_control ~= false and old_control ~= k then
+								controls[old_control].onSelect(false)
+							end
+							
+							selected_control = k
+							controls[selected_control].onSelect(true)
+
+							if type(controls[selected_control].doMouseEvents) == "function" then
+								controls[selected_control].doMouseEvents(_data)
 							end
 
-							controls[old_control].onSelect(false)
+							break
 						end
-						
-						selected_control = k
-
-						controls[selected_control].onSelect(true)
-
-						if type(controls[selected_control].doMouseEvents) == "function" then
-							controls[selected_control].doMouseEvents(_data)
-						end
-
-						break
 					end
 				end
 
 				if old_control ~= false and selected_control == false then
-					if type(controls[old_control].doMouseEvents) == "function" then
-						controls[old_control].doMouseEvents(_data)
-					end
-
 					controls[old_control].onSelect(false)
+				end
+			end),
+			move = EventListener("mouse_move", function(_, _data)
+				if selected_control ~= false and type(controls[selected_control].doMoveEvents) == "function" then
+					controls[selected_control].doMoveEvents(_data)
+				end
+			end),
+			scroll = EventListener("mouse_scroll", function(_, _data)
+				if selected_control ~= false and type(controls[selected_control].doScrollEvents) == "function" then
+					controls[selected_control].doScrollEvents(_data)
 				end
 			end),
 			keydown = EventListener("key_down", function(_, _data)
@@ -75,33 +83,54 @@ local function InitFormEvents()
 	end
 end
 
-function FormObject(_name, _game_scene)
+--[[
+-- @brief Manages a list of form controls, and the validation of user-submitted input.
+-- @param _game_scene The game scene this form is rendered to.
+--]]
+function FormObject(_game_scene)
   local self = {
-		name = _name,
 		game_scene = _game_scene or defaultGameScene,
 		controls = {},
 		validation_object = nil,
 		active = true
   }
 
+	--[[
+	-- @brief Sets the position/size of the validation textbox. It is created, if not set.
+	-- @param _position The position of the textbox.
+	-- @param _size The size of the textbox.
+	--]]
 	local _setValidationObj = function(_, _position, _size)
-		self.validation_object = TextObject(_position, _size, "")
+		if self.validation_object == nil then
+			self.validation_object = TextObject(_position, _size, "")
+		end
+
 		self.validation_object.fit_text = true
 		self.validation_object.active = false
 		self.validation_object.fg_colour = characters.DEFAULT_FOREGROUND_COLOUR
 		self.validation_object.bg_colour = Colours.RED
 	end
 
+	-- @brief Removes the validation textbox.
 	local _removeValidationObj = function()
-		self.validation_object:release()
-		self.validation_object = nil
+		if self.validation_object ~= nil then
+			self.validation_object:release()
+			self.validation_object = nil
+		end
 	end
 
-	local _raiseValidationError = function(_, _msg)
-		self.validation_object.active = true
-		self.validation_object.text = tostring(_msg)
+	--[[
+	-- @brief Prints a custom message to the validation textbox.
+	-- @param _msg The message to print.
+	--]]
+	local _raiseValidationError = function(_msg)
+		if self.validation_object ~= nil then
+			self.validation_object.active = true
+			self.validation_object.text = tostring(_msg)
+		end
 	end
 
+	-- @brief Clears the validation textbox of text.
 	local _clearValidationErrors = function()
 		self.validation_object.text = ""
 		self.validation_object.active = false
@@ -113,24 +142,25 @@ function FormObject(_name, _game_scene)
 		end
 	end
 
+	--[[
+	-- @brief Runs validation on all of the form controls and returns the results.
+	-- @returns Table containing the user-submitted data and any validation errors.
+	--]]
 	local _submit = function()
 		local validated, allData, allErrors = true, {}, {}
 
 		for k, v in pairs(self.controls) do
 			local control = controls[v]
+			local result, data, error = control:validate()
+			
+			if result == false and validated == true then
+				_raiseValidationError(error)
 
-			if type(control) ~= "LabelControl" then
-				local result, data, error = control:validate()
-				
-				if result == false and validated == true then
-					_raiseValidationError(self, error)
-
-					validated = false
-				end
-
-				allData[control.name] = data
-				allErrors[control.name] = error
+				validated = false
 			end
+
+			allData[control.name] = data
+			allErrors[control.name] = error
 		end
 
 		if validated == true then
@@ -140,76 +170,82 @@ function FormObject(_name, _game_scene)
 		return allData, allErrors
 	end
 
-	local _addControl = function(s, _args)
-		local args = _args or {}
-		local ctlType = args.type or ""
-		local name = args.name or ""
-		local position = args.position or Values.IVEC2_ZERO
-		local size = args.size or 1
-		local obj = nil
-
-		if ctlType == "text" then
-			obj = TextControl(name, position, size, s, {
-				value = tostring(args.value or ""),
-				max_length = tonumber(args.max_length),
-				required = (args.required == true),
-				validator = args.validator,
-				colours = args.colours or {},
-				label = args.label,
-				label_size = args.label_size
-			})
-		elseif ctlType == "number" then
-			obj = NumberControl(name, position, size, s, {
-				value = tonumber(args.value),
-				minimum = args.minimum or false,
-				maximum = args.maximum or false,
-				enable_step = (args.enable_step == true),
-				step_value = args.step_value or 1,
-				required = (args.required == true),
-				validator = args.validator,
-				colours = args.colours or {},
-				label = args.label,
-				label_size = args.label_size
-			})
-		-- elseif ctlType == "slider" then
-		-- 	obj = SliderControl(name, size, options)
-		-- elseif ctlType == "slider2d" then
-		-- 	obj = Slider2DControl(name, size, options)
-		elseif ctlType == "checkbox" then
-			obj = CheckboxControl(name, position, s, {
-				options = args.options or {},
-				value_texts = args.value_texts or {},
-				required = (args.required == true),
-				select_multiple = (args.select_multiple == true),
-				validator = args.validator,
-				colours = args.colours or {},
-				label = args.label,
-				label_size = args.label_size
-			})
-		-- elseif ctlType == "dropdown" then
-		-- 	obj = DropdownControl(name, size, options)
-		end
-
-		if obj ~= nil then
-			table.insert(controls, #controls + 1, obj)
-			table.insert(self.controls, #self.controls + 1, #controls)
-		else
-			print("Invalid type given!")
-		end
-	end
-
+	-- @brief Adds a form control to the object with the given parameters.
 	local _addControls = function(s, ...)
-		local arg = {...}
+		local args = {...}
 
-		for k, v in ipairs(arg) do
+		for k, v in ipairs(args) do
 			if type(v) == "table" then
-				_addControl(s, v)
+				local ctlType = v.type or ""
+				local name = v.name or ""
+				local position = v.position or Values.IVEC2_ZERO
+				local size = v.size or 1
+				local obj = nil
+		
+				if ctlType == "text" then
+					print(tostring(s.game_scene))
+					obj = TextControl(name, position, size, s, {
+						value = tostring(v.value or ""),
+						max_length = tonumber(v.max_length),
+						required = (v.required == true),
+						validator = v.validator,
+						colours = v.colours or {},
+						label = v.label,
+						label_size = v.label_size
+					})
+				elseif ctlType == "number" then
+					obj = NumberControl(name, position, size, s, {
+						value = tonumber(v.value),
+						minimum = v.minimum or false,
+						maximum = v.maximum or false,
+						enable_step = (v.enable_step == true),
+						step_value = v.step_value or 1,
+						required = (v.required == true),
+						validator = v.validator,
+						colours = v.colours or {},
+						label = v.label,
+						label_size = v.label_size
+					})
+				elseif ctlType == "checkbox" then
+					obj = CheckboxControl(name, position, size, s, {
+						options = v.options or {},
+						value_texts = v.value_texts or {},
+						required = (v.required == true),
+						select_multiple = (v.select_multiple == true),
+						validator = v.validator,
+						colours = v.colours or {},
+						label = v.label,
+						label_size = v.label_size
+					})
+				elseif ctlType == "dropdown" then
+					obj = DropdownControl(name, position, size, s, {
+						options = v.options or {},
+						required = (v.required == true),
+						select_multiple = (v.select_multiple == true),
+						list_count = v.list_count,
+						validator = v.validator,
+						colours = v.colours or {},
+						label = v.label,
+						label_size = v.label_size
+					})
+				end
+		
+				if obj ~= nil then
+					table.insert(controls, #controls + 1, obj)
+					table.insert(self.controls, #self.controls + 1, #controls)
+				else
+					print("Invalid type given!")
+				end
 			else
 				print("Invalid argument given at index "..k.."!")
 			end
 		end
 	end
 
+	--[[
+	-- @brief Removes the form control with the given name.
+	-- @param _name The name of the control to remove.
+	--]]
 	local _removeControl = function(_name)
 		for k, v in pairs(self.controls) do
 			if controls[v].name == _name then
@@ -220,6 +256,10 @@ function FormObject(_name, _game_scene)
 		end
 	end
 
+	--[[
+	-- @brief Selects the form control with the given name.
+	-- @param _name The name of the control to select.
+	--]]
 	local _selectControl = function(_name)
 		if selected_control ~= false then
 			controls[selected_control].onSelect(false)
@@ -235,6 +275,7 @@ function FormObject(_name, _game_scene)
 		end
 	end
 
+	-- @brief De-selects the selected control.
 	local _deselectControls = function()
 		if selected_control ~= false then
 			controls[selected_control].onSelect(false)
