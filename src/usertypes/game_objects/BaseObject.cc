@@ -83,6 +83,6 @@ namespace term_engine::usertypes {
   {
     object_list.clear();
 
-    utility::logger->debug("Cleared all game objects from the list.");
+    utility::LogDebug("Cleared all game objects from the list.");
   }
 }

@@ -1,5 +1,5 @@
 #include "FTUtils.h"
-#include "SpdlogUtils.h"
+#include "LogUtils.h"
 
 namespace term_engine::utility {
   FT_Error FTLog(FT_Error result)
@@ -113,7 +113,7 @@ namespace term_engine::utility {
       case FT_Err_Corrupted_Font_Glyphs:         error_message = "Font glyphs are corrupted or insufficient"; break;
       }
 
-      logger->error("FreeType error #{}: {}", result, error_message);
+      LogError("FreeType error #{}: {}", result, error_message);
     }
 
     return result;
@@ -124,12 +124,12 @@ namespace term_engine::utility {
     FT_Error err = FTLog(FT_Init_FreeType(&font_library));
 
     if (err != FT_Err_Ok) {
-      logger->error("Failed to initialise FreeType. Received error #{}", err);
+      LogError("Failed to initialise FreeType. Received error #{}", err);
 
       return false;
     }
 
-    logger->debug("Initialised FreeType.");
+    LogDebug("Initialised FreeType.");
 
     return true;
   }
@@ -138,6 +138,6 @@ namespace term_engine::utility {
   {
     FTLog(FT_Done_FreeType(font_library));
 
-    logger->debug("Shut down FreeType.");
+    LogDebug("Shut down FreeType.");
   }
 }

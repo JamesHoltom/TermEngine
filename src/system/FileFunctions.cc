@@ -9,7 +9,7 @@
 #endif
 #include "FileFunctions.h"
 #include "../scripting/ScriptingInterface.h"
-#include "../utility/SpdlogUtils.h"
+#include "../utility/LogUtils.h"
 
 namespace term_engine::system {
   std::filesystem::path SearchForProjectPath(const std::filesystem::path& filename)
@@ -34,17 +34,17 @@ namespace term_engine::system {
     {
       const std::filesystem::path fullPath = location / filename;
 
-      utility::logger->debug("Testing project path at {}.", fullPath);
+      utility::LogDebug("Testing project path at {}.", fullPath.string());
 
       if (std::filesystem::exists(fullPath / "main.lua"))
       {
-        utility::logger->debug("Found project path at {}.", fullPath);
+        utility::LogDebug("Found project path at {}.", fullPath.string());
 
         return fullPath;
       }
     }
 
-    utility::logger->warn("Could not find project directory {}!", filename);
+    utility::LogWarn("Could not find project directory {}!", filename.string());
 
     return "";
   }
@@ -80,17 +80,17 @@ namespace term_engine::system {
     {
       const std::filesystem::path fullPath = location / filename;
 
-      utility::logger->debug("Testing resource path at {}.", fullPath);
+      utility::LogDebug("Testing resource path at {}.", fullPath.string());
 
       if (std::filesystem::exists(fullPath))
       {
-        utility::logger->debug("Found resource path at {}.", fullPath);
+        utility::LogDebug("Found resource path at {}.", fullPath.string());
 
         return fullPath;
       }
     }
 
-    utility::logger->warn("Could not find resource \"{}\"!", filename);
+    utility::LogWarn("Could not find resource \"{}\"!", filename);
 
     return "";
   }
@@ -101,7 +101,7 @@ namespace term_engine::system {
 
     if (filepath.empty())
     {
-      utility::logger->warn("Could not find file to read data from!");
+      utility::LogWarn("Could not find file to read data from!");
       
       return "";
     }
@@ -120,7 +120,7 @@ namespace term_engine::system {
     }
     else
     {
-      utility::logger->error("Failed to read from file {}.", filepath);
+      utility::LogError("Failed to read from file {}.", filepath.string());
 
       return "";
     }
@@ -130,7 +130,7 @@ namespace term_engine::system {
   {
     if (filename.empty())
     {
-      utility::logger->warn("No file has been selected to write/append data to!");
+      utility::LogWarn("No file has been selected to write/append data to!");
       
       return;
     }
@@ -148,7 +148,7 @@ namespace term_engine::system {
     }
     else
     {
-      utility::logger->error("Failed to write to file {}.", filepath);
+      utility::LogError("Failed to write to file {}.", filepath.string());
     }
   }
 

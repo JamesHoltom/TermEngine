@@ -38,7 +38,7 @@ namespace term_engine::usertypes {
   {
     if (size.x <= 0 || size.y <= 0)
     {
-      utility::logger->warn("Cannot set character map size to 0 or less!");
+      utility::LogWarn("Cannot set character map size to 0 or less!");
 
       return;
     }
@@ -62,11 +62,11 @@ namespace term_engine::usertypes {
       const int size = data_.size();
 
       if (in_size < size) {
-        utility::logger->debug("Character data of smaller than character map. Old data will be blanked.");
+        utility::LogDebug("Character data of smaller than character map. Old data will be blanked.");
         Clear();
       }
       else if (in_size > size) {
-        utility::logger->debug("Character data is larger than character map. Some data will be omitted.");
+        utility::LogDebug("Character data is larger than character map. Some data will be omitted.");
       }
 
       for (int i = 0; i < size; ++i)
@@ -81,7 +81,7 @@ namespace term_engine::usertypes {
     }
     catch (const std::exception& err)
     {
-      utility::logger->warn("Invalid data given to animation frame!");
+      utility::LogWarn("Invalid data given to animation frame!");
     }
   }
 
@@ -123,9 +123,9 @@ namespace term_engine::usertypes {
       bool omitEmptyChars = (character.character_ == NO_CHARACTER && data.hide_empty_characters_);
 
       // Do not push the character if it is an empty character.
-      if (!omitEmptyChars && position.x + column_pos >= 0 && position.x + column_pos < size_.x) {
+      if (!omitEmptyChars && (position.x + (int64_t)column_pos) >= 0 && (position.x + (int64_t)column_pos) < size_.x) {
         // Do not push the character if it is outside the target character map.
-        if (index >= 0 && index < data_.size()) {
+        if ((int64_t)index >= 0 && index < data_.size()) {
           data_.at(index) = Character(character);
         }
       }
@@ -133,7 +133,7 @@ namespace term_engine::usertypes {
       ++column_pos;
       ++index;
 
-      if (column_pos == data.size_.x)
+      if ((int64_t)column_pos == data.size_.x)
       {
         index += size_.x - column_pos;
         column_pos = 0;

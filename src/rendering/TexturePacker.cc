@@ -36,7 +36,7 @@ namespace term_engine::rendering {
       
       if (node == nullptr)
       {
-        utility::logger->error("Cannot fit texture of size {},{} into packed texture of size {},{}!", size.x, size.y, texture_size_.x, texture_size_.y);
+        utility::LogError("Cannot fit texture of size {},{} into packed texture of size {},{}!", size.x, size.y, texture_size_.x, texture_size_.y);
 
         return glm::ivec2();
       }

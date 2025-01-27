@@ -4,13 +4,13 @@
 #include "bindings/ObjectBindings.h"
 #include "bindings/UtilityBindings.h"
 #include "../system/FileFunctions.h"
-#include "../utility/SpdlogUtils.h"
+#include "../utility/LogUtils.h"
 
 namespace term_engine::scripting {
   int Print(lua_State* L)
   {
     std::string str = lua_tostring(L, 1);
-    utility::logger->info(str);
+    utility::LogInfo(str);
 
     return 1;
   }
@@ -23,13 +23,13 @@ namespace term_engine::scripting {
     {
       next_project_path = project_path;
 
-      utility::logger->info("Loading project...");
+      utility::LogInfo("Loading project...");
     }
     else
     {
       next_project_path = std::filesystem::current_path() / "projects" / "noprogram";
 
-      utility::logger->info("No project to load!");
+      utility::LogInfo("No project to load!");
     }
   }
 
@@ -45,16 +45,16 @@ namespace term_engine::scripting {
 
       if (result.valid())
       {
-        utility::logger->debug("Loaded Lua script {}.", filepath.string());
+        utility::LogDebug("Loaded Lua script {}.", filepath.string());
       }
       else
       {
         sol::error err = result;
-        utility::logger->error("Failed to load Lua script {}\nError: {}. ", filepath.string(), err.what());
+        utility::LogError("Failed to load Lua script {}\nError: {}. ", filepath.string(), err.what());
       }
     }
     catch (const std::exception& err) {
-      utility::logger->error("A loading error occurred!\nFile: {}\nError: {}", filepath.string(), err.what());
+      utility::LogError("A loading error occurred!\nFile: {}\nError: {}", filepath.string(), err.what());
     }
   }
 
@@ -62,7 +62,7 @@ namespace term_engine::scripting {
   {
     if (lua_state != nullptr)
     {
-      utility::logger->error("Lua state is set up when it shouldn't be!");
+      utility::LogError("Lua state is set up when it shouldn't be!");
 
       return;
     }
@@ -87,7 +87,7 @@ namespace term_engine::scripting {
       project_path.string() + "/?/init.lua";
     (*lua_state)["package"]["path"] = package_path;
 
-    utility::logger->debug("Lua path: {}", std::string((*lua_state)["package"]["path"]));
+    utility::LogDebug("Lua path: {}", std::string((*lua_state)["package"]["path"]));
 
     // Create bindings for C++ functions.
     bindings::BindGlmToState(*lua_state);
@@ -106,7 +106,7 @@ namespace term_engine::scripting {
     LoadFile(rootDirectory + std::string(LOADER_SCRIPT_PATH));
     LoadFile(project_path / std::string(PROJECT_ENTRYPOINT));
 
-    utility::logger->info("Loaded project.");
+    utility::LogInfo("Loaded project.");
   }
 
   void Shutdown()
@@ -119,7 +119,7 @@ namespace term_engine::scripting {
       lua_state.reset();
     }
 
-    utility::logger->info("Shut down project.");
+    utility::LogInfo("Shut down project.");
   }
 
   bool OnInit()
@@ -136,11 +136,11 @@ namespace term_engine::scripting {
       else
       {
         sol::error err = result;
-        utility::logger->error("Received Lua error on init: {}", err.what());
+        utility::LogError("Received Lua error on init: {}", err.what());
       }
     }
     catch (const std::exception& err) {
-      utility::logger->error("A scripting error occurred!\nProject: {}\nError: {}", project_path.string(), err.what());
+      utility::LogError("A scripting error occurred!\nProject: {}\nError: {}", project_path.string(), err.what());
     }
 
     return return_value;
@@ -154,11 +154,11 @@ namespace term_engine::scripting {
       if (!result.valid())
       {
         sol::error err = result;
-        utility::logger->error("Received Lua error on loop: {}", err.what());
+        utility::LogError("Received Lua error on loop: {}", err.what());
       }
     }
     catch (const std::exception& err) {
-      utility::logger->error("A scripting error occurred!\nProject: {}\nError: {}", project_path.string(), err.what());
+      utility::LogError("A scripting error occurred!\nProject: {}\nError: {}", project_path.string(), err.what());
     }
   }
 
@@ -170,11 +170,11 @@ namespace term_engine::scripting {
       if (!result.valid())
       {
         sol::error err = result;
-        utility::logger->error("Received Lua error on quit: {}", err.what());
+        utility::LogError("Received Lua error on quit: {}", err.what());
       }
     }
     catch (const std::exception& err) {
-      utility::logger->error("A scripting error occurred!\nProject: {}\nError: {}", project_path.string(), err.what());
+      utility::LogError("A scripting error occurred!\nProject: {}\nError: {}", project_path.string(), err.what());
     }
   }
 }

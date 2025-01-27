@@ -8,7 +8,7 @@
 
 namespace term_engine::utility {
   /// @brief The flags to initialise SDL with.
-  constexpr uint32_t SDL_INIT_FLAGS = SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER;
+  constexpr uint32_t SDL_INIT_FLAGS = SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER;
 
   /**
    * @brief Initialises SDL.

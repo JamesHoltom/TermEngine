@@ -1,7 +1,7 @@
 #include "Window.h"
 #include "../utility/GLUtils.h"
 #include "../utility/ImGuiUtils.h"
-#include "../utility/SpdlogUtils.h"
+#include "../utility/LogUtils.h"
 
 namespace term_engine::usertypes {
   Window::Window(GameWindow* game_window, const glm::ivec2& position, const glm::ivec2& size, const std::string& title, uint32_t flags) :
@@ -15,7 +15,7 @@ namespace term_engine::usertypes {
 
     if (window_ == nullptr)
     {
-      utility::logger->error("An SDL error occurred: {}", SDL_GetError());
+      utility::LogError("An SDL error occurred: {}", SDL_GetError());
 
       return;
     }
@@ -27,14 +27,14 @@ namespace term_engine::usertypes {
 
     is_init_ = true;
 
-    utility::logger->debug("Created window with window ID {}.", GetId());
+    utility::LogDebug("Created window with window ID {}.", GetId());
   }
 
   Window::~Window()
   {
     SDL_DestroyWindow(window_);
 
-    utility::logger->debug("Destroyed window.");
+    utility::LogDebug("Destroyed window.");
   }
 
   void Window::DoEvents(const SDL_Event& event)
@@ -130,7 +130,7 @@ namespace term_engine::usertypes {
   {
     if (size.x <= 0 || size.y <= 0)
     {
-      utility::logger->warn("Cannot set window size to 0 or less!");
+      utility::LogWarn("Cannot set window size to 0 or less!");
 
       return;
     }
@@ -255,12 +255,12 @@ namespace term_engine::usertypes {
     {
       if (SDL_GL_SetSwapInterval(flag) < 0)
       {
-        utility::logger->error("Failed to set vsync flag: ", SDL_GetError());
+        utility::LogError("Failed to set vsync flag: ", SDL_GetError());
       }
     }
     else
     {
-      utility::logger->warn("Invalid vsync flag given.");
+      utility::LogWarn("Invalid vsync flag given.");
     }
   }
 
@@ -271,7 +271,7 @@ namespace term_engine::usertypes {
     // GLEW needs to be initialised as soon as a GL context is created.
     if (!utility::InitContext(default_window->GetWindow()))
     {
-      utility::logger->error("Failed to set up OpenGL context!");
+      utility::LogError("Failed to set up OpenGL context!");
       
       return false;
     }

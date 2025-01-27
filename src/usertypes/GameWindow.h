@@ -32,6 +32,34 @@ namespace term_engine::usertypes {
   
   /// @brief Manages a single window, that handles what font/game scene/shaders/background are drawn to it.
   class GameWindow : public Flaggable {
+  private:
+    /// @brief Raw pointer to the game scene being drawn.
+    GameScene* game_scene_;
+    /// @brief Raw pointer to the window.
+    Window* window_;
+    /// @brief Flag to determine if this window is the default one, and should persist when switching projects.
+    bool is_default_window_;
+    /// @brief The background texture rendered behind the game scene.
+    Background background_;
+    /// @brief The font used to render characters to the game scene.
+    Font* font_;
+    /// @brief The shader program used to render backgrounds to the game scene.
+    ShaderProgram* background_shader_program_;
+    /// @brief The shader program used to render characters to the game scene.
+    ShaderProgram* text_shader_program_;
+    /// @brief Buffer to store the background vertices.
+    rendering::Buffer background_buffer_;
+    /// @brief Buffer to store the character vertices.
+    rendering::Buffer text_buffer_;
+    /// @brief The font size to render characters at, in pixels (px).
+    uint32_t font_size_;
+    /// @brief Flag to check if the window is closing.
+    bool is_closing_;
+    /// @brief The type of window behaviour when the user closes the window.
+    CloseLogic close_logic_;
+    /// @brief Flag to indicate if the user wants to quit the program.
+    static bool quit_flag;
+
   public:
     /**
      * @brief Constructs the game window.
@@ -186,34 +214,6 @@ namespace term_engine::usertypes {
 
     /// @brief Informs the program that the user is quitting.
     static void Quit();
-
-  private:
-    /// @brief Raw pointer to the game scene being drawn.
-    GameScene* game_scene_;
-    /// @brief Raw pointer to the window.
-    Window* window_;
-    /// @brief Flag to determine if this window is the default one, and should persist when switching projects.
-    bool is_default_window_;
-    /// @brief The background texture rendered behind the game scene.
-    Background background_;
-    /// @brief The font used to render characters to the game scene.
-    Font* font_;
-    /// @brief The shader program used to render backgrounds to the game scene.
-    ShaderProgram* background_shader_program_;
-    /// @brief The shader program used to render characters to the game scene.
-    ShaderProgram* text_shader_program_;
-    /// @brief Buffer to store the background vertices.
-    rendering::Buffer background_buffer_;
-    /// @brief Buffer to store the character vertices.
-    rendering::Buffer text_buffer_;
-    /// @brief The font size to render characters at, in pixels (px).
-    uint32_t font_size_;
-    /// @brief Flag to check if the window is closing.
-    bool is_closing_;
-    /// @brief The type of window behaviour when the user closes the window.
-    CloseLogic close_logic_;
-    /// @brief Flag to indicate if the user wants to quit the program.
-    static bool quit_flag;
   };
 
   /**

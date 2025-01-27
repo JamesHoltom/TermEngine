@@ -2,7 +2,7 @@
 #include "../../system/FileFunctions.h"
 #include "../../utility/AudioUtils.h"
 #include "../../utility/ImGuiUtils.h"
-#include "../../utility/SpdlogUtils.h"
+#include "../../utility/LogUtils.h"
 
 namespace term_engine::usertypes {
   Audio::Audio(const std::filesystem::path& filepath, ma_sound* sound) :
@@ -14,14 +14,14 @@ namespace term_engine::usertypes {
     position_(glm::vec2(0.0f)),
     volume_(1.0f)
   {
-    utility::logger->debug("Loaded audio resource with filepath \"{}\".", name_);
+    utility::LogDebug("Loaded audio resource with filepath \"{}\".", name_);
   }
 
   Audio::~Audio()
   {
     ma_sound_uninit(sound_);
 
-    utility::logger->debug("Destroyed audio resource with filepath \"{}\".", name_);
+    utility::LogDebug("Destroyed audio resource with filepath \"{}\".", name_);
   }
 
   std::string Audio::GetResourceType() const
@@ -102,7 +102,7 @@ namespace term_engine::usertypes {
 
     if (utility::MALog(ma_data_source_get_cursor_in_seconds(sound_->pDataSource, &cursor)) != MA_SUCCESS)
     {
-      utility::logger->warn("Failed to get cursor of audio resource \"{}\".", name_);
+      utility::LogWarn("Failed to get cursor of audio resource \"{}\".", name_);
     }
 
     return (double)cursor;
@@ -114,7 +114,7 @@ namespace term_engine::usertypes {
 
     if (utility::MALog(ma_data_source_get_length_in_seconds(sound_->pDataSource, &length)) != MA_SUCCESS)
     {
-      utility::logger->warn("Failed to get length of audio resource \"{}\".", name_);
+      utility::LogWarn("Failed to get length of audio resource \"{}\".", name_);
     }
 
     return (double)length;
@@ -129,7 +129,7 @@ namespace term_engine::usertypes {
   {
     if (pan < -1.0f || pan > 1.0f)
     {
-      utility::logger->warn("Cannot set audio panning to values outside of -1.0 and 1.0!");
+      utility::LogWarn("Cannot set audio panning to values outside of -1.0 and 1.0!");
 
       return;
     }
@@ -143,7 +143,7 @@ namespace term_engine::usertypes {
   {
     if (pitch < 0.0f)
     {
-      utility::logger->warn("Cannot set audio pitch to negative value!");
+      utility::LogWarn("Cannot set audio pitch to negative value!");
 
       return;
     }
@@ -164,7 +164,7 @@ namespace term_engine::usertypes {
   {
     if (volume < 0.0f)
     {
-      utility::logger->warn("Cannot set audio volume to negative value!");
+      utility::LogWarn("Cannot set audio volume to negative value!");
 
       return;
     }
@@ -224,7 +224,7 @@ namespace term_engine::usertypes {
   {
     if (volume < 0.0f || volume > 1.0f)
     {
-      utility::logger->warn("Cannot set master volume to values outside of 0.0 and 1.0!");
+      utility::LogWarn("Cannot set master volume to values outside of 0.0 and 1.0!");
 
       return;
     }
@@ -244,14 +244,14 @@ namespace term_engine::usertypes {
     }
     else if (type != "static")
     {
-      utility::logger->warn("Unknown audio flag \"{}\" given. Defaulting to \"static\".", type);
+      utility::LogWarn("Unknown audio flag \"{}\" given. Defaulting to \"static\".", type);
     }
 
     const std::filesystem::path find_path = system::SearchForResourcePath(filepath);
 
     if (find_path.empty())
     {
-      utility::logger->warn("No audio filepath given to load!");
+      utility::LogWarn("No audio filepath given to load!");
 
       return nullptr;
     }
@@ -260,7 +260,7 @@ namespace term_engine::usertypes {
 
     if (it != resource_list.end() && it->second->GetResourceType() != std::string(AUDIO_TYPE))
     {
-      utility::logger->warn("\"{}\" is the name of a(n) {} resource.", find_path.string(), it->second->GetResourceType());
+      utility::LogWarn("\"{}\" is the name of a(n) {} resource.", find_path.string(), it->second->GetResourceType());
     }
     else if (it == resource_list.end())
     {
@@ -268,7 +268,7 @@ namespace term_engine::usertypes {
 
       if (utility::MALog(ma_sound_init_from_file(&utility::audio_engine, find_path.string().c_str(), flag, nullptr, nullptr, new_sound)) != MA_SUCCESS)
       {
-        utility::logger->error("Failed to load audio resource at \"{}\".", find_path.string());
+        utility::LogError("Failed to load audio resource at \"{}\".", find_path.string());
 
         return nullptr;
       }

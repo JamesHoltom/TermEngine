@@ -1,7 +1,7 @@
 #include <chrono>
 #include <thread>
 #include "FPSManager.h"
-#include "../utility/SpdlogUtils.h"
+#include "../utility/LogUtils.h"
 
 namespace term_engine::system {
   void InitFPS()
@@ -9,7 +9,7 @@ namespace term_engine::system {
     delay_timer_.Start();
     average_timer_.Start();
 
-    utility::logger->debug("Started FPS.");
+    utility::LogDebug("Started FPS.");
   }
 
   uint64_t Delay()
@@ -74,10 +74,10 @@ namespace term_engine::system {
   void PrintFPS()
   {
     if (target_fps_ > 0) {
-      utility::logger->info("Target FPS: {}", target_fps_);
+      utility::LogInfo("Target FPS: {}", target_fps_);
     }
     
-    utility::logger->info("Average FPS: {}", GetAverageFPS());
-    utility::logger->info("Frame count: {}", frame_count_);
+    utility::LogInfo("Average FPS: {}", GetAverageFPS());
+    utility::LogInfo("Frame count: {}", frame_count_);
   }
 }

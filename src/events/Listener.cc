@@ -5,7 +5,6 @@
 #include "../utility/ConversionUtils.h"
 #include "../utility/ImGuiUtils.h"
 #include "../utility/LogUtils.h"
-#include "../utility/SpdlogUtils.h"
 
 namespace term_engine::events {
   void InitList()

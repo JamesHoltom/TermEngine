@@ -1,7 +1,7 @@
 #include "EventListener.h"
 #include "../scripting/ScriptingInterface.h"
 #include "../utility/ImGuiUtils.h"
-#include "../utility/SpdlogUtils.h"
+#include "../utility/LogUtils.h"
 
 namespace term_engine::usertypes {
   uint64_t EventListener::listener_next_id_ = 1;
@@ -14,14 +14,14 @@ namespace term_engine::usertypes {
     times_fired_(0),
     is_active_(true)
   {
-    utility::logger->debug("Created event listener with ID {} and type {}.", listener_id_, type);
+    utility::LogDebug("Created event listener with ID {} and type {}.", listener_id_, type);
   }
 
   EventListener::~EventListener()
   {
     callback_ = sol::nil;
 
-    utility::logger->debug("Destroyed event listener with ID {} and type {}.", listener_id_, type_);
+    utility::LogDebug("Destroyed event listener with ID {} and type {}.", listener_id_, type_);
   }
 
   void EventListener::DoEvents(const events::Event& event)
@@ -71,11 +71,11 @@ namespace term_engine::usertypes {
       if (!result.valid())
       {
         sol::error err = result;
-        utility::logger->error("An error was thrown!\nProject: {}\n Error: {}", scripting::project_path.string(), err.what());
+        utility::LogError("An error was thrown!\nProject: {}\n Error: {}", scripting::project_path.string(), err.what());
       }
     }
     catch (const std::exception& err) {
-      utility::logger->error("A scripting error occurred!\nProject: {}\nError: {}", scripting::project_path.string(), err.what());
+      utility::LogError("A scripting error occurred!\nProject: {}\nError: {}", scripting::project_path.string(), err.what());
     }
   }
 
@@ -123,7 +123,7 @@ namespace term_engine::usertypes {
       }
     };
 
-    utility::logger->warn("Could not find event listener with ID {} to remove.", id);
+    utility::LogWarn("Could not find event listener with ID {} to remove.", id);
   }
 
   void RemoveEventListener(EventListener* ptr)
@@ -137,14 +137,14 @@ namespace term_engine::usertypes {
       }
     };
 
-    utility::logger->warn("Could not find event listener to remove.");
+    utility::LogWarn("Could not find event listener to remove.");
   }
 
   void ClearAllEventListeners()
   {
     listener_list.clear();
 
-    utility::logger->debug("Cleared all event listeners from the list.");
+    utility::LogDebug("Cleared all event listeners from the list.");
   }
 
   void ClearFlaggedEventListeners()

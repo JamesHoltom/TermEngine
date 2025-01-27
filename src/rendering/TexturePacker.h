@@ -6,7 +6,7 @@
 #include <memory>
 #include <vector>
 #include <glm/glm.hpp>
-#include "../utility/SpdlogUtils.h"
+#include "../utility/LogUtils.h"
 
 namespace term_engine::rendering {
   struct TextureNode;
@@ -38,13 +38,13 @@ namespace term_engine::rendering {
       left_(nullptr),
       right_(nullptr)
     {
-      utility::logger->debug("Created node at layer {} with size {},{}", layer_, size_.x, size_.y);
+      utility::LogDebug("Created node at layer {} with size {},{}", layer_, size_.x, size_.y);
     }
 
     /// @brief Destroys the node.
     ~TextureNode()
     {
-      utility::logger->debug("Removed node at layer {} with size {},{}", layer_, size_.x, size_.y);
+      utility::LogDebug("Removed node at layer {} with size {},{}", layer_, size_.x, size_.y);
 
       left_.reset();
       right_.reset();

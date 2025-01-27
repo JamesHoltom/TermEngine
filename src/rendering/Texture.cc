@@ -1,6 +1,6 @@
 #include <memory>
 #include "Texture.h"
-#include "../utility/SpdlogUtils.h"
+#include "../utility/LogUtils.h"
 
 namespace term_engine::rendering {
   TextureData* CreateTextureFromImage(const std::filesystem::path& filepath, uint32_t unit)
@@ -30,14 +30,14 @@ namespace term_engine::rendering {
       glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, height);
       glTexImage2D(GL_TEXTURE_2D, 0, mode, width, height, 0, mode, GL_UNSIGNED_BYTE, data);
 
-      utility::logger->debug("Loaded image \'{}\' with size {},{} and {} channels.", filepath.string(), width, height, channels);
+      utility::LogDebug("Loaded image \'{}\' with size {},{} and {} channels.", filepath.string(), width, height, channels);
 
       stbi_image_free(data);
 
       return new TextureData(texture_id, glm::ivec2(width, height), unit);
     }
     else {
-      utility::logger->error("Failed to load image \'{}\'.\nError: {}", filepath.string(), stbi_failure_reason());
+      utility::LogError("Failed to load image \'{}\'.\nError: {}", filepath.string(), stbi_failure_reason());
 
       return nullptr;
     }
@@ -63,7 +63,7 @@ namespace term_engine::rendering {
 
     glTexStorage2D(GL_TEXTURE_2D, 1, format, size.x, size.y);
 
-    utility::logger->debug("Allocated texture with size {},{}.", size.x, size.y);
+    utility::LogDebug("Allocated texture with size {},{}.", size.x, size.y);
 
     return new TextureData(texture_id, size, unit);
   }
@@ -85,7 +85,7 @@ namespace term_engine::rendering {
   {
     if (texture != nullptr && texture->texture_id_ > -1)
     {
-      utility::logger->debug("Removed texture \'{}\'.", texture->texture_id_);
+      utility::LogDebug("Removed texture \'{}\'.", texture->texture_id_);
 
       glDeleteTextures(1, &texture->texture_id_);
     }

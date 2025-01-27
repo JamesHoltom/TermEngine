@@ -1,5 +1,5 @@
 #include "InputManager.h"
-#include "../utility/SpdlogUtils.h"
+#include "../utility/LogUtils.h"
 
 namespace term_engine::events {
   void Init()
@@ -75,7 +75,7 @@ namespace term_engine::events {
     }
     else
     {
-      utility::logger->warn("Unknown scancode '{}' passed to ScancodeIsDown.", code);
+      utility::LogWarn("Unknown scancode '{}' passed to ScancodeIsDown.", (int)code);
 
       return false;
     }
@@ -96,7 +96,7 @@ namespace term_engine::events {
     }
     else
     {
-      utility::logger->warn("Unknown scancode '{}' passed to ScancodeIsPressed.", code);
+      utility::LogWarn("Unknown scancode '{}' passed to ScancodeIsPressed.", (int)code);
 
       return false;
     }
@@ -117,7 +117,7 @@ namespace term_engine::events {
     }
     else
     {
-      utility::logger->warn("Unknown scancode '{}' passed to ScancodeIsReleased.", code);
+      utility::LogWarn("Unknown scancode '{}' passed to ScancodeIsReleased.", (int)code);
 
       return false;
     }
@@ -152,11 +152,11 @@ namespace term_engine::events {
   {
     if (SDL_SetClipboardText(text.c_str()) == 0)
     {
-      utility::logger->debug("Set clipboard to \"{}\"", text);
+      utility::LogDebug("Set clipboard to \"{}\"", text);
     }
     else
     {
-      utility::logger->error("Failed to set clipboard text! Error: {}", SDL_GetError());
+      utility::LogError("Failed to set clipboard text! Error: {}", SDL_GetError());
     }
   }
 }

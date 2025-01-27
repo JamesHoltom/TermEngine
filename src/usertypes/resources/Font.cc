@@ -2,7 +2,7 @@
 #include "Font.h"
 #include "../../system/FileFunctions.h"
 #include "../../utility/ImGuiUtils.h"
-#include "../../utility/SpdlogUtils.h"
+#include "../../utility/LogUtils.h"
 
 namespace term_engine::usertypes {
   Font::Font(const std::filesystem::path& filepath, FT_Face face) :
@@ -23,7 +23,7 @@ namespace term_engine::usertypes {
 
     SetSize(DEFAULT_FONT_SIZE);
 
-    utility::logger->debug("Loaded font resource with filepath \"{}\".", filepath.string());
+    utility::LogDebug("Loaded font resource with filepath \"{}\".", filepath.string());
   }
 
   Font::~Font()
@@ -32,16 +32,16 @@ namespace term_engine::usertypes {
 
     if (utility::FTLog(FT_Done_Face(face_)) != FT_Err_Ok)
     {
-      utility::logger->error("Failed to remove font \"{}\".", name_);
+      utility::LogError("Failed to remove font \"{}\".", name_);
     }
     else
     {
-      utility::logger->debug("Removed font \"{}\".", name_);
+      utility::LogDebug("Removed font \"{}\".", name_);
     }
 
     texture_.reset();
 
-    utility::logger->debug("Destroyed font resource with filepath \"{}\".", name_);
+    utility::LogDebug("Destroyed font resource with filepath \"{}\".", name_);
   }
 
   std::string Font::GetResourceType() const
@@ -53,7 +53,7 @@ namespace term_engine::usertypes {
   {
     if (size == 0)
     {
-      utility::logger->warn("Cannot get character size for a font size of 0!");
+      utility::LogWarn("Cannot get character size for a font size of 0!");
 
       return glm::ivec2();
     }
@@ -72,7 +72,7 @@ namespace term_engine::usertypes {
   {
     if (size == 0)
     {
-      utility::logger->warn("Cannot get character with a font size of 0!");
+      utility::LogWarn("Cannot get character with a font size of 0!");
 
       return EMPTY_CHARACTER;
     }
@@ -118,7 +118,7 @@ namespace term_engine::usertypes {
   CharacterBB Font::CreateCharTexture(uint64_t character, uint32_t size)
   {
     if (size == 0) {
-      utility::logger->warn("Cannot use a font size of 0!");
+      utility::LogWarn("Cannot use a font size of 0!");
 
       return EMPTY_CHARACTER;
     }
@@ -136,9 +136,9 @@ namespace term_engine::usertypes {
       glm::ivec2 character_pos = packer_.Insert(face_->glyph->bitmap.buffer, character_size);
       CharacterBB bbox(character_pos, character_size, size, character_baseline);
 
-      utility::logger->debug("Created character {} ({}) with dimensions {},{} at pos {},{} and added to cache.", glyph_index, character, character_size.x, character_size.y, character_pos.x, character_pos.y);
+      utility::LogDebug("Created character {} ({}) with dimensions {},{} at pos {},{} and added to cache.", glyph_index, character, character_size.x, character_size.y, character_pos.x, character_pos.y);
 
-      auto new_character = atlas_.insert_or_assign(std::pair<wchar_t, uint32_t>(character, size), bbox);
+      atlas_.insert_or_assign(std::pair<wchar_t, uint32_t>(character, size), bbox);
 
       character_count_++;
       texture_dirty_ = true;
@@ -147,7 +147,7 @@ namespace term_engine::usertypes {
     }
     else
     {
-      utility::logger->error("Failed to load character.");
+      utility::LogError("Failed to load character.");
 
       return EMPTY_CHARACTER;
     }
@@ -156,7 +156,7 @@ namespace term_engine::usertypes {
   FontSizeList::iterator Font::AddSize(uint32_t size)
   {
     if (size == 0) {
-      utility::logger->warn("Cannot use a font size of 0!");
+      utility::LogWarn("Cannot use a font size of 0!");
 
       return size_list_.end();
     }
@@ -165,17 +165,17 @@ namespace term_engine::usertypes {
 
     if (utility::FTLog(FT_New_Size(face_, &new_size)) != FT_Err_Ok)
     {
-      utility::logger->error("Failed to create font size for font \"{}\".", name_);
+      utility::LogError("Failed to create font size for font \"{}\".", name_);
     }
 
     if (utility::FTLog(FT_Activate_Size(new_size)) != FT_Err_Ok)
     {
-      utility::logger->error("Failed to activate font size for font \"{}\".", name_);
+      utility::LogError("Failed to activate font size for font \"{}\".", name_);
     }
 
     if (utility::FTLog(FT_Set_Pixel_Sizes(face_, 0, size)) != FT_Err_Ok)
     {
-      utility::logger->error("Failed to set font size for font \"{}\".", name_);
+      utility::LogError("Failed to set font size for font \"{}\".", name_);
     }
 
     return size_list_.insert(FontSizeList::value_type(size, new_size)).first;
@@ -184,7 +184,7 @@ namespace term_engine::usertypes {
   void Font::SetSize(uint32_t size)
   {
     if (size == 0) {
-      utility::logger->warn("Cannot set a font size of 0!");
+      utility::LogWarn("Cannot set a font size of 0!");
 
       return;
     }
@@ -199,13 +199,13 @@ namespace term_engine::usertypes {
     {
       if (utility::FTLog(FT_Activate_Size(findSize->second)) != FT_Err_Ok)
       {
-        utility::logger->error("Failed to activate font size for font \"{}\".", name_);
+        utility::LogError("Failed to activate font size for font \"{}\".", name_);
       }
     }
 
     if (utility::FTLog(FT_Select_Charmap(face_, FT_ENCODING_UNICODE)))
     {
-      utility::logger->error("Failed to select Unicode encoding for font \"{}\".", name_);
+      utility::LogError("Failed to select Unicode encoding for font \"{}\".", name_);
     }
   }
 
@@ -231,7 +231,7 @@ namespace term_engine::usertypes {
 
     if (find_path.empty())
     {
-      utility::logger->warn("No font filepath given to load!");
+      utility::LogWarn("No font filepath given to load!");
 
       return nullptr;
     }
@@ -240,7 +240,7 @@ namespace term_engine::usertypes {
 
     if (it != resource_list.end() && it->second->GetResourceType() != std::string(FONT_TYPE))
     {
-      utility::logger->warn("\"{}\" is the name of a(n) {} resource.", find_path.string(), it->second->GetResourceType());
+      utility::LogWarn("\"{}\" is the name of a(n) {} resource.", find_path.string(), it->second->GetResourceType());
     }
     else if (it == resource_list.end())
     {
@@ -248,7 +248,7 @@ namespace term_engine::usertypes {
 
       if (utility::FTLog(FT_New_Face(utility::font_library, find_path.c_str(), 0, &new_face)) != FT_Err_Ok)
       {
-        utility::logger->error("Failed to load face for font \"{}\".", find_path.string());
+        utility::LogError("Failed to load face for font \"{}\".", find_path.string());
 
         return nullptr;
       }

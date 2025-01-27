@@ -5,7 +5,7 @@
 
 #include <vector>
 #include "../utility/GLUtils.h"
-#include "../utility/SpdlogUtils.h"
+#include "../utility/LogUtils.h"
 
 namespace term_engine::rendering {
   struct BufferData;

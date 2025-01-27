@@ -16,7 +16,7 @@
 #include "utility/GLUtils.h"
 #include "utility/ImGuiUtils.h"
 #include "utility/SDLUtils.h"
-#include "utility/SpdlogUtils.h"
+#include "utility/LogUtils.h"
 
 namespace term_engine {
   void Init(int argc, char** argv)
@@ -26,7 +26,7 @@ namespace term_engine {
 
     if (!utility::InitSDL() || !utility::InitFreeType() || !utility::InitAudio())
     {
-      utility::logger->critical("Failed to initialise SDL/FT/MA!");
+      utility::LogError("Failed to initialise SDL/FT/MA!");
 
       exit(2);
     }
@@ -45,7 +45,7 @@ namespace term_engine {
     scripting::SetNextProject(system::scriptPath.string());
     InitProject();
 
-    utility::logger->debug("Finished init!");
+    utility::LogDebug("Finished init!");
   }
 
   void InitProject()
@@ -66,7 +66,9 @@ namespace term_engine {
     utility::CleanUpImGui();
     usertypes::CleanUpDefaultWindow();
 
-    utility::logger->debug("Cleaned up!");
+    utility::LogDebug("Cleaned up!");
+
+    utility::ShutdownLogger();
   }
 
   void CleanUpProject()

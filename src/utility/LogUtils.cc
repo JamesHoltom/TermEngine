@@ -1,8 +1,21 @@
 #include "LogUtils.h"
 #include "GLUtils.h"
-#include "SpdlogUtils.h"
 
 namespace term_engine::utility {
+  void InitLogger()
+  {
+    log_file.open(DEFAULT_LOG_LOCATION);
+  }
+
+  void ShutdownLogger()
+  {
+    log_file.close();
+  }
+
+  std::string GetFullFmt(const std::string& fmt, const std::string& type) {
+    return "[" + type + "] " + fmt + "\n";
+  }
+
   void LogKeyboardEvents(const SDL_Event& event)
   {
     if (event.key.repeat)
@@ -63,18 +76,18 @@ namespace term_engine::utility {
       keyboard_modifiers.erase(0, 2);
     }
 
-    logger->debug("Keyboard Event: {}, Key: {}, Modifiers: {}", keyboard_type, SDL_GetKeyName(event.key.keysym.sym), keyboard_modifiers);
+    LogDebug("Keyboard Event: {}, Key: {}, Modifiers: {}", keyboard_type, SDL_GetKeyName(event.key.keysym.sym), keyboard_modifiers);
   }
 
   void LogTextInputEvents(const SDL_Event& event)
   {
     if (event.type == SDL_TEXTEDITING)
     {
-      logger->debug("Text Input Event [Composing]: Text: {}, Cursor Start: {}, Cursor Length: {}", event.edit.text, event.edit.start, event.edit.length);
+      LogDebug("Text Input Event [Composing]: Text: {}, Cursor Start: {}, Cursor Length: {}", event.edit.text, event.edit.start, event.edit.length);
     }
     else if (event.type == SDL_TEXTINPUT)
     {
-      logger->debug("Text Input Event [Committed]: Text: {}", event.text.text);
+      LogDebug("Text Input Event [Committed]: Text: {}", event.text.text);
     }
   }
 
@@ -108,11 +121,11 @@ namespace term_engine::utility {
       {
         if (showXY)
         {
-          logger->debug("Window ID: {}, Event: {}, X: {}, Y: {}", event.window.windowID, window_string, event.window.data1, event.window.data2);
+          LogDebug("Window ID: {}, Event: {}, X: {}, Y: {}", event.window.windowID, window_string, event.window.data1, event.window.data2);
         }
         else
         {
-          logger->debug("Window ID: {}, Event: {}", event.window.windowID, window_string);
+          LogDebug("Window ID: {}, Event: {}", event.window.windowID, window_string);
         }
       }
     }
@@ -123,7 +136,7 @@ namespace term_engine::utility {
     int vao_id, ebo_id, ebo_size, max_vertex_attribs, vbo_id;
     int vertex_attrib_is_enabled;
 
-    logger->debug("Debugging currently bound VAO...");
+    LogDebug("Debugging currently bound VAO...");
 
     glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &vao_id);
     glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &ebo_id);
@@ -133,9 +146,9 @@ namespace term_engine::utility {
     }
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &max_vertex_attribs);
 
-    logger->debug("VAO ID: {}", vao_id);
-    logger->debug("EBO ID: {}, size: {}", ebo_id, ebo_size);
-    logger->debug("Max vertex attributes: {}", max_vertex_attribs);
+    LogDebug("VAO ID: {}", vao_id);
+    LogDebug("EBO ID: {}, size: {}", ebo_id, ebo_size);
+    LogDebug("Max vertex attributes: {}", max_vertex_attribs);
 
     for (int i = 0; i < max_vertex_attribs; ++i) {
       glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_ENABLED, &vertex_attrib_is_enabled);
@@ -144,11 +157,11 @@ namespace term_engine::utility {
       {
         glGetVertexAttribiv(i, GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING, &vbo_id);
 
-        logger->debug("Vertex attribute #{} is bound to VBO: {}", i, vbo_id);
+        LogDebug("Vertex attribute #{} is bound to VBO: {}", i, vbo_id);
       }
       else
       {
-        logger->debug("Vertex attribute #{} is unbound.", i);
+        LogDebug("Vertex attribute #{} is unbound.", i);
       }
     }
   }
@@ -157,11 +170,11 @@ namespace term_engine::utility {
   {
     int vbo_id, vbo_size;
 
-    logger->debug("Debugging currently bound VBO...");
+    LogDebug("Debugging currently bound VBO...");
 
     glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &vbo_id);
     glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &vbo_size);
 
-    logger->debug("VBO ID: {}, size: {}", vbo_id, vbo_size);
+    LogDebug("VBO ID: {}, size: {}", vbo_id, vbo_size);
   }
 }

@@ -30,6 +30,24 @@ namespace term_engine::usertypes {
 
   /// @brief Used to handle a window on the screen.
   class Window {
+  private:
+    /// @brief The SDL handle to the window.
+    SDL_Window* window_;
+    /// @brief Raw pointer to the game window being rendered.
+    GameWindow* game_window_;
+    /// @brief Has the window been fully initialised?
+    bool is_init_;
+    /// @brief The position of the window, in pixels (px).
+    glm::ivec2 position_;
+    /// @brief The size of the window, in pixels (px).
+    glm::ivec2 size_;
+    /// @brief The colour to use for setting when clearing the window after every frame.
+    glm::vec4 clear_colour_;
+    /// @brief Whether to use wireframe rendering or not.
+    uint32_t render_mode_;
+    /// @brief Whether vsync is enabled/disabled.
+    static int vsync_flag_;
+    
   public:
     /**
      * @brief Constructs the window with the given parameters.
@@ -266,24 +284,6 @@ namespace term_engine::usertypes {
      * @param[in] flag Whether to enable or disable vsync.
      */
     static void SetVsync(int flag);
-
-  private:
-    /// @brief The SDL handle to the window.
-    SDL_Window* window_;
-    /// @brief Raw pointer to the game window being rendered.
-    GameWindow* game_window_;
-    /// @brief Has the window been fully initialised?
-    bool is_init_;
-    /// @brief The position of the window, in pixels (px).
-    glm::ivec2 position_;
-    /// @brief The size of the window, in pixels (px).
-    glm::ivec2 size_;
-    /// @brief The colour to use for setting when clearing the window after every frame.
-    glm::vec4 clear_colour_;
-    /// @brief Whether to use wireframe rendering or not.
-    uint32_t render_mode_;
-    /// @brief Whether vsync is enabled/disabled.
-    static int vsync_flag_;
   };
 
   /**

@@ -1,7 +1,7 @@
 #include "Image.h"
 #include "../../system/FileFunctions.h"
 #include "../../utility/ImGuiUtils.h"
-#include "../../utility/SpdlogUtils.h"
+#include "../../utility/LogUtils.h"
 
 namespace term_engine::usertypes {
   Image::Image(const std::filesystem::path& filepath, rendering::TextureData* data) :
@@ -9,14 +9,14 @@ namespace term_engine::usertypes {
   {
     texture_ = rendering::TexturePtr(data);
 
-    utility::logger->debug("Loaded image resource with filepath \"{}\".", name_);
+    utility::LogDebug("Loaded image resource with filepath \"{}\".", name_);
   }
 
   Image::~Image()
   {
     texture_.reset();
 
-    utility::logger->debug("Destroyed image resource with filepath \"{}\".", name_);
+    utility::LogDebug("Destroyed image resource with filepath \"{}\".", name_);
   }
 
   std::string Image::GetResourceType() const
@@ -54,7 +54,7 @@ namespace term_engine::usertypes {
 
     if (full_path.empty())
     {
-      utility::logger->warn("No image filepath given to load!");
+      utility::LogWarn("No image filepath given to load!");
 
       return nullptr;
     }
@@ -63,7 +63,7 @@ namespace term_engine::usertypes {
 
     if (it != resource_list.end() && it->second->GetResourceType() != std::string(IMAGE_TYPE))
     {
-      utility::logger->warn("\"{}\" is the name of a(n) {} resource.", full_path.string(), it->second->GetResourceType());
+      utility::LogWarn("\"{}\" is the name of a(n) {} resource.", full_path.string(), it->second->GetResourceType());
     }
     else if (it == resource_list.end())
     {
@@ -71,7 +71,7 @@ namespace term_engine::usertypes {
 
       if (data == nullptr)
       {
-        utility::logger->warn("Failed to load image at \"{}\"!", full_path.string());
+        utility::LogWarn("Failed to load image at \"{}\"!", full_path.string());
       }
 
       it = resource_list.emplace(std::make_pair(full_path.string(), std::make_unique<Image>(full_path, data))).first;

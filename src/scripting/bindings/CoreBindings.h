@@ -4,7 +4,7 @@
 #define CORE_BINDINGS_H
 
 #include "../../utility/SolUtils.h"
-#include "../../utility/SpdlogUtils.h"
+#include "../../utility/LogUtils.h"
 
 namespace term_engine::scripting::bindings {
   /**
@@ -16,13 +16,13 @@ namespace term_engine::scripting::bindings {
   {
     // Create bindings for the main game functions.
     state["Init"] = [&]() -> bool {
-      utility::logger->info("TermEngine has initialised!");
+      utility::LogInfo("TermEngine has initialised!");
 
       return true;
     };
-    state["Loop"] = [&](uint64_t timestep) -> void {};
+    state["Loop"] = [&](uint64_t) -> void {};
     state["Quit"] = [&]() -> void {
-      utility::logger->info("TermEngine is quitting!");
+      utility::LogInfo("TermEngine is quitting!");
     };
   }
 }

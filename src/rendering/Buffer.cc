@@ -53,7 +53,7 @@ namespace term_engine::rendering {
       current_data_size_ = data.size();
       glBufferData(GL_ARRAY_BUFFER, sizeof(BufferData) * current_data_size_, data.data(), GL_STREAM_DRAW);
 
-      utility::logger->debug("Resized buffer at VAO {} to {} items...", vao_id_, current_data_size_);
+      utility::LogDebug("Resized buffer at VAO {} to {} items...", vao_id_, current_data_size_);
     }
 
     glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(BufferData) * current_data_size_, data.data());

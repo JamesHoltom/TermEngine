@@ -3,7 +3,7 @@
 #include "game_objects/GameObject.h"
 #include "../system/FileFunctions.h"
 #include "../utility/ImGuiUtils.h"
-#include "../utility/SpdlogUtils.h"
+#include "../utility/LogUtils.h"
 
 namespace term_engine::usertypes {
   GameScene::GameScene(const std::string& name) :
@@ -15,7 +15,7 @@ namespace term_engine::usertypes {
     on_loop_(sol::nil),
     on_quit_(sol::nil)
   {
-    utility::logger->debug("Created game scene with name \"{}\".", name_);
+    utility::LogDebug("Created game scene with name \"{}\".", name_);
   }
 
   GameScene::~GameScene()
@@ -24,7 +24,7 @@ namespace term_engine::usertypes {
     on_loop_ = sol::nil;
     on_quit_ = sol::nil;
 
-    utility::logger->debug("Destroyed game scene \"{}\".", name_);
+    utility::LogDebug("Destroyed game scene \"{}\".", name_);
   }
 
   std::string GameScene::GetName() const
@@ -87,11 +87,11 @@ namespace term_engine::usertypes {
 
   bool GameScene::CallInit()
   {
-    utility::logger->debug("Calling init for game scene \"{}\"...", name_);
+    utility::LogDebug("Calling init for game scene \"{}\"...", name_);
 
     if (!on_init_.valid())
     {
-      utility::logger->debug("No init found for game scene \"{}\".", name_);
+      utility::LogDebug("No init found for game scene \"{}\".", name_);
 
       return true;
     }
@@ -109,7 +109,7 @@ namespace term_engine::usertypes {
 
   void GameScene::CallQuit()
   {
-    utility::logger->debug("Calling quit for game scene \"{}\"...", name_);
+    utility::LogDebug("Calling quit for game scene \"{}\"...", name_);
 
     if (on_quit_.valid())
     {
@@ -117,7 +117,7 @@ namespace term_engine::usertypes {
     }
     else
     {
-      utility::logger->debug("No quit found for game scene \"{}\".", name_);
+      utility::LogDebug("No quit found for game scene \"{}\".", name_);
     }
   }
 
@@ -148,7 +148,7 @@ namespace term_engine::usertypes {
     }
     else
     {
-      utility::logger->warn("Game scene \"{}\" already exists!", name);
+      utility::LogWarn("Game scene \"{}\" already exists!", name);
     }
 
     return static_cast<GameScene*>(it->second.get());
@@ -184,6 +184,6 @@ namespace term_engine::usertypes {
   {
     game_scene_list.clear();
 
-    utility::logger->debug("Cleared all game scenes from the list.");
+    utility::LogDebug("Cleared all game scenes from the list.");
   }
 }

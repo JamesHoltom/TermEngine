@@ -71,12 +71,12 @@ namespace term_engine::usertypes {
     BaseResource(name),
     frames_({})
   {
-    utility::logger->debug("Created animation resource with name \"{}\".", name_);
+    utility::LogDebug("Created animation resource with name \"{}\".", name_);
   };
 
   Animation::~Animation()
   {
-    utility::logger->debug("Destroyed animation resource with name \"{}\".", name_);
+    utility::LogDebug("Destroyed animation resource with name \"{}\".", name_);
   }
 
   std::string Animation::GetResourceType() const
@@ -117,7 +117,7 @@ namespace term_engine::usertypes {
     }
     else
     {
-      utility::logger->warn("Cannot add frame at invalid index!");
+      utility::LogWarn("Cannot add frame at invalid index!");
     }
   }
 
@@ -131,7 +131,7 @@ namespace term_engine::usertypes {
     }
     else
     {
-      utility::logger->warn("Cannot set frame at invalid index!");
+      utility::LogWarn("Cannot set frame at invalid index!");
     }
   }
 
@@ -145,7 +145,7 @@ namespace term_engine::usertypes {
     }
     else
     {
-      utility::logger->warn("Cannot remove frame at invalid index!");
+      utility::LogWarn("Cannot remove frame at invalid index!");
     }
   }
 
@@ -468,7 +468,7 @@ namespace term_engine::usertypes {
   {
     if (name.empty())
     {
-      utility::logger->warn("No animation name given to load!");
+      utility::LogWarn("No animation name given to load!");
 
       return nullptr;
     }
@@ -477,7 +477,7 @@ namespace term_engine::usertypes {
 
     if (it != resource_list.end() && it->second->GetResourceType() != std::string(ANIMATION_TYPE))
     {
-      utility::logger->warn("\"{}\" is the name of a(n) {} resource.", name, it->second->GetResourceType());
+      utility::LogWarn("\"{}\" is the name of a(n) {} resource.", name, it->second->GetResourceType());
     }
     else if (it == resource_list.end())
     {

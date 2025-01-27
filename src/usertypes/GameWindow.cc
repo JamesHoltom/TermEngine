@@ -41,7 +41,7 @@ namespace term_engine::usertypes {
     
     SetProjection(window_->GetSize());
 
-    utility::logger->debug("Created game window.");
+    utility::LogDebug("Created game window.");
   }
 
   GameWindow::~GameWindow()
@@ -60,7 +60,7 @@ namespace term_engine::usertypes {
       window_ = nullptr;
     }
     
-    utility::logger->debug("Destroyed game window.");
+    utility::LogDebug("Destroyed game window.");
   }
 
   GameScene* GameWindow::GetGameScene()
@@ -120,7 +120,7 @@ namespace term_engine::usertypes {
     }
     catch (const std::bad_variant_access &err)
     {
-      utility::logger->error("Invalid game scene given to game window!");
+      utility::LogError("Invalid game scene given to game window!");
     }
 
     if (new_scene != nullptr)
@@ -142,7 +142,7 @@ namespace term_engine::usertypes {
       else
       {
         game_scene_ = nullptr;
-        utility::logger->error("Failed to set up next game scene! Window: {}", window_->GetId());
+        utility::LogError("Failed to set up next game scene! Window: {}", window_->GetId());
       }
     }
   }
@@ -164,7 +164,7 @@ namespace term_engine::usertypes {
     }
     catch (const std::bad_variant_access &err)
     {
-      utility::logger->error("Invalid font given to game window!");
+      utility::LogError("Invalid font given to game window!");
     }
 
     if (new_font != nullptr)
@@ -199,7 +199,7 @@ namespace term_engine::usertypes {
     }
     catch (const std::bad_variant_access &err)
     {
-      utility::logger->error("Invalid background shader given to game window!");
+      utility::LogError("Invalid background shader given to game window!");
     }
 
     if (new_shader != nullptr)
@@ -225,7 +225,7 @@ namespace term_engine::usertypes {
     }
     catch (const std::bad_variant_access &err)
     {
-      utility::logger->error("Invalid text shader given to game window!");
+      utility::LogError("Invalid text shader given to game window!");
     }
 
     if (new_shader != nullptr)
@@ -240,7 +240,7 @@ namespace term_engine::usertypes {
       close_logic_ = behaviour;
     }
     else {
-      utility::logger->warn("Default window can only be configured to quit!");
+      utility::LogWarn("Default window can only be configured to quit!");
     }
   }
 
@@ -331,7 +331,7 @@ namespace term_engine::usertypes {
 
   void GameWindow::ResizeToFitWindow()
   {
-    const glm::ivec2 character_size = font_->GetCharacterSize(font_size_);
+    font_->GetCharacterSize(font_size_);
   }
 
   void GameWindow::SetProjection(const glm::ivec2& window_size)
@@ -402,7 +402,7 @@ namespace term_engine::usertypes {
       }
     }
 
-    utility::logger->warn("Could not find game window with ID {}.", window_id);
+    utility::LogWarn("Could not find game window with ID {}.", window_id);
 
     return nullptr;
   }
@@ -421,19 +421,19 @@ namespace term_engine::usertypes {
             case CloseLogic::HIDE:
               game_window->GetWindow()->Hide();
 
-              utility::logger->debug("Hidden window \"{}\".", window_id);
+              utility::LogDebug("Hidden window \"{}\".", window_id);
 
               break;
             case CloseLogic::CLOSE:
               game_window->Close();
 
-              utility::logger->debug("Flagged window \"{}\" for removal.", window_id);
+              utility::LogDebug("Flagged window \"{}\" for removal.", window_id);
 
               break;
             case CloseLogic::QUIT:
               GameWindow::Quit();
 
-              utility::logger->debug("Call to quit game from window \"{}\".", window_id);
+              utility::LogDebug("Call to quit game from window \"{}\".", window_id);
 
               break;
           }
@@ -474,6 +474,6 @@ namespace term_engine::usertypes {
   {
     game_window_list.clear();
 
-    utility::logger->debug("Cleared all game windows from the list.");
+    utility::LogDebug("Cleared all game windows from the list.");
   }
 }

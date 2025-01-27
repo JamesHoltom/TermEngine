@@ -36,7 +36,7 @@ namespace term_engine::usertypes {
     }
     catch (const std::bad_variant_access &err)
     {
-      utility::logger->error("Cannot remove invalid resource!");
+      utility::LogError("Cannot remove invalid resource!");
     }
 
     if (ptr != nullptr) {
@@ -48,7 +48,7 @@ namespace term_engine::usertypes {
   {
     resource_list.clear();
 
-    utility::logger->debug("Cleared all resources from the list.");
+    utility::LogDebug("Cleared all resources from the list.");
   }
 
   void ClearFlaggedResources()

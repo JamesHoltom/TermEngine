@@ -1,5 +1,5 @@
 #include "AudioUtils.h"
-#include "SpdlogUtils.h"
+#include "LogUtils.h"
 #include "../system/FileFunctions.h"
 
 namespace term_engine::utility {
@@ -7,7 +7,7 @@ namespace term_engine::utility {
   {
     if (result != MA_SUCCESS)
     {
-      logger->error("MiniAudio error #{}: {}", result, ma_result_description(result));
+      LogError("MiniAudio error #{}: {}", (int)result, ma_result_description(result));
     }
 
     return result;
@@ -33,7 +33,7 @@ namespace term_engine::utility {
 
     if (MALog(ma_engine_init(&config, &audio_engine)) != MA_SUCCESS)
     {
-      logger->error("Failed to initialise audio engine.");
+      LogError("Failed to initialise audio engine.");
 
       return false;
     }
@@ -51,14 +51,14 @@ namespace term_engine::utility {
 
     if (audio_device_id == 0)
     {
-      logger->error("Failed to open audio device. {}", SDL_GetError());
+      LogError("Failed to open audio device. {}", SDL_GetError());
 
       return false;
     }
 
     SDL_PauseAudioDevice(audio_device_id, SDL_FALSE);
 
-    logger->debug("Initialised miniaudio.");
+    LogDebug("Initialised miniaudio.");
 
     return true;
   }
@@ -68,10 +68,10 @@ namespace term_engine::utility {
     SDL_CloseAudioDevice(audio_device_id);
     ma_engine_uninit(&audio_engine);
 
-    logger->debug("Shut down miniaudio.");
+    LogDebug("Shut down miniaudio.");
   }
 
-  void data_callback(void* userdata, uint8_t* buffer, int bufferSizeInBytes)
+  void data_callback(void*, uint8_t* buffer, int bufferSizeInBytes)
   {
     /* Reading is just a matter of reading straight from the engine. */
     uint32_t bufferSizeInFrames = (uint32_t)bufferSizeInBytes / ma_get_bytes_per_frame(ma_format_f32, ma_engine_get_channels(&audio_engine));

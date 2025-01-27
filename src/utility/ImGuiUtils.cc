@@ -9,7 +9,7 @@
 #include "../usertypes/resources/Font.h"
 #include "ImGuiUtils.h"
 #include "GLUtils.h"
-#include "SpdlogUtils.h"
+#include "LogUtils.h"
 
 namespace term_engine::utility {
   bool InitImGui()
@@ -27,11 +27,11 @@ namespace term_engine::utility {
 
     if (imgui_debug_window != nullptr)
     {
-      logger->debug("Created debug window with ID {}.", SDL_GetWindowID(imgui_debug_window));
+      LogDebug("Created debug window with ID {}.", SDL_GetWindowID(imgui_debug_window));
     }
     else
     {
-      logger->error("Failed to create debug window: {}", SDL_GetError());
+      LogError("Failed to create debug window: {}", SDL_GetError());
 
       return false;
     }
@@ -51,7 +51,7 @@ namespace term_engine::utility {
     }
     else
     {
-      logger->error("Failed to generate font for debug window!");
+      LogError("Failed to generate font for debug window!");
 
       return false;
     }
@@ -85,8 +85,6 @@ namespace term_engine::utility {
       return;
     }
     
-    ImGuiIO& io = ImGui::GetIO();
-
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL2_NewFrame();
 
@@ -144,8 +142,6 @@ namespace term_engine::utility {
 
       SDL_SetWindowSize(imgui_debug_window, (int)imgui_window_size.x, (int)imgui_window_size.y);
     }
-
-    ImGuiIO& io = ImGui::GetIO();
 
     if (imgui_open && event.window.windowID == SDL_GetWindowID(imgui_debug_window))
     {

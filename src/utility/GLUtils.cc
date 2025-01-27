@@ -1,13 +1,11 @@
 #include <string>
-#include <spdlog/spdlog.h>
-#include <spdlog/fmt/ostr.h>
 #include "GLUtils.h"
 #include "ImGuiUtils.h"
 #include "SDLUtils.h"
-#include "SpdlogUtils.h"
+#include "LogUtils.h"
 
 namespace term_engine::utility {
-  void GLAPIENTRY glDebugOutput(uint32_t source, uint32_t type, uint32_t id, uint32_t severity, int length, const char* message, const void* userParam)
+  void GLAPIENTRY glDebugOutput(uint32_t source, uint32_t type, uint32_t id, uint32_t severity, int, const char* message, const void*)
   {
     // Ignore non-significant error/warning codes
     if (id == 131169 || id == 131185 || id == 131218 || id == 131204) {
@@ -46,12 +44,12 @@ namespace term_engine::utility {
     case GL_DEBUG_SEVERITY_NOTIFICATION: severity_string = "Notification"; break;
     }
 
-    logger->error("GL debug message (#{}):\nDescription: {}\nSource: {}\nType: {}\nSeverity: {}", id, message, source_string, type_string, severity_string);
+    LogError("GL debug message (#{}):\nDescription: {}\nSource: {}\nType: {}\nSeverity: {}", id, message, source_string, type_string, severity_string);
   }
 
   void InitGL()
   {
-    logger->debug("Requesting OpenGL version {}.{}", MAJOR_VERSION, MINOR_VERSION);
+    LogDebug("Requesting OpenGL version {}.{}", MAJOR_VERSION, MINOR_VERSION);
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, MAJOR_VERSION);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, MINOR_VERSION);
@@ -63,8 +61,8 @@ namespace term_engine::utility {
     SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &major_ver);
     SDL_GL_GetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, &minor_ver);
 
-    logger->debug("Running OpenGL version {}.{}", major_ver, minor_ver);
-    logger->debug("Initialised OpenGL.");
+    LogDebug("Running OpenGL version {}.{}", major_ver, minor_ver);
+    LogDebug("Initialised OpenGL.");
   }
 
   bool InitContext(SDL_Window* window)
@@ -73,7 +71,7 @@ namespace term_engine::utility {
 
     if (context == nullptr)
     {
-      utility::logger->error("An error occurred whilst creating the context: {}", SDL_GetError());
+      utility::LogError("An error occurred whilst creating the context: {}", SDL_GetError());
 
       return false;
     }
@@ -81,7 +79,7 @@ namespace term_engine::utility {
     glewExperimental = GL_TRUE;
 
     if (glewInit() != GLEW_OK) {
-      logger->error("Failed to initialise GLEW!");
+      LogError("Failed to initialise GLEW!");
 
       return false;
     }
@@ -95,7 +93,7 @@ namespace term_engine::utility {
     glDebugMessageCallback(glDebugOutput, 0);
     glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
 
-    logger->debug("Initialised GLEW.");
+    LogDebug("Initialised GLEW.");
 
     return true;
   }
@@ -123,18 +121,18 @@ namespace term_engine::utility {
 
       if (log_length > 0)
       {
-        logger->debug("Program build results:\nID: {}\nMessage: {}", program_id, info_log);
+        LogDebug("Program build results:\nID: {}\nMessage: {}", program_id, info_log);
       }
       else
       {
-        logger->debug("Program build results:\nID: {}\nNo message to display.", program_id);
+        LogDebug("Program build results:\nID: {}\nNo message to display.", program_id);
       }
 
       delete[] info_log;
     }
     else
     {
-      logger->warn("Program with an ID of {} has not been built.", program_id);
+      LogWarn("Program with an ID of {} has not been built.", program_id);
     }
   }
 
@@ -155,18 +153,18 @@ namespace term_engine::utility {
 
       if (log_length > 0)
       {
-        logger->debug("Shader build results:\nID: {}, Type: {}\nMessage: {}", shader_id, GetShaderTypeName(shader_type), info_log);
+        LogDebug("Shader build results:\nID: {}, Type: {}\nMessage: {}", shader_id, GetShaderTypeName(shader_type), info_log);
       }
       else
       {
-        logger->debug("Shader build results:\nID: {}, Type: {}\nNo message to display.", shader_id, GetShaderTypeName(shader_type));
+        LogDebug("Shader build results:\nID: {}, Type: {}\nNo message to display.", shader_id, GetShaderTypeName(shader_type));
       }
 
       delete[] info_log;
     }
     else
     {
-      logger->warn("Shader with an ID of {} has not been built. Error #{}", shader_id, glGetError());
+      LogWarn("Shader with an ID of {} has not been built. Error #{}", shader_id, glGetError());
     }
   }
 
@@ -181,11 +179,11 @@ namespace term_engine::utility {
 
     if (program_linked == GL_TRUE)
     {
-      logger->debug("Linked program with ID {}", program_id);
+      LogDebug("Linked program with ID {}", program_id);
     }
     else
     {
-      logger->error("Failed to link shader program for ID {}.", program_id);
+      LogError("Failed to link shader program for ID {}.", program_id);
     }
 
     return ShaderProcessResult(program_id, program_linked);
@@ -199,7 +197,7 @@ namespace term_engine::utility {
 
     if (shader_id == 0)
     {
-      utility::logger->error("Failed to create shader stage! Error #{}", glGetError());
+      utility::LogError("Failed to create shader stage! Error #{}", glGetError());
     }
 
     glShaderSource(shader_id, 1, &source_c_string, nullptr);
@@ -210,11 +208,11 @@ namespace term_engine::utility {
 
     if (shader_compiled == GL_TRUE)
     {
-      logger->debug("Compiled {} shader stage with ID {}", GetShaderTypeName(type), shader_id);
+      LogDebug("Compiled {} shader stage with ID {}", GetShaderTypeName(type), shader_id);
     }
     else
     {
-      logger->error("Failed to compile GLSL shader for ID {}.", shader_id);
+      LogError("Failed to compile GLSL shader for ID {}.", shader_id);
     }
 
     return ShaderProcessResult(shader_id, shader_compiled);
@@ -245,7 +243,7 @@ namespace term_engine::utility {
 
       uniforms.push_back(uniform);
 
-      utility::logger->debug("Found uniform #{} for program {} with name: \"{}\", count: {}, type: {}", uniform.location_, program_id, uniform.name_, uniform.count_, uniform.type_);
+      utility::LogDebug("Found uniform #{} for program {} with name: \"{}\", count: {}, type: {}", uniform.location_, program_id, uniform.name_, uniform.count_, uniform.type_);
     }
 
     return uniforms;

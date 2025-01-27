@@ -20,13 +20,7 @@ namespace term_engine::usertypes {
   /// @brief The type name for Fonts.
   constexpr char FONT_TYPE[] = "Font";
   /// @brief The default font path to use when running the engine.
-#if defined(__linux__)
-  constexpr char DEFAULT_FONT[] = "truetype/ubuntu/UbuntuMono-R.ttf";
-#elif defined(_WIN32) || defined (_WIN64)
-  constexpr char DEFAULT_FONT[] = "arial.ttf";
-#elif defined(__APPLE__) && defined(__MACH__)
-  constexpr char DEFAULT_FONT[] = "Geneva.ttf";
-#endif
+  constexpr char DEFAULT_FONT[] = "OpenSans-Regular.ttf";
 
     /// @brief Used to store a list of loaded font sizes, and their associated character sizes.
   typedef std::map<uint32_t, FT_Size> FontSizeList;
@@ -65,7 +59,7 @@ namespace term_engine::usertypes {
   };
 
   /// @brief The default font size to use when running the engine.
-  constexpr uint32_t DEFAULT_FONT_SIZE = 32;
+  constexpr uint32_t DEFAULT_FONT_SIZE = 20;
   /// @brief The size of the texture to store font characters in.
   constexpr uint32_t TEXTURE_SIZE = 1024;
   /// @brief Defines an empty character that is returned when one fails to load, or a zero-character (i.e. '\0') is loaded.
@@ -75,6 +69,46 @@ namespace term_engine::usertypes {
   
   /// @brief Stores a font resource, used to cache and render characters to a game scene.
   class Font : public BaseResource {
+  protected:
+    /// @brief A handler for the loaded font face. This also refers to the currently loaded character.
+    FT_Face face_;
+    /// @brief The list containing all characters loaded from the font.
+    CharacterList atlas_;
+    /// @brief The texture ID for OpenGL to use when rendering.
+    rendering::TexturePtr texture_;
+    /// @brief The amount of characters currently stored in the font atlas.
+    uint32_t character_count_;
+    /// @brief Flag to check if the texture needs refreshing after the atlas has updated.
+    bool texture_dirty_;
+    /// @brief Stores the bounding boxes for all loaded characters, and packs them into a texture.
+    rendering::TexturePacker packer_;
+    /// @brief Stores a list of loaded character sizes.
+    FontSizeList size_list_;
+
+    /**
+     * @brief Creates the texture of a character, and stores it in the atlas texture.
+     * 
+     * @param[in] character The character to render.
+     * @param[in] size      The font size of the character to render, in pixels (px).
+     * @returns The bounding box of the loaded character.
+     */
+    CharacterBB CreateCharTexture(uint64_t character, uint32_t size);
+
+    /**
+     * @brief Adds a new set of size metrics to the list of sizes.
+     * 
+     * @param[in] size The font size to load metrics for.
+     * @returns An iterator to the new size, or an invalid iterator if an error occurred.
+     */
+    FontSizeList::iterator AddSize(uint32_t size);
+
+    /**
+     * @brief Sets the size metrics to use when loading characters.
+     * 
+     * @param[in] size The font size to get metrics for.
+     */
+    void SetSize(uint32_t size);
+    
   public:
     /**
      * @brief Constructs the resource with the given filepath.
@@ -120,50 +154,10 @@ namespace term_engine::usertypes {
 
     /// @brief Updates the debugging information for this resource.
     void UpdateDebugInfo() const;
-
-  protected:
-    /// @brief A handler for the loaded font face. This also refers to the currently loaded character.
-    FT_Face face_;
-    /// @brief The list containing all characters loaded from the font.
-    CharacterList atlas_;
-    /// @brief The texture ID for OpenGL to use when rendering.
-    rendering::TexturePtr texture_;
-    /// @brief The amount of characters currently stored in the font atlas.
-    uint32_t character_count_;
-    /// @brief Flag to check if the texture needs refreshing after the atlas has updated.
-    bool texture_dirty_;
-    /// @brief Stores the bounding boxes for all loaded characters, and packs them into a texture.
-    rendering::TexturePacker packer_;
-    /// @brief Stores a list of loaded character sizes.
-    FontSizeList size_list_;
-
-    /**
-     * @brief Creates the texture of a character, and stores it in the atlas texture.
-     * 
-     * @param[in] character The character to render.
-     * @param[in] size      The font size of the character to render, in pixels (px).
-     * @returns The bounding box of the loaded character.
-     */
-    CharacterBB CreateCharTexture(uint64_t character, uint32_t size);
-
-    /**
-     * @brief Adds a new set of size metrics to the list of sizes.
-     * 
-     * @param[in] size The font size to load metrics for.
-     * @returns An iterator to the new size, or an invalid iterator if an error occurred.
-     */
-    FontSizeList::iterator AddSize(uint32_t size);
-
-    /**
-     * @brief Sets the size metrics to use when loading characters.
-     * 
-     * @param[in] size The font size to get metrics for.
-     */
-    void SetSize(uint32_t size);
   };
 
   /**
-   * @brief Retrives the font resource with the given filepath. If it's not in the list, it will be loaded.
+   * @brief Retrieves the font resource with the given filepath. If it's not in the list, it will be loaded.
    * 
    * @param[in] filepath The filepath to the font resource.
    * @returns A raw pointer to the resource, or a null pointer if not found.

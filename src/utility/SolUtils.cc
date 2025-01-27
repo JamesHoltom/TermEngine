@@ -1,5 +1,5 @@
 #include "SolUtils.h"
-#include "SpdlogUtils.h"
+#include "LogUtils.h"
 
 namespace term_engine::utility {
   void Call(sol::protected_function func)
@@ -15,11 +15,11 @@ namespace term_engine::utility {
       if (!result.valid())
       {
         sol::error err = result;
-        utility::logger->error("Received Lua error!\nError: {}. ", err.what());
+        utility::LogError("Received Lua error!\nError: {}. ", err.what());
       }
     }
     catch (const std::exception& err) {
-      utility::logger->error("A scripting error occurred!\nError: {}", err.what());
+      utility::LogError("A scripting error occurred!\nError: {}", err.what());
     }
   }
 
@@ -36,11 +36,11 @@ namespace term_engine::utility {
       if (!result.valid())
       {
         sol::error err = result;
-        utility::logger->error("Received Lua error!\nError: {}. ", err.what());
+        utility::LogError("Received Lua error!\nError: {}. ", err.what());
       }
     }
     catch (const std::exception& err) {
-      utility::logger->error("A scripting error occurred!\nError: {}", err.what());
+      utility::LogError("A scripting error occurred!\nError: {}", err.what());
     }
   }
 
@@ -63,11 +63,11 @@ namespace term_engine::utility {
       else
       {
         sol::error err = result;
-        utility::logger->error("Failed to call function\nError: {}. ", err.what());
+        utility::LogError("Failed to call function\nError: {}. ", err.what());
       }
     }
     catch (const std::exception& err) {
-      utility::logger->error("A scripting error occurred!\nError: {}", err.what());
+      utility::LogError("A scripting error occurred!\nError: {}", err.what());
     }
 
     return return_value;

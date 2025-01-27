@@ -5,7 +5,7 @@
 #include "../../scripting/ScriptingInterface.h"
 #include "../../utility/ConversionUtils.h"
 #include "../../utility/ImGuiUtils.h"
-#include "../../utility/SpdlogUtils.h"
+#include "../../utility/LogUtils.h"
 
 namespace term_engine::usertypes {
   GameObject::GameObject(GameScene* game_scene, const glm::ivec2& position, const glm::ivec2& size) :
@@ -17,7 +17,7 @@ namespace term_engine::usertypes {
   {
     data_.SetSize(size);
 
-    utility::logger->debug("Created object with ID {} at {},{} with size {}x{}.", object_id_, position.x, position.y, size.x, size.y);
+    utility::LogDebug("Created object with ID {} at {},{} with size {}x{}.", object_id_, position.x, position.y, size.x, size.y);
   }
 
   GameObject::GameObject(GameScene* game_scene, GameObject* object) :
@@ -28,12 +28,12 @@ namespace term_engine::usertypes {
     data_(object->data_),
     game_scene_(game_scene)
   {
-    utility::logger->debug("Copied object with ID {} to ID {}.", object->object_id_, object_id_);
+    utility::LogDebug("Copied object with ID {} to ID {}.", object->object_id_, object_id_);
   }
 
   GameObject::~GameObject()
   {
-    utility::logger->debug("Destroyed object with ID {}.", object_id_);
+    utility::LogDebug("Destroyed object with ID {}.", object_id_);
   }
 
   void GameObject::Update(uint64_t timestep)
@@ -154,7 +154,7 @@ namespace term_engine::usertypes {
 
     if (game_scene == nullptr)
     {
-      utility::logger->warn("Cannot move game object to non-existent game scene \"{}\"!", name);
+      utility::LogWarn("Cannot move game object to non-existent game scene \"{}\"!", name);
     }
     else
     {
@@ -170,7 +170,7 @@ namespace term_engine::usertypes {
 
     if (game_scene == nullptr)
     {
-      utility::logger->warn("Cannot copy game object to non-existent game scene \"{}\"!", name);
+      utility::LogWarn("Cannot copy game object to non-existent game scene \"{}\"!", name);
 
       return nullptr;
     }
@@ -203,7 +203,7 @@ namespace term_engine::usertypes {
   {
     if (size.x <= 0 || size.y <= 0)
     {
-      utility::logger->warn("Cannot create object with a width/height of 0!");
+      utility::LogWarn("Cannot create object with a width/height of 0!");
 
       return nullptr;
     }
@@ -223,12 +223,12 @@ namespace term_engine::usertypes {
     }
     catch (const std::bad_variant_access &err)
     {
-      utility::logger->error("Invalid game scene given to game window!");
+      utility::LogError("Invalid game scene given to game window!");
     }
 
     if (find_scene == nullptr)
     {
-      utility::logger->warn("Cannot add game object for non-existent game scene!");
+      utility::LogWarn("Cannot add game object for non-existent game scene!");
 
       return nullptr;
     }
@@ -256,7 +256,7 @@ namespace term_engine::usertypes {
       return object->GetObjectType() == std::string(GAME_OBJECT_TYPE) && dynamic_cast<GameObject*>(object.get())->GetGameScene() == game_scene;
     });
 
-    utility::logger->debug("Cleared all game objects for game scene \"{}\" from the list.", name);
+    utility::LogDebug("Cleared all game objects for game scene \"{}\" from the list.", name);
   }
 
   GameObject* GetGameObjectById(uint64_t id)
@@ -272,7 +272,7 @@ namespace term_engine::usertypes {
       }
       else
       {
-        utility::logger->warn("Object with ID {} is the name of a(n) {}.", id, object->GetObjectType());
+        utility::LogWarn("Object with ID {} is the name of a(n) {}.", id, object->GetObjectType());
 
         return nullptr;
       }

@@ -1,7 +1,7 @@
 #include "Background.h"
-#include "../../system/FileFunctions.h"
-#include "../../utility/ImGuiUtils.h"
-#include "../../utility/SpdlogUtils.h"
+#include "../system/FileFunctions.h"
+#include "../utility/ImGuiUtils.h"
+#include "../utility/LogUtils.h"
 
 namespace term_engine::usertypes {
   Background::Background() :

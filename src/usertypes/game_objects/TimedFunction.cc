@@ -1,7 +1,7 @@
 #include "TimedFunction.h"
 #include "../../scripting/ScriptingInterface.h"
 #include "../../utility/ImGuiUtils.h"
-#include "../../utility/SpdlogUtils.h"
+#include "../../utility/LogUtils.h"
 
 namespace term_engine::usertypes {
   TimedFunction::TimedFunction(uint64_t delay, bool started, bool repeat, const sol::function callback) :
@@ -14,14 +14,14 @@ namespace term_engine::usertypes {
   {
     is_active_ = started;
     
-    utility::logger->debug("Created {} timed function with ID {} and delay of {}ms.", repeat ? "repeatable" : "non-repeatable", object_id_, delay_);
+    utility::LogDebug("Created {} timed function with ID {} and delay of {}ms.", repeat ? "repeatable" : "non-repeatable", object_id_, delay_);
   }
 
   TimedFunction::~TimedFunction()
   {
     callback_ = sol::nil;
 
-    utility::logger->debug("Removed timed function with ID {}.", object_id_);
+    utility::LogDebug("Removed timed function with ID {}.", object_id_);
   }
 
   void TimedFunction::Update(uint64_t timestep)
@@ -41,12 +41,12 @@ namespace term_engine::usertypes {
           if (!result.valid())
           {
             sol::error err = result;
-            utility::logger->error("An error was thrown!\nProject: {}\n Error: {}", scripting::project_path.string(), err.what());
+            utility::LogError("An error was thrown!\nProject: {}\n Error: {}", scripting::project_path.string(), err.what());
           }
         }
         catch (const std::exception& err)
         {
-          utility::logger->error("A scripting error occurred!\nProject: {}\nError: {}", scripting::project_path.string(), err.what());
+          utility::LogError("A scripting error occurred!\nProject: {}\nError: {}", scripting::project_path.string(), err.what());
         }
 
         if (repeat_)
@@ -131,7 +131,7 @@ namespace term_engine::usertypes {
 
     if (delay < 0)
     {
-      utility::logger->warn("Invalid delay of {}ms given. Defaulting to 0.", delay);
+      utility::LogWarn("Invalid delay of {}ms given. Defaulting to 0.", delay);
 
       set_delay = 0;
     }
@@ -156,7 +156,7 @@ namespace term_engine::usertypes {
       }
       else
       {
-        utility::logger->warn("Object with ID {} is the name of a(n) {}.", id, object->GetObjectType());
+        utility::LogWarn("Object with ID {} is the name of a(n) {}.", id, object->GetObjectType());
 
         return nullptr;
       }

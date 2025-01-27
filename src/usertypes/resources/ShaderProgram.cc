@@ -3,7 +3,7 @@
 #include "../../system/FileFunctions.h"
 #include "../../utility/GLUtils.h"
 #include "../../utility/ImGuiUtils.h"
-#include "../../utility/SpdlogUtils.h"
+#include "../../utility/LogUtils.h"
 
 namespace term_engine::usertypes {
   ShaderProgram::ShaderProgram(const std::string& name, uint32_t program_id, const utility::UniformList& uniforms) :
@@ -11,12 +11,12 @@ namespace term_engine::usertypes {
     program_id_(program_id),
     uniforms_(uniforms)
   {
-    utility::logger->debug("Created shader program resource with ID {} and name \"{}\".", program_id_, name_);
+    utility::LogDebug("Created shader program resource with ID {} and name \"{}\".", program_id_, name_);
   }
 
   ShaderProgram::~ShaderProgram()
   {
-    utility::logger->debug("Destroyed shader program resource with ID {} and name \"{}\".", program_id_, name_);
+    utility::LogDebug("Destroyed shader program resource with ID {} and name \"{}\".", program_id_, name_);
 
     glDeleteProgram(program_id_);
   }
@@ -45,7 +45,7 @@ namespace term_engine::usertypes {
 
     if (location == -1)
     {
-      utility::logger->warn("Uniform \"{}\" does not exist.", name);
+      utility::LogWarn("Uniform \"{}\" does not exist.", name);
 
       return;
     }
@@ -62,7 +62,7 @@ namespace term_engine::usertypes {
 
     if (location == -1)
     {
-      utility::logger->warn("Uniform \"{}\" does not exist.", name);
+      utility::LogWarn("Uniform \"{}\" does not exist.", name);
 
       return;
     }
@@ -86,7 +86,7 @@ namespace term_engine::usertypes {
 
     if (location == -1)
     {
-      utility::logger->warn("Uniform \"{}\" does not exist.", name);
+      utility::LogWarn("Uniform \"{}\" does not exist.", name);
 
       return;
     }
@@ -103,7 +103,7 @@ namespace term_engine::usertypes {
 
     if (location == -1)
     {
-      utility::logger->warn("Uniform \"{}\" does not exist.", name);
+      utility::LogWarn("Uniform \"{}\" does not exist.", name);
 
       return;
     }
@@ -120,7 +120,7 @@ namespace term_engine::usertypes {
 
     if (location == -1)
     {
-      utility::logger->warn("Uniform \"{}\" does not exist.", name);
+      utility::LogWarn("Uniform \"{}\" does not exist.", name);
 
       return;
     }
@@ -137,7 +137,7 @@ namespace term_engine::usertypes {
 
     if (location == -1)
     {
-      utility::logger->warn("Uniform \"{}\" does not exist.", name);
+      utility::LogWarn("Uniform \"{}\" does not exist.", name);
 
       return;
     }
@@ -154,7 +154,7 @@ namespace term_engine::usertypes {
 
     if (location == -1)
     {
-      utility::logger->warn("Uniform \"{}\" does not exist.", name);
+      utility::LogWarn("Uniform \"{}\" does not exist.", name);
 
       return;
     }
@@ -171,7 +171,7 @@ namespace term_engine::usertypes {
 
     if (location == -1)
     {
-      utility::logger->warn("Uniform \"{}\" does not exist.", name);
+      utility::LogWarn("Uniform \"{}\" does not exist.", name);
 
       return;
     }
@@ -188,7 +188,7 @@ namespace term_engine::usertypes {
 
     if (location == -1)
     {
-      utility::logger->warn("Uniform \"{}\" does not exist.", name);
+      utility::LogWarn("Uniform \"{}\" does not exist.", name);
 
       return;
     }
@@ -205,7 +205,7 @@ namespace term_engine::usertypes {
 
     if (location == -1)
     {
-      utility::logger->warn("Uniform \"{}\" does not exist.", name);
+      utility::LogWarn("Uniform \"{}\" does not exist.", name);
 
       return;
     }
@@ -222,7 +222,7 @@ namespace term_engine::usertypes {
 
     if (location == -1)
     {
-      utility::logger->warn("Uniform \"{}\" does not exist.", name);
+      utility::LogWarn("Uniform \"{}\" does not exist.", name);
 
       return;
     }
@@ -239,7 +239,7 @@ namespace term_engine::usertypes {
 
     if (location == -1)
     {
-      utility::logger->warn("Uniform \"{}\" does not exist.", name);
+      utility::LogWarn("Uniform \"{}\" does not exist.", name);
 
       return;
     }
@@ -256,7 +256,7 @@ namespace term_engine::usertypes {
 
     if (location == -1)
     {
-      utility::logger->warn("Uniform \"{}\" does not exist.", name);
+      utility::LogWarn("Uniform \"{}\" does not exist.", name);
 
       return;
     }
@@ -273,7 +273,7 @@ namespace term_engine::usertypes {
 
     if (location == -1)
     {
-      utility::logger->warn("Uniform \"{}\" does not exist.", name);
+      utility::LogWarn("Uniform \"{}\" does not exist.", name);
 
       return;
     }
@@ -290,7 +290,7 @@ namespace term_engine::usertypes {
 
     if (location == -1)
     {
-      utility::logger->warn("Uniform \"{}\" does not exist.", name);
+      utility::LogWarn("Uniform \"{}\" does not exist.", name);
 
       return;
     }
@@ -307,7 +307,7 @@ namespace term_engine::usertypes {
 
     if (location == -1)
     {
-      utility::logger->warn("Uniform \"{}\" does not exist.", name);
+      utility::LogWarn("Uniform \"{}\" does not exist.", name);
 
       return;
     }
@@ -324,7 +324,7 @@ namespace term_engine::usertypes {
 
     if (location == -1)
     {
-      utility::logger->warn("Uniform \"{}\" does not exist.", name);
+      utility::LogWarn("Uniform \"{}\" does not exist.", name);
 
       return;
     }
@@ -341,7 +341,7 @@ namespace term_engine::usertypes {
 
     if (location == -1)
     {
-      utility::logger->warn("Uniform \"{}\" does not exist.", name);
+      utility::LogWarn("Uniform \"{}\" does not exist.", name);
 
       return;
     }
@@ -358,7 +358,7 @@ namespace term_engine::usertypes {
 
     if (location == -1)
     {
-      utility::logger->warn("Uniform \"{}\" does not exist.", name);
+      utility::LogWarn("Uniform \"{}\" does not exist.", name);
 
       return;
     }
@@ -375,7 +375,7 @@ namespace term_engine::usertypes {
 
     if (location == -1)
     {
-      utility::logger->warn("Uniform \"{}\" does not exist.", name);
+      utility::LogWarn("Uniform \"{}\" does not exist.", name);
 
       return;
     }
@@ -414,7 +414,7 @@ namespace term_engine::usertypes {
   {
     if (name.empty())
     {
-      utility::logger->warn("Cannot create shader program with empty name!");
+      utility::LogWarn("Cannot create shader program with empty name!");
       
       return nullptr;
     }
@@ -425,11 +425,11 @@ namespace term_engine::usertypes {
     {
       if (it->second->GetResourceType() == std::string(SHADER_PROGRAM_TYPE))
       {
-        utility::logger->warn("\"{}\" already exists.", name);
+        utility::LogWarn("\"{}\" already exists.", name);
       }
       else
       {
-        utility::logger->warn("\"{}\" is the name of a(n) {} resource.", name, it->second->GetResourceType());
+        utility::LogWarn("\"{}\" is the name of a(n) {} resource.", name, it->second->GetResourceType());
       }
 
       return nullptr;
@@ -440,7 +440,7 @@ namespace term_engine::usertypes {
 
     if (program_id == 0)
     {
-      utility::logger->error("Failed to create shader program! Error #{}", glGetError());
+      utility::LogError("Failed to create shader program! Error #{}", glGetError());
 
       return nullptr;
     }
@@ -516,7 +516,7 @@ namespace term_engine::usertypes {
       }
     }
 
-    utility::logger->error("Failed to compile and link shader \"{}\"!", name);
+    utility::LogError("Failed to compile and link shader \"{}\"!", name);
 
     glDeleteProgram(program_id);
 
@@ -529,7 +529,7 @@ namespace term_engine::usertypes {
 
     if (it != resource_list.end() && it->second->GetResourceType() != std::string(SHADER_PROGRAM_TYPE))
     {
-      utility::logger->warn("\"{}\" is the name of a(n) {} resource.", name, it->second->GetResourceType());
+      utility::LogWarn("\"{}\" is the name of a(n) {} resource.", name, it->second->GetResourceType());
 
       return nullptr;
     }
@@ -539,7 +539,7 @@ namespace term_engine::usertypes {
     }
     else
     {
-      utility::logger->warn("Shader with name \"{}\" does not exist.", name);
+      utility::LogWarn("Shader with name \"{}\" does not exist.", name);
 
       return nullptr;
     }
