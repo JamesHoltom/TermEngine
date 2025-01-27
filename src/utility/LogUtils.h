@@ -25,6 +25,7 @@ namespace term_engine::utility {
   template<typename... Args>
   void LogDebug(const std::string& fmt, Args&&... args)
   {
+  #if defined(_DEBUG)
     std::string full_fmt = GetFullFmt(fmt, "DEBUG");
 
     std::string msg = std::vformat(full_fmt, std::make_format_args(args...));
@@ -32,6 +33,7 @@ namespace term_engine::utility {
     std::cout << msg;
 
     log_file << msg;
+#endif
   }
 
   template<typename... Args>
