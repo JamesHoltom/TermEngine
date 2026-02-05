@@ -74,15 +74,19 @@ namespace term_engine::scripting {
     lua_state->open_libraries(sol::lib::base, sol::lib::package, sol::lib::math, sol::lib::string, sol::lib::table, sol::lib::utf8);
 
     // Add the root, vendor & project to the Lua path, so that scripts can "require()" files relative to these folders.
-    const std::string rootDirectory = std::filesystem::current_path() / "lua";
+#if defined(__linux__)
+    const std::string thisPath = std::filesystem::canonical("/proc/self/exe").parent_path().string() + "/lua";
+#elif defined(_WIN32) || defined (_WIN64)
+    const std::filesystem::path thisPath = GetModuleFileNameA(NULL);
+#endif
     std::string package_path = (*lua_state)["package"]["path"];
     package_path += ";" +
-      rootDirectory + "/vendor/?.lua;" + 
-      rootDirectory + "/vendor/?/init.lua;" + 
-      rootDirectory + "/vendor/lunajson/?.lua;" + 
-      rootDirectory + "/vendor/lunajson/?/init.lua;" + 
-      rootDirectory + "/?.lua;" +
-      rootDirectory + "/?/init.lua;" +
+      thisPath + "/vendor/?.lua;" + 
+      thisPath + "/vendor/?/init.lua;" + 
+      thisPath + "/vendor/lunajson/?.lua;" + 
+      thisPath + "/vendor/lunajson/?/init.lua;" + 
+      thisPath + "/?.lua;" +
+      thisPath + "/?/init.lua;" +
       project_path.string() + "/?.lua;" +
       project_path.string() + "/?/init.lua";
     (*lua_state)["package"]["path"] = package_path;
@@ -103,7 +107,7 @@ namespace term_engine::scripting {
     (*lua_state)["defaultGameScene"] = usertypes::AddGameScene(std::string(usertypes::DEFAULT_GAME_SCENE_NAME));
     (*lua_state)["defaultWindow"] = usertypes::AddDefaultGameWindow();
 
-    LoadFile(rootDirectory + std::string(LOADER_SCRIPT_PATH));
+    LoadFile(thisPath + std::string(LOADER_SCRIPT_PATH));
     LoadFile(project_path / std::string(PROJECT_ENTRYPOINT));
 
     utility::LogInfo("Loaded project.");

@@ -9,12 +9,13 @@ set(CMAKE_CXX_FLAGS, "${CMAKE_CXX_FLAGS} /utf8 /Zc:char8_t-")
 set(CMAKE_EXE_LINKER_FLAGS, "-lpthread -lm -ldl -lformat")
 set(CMAKE_TOOLCHAIN_FILE, "$CMAKE_TOOLCHAIN_FILE")
 
+find_package(OpenGL)
 find_package(GLEW)
 find_package(Lua)
-find_package(SDL2)
 
 add_subdirectory(vendor/cxxopts)
 add_subdirectory(vendor/glm)
+add_subdirectory(vendor/sdl2)
 add_subdirectory(vendor/sol2)
 
 add_executable("${PROJECT_NAME}"
@@ -77,10 +78,11 @@ target_include_directories("${PROJECT_NAME}" PRIVATE
 target_link_libraries("${PROJECT_NAME}" PRIVATE
   cxxopts::cxxopts
   freetype
+  OpenGL::GL
   GLEW::GLEW
   glm::glm
   ${LUA_LIBRARIES}
-  SDL2::SDL2 SDL2::SDL2main SDL2::SDL2-static
+  SDL2::SDL2 SDL2::SDL2main
   sol2
 )
 

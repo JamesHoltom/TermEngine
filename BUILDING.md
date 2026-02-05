@@ -10,16 +10,16 @@ You can clone TermEngine by running:
 
 This project is configured to build with the following libraries:
 
-* SDL2 2.0.22
+* cxxopts 3.0.0
+* FreeType 2.12.1
 * OpenGL 4.6
 * OpenGL Mathematics (GLM) 0.9.9
 * OpenGL Extensions Wrangler (GLEW) 2.2.0
-* FreeType 2.12.1
-* sol2 3.3.0
 * Lua 5.3
-* cxxopts 3.0.0
+* SDL2 2.32.10
+* sol2 3.3.0
 
-GLM, cxxopts and sol2 are provided as Git submodules, and the others are assumed to be installed on your system.
+cxxopts, GLM, SDL2 and sol2 are provided as Git submodules, and the others are assumed to be installed on your system.
 
 ## CMake
 

@@ -23,8 +23,16 @@ namespace term_engine::system {
       return "";
     }
 
+#if defined(__linux__)
+    const std::filesystem::path thisPath = std::filesystem::canonical("/proc/self/exe").parent_path();
+#elif defined(_WIN32) || defined (_WIN64)
+    const std::filesystem::path thisPath = GetModuleFileNameA(NULL);
+#endif
     const std::filesystem::path rootPath = std::filesystem::current_path();
     const std::filesystem::path locations[] = {
+      thisPath,
+      thisPath / "projects",
+      thisPath / "lua",
       rootPath,
       rootPath / "projects",
       rootPath / "lua"
@@ -60,7 +68,11 @@ namespace term_engine::system {
       return "";
     }
 
-    const std::filesystem::path rootPath = std::filesystem::current_path();
+#if defined(__linux__)
+    const std::filesystem::path thisPath = std::filesystem::canonical("/proc/self/exe").parent_path();
+#elif defined(_WIN32) || defined (_WIN64)
+    const std::filesystem::path thisPath = GetModuleFileNameA(NULL);
+#endif
     const std::filesystem::path locations[] = {
 #if defined(__linux__)
       "/usr/share/fonts",
@@ -70,8 +82,8 @@ namespace term_engine::system {
 #elif defined(__APPLE__) && defined(__MACH__)
       "/System/Library/Fonts"
 #endif
-      rootPath,
-      rootPath / "resources",
+      thisPath,
+      thisPath / "resources",
       scripting::project_path,
       scripting::project_path / "resources"
     };
